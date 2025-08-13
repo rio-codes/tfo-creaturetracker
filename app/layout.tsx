@@ -4,7 +4,7 @@ import { Tektur } from 'next/font/google';
 
 let title = 'TFO.creaturetracker';
 let description =
-  'This is a utility site for the web game TFO to manage your collection, research goals, and breeding pairs';
+  'This is a utility site for the web game The Final Outpost to manage your collection, research goals, and breeding pairs';
 
 const tektur = Tektur({
     subsets: ['latin'],

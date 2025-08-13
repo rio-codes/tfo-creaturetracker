@@ -1,10 +1,14 @@
 import './globals.css';
 
-import { GeistSans } from 'geist/font/sans';
+import { Tektur } from 'next/font/google';
 
 let title = 'TFO.creaturetracker';
 let description =
   'This is a utility site for the web game TFO to manage your collection, research goals, and breeding pairs';
+
+const tektur = Tektur({
+    subsets: ['latin'],
+})
 
 export const metadata = {
   title,
@@ -24,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={GeistSans.variable}>{children}</body>
+      <body className={tektur.className}>{children}</body>
     </html>
   );
 }

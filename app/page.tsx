@@ -18,6 +18,14 @@ export default function Page() {
               <li>🔍 Browse and filter your collection at a glance</li>
             </ul>
           </div>
+          <div className="flex space-x-3">
+            <Link
+              href="/protected"
+              className="text-stone-400 underline hover:text-stone-200 transition-all"
+            >
+              Protected Page
+            </Link>
+          </div>
           <p className="text-slate-400 font-bold text-l mt-5">
             Coming soon, keep an eye on this page!
           </p>

@@ -1,14 +1,16 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Header } from "@/components/header"
+import Header from "@/components/header"
 import { Footer } from "@/components/footer"
+import { SessionProvider } from 'next-auth/react';
+import type { ReactNode } from 'react';
 
-export default function ClientProviders({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+type ProvidersProps = {
+    children: ReactNode;
+};
+
+export default function ClientProviders({ children }: ProvidersProps) {
     const pathname = usePathname()
 
     // Define the paths where the header should be hidden
@@ -17,7 +19,7 @@ export default function ClientProviders({
 
     return (
         <>
-        {showHeader && <Header />}
+        <SessionProvider>{showHeader && <Header />}</SessionProvider>
         <main className="flex-1">{children}</main>
         <Footer />
         </>

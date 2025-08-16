@@ -1,12 +1,15 @@
 "use client"
-
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import { useState } from "react"
 import { Menu, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-export function Header() {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
   return (
     <header className="bg-pompaca-purple text-barely-lilac px-4 py-3">
@@ -21,19 +24,19 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
               <DropdownMenuItem>
-                <a href="/collection" className="w-full">
+                <Link href="/collection" className="w-full">
                   Collection
-                </a>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="/research-goals" className="w-full">
+                <Link href="/research-goals" className="w-full">
                   Research Goals
-                </a>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <a href="/breeding-pairs" className="w-full">
+                <Link href="/breeding-pairs" className="w-full">
                   Breeding Pairs
-                </a>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -53,11 +56,13 @@ export function Header() {
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
-          <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
+          <Button onClick={() => signOut()} variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
             <LogOut className="h-4 w-4 mr-2" />
             Log Out
           </Button>
-          <span className="text-sm">Welcome, ttukcejtb!</span>
+          {status === 'authenticated' && user && (
+          <span className="text-sm">Welcome, {user.username}!</span>
+          )}
         </div>
       </div>
     </header>

@@ -56,18 +56,23 @@ export const authConfig: NextAuthConfig = {
         strategy: "jwt",
     },
     callbacks: {
-            async jwt({ token, user }) {
-                if (user) {
-                    token.id = user.id;
-                }
-                return token;
-            },
-            session({ session, token }) {
-                if (session.user && token.id) {
-                    session.user.id = token.id as string;
-                }
-                return session;
-            },
+        async jwt({ token, user }) {
+            console.log("User object passed to JWT callback:", user);
+            if (user) {
+                token.id = user.id;
+                token.username = (user as any).username; 
+            }
+            return token;
+        },
+        session({ session, token }) {
+            console.log("Token object passed to Session callback:", token);
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.username = token.username as string;
+            }
+            console.log("Session object being returned:", session);
+            return session;
+        },
     },
     pages: {
         signIn: '/login',

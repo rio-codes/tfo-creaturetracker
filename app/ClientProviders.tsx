@@ -12,7 +12,7 @@ export default function ClientProviders({
     const pathname = usePathname()
 
     // Define the paths where the header should be hidden
-    const hideHeaderOnPaths = ['/']
+    const hideHeaderOnPaths = ['/', '/login', '/register', '/terms', '/privacy']
     const showHeader = !hideHeaderOnPaths.includes(pathname)
 
     return (

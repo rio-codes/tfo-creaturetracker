@@ -9,7 +9,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="bg-purple-800 text-white px-4 py-3">
+    <header className="bg-pompaca-purple text-barely-lilac px-4 py-3">
       <div className="flex items-center justify-between">
         {/* Left side - Hamburger menu and logo */}
         <div className="flex items-center gap-4">

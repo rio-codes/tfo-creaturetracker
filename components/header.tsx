@@ -15,7 +15,7 @@ export function Header() {
         <div className="flex items-center gap-4">
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-white hover:bg-purple-700">
+              <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-purple-700">
                 <Menu className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -49,11 +49,11 @@ export function Header() {
 
         {/* Right side - User info and actions */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="text-white hover:bg-purple-700">
+          <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
-          <Button variant="ghost" size="sm" className="text-white hover:bg-purple-700">
+          <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
             <LogOut className="h-4 w-4 mr-2" />
             Log Out
           </Button>

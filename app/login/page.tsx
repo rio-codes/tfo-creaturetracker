@@ -41,27 +41,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-purple-light min-h-screen flex items-center justify-center px-4">
+    <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="text-yellow-300 text-3xl">🧬</div>
-            <h1 className="text-3xl font-bold text-purple-900">TFO.creaturetracker</h1>
+            <div className="text-3xl">🧬</div>
+            <h1 className="text-3xl font-bold text-pompaca-purple">TFO.creaturetracker</h1>
           </div>
-          <p className="text-purple-700">a breeding tracker for The Final Oupost</p>
+          <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
         </div>
 
         {/* Login Form */}
-        <Card className="bg-purple-card border-purple-400 shadow-lg">
+        <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-purple-900">Welcome Back</CardTitle>
-            <CardDescription className="text-purple-700">Sign in to your account to continue</CardDescription>
+            <CardTitle className="text-2xl text-pompaca-purple">Welcome Back</CardTitle>
+            <CardDescription className="text-pompaca-purple">Sign in to your account to continue</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-purple-900 font-medium">
+                <Label htmlFor="username" className="text-pompaca-purple font-medium">
                   Username
                 </Label>
                 <Input
@@ -70,12 +70,12 @@ export default function LoginPage() {
                   placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
+                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-purple-900 font-medium">
+                <Label htmlFor="password" className="text-pompaca-purple font-medium">
                   Password
                 </Label>
                 <Input
@@ -84,19 +84,19 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
+                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                   required
                 />
               </div>
-              <Button type="submit" className="w-full bg-purple-700 hover:bg-purple-800 text-white">
+              <Button type="submit" className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac">
                 Sign In
               </Button>
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-purple-700">
+              <p className="text-pompaca-purple">
                 Don't have an account?{" "}
-                <Link href="/register" className="text-purple-900 font-medium hover:underline">
+                <Link href="/register" className="text-pompaca-purple font-medium hover:underline">
                   Sign up here
                 </Link>
               </p>

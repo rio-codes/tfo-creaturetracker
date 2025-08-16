@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -46,6 +47,7 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          username,
           email,
           password,
         }),
@@ -79,22 +81,22 @@ export default function Login() {
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="text-yellow-300 text-3xl">🧬</div>
-            <h1 className="text-3xl font-bold text-purple-900">TFO.creaturetracker</h1>
+            <div className="text-3xl">🧬</div>
+            <h1 className="text-3xl font-bold text-pompaca-purple">TFO.creaturetracker</h1>
           </div>
-          <p className="text-purple-700">a breeding tracker for The Final Oupost</p>
+          <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
         </div>
 
         {/* Registration Form */}
-        <Card className="bg-purple-card border-purple-400 shadow-lg">
+        <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-purple-900">Create Account</CardTitle>
-            <CardDescription className="text-purple-700">Join the creature tracking community</CardDescription>
+              <CardTitle className="text-2xl text-pompaca-purple">Create Account</CardTitle>
+            <CardDescription className="text-pompaca-purple">Join and track your breeding goals</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-purple-900 font-medium">
+                <Label htmlFor="email" className="text-pompaca-purple font-medium">
                   Email
                 </Label>
                 <input
@@ -103,7 +105,21 @@ export default function Login() {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
+                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-pompaca-purple font-medium">
+                  Username
+                </Label>
+                <input
+                  id="username"
+                  type="username"
+                  placeholder="your TFO username"
+                  value={formData.username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                   required
                 />
               </div>
@@ -118,6 +134,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
+                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -125,22 +142,22 @@ export default function Login() {
                   id="terms"
                   checked={formData.agreeToTerms}
                   onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
-                  className="border-purple-600"
+                  className="border-pompaca-purple"
                 />
-                <Label htmlFor="terms" className="text-sm text-purple-900">
+                <Label htmlFor="terms" className="text-sm text-pompaca-purple">
                   I agree to the{" "}
-                  <Link href="/terms" className="text-purple-700 hover:underline">
+                  <Link href="/terms" className="text-dusk-purple hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-purple-700 hover:underline">
+                  <Link href="/privacy" className="text-dusk-purple hover:underline">
                     Privacy Policy
                   </Link>
                 </Label>
               </div>
               <Button
                 type="submit"
-                className="w-full bg-purple-700 hover:bg-purple-800 text-white"
+                className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
                 disabled={!formData.agreeToTerms}
               >
                 Create Account
@@ -148,9 +165,9 @@ export default function Login() {
             </form>
 
           <div className="mt-6 text-center">
-            <p className="text-purple-700">
+            <p className="text-pompaca-purple">
               Already have an account?{" "}
-              <Link href="/login" className="text-purple-900 font-medium hover:underline">
+              <Link href="/login" className="text-dusk-purple font-medium hover:underline">
                 Sign in here
               </Link>
             </p>

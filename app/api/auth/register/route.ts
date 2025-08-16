@@ -8,7 +8,7 @@ import { z } from "zod";
 // Define the schema for the request body
 const registerUserSchema = z.object({
     username: z.string(),
-    email: z.string().email("Invalid email address"),
+    email: z.email("Invalid email address"),
     password: z
         .string()
         .min(12, { 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
     // Create the new user
     await db.insert(users).values({
-      id: crypto.randomUUID(), // Generate a UUID for the user id
+        id: crypto.randomUUID(), // Generate a UUID for the user id
         username: username,
         email: email,
         password: hashedPassword,

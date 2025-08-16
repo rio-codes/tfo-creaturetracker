@@ -1,3 +1,47 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-body: Tektur, monospace;
+
+  --color-barely-lilac: #EADDFF;
+  --color-pompaca-purple: #3C2D63;
+  --color-ebena-lavender: #D0BCFF;
+  --color-emoji-eggplant: #381E72;
+  --color-dusk-purple: #7C6BA7;
+  --color-before-dusk-purple: #4F378B;
+}
+
+.h1 {
+  font-size: var(--text-3xl);
+  line-height: var(--text-3xl--line-height);
+}
+
+.bg-primary-background {
+  --bg-primary-background: var(--color-barely-lilac);
+}
+
+.fg-primary-foreground {
+  --fg-primary-foreground: var(--color-pompaca-purple);
+}
+
+.bg-secondary-background {
+  --bg-secondary-background: var(--color-ebena-lavender);
+}
+
+.bg-medium-button {
+  --bg-medium-button: var(--color-before-dusk-purple);
+}
+
+.bg-table-header {
+  --bg-table-header: var(--color-emoji-eggplant)
+}
+
+.bg-table-row-1 {
+  --bg-table-row-1: var(--color-dusk-purple)
+}
+
+.bg-table-row-2 {
+  --bg-table-row-2: var(--color-ebena-lavender)
+}
+

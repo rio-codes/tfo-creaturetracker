@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
@@ -22,17 +22,17 @@ export default function LoginPage() {
     try {
       const result = await signIn('credentials', {
         redirect: false, // Prevent NextAuth from redirecting automatically
-        email,
+        username,
         password,
       });
 
       if (result?.error) {
         // Handle different errors, e.g., "CredentialsSignin"
-        setError('Invalid email or password. Please try again.');
+        setError('Invalid username or password. Please try again.');
         console.error(result.error);
       } else if (result?.ok) {
         // On successful sign-in, redirect to the dashboard or home page
-        router.push('/dashboard');
+        router.push('/collection');
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
@@ -61,15 +61,15 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-purple-900 font-medium">
-                  Email
+                <Label htmlFor="username" className="text-purple-900 font-medium">
+                  Username
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
                   required
                 />

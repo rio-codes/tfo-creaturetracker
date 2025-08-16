@@ -1,56 +1,69 @@
-import Credentials from "next-auth/providers/credentials";
-import type { NextAuthConfig } from "next-auth";
-import { db } from "@/src/db"
-import { users } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { compare } from "bcryptjs";
+import type { NextAuthConfig } from 'next-auth';
 
-// Notice this is typed as NextAuthConfig
-export default {
-    providers: [
-        Credentials({
-            credentials: {
-            email: {},
-            password: {},
-            },
-            // authorize function to check credentials
-            async authorize(credentials) {
-                // check if email and password are entered
-                if (!credentials?.email || !credentials.password) {
-                    return null;
-                }
-                // look up user in db
-                const user = await db.query.users.findFirst({
-                    where: eq(users.email, credentials.email as string),
-                });
-                if (!user || !user.password) {
-                    return null;
-                }
-                // function to check password
-                const isPasswordValid = await compare(
-                    credentials.password as string,
-                    user.password
-                );
-                // return user to log them in if password is valid
-                if (isPasswordValid) {
-                    return user;
-                }
-                return null;
-                },
-            }),
-    ],
+export const authConfig = {
     session: {
         strategy: "jwt",
     },
     callbacks: {
-        session({ session, token }) {
-        if (session.user && token.sub) {
-            session.user.id = token.sub;
-        }
-        return session;
-        }
+        jwt({ token, trigger, session, account }) {
+            if (trigger === "update") token.name = session.user.name
+            return token
+        },
+        authorized({ auth, request: { nextUrl } }) {
+            const isLoggedIn = !!auth?.user;
+            const isOnCollection = nextUrl.pathname.startsWith('/collection');
+            if (isOnCollection) {
+                if (isLoggedIn) return true;
+              return false; // Redirect unauthenticated users to login page
+            } else if (isLoggedIn) {
+                return Response.redirect(new URL('/login', nextUrl));
+            }
+            return true;
+        },
     },
     pages: {
         signIn: '/login',
+        newUser: '/register'
+    },
+    events: {
+        async signIn(message) {
+            console.log(JSON.stringify({
+                message: "Successful sign-in",
+                level: "info",
+                context: {
+                    timestamp: new Date().toISOString(),
+                    user: message.user,
+                    account: message.account,
+                    isNewUser: message.isNewUser
+                }
+            }));
+        },
+        async signOut(message) { 
+            console.log(JSON.stringify({
+                message: "Successful sign-out",
+                level: "info",
+                context: {
+                    timestamp: new Date().toISOString(),
+                    token: message.token
+                }
+            }));
+        },
+        async createUser(message) {
+            var logMessage = ""
+            if (message.user.name) {
+                logMessage = "Created new user: ".concat((message.user.name).toString())
+            }
+            else {
+                logMessage = "Created new user but name was not stored."
+            }
+            console.log(JSON.stringify({
+                message: logMessage,
+                level: "info",
+                context: {
+                    timestamp: new Date().toISOString(),
+                    user: message.user.name
+                }
+            }));
+        }
     }
 } satisfies NextAuthConfig;

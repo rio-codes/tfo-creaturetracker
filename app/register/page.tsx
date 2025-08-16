@@ -30,15 +30,14 @@ export default function Login() {
     setSuccessMessage('');
 
     // Basic client-side validation
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required.');
+    if (!formData.username || !formData.email || !formData.password) {
+      setError('Username, email and password are required.');
       return;
     }
     if (formData.password.length < 10) {
       setError('Password must be at least 10 characters long.');
       return;
     }
-    if (formData.password
 
     try {
       const res = await fetch('/api/auth/register', {

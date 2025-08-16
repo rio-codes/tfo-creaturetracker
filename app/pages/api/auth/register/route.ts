@@ -1,5 +1,3 @@
-// app/api/auth/register/route.ts
-
 import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
@@ -9,6 +7,7 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const registerUserSchema = z.object({
+    username: z.string(),
     email: z.string().email("Invalid email address"),
     password: z
         .string()
@@ -30,7 +29,19 @@ const registerUserSchema = z.object({
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { email, password } = registerUserSchema.parse(body);
+        const { username, email, password } = registerUserSchema.parse(body);
+
+        // Check if username is available
+        const existingUsername = await db.query.users.findFirst({
+            where: eq(users.username, username),
+        });
+
+        if (existingUsername) {
+            return NextResponse.json(
+                { user: null, message: "That username is already taken." },
+                { status: 409 } // 409 Conflict
+            );
+        }
 
         // Check if user with this email already exists
         const existingUser = await db.query.users.findFirst({
@@ -39,7 +50,7 @@ export async function POST(req: Request) {
 
         if (existingUser) {
         return NextResponse.json(
-            { user: null, message: "User with this email already exists" },
+            { user: null, message: "A user with this email address already exists." },
             { status: 409 } // 409 Conflict
         );
     }
@@ -50,19 +61,20 @@ export async function POST(req: Request) {
     // Create the new user
     await db.insert(users).values({
       id: crypto.randomUUID(), // Generate a UUID for the user id
+        username: username,
         email: email,
         password: hashedPassword,
     });
 
     return NextResponse.json(
-        { user: { email }, message: "User created successfully" },
+        { user: { username }, message: "User created successfully" },
       { status: 201 } // 201 Created
     );
     } catch (error) {
         // Handle Zod validation errors
         if (error instanceof z.ZodError) {
         return NextResponse.json(
-            { message: "Invalid request data", errors: error.errors },
+            { message: "Invalid request data", errors: error.message },
             { status: 400 }
         );
         }

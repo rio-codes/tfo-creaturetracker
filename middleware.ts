@@ -1,6 +1,3 @@
-import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
-
 export default ((req) => {
     const { nextUrl } = req;
     const isAuthenticated = !!req.auth;
@@ -9,7 +6,9 @@ export default ((req) => {
     const publicRoutes = [
       "/",
       "/login",
-      "/register"
+      "/register",
+      "/terms",
+      "/privacy"
     ];
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 

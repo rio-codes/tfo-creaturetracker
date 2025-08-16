@@ -1,40 +1,34 @@
 export default ((req) => {
-    const { nextUrl } = req;
-    const isAuthenticated = !!req.auth;
+  const { nextUrl } = req;
+  const isAuthenticated = !!req.auth;
 
-    // Public routes
-    const publicRoutes = [
-      "/",
-      //"/login",
-      //"/register",
-      "/terms",
-      "/privacy"
-    ];
-    const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  // Public routes
+  const publicRoutes = [
+    "/",
+    "/login",
+    "/register",
+    "/terms",
+    "/privacy"
+  ];
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 
-    if (isPublicRoute) {
+  // If the route is public, allow the user to access the page
+  if (isPublicRoute) {
+    return null
+  }
+  else {
+    // If the user is authenticated and it is not a public route, allow access
+    if (isAuthenticated) {
       return null
     }
+    // If the user is not authenicated and it is not a public route, redirect to login
     else {
-      return Response.redirect("/")
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+      return Response.redirect(loginUrl);
     }
-    // If the user is authenticated and trying to access a public route, redirect them
-    //if (isAuthenticated && isPublicRoute) {
-    //  return Response.redirect(new URL("/collection", nextUrl)); // Redirect to a protected page
-    //}
-
-    // If the user is not authenticated and trying to access a protected route, redirect to login
-    //if (!isAuthenticated && !isPublicRoute) {
-      // Add a callback URL to redirect back after successful login
-    //  const loginUrl = new URL("/login", nextUrl);
-    //  loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-    //  return Response.redirect(loginUrl);
-    //}
-
-    // Allow all other requests
-    return null;
   }
-);
+})
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher

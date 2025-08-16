@@ -1,6 +1,8 @@
-export default ((req) => {
+import { NextResponse, NextRequest } from 'next/server'
+
+export default ((req: NextRequest) => {
   const { nextUrl } = req;
-  const isAuthenticated = !!req.auth;
+  const isAuthenticated = req.cookies.has('__Host-next-auth.csrf-token');
 
   // Public routes
   const publicRoutes = [
@@ -10,25 +12,30 @@ export default ((req) => {
     "/terms",
     "/privacy"
   ];
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 
-  // If the route is public, allow the user to access the page
-  if (isPublicRoute) {
-    return null
+  const protectedRoutes = [
+    "/home", 
+    "/collection", 
+    "/breeding-pairs", 
+    "/research-goals"
+  ]; 
+
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isProtectedRoute = protectedRoutes.some(path => nextUrl.pathname.startsWith(path));
+
+  // if the user is not logged in and trying to access a protected route, redirect them to the login page
+  if (isProtectedRoute && !isAuthenticated) {
+    return NextResponse.redirect(new URL('/login', nextUrl.origin));
   }
-  else {
-    // If the user is authenticated and it is not a public route, allow access
-    if (isAuthenticated) {
-      return null
-    }
-    // If the user is not authenicated and it is not a public route, redirect to login
-    else {
-      const loginUrl = new URL("/login", nextUrl);
-      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-      return Response.redirect(loginUrl);
-    }
+
+  // if the user is logged in and tries to access login or register, redirect to home
+  if (isAuthenticated && (nextUrl.pathname === '/login' || nextUrl.pathname === '/register')) {
+    return NextResponse.redirect(new URL('/home', nextUrl.origin));
   }
-})
+
+  // in all other cases, continue to path requested
+  return NextResponse.next();
+});
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher

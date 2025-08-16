@@ -27,12 +27,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        // Handle different errors, e.g., "CredentialsSignin"
         setError('Invalid username or password. Please try again.');
         console.error(result.error);
       } else if (result?.ok) {
         // On successful sign-in, redirect to the dashboard or home page
-        router.push('/collection');
+        router.push('/home');
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');

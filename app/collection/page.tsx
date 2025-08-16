@@ -65,32 +65,32 @@ const creatures = [
 
 export default function CollectionPage() {
   return (
-    <div className="bg-purple-light min-h-screen">
+    <div className="bg-barely-lilac min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-purple-900 mb-8">Collection</h1>
+        <h1 className="text-4xl font-bold text-pompaca-purple mb-8">Collection</h1>
 
         {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
           {/* Search Bar */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-600 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dusk-purple h-4 w-4" />
             <Input
               placeholder="search for a creature..."
-              className="pl-10 bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
+              className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
             />
           </div>
 
           {/* Gender Filters */}
           <div className="flex items-center gap-4">
             <div className="flex items-center space-x-2">
-              <Checkbox id="female" defaultChecked className="border-purple-600" />
-              <label htmlFor="female" className="text-purple-900 font-medium">
+              <Checkbox id="female" defaultChecked className="border-pompaca-purple" />
+              <label htmlFor="female" className="text-pompaca-purple font-medium">
                 Female
               </label>
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox id="male" defaultChecked className="border-purple-600" />
-              <label htmlFor="male" className="text-purple-900 font-medium">
+              <Checkbox id="male" defaultChecked className="border-pompaca-purple" />
+              <label htmlFor="male" className="text-pompaca-purple font-medium">
                 Male
               </label>
             </div>
@@ -98,7 +98,7 @@ export default function CollectionPage() {
 
           {/* Stage Filter */}
           <Select defaultValue="adult">
-            <SelectTrigger className="w-32 bg-purple-600 text-white border-purple-600">
+            <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -110,7 +110,7 @@ export default function CollectionPage() {
 
           {/* Species Filter */}
           <Select defaultValue="dompaca-flora">
-            <SelectTrigger className="w-48 bg-purple-600 text-white border-purple-600">
+            <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

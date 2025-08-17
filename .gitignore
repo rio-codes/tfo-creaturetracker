@@ -28,3 +28,6 @@ next-env.d.ts
 
 # drizzle
 /src/db/migrations
+
+# vs code
+.vscode

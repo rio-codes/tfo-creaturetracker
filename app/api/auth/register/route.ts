@@ -7,8 +7,8 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const registerUserSchema = z.object({
-    username: z.string(),
-    email: z.string().email("Invalid email address"),
+    username: z.string().min(3, "Username must be at least 3 characters long"),
+    email: z.email("Invalid email address"),
     password: z
         .string()
         .min(12, { 
@@ -31,36 +31,30 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { username, email, password } = registerUserSchema.parse(body);
 
-        // Check if username is available
-        const existingUsername = await db.query.users.findFirst({
+        // Check if a user with this username OR email already exists
+        const existingUserByUsername = await db.query.users.findFirst({
             where: eq(users.username, username),
         });
-
-        if (existingUsername) {
+        if (existingUserByUsername) {
             return NextResponse.json(
-                { user: null, message: "That username is already taken." },
-                { status: 409 } // 409 Conflict
+                { message: "Username is already taken" }, { status: 409 }
             );
         }
-
-        // Check if user with this email already exists
-        const existingUser = await db.query.users.findFirst({
-        where: eq(users.email, email),
+        const existingUserByEmail = await db.query.users.findFirst({
+            where: eq(users.email, email),
         });
-
-        if (existingUser) {
-        return NextResponse.json(
-            { user: null, message: "A user with this email address already exists." },
-            { status: 409 } // 409 Conflict
-        );
-    }
+        if (existingUserByEmail) {
+            return NextResponse.json(
+                { message: "Email is already in use" }, { status: 409 }
+            );
+        }
 
     // Hash the password
     const hashedPassword = await hash(password, 12);
 
     // Create the new user
     await db.insert(users).values({
-      id: crypto.randomUUID(), // Generate a UUID for the user id
+        id: crypto.randomUUID(), // Generate a UUID for the user id
         username: username,
         email: email,
         password: hashedPassword,
@@ -68,7 +62,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
         { user: { username }, message: "User created successfully" },
-      { status: 201 } // 201 Created
+        { status: 201 } // 201 Created
     );
     } catch (error) {
         // Handle Zod validation errors

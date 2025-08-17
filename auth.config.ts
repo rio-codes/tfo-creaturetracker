@@ -1,69 +1,73 @@
 import type { NextAuthConfig } from 'next-auth';
+import Credentials from "next-auth/providers/credentials";
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { eq } from "drizzle-orm";
+import { compare } from "bcryptjs";
+
+console.log("AUTH_SECRET loaded:", !!process.env.AUTH_SECRET);
 
 export const authConfig = {
+    providers: [
+        Credentials({
+            credentials: {},
+            async authorize(credentials) {
+                console.log("we're in authorize")
+                if (!credentials?.username || !credentials.password) {
+                    return null;
+                }
+
+                const user = await db.query.users.findFirst({
+                    where: eq(users.username, credentials.username as string),
+                });
+
+                if (!user || !user.password) {
+                    return null; // User not found or has no password
+                }
+
+                const isPasswordValid = await compare(
+                    credentials.password as string,
+                    user.password
+                );
+
+                if (isPasswordValid) {
+                    return user;
+                }
+
+                return null; // Password was incorrect
+            },
+        }),
+    ],
     session: {
         strategy: "jwt",
     },
     callbacks: {
-        jwt({ token, trigger, session, account }) {
-            if (trigger === "update") token.name = session.user.name
-            return token
-        },
-        authorized({ auth, request: { nextUrl } }) {
-            const isLoggedIn = !!auth?.user;
-            const isOnCollection = nextUrl.pathname.startsWith('/collection');
-            if (isOnCollection) {
-                if (isLoggedIn) return true;
-              return false; // Redirect unauthenticated users to login page
-            } else if (isLoggedIn) {
-                return Response.redirect(new URL('/login', nextUrl));
-            }
-            return true;
-        },
+        // The jwt callback is called when a JWT is created or updated.
+        async jwt({ token, user }) {
+          // On the initial sign-in, the `user` object is passed in.
+        if (user) {
+        // Add properties from your database user model to the token.
+        token.id = user.id;
+        token.username = (user as any).username;
+        }
+        // This token is then encrypted and stored in the user's cookie.
+        return token;
+    },
+    
+    // The session callback is called whenever a session is checked.
+    session({ session, token }) {
+        // The token object contains the data we stored in the `jwt` callback.
+        // We add this data to the session object, which is then available on the client.
+        // We MUST check if token and session.user exist before modifying.
+        if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.username = token.username as string;
+        }
+        // ALWAYS return the session object.
+        return session;
+    },
     },
     pages: {
         signIn: '/login',
-        newUser: '/register'
     },
-    events: {
-        async signIn(message) {
-            console.log(JSON.stringify({
-                message: "Successful sign-in",
-                level: "info",
-                context: {
-                    timestamp: new Date().toISOString(),
-                    user: message.user,
-                    account: message.account,
-                    isNewUser: message.isNewUser
-                }
-            }));
-        },
-        async signOut(message) { 
-            console.log(JSON.stringify({
-                message: "Successful sign-out",
-                level: "info",
-                context: {
-                    timestamp: new Date().toISOString(),
-                    token: message.token
-                }
-            }));
-        },
-        async createUser(message) {
-            var logMessage = ""
-            if (message.user.name) {
-                logMessage = "Created new user: ".concat((message.user.name).toString())
-            }
-            else {
-                logMessage = "Created new user but name was not stored."
-            }
-            console.log(JSON.stringify({
-                message: logMessage,
-                level: "info",
-                context: {
-                    timestamp: new Date().toISOString(),
-                    user: message.user.name
-                }
-            }));
-        }
-    }
 } satisfies NextAuthConfig;

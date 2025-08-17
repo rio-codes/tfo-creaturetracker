@@ -38,7 +38,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
 
   return (
     <div className="flex justify-center items-center gap-2">
-      <Button variant="ghost" size="sm" disabled={currentPage === 1} className="text-purple-700 hover:bg-purple-200">
+      <Button variant="ghost" size="sm" disabled={currentPage === 1} className="text-dusk-purple hover:bg-pompaca-purple">
         <ChevronLeft className="h-4 w-4 mr-1" />
         Previous
       </Button>
@@ -50,8 +50,8 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
           size="sm"
           className={
             page === currentPage
-              ? "bg-purple-700 text-white hover:bg-purple-800"
-              : "text-purple-700 hover:bg-purple-200"
+              ? "bg-emoji-eggplant text-barely-lilac hover:bg-dusk-purple"
+              : "text-pompaca-purple hover:bg-dusk-purple"
           }
           disabled={page === "..."}
         >
@@ -63,7 +63,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
         variant="ghost"
         size="sm"
         disabled={currentPage === totalPages}
-        className="text-purple-700 hover:bg-purple-200"
+        className="text-pompaca-purple hover:bg-dusk-purple"
       >
         Next
         <ChevronRight className="h-4 w-4 ml-1" />

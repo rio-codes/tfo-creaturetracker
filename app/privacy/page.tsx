@@ -6,7 +6,7 @@ export default function Page() {
         <div className="bg-barely-lilac text-pompaca-purple min-h-screen flex items-center justify-center px-4 py-5">
             <div className="w-full">
                 {/* Privacy Policy*/}
-                <Card className="bg-ebena-lavender w-full">
+                <Card className="bg-ebena-lavender w-full shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl">TFO.creaturetracker Privacy Policy </CardTitle>
                         <CardDescription className="text-xl">Last Updated: 8/15/2025</CardDescription>

@@ -26,7 +26,7 @@ export default async function RootLayout({
         </link>
       </head>
       <body className="{tektur.className} min-h-screen flex flex-col">      
-          <ClientProviders>{children}</ClientProviders>
+          <ClientProviders children={children}>{children}</ClientProviders>
       </body>
     </html>
   )

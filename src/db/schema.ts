@@ -63,6 +63,12 @@ export const verificationTokens = pgTable(
 })
 );
 
+export const passwordResetTokens = pgTable("password_reset_token", {
+    email: text("email").notNull().primaryKey(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+});
+
 export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless']);
 
 export const creatures = pgTable('creature', {

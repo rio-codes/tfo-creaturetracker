@@ -72,8 +72,8 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="bg-barely-lilac w-full max-w-md">
+    <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">

@@ -4,9 +4,11 @@ import { authConfig } from "@/auth.config"
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
-  const isAuthenticated = !!req.auth;
-  const { nextUrl } = req;
+export default auth((req: NextRequest) => {
+  const isAuthenticated = (req.cookies.toString().includes("__Secure-authjs.session-token"))
+  const reqPath = req.nextUrl.pathname;
+
+  console.log(reqPath)
 
   if (isAuthenticated) {
     console.log("Logged in")
@@ -27,19 +29,18 @@ export default auth((req) => {
     "/research-goals"
   ]; 
 
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isProtectedRoute = protectedRoutes.includes(nextUrl.pathname);
+  const isProtectedRoute = protectedRoutes.includes(reqPath);
 
   // if the user is not logged in and trying to access a protected route, redirect them to the login page
   if (isProtectedRoute && !isAuthenticated) {
     console.log("User not logged in, accessing protected")
-    return NextResponse.redirect(new URL('/login', nextUrl.origin));
+    return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
   }
 
   // if the user is logged in and tries to access login or register, redirect to home
-  if (isAuthenticated && (nextUrl.pathname === '/login' || nextUrl.pathname === '/register')) {
+  if (isAuthenticated && (reqPath.includes('login') || reqPath.includes('register'))) {
     console.log("User logged in, redirecting")
-    return NextResponse.redirect(new URL('/collection', nextUrl.origin));
+    return NextResponse.redirect(new URL('/collection', req.nextUrl.origin));
   }
 
   // in all other cases, continue to path requested

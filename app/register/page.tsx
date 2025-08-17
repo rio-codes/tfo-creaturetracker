@@ -1,29 +1,36 @@
 "use client"
-
 import type React from "react"
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { CheckedState } from "@radix-ui/react-checkbox";
+
 
 
 export default function Register() {
+  interface agreeToTerms {
+    agreeToTerms: boolean;
+  } 
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState<CheckedState>(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
-  })
   const router = useRouter();
+
+  const handleCheckboxChange = (e: CheckedState) => {
+    const checked = e;
+    setAgreeToTerms(prevData => ({
+      ...prevData,
+      checked,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +38,12 @@ export default function Register() {
     setSuccessMessage('');
 
     // Basic client-side validation
-    if (!formData.username || !formData.email || !formData.password) {
+    if (!username || !email || !password) {
       setError('Username, email and password are required.');
       return;
     }
-    if (formData.password.length < 10) {
-      setError('Password must be at least 10 characters long.');
+    if (password.length < 12) {
+      setError('Password must be at least 12 characters long.');
       return;
     }
 
@@ -71,10 +78,6 @@ export default function Register() {
     }
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
   return (
     <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
@@ -94,16 +97,16 @@ export default function Register() {
             <CardDescription className="text-pompaca-purple">Join and track your breeding goals</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={ handleSubmit } className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-pompaca-purple font-medium">
                   Email
                 </Label>
-                <input
+                <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  value={formData.email}
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                   required
@@ -113,11 +116,11 @@ export default function Register() {
                 <Label htmlFor="username" className="text-pompaca-purple font-medium">
                   Username
                 </Label>
-                <input
+                <Input
                   id="username"
                   type="username"
                   placeholder="your TFO username"
-                  value={formData.username}
+                  value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                   required
@@ -127,10 +130,10 @@ export default function Register() {
                 <Label htmlFor="password" className="text-purple-900 font-medium">
                   Password
                 </Label>
-                <input
+                <Input
                   id="password"
                   type="password"
-                  value={formData.password}
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
@@ -140,8 +143,8 @@ export default function Register() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+                  checked={agreeToTerms}
+                  onCheckedChange={(e) => setAgreeToTerms(e)}
                   className="border-pompaca-purple"
                 />
                 <Label htmlFor="terms" className="text-sm text-pompaca-purple">
@@ -158,7 +161,7 @@ export default function Register() {
               <Button
                 type="submit"
                 className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
-                disabled={!formData.agreeToTerms}
+                disabled={!agreeToTerms}
               >
                 Create Account
               </Button>

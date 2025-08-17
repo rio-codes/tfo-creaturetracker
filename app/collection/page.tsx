@@ -1,7 +1,6 @@
 
 import { getCreaturesForUser } from '@/app/lib/data'
 import { CollectionClient } from '@/components/collection-client';
-import type { Creature } from '@/types';
 
 export default async function CollectionPage() {
   const creatures = await getCreaturesForUser();

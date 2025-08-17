@@ -4,7 +4,12 @@ import { db } from '@/src/db';
 import { users, accounts, sessions, verificationTokens } from '@/src/db/schema';
 import { authConfig } from './auth.config';
 
-const authInstance = NextAuth({
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
   ...authConfig,
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -13,7 +18,3 @@ const authInstance = NextAuth({
     verificationTokensTable: verificationTokens,
   }),
 });
-
-export const { auth, signIn, signOut } = authInstance;
-
-export default authInstance;

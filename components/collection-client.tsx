@@ -31,10 +31,11 @@ export function CollectionClient(initialCreatures) {
     };
 
     console.log(initialCreatures)
-    
+    const arrayOfCreatures = Array.from(initialCreatures)
+
     // Filter the initial data based on the current state
     const filteredCreatures = useMemo(() => {
-        return initialCreatures.filter(creature => {
+        return arrayOfCreatures.filter(creature => {
         const searchMatch = creature.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             creature.creatureName?.toLowerCase().includes(searchTerm.toLowerCase());
         

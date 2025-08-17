@@ -21,20 +21,11 @@ export default function LoginPage() {
     setError('');
     try {
       console.log("trying login")
-      const result = await signIn('credentials', {
+      await signIn('credentials', {
         username,
         password,
-        redirectTo: "/collection"
+        redirectTo: '/collection'
       });
-
-      // if (result?.) {
-      //   setError('Invalid username or password. Please try again.');
-      //   console.error(result.error);
-      // } else if (result?.ok) {
-      //   console.log("successful login")
-      //   // On successful sign-in, redirect to the dashboard or home page
-      //   router.push('/collection');
-      // }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
       console.error(error);

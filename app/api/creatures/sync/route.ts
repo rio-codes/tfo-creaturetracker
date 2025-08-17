@@ -53,7 +53,6 @@ export async function POST(req: Request) {
         if (!response.ok) {
             throw new Error(`TFO API responded with status: ${response.status}`);
         }
-
         const data = await response.json();
 
         if (data.error === true) {
@@ -61,45 +60,45 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: errorMessage }, { status: 400 });
         }
 
-    if (!data.creatures || data.creatures.length === 0) {
-        return NextResponse.json({ message: 'No creatures found in that tab.' }, { status: 200 });
-    }
-
-    const creaturePromises = data.creatures.map(async (c: any) => {
-        let newImageUrl = c.imgsrc; // Default to original URL
-  
-        try {
-          // Fetch the image from the external URL
-        const imageResponse = await fetch(c.imgsrc);
-        if (imageResponse.ok) {
-            const imageBlob = await imageResponse.blob();
-            const blob = await put(`${c.code}.png`, imageBlob, {
-                access: 'public',
-            });
-            newImageUrl = blob.url;
+        if (!data.creatures || data.creatures.length === 0) {
+            return NextResponse.json({ message: 'No creatures found in that tab.' }, { status: 200 });
         }
-    } catch (uploadError) {
-        console.error(`Failed to upload image for creature ${c.code}:`, uploadError);
-        // If upload fails, we'll just use the original URL as a fallback
-    }
 
-    // Prepare creatures for database upsert
-    const creatureValues = data.creatures.map((c: any) => ({
-        userId: userId,
-        code: c.code,
-        creatureName: c.name,
-        imageUrl: newImageUrl,
-        gottenAt: c.gotten ? new Date(c.gotten * 1000) : null,
-        growthLevel: c.growthLevel,
-        isStunted: c.isStunted,
-        species: c.breedName,
-        genetics: c.genetics,
-        gender: c.gender.toLowerCase(), // Ensure gender is lowercase for the enum
-        updatedAt: new Date(),
-    }));
+        const creaturePromises = data.creatures.map(async (c: any) => {
+            let newImageUrl = c.imgsrc; // Default to original URL
+
+            try {
+            // Fetch the image from the external URL
+            const imageResponse = await fetch(c.imgsrc);
+            if (imageResponse.ok) {
+                const imageBlob = await imageResponse.blob();
+                const blob = await put(`${c.code}.png`, imageBlob, {
+                    access: 'public',
+                });
+                newImageUrl = blob.url;
+            }
+            } catch (uploadError) {
+                console.error(`Failed to upload image for creature ${c.code}:`, uploadError);
+                // If upload fails, we'll just use the original URL as a fallback
+            }
+
+            return {
+                userId: userId,
+                code: c.code,
+                creatureName: c.name,
+                imageUrl: newImageUrl, // 3. Use the new (or fallback) URL
+                gottenAt: c.gotten ? new Date(c.gotten * 1000) : null,
+                growthLevel: c.growthLevel,
+                isStunted: c.isStunted,
+                species: c.breedName,
+                genetics: c.genetics,
+                gender: c.gender.toLowerCase(),
+                updatedAt: new Date(),
+            };
+        });
 
     const creatureValues = await Promise.all(creaturePromises);
-    
+
     await db.insert(creatures)
         .values(creatureValues)
         .onConflictDoUpdate({
@@ -115,11 +114,11 @@ export async function POST(req: Request) {
                 gender: sql`excluded.gender`,
                 updatedAt: new Date(),
             }
-        })
+        });
 
-    return NextResponse.json({
-        message: `Successfully synced ${creatureValues.length} creatures.`
-    }, { status: 200 });
+        return NextResponse.json({
+            message: `Successfully synced ${creatureValues.length} creatures.`
+        }, { status: 200 });
 
     } catch (error) {
         console.error("Creature sync failed:", error);

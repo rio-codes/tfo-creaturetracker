@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     const { tabId } = result.data;
 
     try {
-        const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${username}`;
+        const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${session.user.username}`;
         const response = await fetch(tfoApiUrl, {
             method: 'GET',
             headers: {
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
     // Prepare creatures for database upsert
     const creatureValues = data.creatures.map((c: any) => ({
-        userId: userId,
+        userId: session.user.id,
         code: c.code,
         creatureName: c.name,
         imageUrl: c.imgsrc,

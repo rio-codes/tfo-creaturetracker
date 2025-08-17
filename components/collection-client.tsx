@@ -16,7 +16,7 @@ type CollectionClientProps = {
     initialCreatures: Creature[];
 };
 
-export function CollectionClient(initialCreatures) {
+export function CollectionClient({initialCreatures = []}) {
     const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showFemale, setShowFemale] = useState(true);
@@ -30,14 +30,11 @@ export function CollectionClient(initialCreatures) {
         setIsSyncDialogOpen(false);
     };
 
-    console.log(initialCreatures)
-    const arrayOfCreatures = Array.from(initialCreatures)
-
     // Filter the initial data based on the current state
     const filteredCreatures = useMemo(() => {
-        return arrayOfCreatures.filter(creature => {
-        const searchMatch = creature.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            creature.creatureName?.toLowerCase().includes(searchTerm.toLowerCase());
+        return initialCreatures.filter(creature => {
+        const searchMatch = creature.code.includes(searchTerm) ||
+                            creature.creatureName.includes(searchTerm);
         
         const genderMatch = (showFemale && creature.gender === 'female') ||
                             (showMale && creature.gender === 'male');
@@ -100,24 +97,22 @@ export function CollectionClient(initialCreatures) {
             </Select>
 
             {/* Species Filter */}
-            <Select defaultValue="dompaca-flora">
+            <Select defaultValue="pompaca-floro">
                 <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
                 <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="dompaca-flora">Pompaca Flora</SelectItem>
-                <SelectItem value="sencesa">Sencesa</SelectItem>
+                <SelectItem value="pompaca-floro">Pompaca Floro</SelectItem>
+                <SelectItem value="sencesa-simfonio">Sencesa Simfonio</SelectItem>
                 <SelectItem value="ebena-kuranto">Ebena Kuranto</SelectItem>
                 </SelectContent>
             </Select>
             </div>
 
             {/* Creature Grid */}
-            {filteredCreatures.length > 0 ? (
+            {(filteredCreatures.length > 0)? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {filteredCreatures.map((creature) => (
-                    <CreatureCard key={creature.id} creature={creature} />
-                ))}
+                {filteredCreatures.map((creature) => <CreatureCard creature={creature} allCreaturesData={initialCreatures}/>)}
             </div>
         ) : (
             <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">

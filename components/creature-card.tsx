@@ -8,19 +8,12 @@ import { AddBreedingPairDialog } from "@/components/add-pair-dialog"
 
 interface CreatureCardProps {
   creature: Creature
+  allCreaturesData: Creature[]
 }
 
-export function CreatureCard({ creature }: CreatureCardProps) {
+export function CreatureCard({ creature, allCreaturesData }: CreatureCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCreature, setSelectedCreature] = useState(null);
-
-  // Dummy data for demonstration
-  const allCreaturesData = [
-      { id: 'c1', code: 'PF-001-F', species: 'Pompaca Flora', gender: 'female', image: '/placeholder.png' },
-      { id: 'c2', code: 'PF-002-M', species: 'Pompaca Flora', gender: 'male', image: '/placeholder.png' },
-      { id: 'c3', code: 'PF-003-M', species: 'Pompaca Flora', gender: 'male', image: '/placeholder.png' },
-      // ... more creatures
-  ];
 
   const handleOpenDialog = (creature) => {
     setSelectedCreature(creature);
@@ -37,14 +30,14 @@ export function CreatureCard({ creature }: CreatureCardProps) {
       <CardContent className="p-4">
         {/* Creature Image */}
         <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
-          <img src={creature.imgsrc || "/placeholder.png"} alt={creature.code + ", " + creature.breedName} className="w-32 h-32 object-contain" />
+          <img src={creature.imageUrl || "/placeholder.png"} alt={creature.code + ", " + creature.species} className="w-32 h-32 object-contain" />
         </div>
 
         {/* Creature Details */}
         <ScrollArea className="h-32 mb-4">
           <div className="text-sm text-card-foreground space-y-1">
             <div>
-              <strong>Name:</strong> {creature.name}
+              <strong>Name:</strong> {creature.creatureName}
             </div>
             <div>
               <strong>Code:</strong> {creature.code}

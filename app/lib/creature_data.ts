@@ -1,5 +1,6 @@
-const speciesList = 
-    ["Abomena Pahidermo",
+export const speciesList = 
+    [
+    "Abomena Pahidermo",
     "Alta Koltuko",
     "Arba Brakumo",
     "Arbara Krono",

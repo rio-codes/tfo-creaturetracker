@@ -19,7 +19,7 @@ export default function Page() {
             </ul>
           </div>
           <p className="text-slate-400 font-bold text-l mt-5">
-            Coming soon, keep an eye on this page!
+            Want to be a beta tester? Message me on <a href="https://discordapp.com/users/lyricism__" className='text-barely-lilac'>Discord</a>!
           </p>
         </div>
       </div>

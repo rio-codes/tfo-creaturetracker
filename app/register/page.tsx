@@ -105,7 +105,7 @@ export default function Register() {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
+                  className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                   required
                 />
               </div>
@@ -119,7 +119,7 @@ export default function Register() {
                   placeholder="your TFO username"
                   value={formData.username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
+                  className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                   required
                 />
               </div>
@@ -134,7 +134,7 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
+                  className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple rounded-lg px-2"
                 />
               </div>
               <div className="flex items-center space-x-2">

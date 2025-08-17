@@ -75,7 +75,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 <div>
                     <p className="text-sm text-dusk-purple mb-4">
                         Enter the Tab ID from your TFO tab's URL. For example, if the URL is 
-                        <code className="bg-ebena-lavender p-1 rounded mx-1">.../tab/your_username/your_tab_name/12345/1/...</code>, your Tab ID is 12345.
+                        <code className="bg-ebena-lavender p-1 rounded mx-1">.../tab/username/tab_name/12345/1/...</code>, your Tab ID is 12345. For the default tab, use 0.
                     </p>
                     <Label htmlFor="tab-id" className="text-pompaca-purple font-medium">
                         TFO Tab ID

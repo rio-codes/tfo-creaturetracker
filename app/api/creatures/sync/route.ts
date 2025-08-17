@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { z } from 'zod';
 import { sql } from 'drizzle-orm';
-
+import { put } from '@vercel/blob';
 
 const syncSchema = z.object({
     tabId: z.coerce.number().int().min(0, "Tab ID must be a positive number."),
@@ -20,12 +20,15 @@ const tfoErrorMap: { [key: number]: string } = {
 };
 
 export async function POST(req: Request) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    const username = session?.user?.username;
+
     if (!process.env.TFO_API_KEY) {
         console.error("CRITICAL: TFO_API_KEY is not set in the environment variables.");
         return NextResponse.json({ error: 'Server configuration error. Contact administrator.' }, { status: 500 });
     }
-    
-    const session = await auth();
+
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -62,12 +65,30 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: 'No creatures found in that tab.' }, { status: 200 });
     }
 
+    const creaturePromises = data.creatures.map(async (c: any) => {
+        let newImageUrl = c.imgsrc; // Default to original URL
+  
+        try {
+          // Fetch the image from the external URL
+        const imageResponse = await fetch(c.imgsrc);
+        if (imageResponse.ok) {
+            const imageBlob = await imageResponse.blob();
+            const blob = await put(`${c.code}.png`, imageBlob, {
+                access: 'public',
+            });
+            newImageUrl = blob.url;
+        }
+    } catch (uploadError) {
+        console.error(`Failed to upload image for creature ${c.code}:`, uploadError);
+        // If upload fails, we'll just use the original URL as a fallback
+    }
+
     // Prepare creatures for database upsert
     const creatureValues = data.creatures.map((c: any) => ({
-        userId: session.user.id,
+        userId: userId,
         code: c.code,
         creatureName: c.name,
-        imageUrl: c.imgsrc,
+        imageUrl: newImageUrl,
         gottenAt: c.gotten ? new Date(c.gotten * 1000) : null,
         growthLevel: c.growthLevel,
         isStunted: c.isStunted,
@@ -77,6 +98,8 @@ export async function POST(req: Request) {
         updatedAt: new Date(),
     }));
 
+    const creatureValues = await Promise.all(creaturePromises);
+    
     await db.insert(creatures)
         .values(creatureValues)
         .onConflictDoUpdate({

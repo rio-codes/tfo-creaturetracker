@@ -106,9 +106,9 @@ export function CollectionClient({initialCreatures = []}) {
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="capsule">Capsule</SelectItem>
-                            <SelectItem value="juvenile">Juvenile</SelectItem>
-                            <SelectItem value="adult">Adult</SelectItem>
+                            <SelectItem value="capsule" className='bg-barely-lilac'>Capsule</SelectItem>
+                            <SelectItem value="juvenile" className='bg-barely-lilac'>Juvenile</SelectItem>
+                            <SelectItem value="adult" className='bg-barely-lilac'>Adult</SelectItem>
                         </SelectContent>
                     </Select>
 

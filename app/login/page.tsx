@@ -17,22 +17,24 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     setError('');
     try {
+      console.log("trying login")
       const result = await signIn('credentials', {
-        redirect: false, // Prevent NextAuth from redirecting automatically
         username,
         password,
+        redirectTo: "/collection"
       });
 
-      if (result?.error) {
-        setError('Invalid username or password. Please try again.');
-        console.error(result.error);
-      } else if (result?.ok) {
-        // On successful sign-in, redirect to the dashboard or home page
-        router.push('/home');
-      }
+      // if (result?.) {
+      //   setError('Invalid username or password. Please try again.');
+      //   console.error(result.error);
+      // } else if (result?.ok) {
+      //   console.log("successful login")
+      //   // On successful sign-in, redirect to the dashboard or home page
+      //   router.push('/collection');
+      // }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
       console.error(error);
@@ -41,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+      <div className=" w-full max-w-md">
         {/* Logo/Branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">

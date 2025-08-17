@@ -1,8 +1,8 @@
-import NextAuth from 'next-auth'
-import { authConfig } from "./auth.config";
+import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db } from '@/src/db';
 import { users, accounts, sessions, verificationTokens } from '@/src/db/schema';
+import { authConfig } from './auth.config';
 
 const authInstance = NextAuth({
   ...authConfig,

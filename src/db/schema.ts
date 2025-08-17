@@ -1,24 +1,24 @@
 import {
-    timestamp,
     pgTable,
     text,
-    primaryKey,
     integer,
-} from "drizzle-orm/pg-core";
+    boolean,
+    timestamp,
+    pgEnum,
+    uniqueIndex,
+    primaryKey
+} from 'drizzle-orm/pg-core';
 import type { AdapterAccount } from "@auth/core/adapters";
 
-// This is the schema required by the Auth.js Drizzle Adapter
-// See: https://authjs.dev/reference/adapter/drizzle
-
 export const users = pgTable("user", {
-id: text("id").notNull().primaryKey(),
-name: text("name"),
-username: text("username").notNull().unique(),
-email: text("email").notNull().unique(),
-emailVerified: timestamp("emailVerified", { mode: "date" }),
-image: text("image"),
-// If you want to add a password for a credentials provider
-password: text("password"), 
+    id: text("id").notNull().primaryKey(),
+    name: text("name"),
+    username: text("username").notNull().unique(),
+    email: text("email").notNull().unique(),
+    emailVerified: timestamp("emailVerified", { mode: "date" }),
+    image: text("image"),
+    // If you want to add a password for a credentials provider
+    password: text("password"), 
 });
 
 export const accounts = pgTable(
@@ -62,3 +62,33 @@ export const verificationTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
 })
 );
+
+export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless']);
+
+export const creatures = pgTable('creature', {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    
+    // Foreign key to the user who owns this creature
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+
+    // Core identifier from TFO
+    code: text('code').notNull(),
+
+    // TFO API Fields
+    creatureName: text('name'), // Renamed to avoid conflict with table name property
+    imageUrl: text('imgsrc').notNull(),
+    gottenAt: timestamp('gotten_at', { mode: 'date' }),
+    growthLevel: integer('growth_level'),
+    isStunted: boolean('is_stunted').default(false),
+    species: text('breed_name'),
+    genetics: text('genetics'),
+    gender: creatureGenderEnum('gender'),
+
+    // Timestamps for your own tracking
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        userCreatureCodeIndex: uniqueIndex('user_creature_code_idx').on(table.userId, table.code),
+    };
+});

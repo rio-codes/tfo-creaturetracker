@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { useState } from "react"
 import { Menu, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,8 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { data: session, status } = useSession();
-  const user = session?.user;
 
   return (
     <header className="bg-pompaca-purple text-barely-lilac px-4 py-3">
@@ -60,9 +58,6 @@ export default function Header() {
             <LogOut className="h-4 w-4 mr-2" />
             Log Out
           </Button>
-          {status === 'authenticated' && user && (
-          <span className="text-sm">Welcome, {user.username}!</span>
-          )}
         </div>
       </div>
     </header>

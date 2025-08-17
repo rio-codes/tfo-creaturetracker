@@ -40,7 +40,7 @@ export function CollectionClient({initialCreatures = []}) {
         return initialCreatures.filter(creature => {
             console.log(creature)
             const searchMatch = creature.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                creature.creatureName.includes(searchTerm.toLowerCase());
+                                creature.creatureName.toLowerCase().includes(searchTerm.toLowerCase());
             
             const genderMatch = (showFemale && creature.gender === 'female') ||
                                 (showMale && creature.gender === 'male');

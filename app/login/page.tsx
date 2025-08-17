@@ -14,23 +14,37 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
+
     try {
-      console.log("trying login")
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         username,
         password,
-        redirectTo: '/collection'
+        redirect: false,
       });
+
+      setIsLoading(false);
+
+      if (result?.error) {
+        console.error("Sign-in failed:", result.error);
+        setError('Invalid username or password. Please try again.');
+      } else if (result?.ok) {
+        router.push('/collection');
+        router.refresh();
+      }
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.');
-      console.error(error);
+      setIsLoading(false);
+      console.error("Sign-in function error:", error);
+      setError('An unexpected error occurred. Please try again later.');
     }
   };
+
 
   return (
     <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4">
@@ -52,6 +66,11 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="p-3 rounded-md text-sm bg-red-100 text-red-800 text-center">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-pompaca-purple font-medium">
                   Username

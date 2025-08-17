@@ -65,14 +65,15 @@ export async function POST(req: Request) {
         { status: 201 } // 201 Created
     );
     } catch (error) {
-        // Handle Zod validation errors
         if (error instanceof z.ZodError) {
-        return NextResponse.json(
-            { message: "Invalid request data", errors: error.message },
-            { status: 400 }
-        );
+            console.error("Zod Validation Failed:", error.flatten().fieldErrors);
+            return NextResponse.json(
+                { message: error.flatten().fieldErrors },
+                { status: 400 }
+            );
         }
-        
+            
+        console.error("Registration Error:", error);
         return NextResponse.json(
             { message: "An unexpected error occurred." },
             { status: 500 }

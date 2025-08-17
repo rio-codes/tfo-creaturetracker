@@ -13,26 +13,49 @@ export default function ResetPasswordForm() {
     const token = searchParams.get('token');
     
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!token) {
-            setMessage("Error: No reset token found.");
+        setError('');
+        setSuccessMessage('');
+        
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
             return;
         }
-
-        const response = await fetch('/api/auth/password-reset/confirm', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, password })
-        });
-
-        const data = await response.json();
-        setMessage(data.message || data.error);
+        if (!token) {
+            setError("Could not submit: No reset token found.");
+            return;
+        }
         
-        if (response.ok) {
-            setTimeout(() => router.push('/login'), 2000);
+        setIsLoading(true);
+    
+        console.log("Submitting to API with:", { token, password });
+
+        try {
+            const response = await fetch('/api/password-reset/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Ensure the body has the EXACT keys: "token" and "password"
+                body: JSON.stringify({ token, password })
+            });
+    
+            const data = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(data.error || 'An unknown error occurred.');
+            }
+    
+            setSuccessMessage(data.message);
+            setTimeout(() => router.push('/login'), 3000);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -47,7 +70,7 @@ export default function ResetPasswordForm() {
                     </div>
                     <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
                 </div>
-                {/* Login Form */}
+                {/* Reset Form */}
                 <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl text-pompaca-purple">Welcome Back</CardTitle>
@@ -60,13 +83,27 @@ export default function ResetPasswordForm() {
                                 New Password
                                 </Label>
                                 <Input
-                                id="password"
-                                type="password"
-                                placeholder="Enter your new password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
-                                required
+                                    id="password"
+                                    type="password"
+                                    placeholder="Enter your new password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password" className="text-pompaca-purple font-medium">
+                                Confirm Password
+                                </Label>
+                                <Input
+                                    id="confirmPassword"
+                                    type="password"
+                                    placeholder="Confirm new password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    required
                                 />
                             </div>
                             <Button type="submit" className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac">

@@ -12,30 +12,40 @@ export const authConfig = {
         Credentials({
             credentials: {},
             async authorize(credentials) {
-                console.log("we're in authorize")
                 if (!credentials?.username || !credentials.password) {
+                    console.log("[Authorize] Missing username or password.");
                     return null;
                 }
-
-                const user = await db.query.users.findFirst({
-                    where: eq(users.username, credentials.username as string),
-                });
-
-                if (!user || !user.password) {
-                    return null; // User not found or has no password
+                
+                try {
+                    console.log(`[Authorize] Searching for user: ${credentials.username}`);
+                    const user = await db.query.users.findFirst({
+                        where: eq(users.username, credentials.username as string),
+                    });
+                    if (!user) {
+                        console.log("[Authorize] User not found in database.");
+                        return null;
+                    }
+                    if (!user.password) {
+                        console.log("[Authorize] User found, but they do not have a password set.");
+                        return null;
+                    }
+                    const isPasswordValid = await compare(
+                        credentials.password as string,
+                        user.password
+                    );
+                    if (isPasswordValid) {
+                        console.log("[Authorize] Success! Returning user.");
+                        return user;
+                    } else {
+                        console.log("[Authorize] Password comparison failed.");
+                        return null;
+                    }
+                } catch (error) {
+                    console.error("[Authorize] An unexpected error occurred:", error);
+                    return null;
                 }
-
-                const isPasswordValid = await compare(
-                    credentials.password as string,
-                    user.password
-                );
-
-                if (isPasswordValid) {
-                    return user;
-                }
-
-                return null; // Password was incorrect
-            },
+            }
         }),
     ],
     session: {

@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import type { Creature } from "@/types/index"
 import { AddBreedingPairDialog } from "@/components/add-pair-dialog"
 
@@ -34,8 +34,8 @@ export function CreatureCard({ creature, allCreaturesData }: CreatureCardProps) 
         </div>
 
         {/* Creature Details */}
-        <ScrollArea className="h-32 mb-4">
-          <div className="text-sm text-card-foreground space-y-1">
+        <ScrollArea className="h-32 mb-4 relative overflow-y-scroll scrollbar-thin scrollbar-track-barely-lilac scrollbar-thumb-ebena-lavender">
+          <div className="text-sm text-card-foreground space-y-1 ">
             <div>
               <strong>Name:</strong> {creature.creatureName}
             </div>
@@ -45,10 +45,11 @@ export function CreatureCard({ creature, allCreaturesData }: CreatureCardProps) 
             <div>
               <strong>Gender:</strong> {creature.gender}
             </div>
-            <div>
-              <strong>Genotype:</strong> {creature.genetics}
+            <div className="whitespace-pre-line">
+              <strong>Genotype:</strong> {creature.genetics?.replaceAll(",","\n")}
             </div>
           </div>
+          <ScrollBar orientation="vertical" />
         </ScrollArea>
 
         {/* Add to Breeding Pair Button */}

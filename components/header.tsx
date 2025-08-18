@@ -1,64 +1,99 @@
 "use client"
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
 import { useState } from "react"
-import { Menu, Settings, LogOut } from "lucide-react"
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { ChevronsDown, LogIn, LogOut, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { data: session, status } = useSession();
 
   return (
-    <header className="bg-pompaca-purple text-barely-lilac px-4 py-3">
+    <header className="bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
       <div className="flex items-center justify-between">
-        {/* Left side - Hamburger menu and logo */}
-        <div className="flex items-center gap-4">
+        {/* Left side - Menu and logo */}
+        <div className="flex items-center gap-2">
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-purple-700">
-                <Menu className="h-5 w-5" />
+              <Button size="lg" className="text-barely-lilac hover:bg-transparent focus-visible:ring-0">
+                <ChevronsDown className="size-10" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuItem>
-                <Link href="/collection" className="w-full">
-                  Collection
+            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac">
+              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'> 
+                <Link href="/collection" className="text-lg w-full h-full">
+                  🦋  Collection
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/research-goals" className="w-full">
-                  Research Goals
+              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+                <Link href="/research-goals" className="text-lg w-full h-full">
+                  🧪  Research Goals
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/breeding-pairs" className="w-full">
-                  Breeding Pairs
+              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+                <Link href="/breeding-pairs" className="text-lg w-full h-full">
+                  💜  Breeding Pairs
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+                <Link href="/settings" className="text-lg w-full h-full">
+                  🔧  Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <div className="flex items-center gap-2">
-            <div className="text-yellow-300 text-xl">🧬</div>
+            
+            <div className="text-yellow-300 text-2xl"><Link href="/">🧬</Link></div>
             <div>
-              <h1 className="text-xl font-bold">TFO.creaturetracker</h1>
-              <p className="text-sm text-purple-200">a breeding tracker for The Final Oupost</p>
+              <h1 className="text-xl font-bold"><Link href="/">TFO.creaturetracker</Link></h1>
+              <p className="text-sm text-purple-200"><Link href="/">a breeding tracker for The Final Outpost</Link></p>
             </div>
           </div>
+          
         </div>
 
         {/* Right side - User info and actions */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button onClick={() => signOut()} variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
-            <LogOut className="h-4 w-4 mr-2" />
-            Log Out
+        {status === 'authenticated' && (
+          <div className="flex flex-col items-end py-1">
+            <div className='py-1'>
+              Welcome back, {session.user.username}!
+            </div>
+            <div className='py-1'> 
+              <Button           
+                onClick={() => signOut({ callbackUrl: '/' })} 
+                variant="ghost" 
+                size="sm" 
+                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple shadow-xl"
+                >
+                  Log Out
+                  <LogOut className="h-4 w-4 mr-2" />
+              </Button>
+            </div>
+          </div>
+        )}
+        {status === 'loading' && ( 
+          <div className="flex flex-col items-end py-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              disabled 
+              className="text-barely-lilac">
+                <Loader2 className="h-4 w-4 animate-spin" />
+            </Button>
+          </div>
+        )}
+        {status != 'authenticated' && status != 'loading' && (
+        <div className="flex flex-col items-end py-1"> 
+          <Button onClick={() => signIn()} variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
+              Log In
+              <LogIn className="h-4 w-4 ml-2" />
           </Button>
         </div>
+        )}
       </div>
     </header>
   )

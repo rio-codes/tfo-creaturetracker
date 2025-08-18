@@ -66,14 +66,14 @@ export async function POST(req: Request) {
     );
     } catch (error) {
         if (error instanceof z.ZodError) {
-            console.error("Zod Validation Failed:", error.flatten().fieldErrors);
+            // console.error("Zod Validation Failed:", error.flatten().fieldErrors);
             return NextResponse.json(
                 { message: error.flatten().fieldErrors },
                 { status: 400 }
             );
         }
             
-        console.error("Registration Error:", error);
+        // console.error("Registration Error:", error);
         return NextResponse.json(
             { message: "An unexpected error occurred." },
             { status: 500 }

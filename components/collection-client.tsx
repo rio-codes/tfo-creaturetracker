@@ -53,9 +53,9 @@ export function CollectionClient({initialCreatures, totalPages}) {
 
     return (
         <div className="bg-barely-lilac min-h-screen">
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="text-4xl font-bold text-pompaca-purple mb-8">Collection</h1>
-                <Button onClick={handleOpenSyncDialog} className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac">
+            <div className="container mx-auto px-4 py-5">
+                <h1 className="text-5xl font-bold text-pompaca-purple mb-8">Collection</h1>
+                <Button onClick={handleOpenSyncDialog} className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac drop-shadow-md drop-shadow-gray-500">
                     + Add or Update Creatures
                 </Button>
 
@@ -67,10 +67,10 @@ export function CollectionClient({initialCreatures, totalPages}) {
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dusk-purple h-4 w-4" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 z-10" />
                         <Input
                             placeholder="search for a creature..."
-                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-md drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) => handleFilterChange('query', e.target.value)}
                         />
@@ -105,10 +105,10 @@ export function CollectionClient({initialCreatures, totalPages}) {
                         value={currentStage}
                         onValueChange={(e) => handleFilterChange('stage', e)}
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
+                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className='bg-barely-lilac'>
                             <SelectItem value="all" className='bg-barely-lilac'>All Stages</SelectItem>
                             <SelectItem value="capsule" className='bg-barely-lilac'>Capsule</SelectItem>
                             <SelectItem value="juvenile" className='bg-barely-lilac'>Juvenile</SelectItem>
@@ -120,10 +120,10 @@ export function CollectionClient({initialCreatures, totalPages}) {
                     <Select
                         value={currentSpecies}
                         onValueChange={(value) => handleFilterChange('species', value)}                   >
-                        <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
+                        <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className='bg-barely-lilac'>
                             <SelectItem value="all" className='bg-barely-lilac'>All Species</SelectItem>
                                 {speciesList.map((species) => {
                                     return (

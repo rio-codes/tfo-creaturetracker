@@ -69,7 +69,7 @@ export const passwordResetTokens = pgTable("password_reset_token", {
     expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
-export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless']);
+export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'unknown']);
 
 export const creatures = pgTable('creature', {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),

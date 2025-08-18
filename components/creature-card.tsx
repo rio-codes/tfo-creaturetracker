@@ -31,7 +31,7 @@ export function CreatureCard({ creature, allCreaturesData }: CreatureCardProps) 
       <CardContent className="p-4">
         {/* Creature Image */}
         <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
-          <img src={creature.imageUrl || "/placeholder.png"} alt={creature.code + ", " + creature.species} className="w-32 h-32 object-contain" />
+          <img src={creature.imageUrl || "/placeholder.png"} alt={creature.code + ", " + creature.species} className="w-35 h-35 object-scale-down" />
         </div>
 
         <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">

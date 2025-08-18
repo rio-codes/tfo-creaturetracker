@@ -14,9 +14,10 @@ import { speciesList } from "@/app/lib/creature_data"
 
 type CollectionClientProps = {
     initialCreatures: Creature[];
+    totalPages: number;
 };
 
-export function CollectionClient({initialCreatures = []}) {
+export function CollectionClient({initialCreatures, totalPages}) {
     const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showFemale, setShowFemale] = useState(true);
@@ -149,7 +150,7 @@ export function CollectionClient({initialCreatures = []}) {
                 )}
 
                 {/* Pagination */}
-                <Pagination currentPage={1} totalPages={1} />
+                <Pagination totalPages={totalPages} />
             </div>
         </div>
     )

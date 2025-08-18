@@ -5,6 +5,7 @@ import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 
 type DialogProps = {
     isOpen: boolean;
@@ -17,6 +18,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [tabId, setTabId] = useState('');
     const [status, setStatus] = useState<SyncStatus>('idle');
     const [message, setMessage] = useState('');
+    const router = useRouter();
 
     if (!isOpen) {
         return null;
@@ -27,25 +29,26 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setMessage('');
 
         try {
-        const response = await fetch('/api/creatures/sync', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ tabId: Number(tabId) }),
-        });
+            const response = await fetch('/api/creatures/sync', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tabId: Number(tabId) }),
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Something went wrong');
-        }
+            if (!response.ok) {
+                throw new Error(data.error || 'Something went wrong');
+            }
 
-        setStatus('success');
-        setMessage(data.message);
+            setStatus('success');
+            setMessage(data.message);
+            router.refresh()
         } catch (error: any) {
-        setStatus('error');
-        setMessage(error.message);
+            setStatus('error');
+            setMessage(error.message);
         }
     };
 

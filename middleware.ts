@@ -8,8 +8,6 @@ export default auth((req: NextRequest) => {
   const isAuthenticated = (req.cookies.toString().includes("__Secure-authjs.session-token"))
   const reqPath = req.nextUrl.pathname;
 
-  console.log(reqPath)
-
   if (isAuthenticated) {
     console.log("Logged in")
   }
@@ -38,7 +36,7 @@ export default auth((req: NextRequest) => {
   }
 
   // if the user is logged in and tries to access login or register, redirect to home
-  if (isAuthenticated && (reqPath.includes('login') || reqPath.includes('register'))) {
+  if (isAuthenticated && (reqPath.includes('login') || reqPath.includes('register') || reqPath == "/")) {
     console.log("User logged in, redirecting")
     return NextResponse.redirect(new URL('/collection', req.nextUrl.origin));
   }

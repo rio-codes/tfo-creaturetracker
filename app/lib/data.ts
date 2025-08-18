@@ -7,7 +7,7 @@ import type { Creature } from '@/types';
 
 const ITEMS_PER_PAGE = 12; 
 
-export async function fetchFilteredCreatures(
+export async function getCreaturesForUser(
     currentPage: number,
     ) {
         const session = await auth();

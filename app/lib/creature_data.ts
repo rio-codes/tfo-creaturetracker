@@ -82,3 +82,4968 @@ export const speciesList =
     "Vetura Oazo",
     "Vira Beko"
 ]
+
+export const speciesGenes = 
+    {
+        'Abomena Pahidermo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],   
+            'Body': [
+                'AA - Blue (purple feet)',
+                'Aa - Red (blue feet)',
+                'aa - Green (orange feet)'
+            ],
+            'Fins': [
+                'AA - Blue',
+                'Aa - Orange',
+                'aa - Green'
+            ],
+            'Head': [
+                'AA - Green',
+                'Aa - Purple',
+                'aa - Orange',
+            ],
+        },
+        'Alta Koltuko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Evergreen',
+                'Aa - Snow',
+                'aa - Golden'
+            ],
+            'Markings': [
+                'AA - Blue',
+                'Aa - None',
+                'aa - Red'
+            ],
+            'Spots': [
+                'AA - Stripes',
+                'Aa - Snowcapped',
+                'aa - Dusted'
+            ]
+        },
+        'Arba Brakumo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Bandicoot',
+                'Aa - Sugar glider',
+                'aa - Frost'
+            ],
+            'Gloves': [
+                'AA - Small',
+                'Aa - None',
+                'aa - Large'
+            ],
+            'Fur': [
+                'AA - Medium',
+                'Aa - Short',
+                'aa - Long'
+            ],
+        },
+        'Arbara Krono': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Red',
+                'AAbb - Light Brown',
+                'AaBB - Gold',
+                'AaBb - Redbrown',
+                'Aabb - Tan',
+                'aaBB - Ecru',
+                'aaBb - Creme',
+                'aabb - White'
+            ],
+            'Tail': [
+                'AABB - Black',
+                'AABb - Brown',
+                'AAbb - Pink',
+                'AaBB - Dark Gray',
+                'AaBb - Red',
+                'Aabb - Light Gray',
+                'aaBB - Orange',
+                'aaBb - Creme',
+                'aabb - White'
+            ],
+            'Socks': [
+                'AA - Big',
+                'Aa - Small',
+                'aa - none'
+            ],
+            'Belly': [
+                'AA - All',
+                'Aa - Neck',
+                'aa - none'
+            ],
+            'Spots': [
+                'AA - Many',
+                'Aa - Few',
+                'aa - none'
+            ],
+            'Stripes': [
+                'AA - Zebra',
+                'Aa - none',
+                'aa - none'
+            ],
+            'Eye': [
+                'AABB - Blue',
+                'AABb - Olive Green',
+                'AAbb - Purple',
+                'AaBB - White',
+                'AaBb - Black',
+                'Aabb - Red',
+                'aaBB - Pink',
+                'aaBb - Gold',
+                'aabb - Green'
+            ],
+            'Antler': [
+                'AABBCC - Chital Velvet',
+                'AABBCc - Chital',
+                'AABBcc - Chital Red',
+                'AABbCC - Rangifer Velvet',
+                'AABbCc - Rangifer',
+                'AABbcc - Rangifer Red',
+                'AAbbCC - Sambar Velvet',
+                'AAbbCc - Sambar',
+                'AAbbcc - Sambar Red',
+                'AaBBCC - Elk Velvet',
+                'AaBBCc - Elk',
+                'AaBBcc - Elk Red',
+                'AaBbCC - Whitetail Velvet',
+                'AaBbCc - Whitetail',
+                'AaBbcc - Whitetail Red',
+                'AabbCC - Red Deer Velvet',
+                'AabbCc - Red Deer',
+                'Aabbcc - Red Deer Red',
+                'aaBBCC - Moose Velvet',
+                'aaBBCc - Moose',
+                'aaBBcc - Moose Red',
+                'aaBbCC - Fallow Velvet',
+                'aaBbCc - Fallow',
+                'aaBbcc - Fallow Red',
+                'aabbCC - Megaloceros Velvet',
+                'aabbCc - Megaloceros',
+                'aabbcc - Megaloceros Red'
+            ]
+        },
+        "Arda Vosto": {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Red Belly',
+                'Aa - Black',
+                'aa - Purple Belly'
+            ],
+            'Morph': [                
+                'AABB - Blue Pink Mane',
+                'AABb - Gold Cyan Mane',
+                'AAbb - Gold Red Mane',
+                'AaBB - Purple Mane',
+                'AaBb - None',
+                'Aabb - Purple Tentacles',
+                'aaBB - Orange Tentacles',
+                'aaBb - Green Tentacles',
+                'aabb - Cyan Tentacles'
+            ]
+        },
+        'Avka Felo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Green (blue belly)',
+                'AAbb - Gray',
+                'AaBB - Orange',
+                'AaBb - Green (red belly)',
+                'Aabb - Siamese',
+                'aaBB - Gold',
+                'aaBb - Yellow (white belly)',
+                'aabb - White'
+            ],
+            'Variationa': [                
+                'AABB - Orange',
+                'AABb - Green',
+                'AAbb - Yellow',
+                'AaBB - Purple',
+                'AaBb - Dark Blue',
+                'Aabb - Blue',
+                'aaBB - Indigo',
+                'aaBb - Cyan',
+                'aabb - Mustard'
+            ],
+            'Variationb': [                
+                'AABB - Blue with Red Tips',
+                'AABb - Green',
+                'AAbb - Watermelon',
+                'AaBB - Purple',
+                'AaBb - Black',
+                'Aabb - Pink with Black Center',
+                'aaBB - Blue with Black Tips',
+                'aaBb - Yellow with Blue Stripes',
+                'aabb - Red with Black Markings'
+            ],
+            'Markinga': [
+                'AA - None',
+                'Aa - Small stripes',
+                'aa - Large stripes'
+            ],
+            'Markingb': [
+                'AA - None',
+                'Aa - Tuxedo',
+                'aa - Large Spotting'
+            ],
+            'Markingc': [
+                'AA - None',
+                'Aa - Brown Striped Splotches',
+                'aa - Orange Splotches'
+            ],
+            'Length': [
+                'AA - Long',
+                'Aa - Short',
+                'aa - None'
+            ]
+        },
+        'Bera Manganto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Green',
+                'Aa - Blue',
+                'aa - Purple'
+            ],
+            'Wing': [
+                'AA - Green',
+                'Aa - Blue',
+                'aa - Purple'
+            ],
+            'Markings': [
+                'AA - Snowflakes',
+                'Aa',
+                'aa - Swirls'
+            ]
+        },
+        'Brila Ornamo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Red Green',
+                'Aa - Gold',
+                'aa - Blue Gold'
+            ],
+            'Legs': [
+                'AA - Copper',
+                'Aa - Gold',
+                'aa - Silver'
+            ],
+            'Mandibles': [
+                'AA - Copper (short)',
+                'Aa - Gold (curved)',
+                'aa - Silver (long)'
+            ]
+        },
+        'Cielarka Cimo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Carapace': [                
+                'AABB - Black',
+                'AABb - Blue',
+                'AAbb - Green',
+                'AaBB - Gold',
+                'AaBb - White',
+                'Aabb - Iridescent Green',
+                'aaBB - Purple',
+                'aaBb - Iridescent Blue',
+                'aabb - Red'
+            ],
+            'Belly': [                
+                'AABB - Red',
+                'AABb - Blue',
+                'AAbb - Gold Silver',
+                'AaBB - Yellow',
+                'AaBb - Red Gray',
+                'Aabb - Purple',
+                'aaBB - Iridescent Blue',
+                'aaBb - Green',
+                'aabb - Orange'
+            ],
+            'Marking': [                
+                'AABB - Black',
+                'AABb - Blue',
+                'AAbb - Green',
+                'AaBB - Gold',
+                'AaBb - White',
+                'Aabb - Iridescent Green',
+                'aaBB - Purple',
+                'aaBb - Iridescent Blue',
+                'aabb - Red'
+            ],
+            'Wings': [
+                'AABBCC - Red Harlequin',
+                'AABBCc - Resplendent Forester (orange)',
+                'AABBcc - Peackock Butterfly',
+                'AABbCC - Fritillary (red)',
+                'AABbCc - Tiger Moth',
+                'AABbcc - Atlas Moth',
+                'AAbbCC - Crimson Rose Swallowtail',
+                'AAbbCc - Red Admiral',
+                'AAbbcc - Golden Longwing',
+                'AaBBCC - Orange Harlequin',
+                'AaBBCc - Luna Moth',
+                'AaBBcc - Io Moth',
+                'AaBbCC - Resplendent Forester (green)',
+                'AaBbCc - Swallowtail',
+                'AaBbcc - Malachite Butterfly',
+                'AabbCC - Emerald Swallowtail',
+                'AabbCc - Salvazana Imperialis',
+                'Aabbcc - Paperwhite Butterfly',
+                'aaBBCC - Purple Emperor',
+                'aaBBCc - Procilla Beauty (purple)',
+                'aaBBcc - Procilla Beauty (blue)',
+                'aaBbCC - Superb Leafwing',
+                'aaBbCc - Cyan Black',
+                'aaBbcc - Astyanax',
+                'aabbCC - Pink-dotted Metalmark',
+                'aabbCc - Blue Longwing',
+                'aabbcc - Blue with red and yellow spots'
+            ]
+        },
+        'Degela Koro': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Orange',
+                'Aa - White',
+                'aa - Teal'
+            ],
+            'Markinga': [
+                'AA - Stripe',
+                'Aa - Banded',
+                'aa - Snow'
+            ],
+            'Markingb': [
+                'AA - Stripe',
+                'Aa - Banded',
+                'aa - Aurora'
+            ]
+        },
+        'Dentega Salto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Eyes': [                
+                'AABB - Red',
+                'AABb - Hazel',
+                'AAbb - Blue',
+                'AaBB - Copper',
+                'AaBb - Dull Green',
+                'Aabb - Dark Blue',
+                'aaBB - Brown',
+                'aaBb - Bright Green',
+                'aabb - Black'
+            ],
+            'Body': [
+                'AABBCC - White (red eyed)',
+                'AABBCc - Tan',
+                'AABBcc - Rose Gold',
+                'AABbCC - Lilac',
+                'AABbCc - Dull Brown',
+                'AABbcc - Chestnut',
+                'AAbbCC - Dark Gray',
+                'AAbbCc - Dark Brown',
+                'AAbbcc - Maroon',
+                'AaBBCC - White',
+                'AaBBCc - Beige',
+                'AaBBcc - Wheat',
+                'AaBbCC - Blue',
+                'AaBbCc - Brown',
+                'AaBbcc - Gold',
+                'AabbCC - Slate',
+                'AabbCc - Chocolate',
+                'Aabbcc - Dark Gold',
+                'aaBBCC - Silver',
+                'aaBBCc - Orange',
+                'aaBBcc - Straw',
+                'aaBbCC - Gray',
+                'aaBbCc - Ginger',
+                'aaBbcc - Green',
+                'aabbCC - Black',
+                'aabbCc - Red',
+                'aabbcc - Moss'
+            ],
+            'Markings': [
+                'AABBCC',
+                'AABBCc - Black Harlequin',
+                'AABBcc',
+                'AABbCC - Black Cover',
+                'AABbCc - Dark Gray Harlequin',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc - Gray Harlequin',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc - Ginger Harlequin',
+                'AaBbCC - Dark Gray Cover',
+                'AaBbCc',
+                'AaBbcc - Gold Harlequin',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc - Tan Harlequin',
+                'aaBBCC',
+                'aaBBCc - Ginger Undersides',
+                'aaBBcc',
+                'aaBbCC - Gray Cover',
+                'aaBbCc - Gold Undersides',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc - Tan Undersides',
+                'aabbcc'
+            ],
+            'White': [
+                'AABBCC - Medium Dutch Pattern',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc - White Harlequin',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC - Small Dutch Pattern',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc - Tiny Dutch Pattern',
+                'AabbCC - White Undersides',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc - Reverse Dapple',
+                'aabbCC - Large Dutch Pattern',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Spots': [
+                'AABBCC',
+                'AABBCc',
+                'AABBcc - Black English Spot',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC - Reverse Splash',
+                'AAbbCc',
+                'AAbbcc - Black Splash',
+                'AaBBCC',
+                'AaBBCc - Brown English Spot',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc - Brown Splash',
+                'Aabbcc',
+                'aaBBCC - Reverse English Spot',
+                'aaBBCc',
+                'aaBBcc - Ginger English Spot',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc - Ginger Splash'
+            ],
+            'Ears': [
+                'AA - Lop',
+                'Aa - Regular',
+                'aa - Desert'
+            ],
+            'Horns': [
+                'AABBCC - Al-Miraj',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc - Jackalope'
+            ]
+        }, 
+        'Dormema Ventreto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Graybrown',
+                'AAbb - White',
+                'AaBB - Red',
+                'AaBb - Brown',
+                'Aabb - Honey',
+                'aaBB - Green',
+                'aaBb - Greenbrown',
+                'aabb - Pearl'
+            ],
+            'Patagium': [                
+                'AABB - Black',
+                'AABb - White',
+                'AAbb - Blue',
+                'AaBB - Red',
+                'AaBb - Brown',
+                'Aabb - Orange',
+                'aaBB - Green',
+                'aaBb - Yellow',
+                'aabb - Teal'
+            ],
+            'Marking': [                
+                'AABB - N/a',
+                'AABb - Brown spots',
+                'AAbb - Leopard',
+                'AaBB - Yellow stripes',
+                'AaBb - N/a',
+                'Aabb - Green webbing',
+                'aaBB - N/a',
+                'aaBb - Orange spots',
+                'aabb - Teal brindle'
+            ],
+            'Face': [                
+                'AABB - Panda',
+                'AABb - Badger',
+                'AAbb - Racoon',
+                'AaBB - Sloth full',
+                'AaBb',
+                'Aabb - Fox',
+                'aaBB - Sloth eyes',
+                'aaBb - Red Panda',
+                'aabb - Tuxedo'
+            ]
+        },
+        'Dorna Maco': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Juniper',
+                'Aa - Green',
+                'aa - Tan'
+            ],
+            'Marking': [                
+                'AABB - Spots',
+                'AABb - Light Stripes',
+                'AAbb - Dark Stripes',
+                'AaBB - Anteater',
+                'AaBb - Badger',
+                'Aabb - Spot on back (brown)',
+                'aaBB - Pointed',
+                'aaBb - Spot on back (crackled)',
+                'aabb - Spot on back (tan)'
+            ],
+            'Plates': [                
+                'AABB - Pine',
+                'AABb - Fern',
+                'AAbb - Pear',
+                'AaBB - Emerald',
+                'AaBb - Moss',
+                'Aabb - Lime',
+                'aaBB - Dark Brown',
+                'aaBb - Light brown',
+                'aabb - Olive'
+            ],
+            'Ears': [                
+                'AABB - Short blue',
+                'AABb - Medium blue',
+                'AAbb - Long blue',
+                'AaBB - Short green',
+                'AaBb - Medium green',
+                'Aabb - Long green',
+                'aaBB - Short yellow',
+                'aaBb - Medium yellow',
+                'aabb - Long yellow'
+            ]
+        },
+        'Ebena Kuranto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Silver',
+                'AABBCc - Light Gray',
+                'AABBcc - Purple',
+                'AABbCC - White',
+                'AABbCc - Light Gray',
+                'AABbcc - Cremello',
+                'AAbbCC - Dominant White',
+                'AAbbCc - White',
+                'AAbbcc - Buttermilk Buckskin',
+                'AaBBCC - Bay',
+                'AaBBCc - Rose Grey',
+                'AaBBcc - Teal',
+                'AaBbCC - Light Liver Chestnut',
+                'AaBbCc - Chestnut',
+                'AaBbcc - Chestnut',
+                'AabbCC - Bay',
+                'AabbCc - Palomino',
+                'Aabbcc - Golden Buckskin',
+                'aaBBCC - Blood Bay',
+                'aaBBCc - Dark Bay',
+                'aaBBcc - Blue',
+                'aaBbCC - Chocolate',
+                'aaBbCc - Black',
+                'aaBbcc - Blue Gray',
+                'aabbCC - Liver Chestnut',
+                'aabbCc - Black',
+                'aabbcc - Buckskin'
+            ],
+            'Marking': [
+                'AABBCC',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc - Dapple',
+                'AAbbCC',
+                'AAbbCc - Sooty',
+                'AAbbcc - White brindle',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc - Dapple',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc - Dapple',
+                'aabbCC',
+                'aabbCc - Sooty',
+                'aabbcc - Dark brindle'
+            ],
+            'Feet': [
+                'AABBCC',
+                'AABBCc - Single Sock',
+                'AABBcc - Partial Sock',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc - Ermine',
+                'AAbbCC',
+                'AAbbCc - Double Socks',
+                'AAbbcc - Single High Stocking',
+                'AaBBCC',
+                'AaBBCc - Double Socks odd',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc - Three Socks',
+                'AabbCC',
+                'AabbCc - Three Fetlocks',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc - Four Fetlocks',
+                'aaBbCC',
+                'aaBbCc - Four Socks',
+                'aaBbcc',
+                'aabbCC - Four Stockings',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Pinto': [
+                'AABBCC - Rabicano',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc - Roan',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc - Frame Overo',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc - Sabino',
+                'aaBbCC',
+                'aaBbCc - Tobiano',
+                'aaBbcc',
+                'aabbCC - Splashed White',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Leopard': [
+                'AABBCC - Snowcap',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC - Varnish roan',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC - Spotted blanket',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC - Leopard',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Face': [
+                'AABBCC',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC - Baldface',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC - Baldface',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC - Baldface',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Mane': [
+                'AABBCC - Long Blonde',
+                'AABBCc - Draft Blonde',
+                'AABBcc - Iridescent',
+                'AABbCC - Short Blonde',
+                'AABbCc - Short Blonde',
+                'AABbcc - Short Blonde',
+                'AAbbCC - Long White',
+                'AAbbCc - Short Blonde',
+                'AAbbcc - Braided Blonde',
+                'AaBBCC - Long Chestnut',
+                'AaBBCc - Draft Chestnut',
+                'AaBBcc - Braided Chestnut',
+                'AaBbCC - Short Chestnut',
+                'AaBbCc - Short Chestnut',
+                'AaBbcc - Short Brown',
+                'AabbCC - Long Brown',
+                'AabbCc - Draft Brown',
+                'Aabbcc - Braided Brown',
+                'aaBBCC - Short Black',
+                'aaBBCc - Horns',
+                'aaBBcc - Braided Black',
+                'aaBbCC - Long Black',
+                'aaBbCc - Short Black',
+                'aaBbcc - Short Black',
+                'aabbCC - Short Black',
+                'aabbCc - Draft Black',
+                'aabbcc - Maneless'
+            ],
+            'Horns': [
+                'AABBCC',
+                'AABBCc',
+                'AABBcc - Black unicorn',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc - White unicorn',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc - Red unicorn',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc'
+            ],
+            'Wings': [
+                'AABBCC',
+                'AABBCc - Pegasus',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc - Jersey Devil',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc'
+            ]
+        },
+        'Ekvinoska Kavigo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Charcoal',
+                'AABb - Iridescent',
+                'AAbb - Purple',
+                'AaBB - Orange',
+                'AaBb - Brown',
+                'Aabb - Red',
+                'aaBB - White',
+                'aaBb - Blue',
+                'aabb - Green'
+            ],
+            'Tail': [
+                'AABBCC - Long Charcoal',
+                'AABBCc - Long Iridescent',
+                'AABBcc - Long Purple',
+                'AABbCC - Long Orange',
+                'AABbCc - Long Brown',
+                'AABbcc - Long Red',
+                'AAbbCC - Long White',
+                'AAbbCc - Long Blue',
+                'AAbbcc - Long Green',
+                'AaBBCC - Short Charcoal',
+                'AaBBCc - Short Iridescent',
+                'AaBBcc - Short Purple',
+                'AaBbCC - Short Orange',
+                'AaBbCc - Short Brown',
+                'AaBbcc - Short Red',
+                'AabbCC - Short White',
+                'AabbCc - Short Blue',
+                'Aabbcc - Short Green',
+                'aaBBCC',
+                'aaBBCc - Kitsune Brown',
+                'aaBBcc',
+                'aaBbCC - Squirrel White',
+                'aaBbCc - Squirrel Brown',
+                'aaBbcc - Kitsune Iridescent',
+                'aabbCC',
+                'aabbCc - Kitsune Orange',
+                'aabbcc'
+            ],
+            'Paws': [                
+                'AABB - Green',
+                'AABb - Blue',
+                'AAbb - Purple',
+                'AaBB - Brown',
+                'AaBb - Black',
+                'Aabb - Orange',
+                'aaBB - Pink',
+                'aaBb - White',
+                'aabb - Olive'
+            ],
+            'Stripes': [
+                'AABBCC',
+                'AABBCc - Gray',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc - White',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC - Red',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc - Blue',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc - Purple',
+                'aabbCC',
+                'aabbCc - Gold',
+                'aabbcc'
+            ],
+            'Marking': [
+                'AABBCC - Green',
+                'AABBCc',
+                'AABBcc - Silver',
+                'AABbCC - Purple',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc - Gray',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc - Silver',
+                'AaBBcc - Blue',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc - Orange',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC - Pink',
+                'aaBbCc - Gold',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc - Gray'
+            ],
+            'Nose': [                
+                'AABB - Black',
+                'AABb - Purple',
+                'AAbb - Dark Purple',
+                'AaBB - Pink',
+                'AaBb',
+                'Aabb - Red',
+                'aaBB - Brown',
+                'aaBb - Blue',
+                'aabb - Green'
+            ],
+            'Carrot': [
+                'no',
+                'yes'
+            ]
+        },
+        'Etarakido': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Gold',
+                'AABb - Moss',
+                'AAbb - Black',
+                'AaBB - Copper',
+                'AaBb - Rose',
+                'Aabb - Blue Gray',
+                'aaBB - Smoky',
+                'aaBb - Charcoal',
+                'aabb - Silver'
+            ],
+            'Eyes': [
+                'AA - Green',
+                'Aa - Gold',
+                'aa - Purple'
+            ],
+            'Marking': [
+                'AABBCC - Gold Starburst',
+                'AABBCc - Orange Small Concentric',
+                'AABBcc - Orange Stripes',
+                'AABbCC - Orange Treebark',
+                'AABbCc - Orange Large Concentric',
+                'AABbcc - Green Stripes',
+                'AAbbCC - Orange Wave',
+                'AAbbCc - Green Wave',
+                'AAbbcc - Green Small Concentric',
+                'AaBBCC - Green Treebark',
+                'AaBBCc - Green Large Concentric',
+                'AaBBcc - Blue Stripes',
+                'AaBbCC - Blue Treebark',
+                'AaBbCc - Blue Large Concentric',
+                'AaBbcc - Blue Small Concentric',
+                'AabbCC - Blue Wave',
+                'AabbCc - Purple Small Concentric',
+                'Aabbcc - Purple Stripes',
+                'aaBBCC - Purple Wave',
+                'aaBBCc - Purple Large Concentric',
+                'aaBBcc - Pink Stripes',
+                'aaBbCC - Purple Treebark',
+                'aaBbCc - Pink Large Concentric',
+                'aaBbcc - Pink Small Concentric',
+                'aabbCC - Pink Treebark',
+                'aabbCc - Pink Wave',
+                'aabbcc - Silver Starburst'
+            ],
+            'Tail': [
+                'AA - Stripes negative',
+                'Aa - Straight Stripes',
+                'aa - Stripes positive'
+            ],
+            'Wing': [
+                'AA - Mosaic',
+                'Aa - Concentric Mosaic',
+                'aa - Concentric Stripes'
+            ]
+        },
+        'Flirtanta Flamo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Wings': [                
+                'AABB - Paper Lantern',
+                'AABb - Maple Seed',
+                'AAbb - Feathered',
+                'AaBB - Windspinner',
+                'AaBb - Beetle',
+                'Aabb - Mineralized',
+                'aaBB - Flaps',
+                'aaBb - Tripoint',
+                'aabb - Aeroplankton'
+            ],
+            'Abdomen': [                
+                'AABB - Rainbow Gem',
+                'AABb - Ruby Gem',
+                'AAbb - Emerald Gem',
+                'AaBB - Purple Firefly',
+                'AaBb - Yellow Firefly',
+                'Aabb - Blue Firefly',
+                'aaBB - Blue Crystal',
+                'aaBb - Orange Crystal',
+                'aabb - Rainbow Crystal'
+            ],
+            'Body': [                
+                'AABB - Rosy Maple',
+                'AABb - Cream',
+                'AAbb - Green',
+                'AaBB - Twilight',
+                'AaBb - Flame',
+                'Aabb - Iron',
+                'aaBB - White',
+                'aaBb - Smolder',
+                'aabb - Purple'
+            ],
+            'Plating': [
+                'AA - Angular',
+                'Aa - Plain',
+                'aa - Floral'
+            ]
+        },
+        'Floranta Doloro': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Tentacle': [                
+                'AABB - Blue',
+                'AABb - Grayblue',
+                'AAbb - Teal',
+                'AaBB - Red Green',
+                'AaBb - Purple',
+                'Aabb - Dark Purple',
+                'aaBB - Fuchsia Orange',
+                'aaBb - Fuchsia',
+                'aabb - Dark Red'
+            ],
+            'Stinger': [                
+                'AABB - Lime',
+                'AABb - Red Green',
+                'AAbb - Purple Orange',
+                'AaBB - Fuchsia Blue',
+                'AaBb - Green Red',
+                'Aabb - Purple Gray',
+                'aaBB - Green Yellow',
+                'aaBb - Purple Pink',
+                'aabb - Cyan Purple'
+            ],
+            'Body': [                
+                'AABB - Light Pink (with rim)',
+                'AABb - Pink (with rim)',
+                'AAbb - Purple (with rim)',
+                'AaBB - Dark Blue (with rim)',
+                'AaBb - Tan (with rim)',
+                'Aabb - Dark Purple (with rim)',
+                'aaBB - Red (no rim)',
+                'aaBb - Green (no rim)',
+                'aabb - Light Green (no rim)'
+            ]
+        },
+        'Fluganta Rato': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Brown',
+                'AABb - Light Brown',
+                'AAbb - Beige',
+                'AaBB - Black',
+                'AaBb - Gray',
+                'Aabb - White',
+                'aaBB - Dark Purple',
+                'aaBb - Light Purple',
+                'aabb - Light Lavender'
+            ],
+            'Neck': [                
+                'AABB - Red',
+                'AABb - Black',
+                'AAbb - White',
+                'AaBB - Green',
+                'AaBb - Blue',
+                'Aabb - Pink',
+                'aaBB - Purple',
+                'aaBb - Orange',
+                'aabb - Gold'
+            ],
+            'Tail': [
+                'AABB - Red',
+                'AABb - Blue',
+                'AAbb - Green',
+                'AaBB - Light Green',
+                'AaBb - Cyan',
+                'Aabb - matches body',
+                'aaBB - Purple',
+                'aaBb - Orange',
+                'aabb - Sunrise'
+            ],
+            'Tint': [                
+                'AABB - Gray',
+                'AABb - Black',
+                'AAbb - White',
+                'AaBB - Green',
+                'AaBb - Blue',
+                'Aabb - None',
+                'aaBB - Purple',
+                'aaBb - Red',
+                'aabb - Brown'
+            ]
+        },
+        'Frida Fisisto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Black',
+                'Aa - Blue',
+                'aa - Purple'
+            ],
+            'Belly': [
+                'AA - Purple',
+                'Aa - White',
+                'aa - Gold'
+            ],
+            'Wing': [
+                'AA - Black',
+                'Aa - Blue',
+                'aa - Purple'
+            ]
+        },
+        'Furioza Vizago': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Orange',
+                'Aa - Black',
+                'aa - Purple'
+            ],
+            'Markinga': [
+                'AA - Whiskers',
+                'Aa - Mask',
+                'aa - Runes'
+            ],
+            'Markingb': [
+                'AA - Eye Spots',
+                'Aa - Umbra',
+                'aa - Galaxy'
+            ]
+        },
+        'Glacia Alsalto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Snowfire',
+                'AABBCc - Snowfire',
+                'AABBcc - Snowfire',
+                'AABbCC - Snowfire',
+                'AABbCc - Snowfire',
+                'AABbcc - Snowfire',
+                'AAbbCC - Snowfire',
+                'AAbbCc - Snowfire',
+                'AAbbcc - Snowfire',
+                'AaBBCC - Ice Blue',
+                'AaBBCc - Ice Blue',
+                'AaBBcc - Ice Blue',
+                'AaBbCC - Ice Blue',
+                'AaBbCc - Ice Blue',
+                'AaBbcc - Ice Blue',
+                'AabbCC - Ice Blue',
+                'AabbCc - Ice Blue',
+                'Aabbcc - Ice Blue',
+                'aaBBCC - Snow',
+                'aaBBCc - Snow',
+                'aaBBcc - Snow',
+                'aaBbCC - Snow',
+                'aaBbCc - Snow',
+                'aaBbcc - Snow',
+                'aabbCC - Snow',
+                'aabbCc - Snow',
+                'aabbcc - Snow'
+            ],
+            'Tails': [
+                'AA - 9 tails',
+                'Aa - 6 tails',
+                'aa - 3 tails'
+            ],
+            'Ice': [
+                'AA - Large',
+                'Aa - Small',
+                'aa - None'
+            ],
+            'Fire': [
+                'AA - None',
+                'Aa - None',
+                'aa - None'
+            ]
+        },
+        'Glita Skvamo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Wings': [                
+                'AABB - Blue',
+                'AABb - Black',
+                'AAbb - Silver',
+                'AaBB - Purple',
+                'AaBb - Green',
+                'Aabb - Prismatic',
+                'aaBB - Red',
+                'aaBb - Orange',
+                'aabb - Yellow'
+            ],
+            'Body': [                
+                'AABB - Blue',
+                'AABb - Green',
+                'AAbb - Gold',
+                'AaBB - Purple',
+                'AaBb - Silver',
+                'Aabb - Black',
+                'aaBB - Red',
+                'aaBb - Copper',
+                'aabb - Pink'
+            ],
+            'Bodymarking': [                
+                'AABB - Koi',
+                'AABb',
+                'AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB',
+                'aaBb',
+                'aabb - Two-Color Koi'
+            ],
+            'Wingmarking': [
+                'AABBCC - Green Spots',
+                'AABBCc - Blue Cover',
+                'AABBcc - Blue Spots',
+                'AABbCC',
+                'AABbCc - Black Cover',
+                'AABbcc - Purple Cover',
+                'AAbbCC - Pink Spots',
+                'AAbbCc',
+                'AAbbcc - Red Spots',
+                'AaBBCC',
+                'AaBBCc - Silver Eyespots',
+                'AaBBcc',
+                'AaBbCC - Black Eyespots',
+                'AaBbCc',
+                'AaBbcc - Black Spots',
+                'AabbCC',
+                'AabbCc - Red Eyespots',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc - Pink Stripes',
+                'aaBBcc - Black Stripes',
+                'aaBbCC - Blue Stripes',
+                'aaBbCc',
+                'aaBbcc - Koi',
+                'aabbCC - Swallowtail',
+                'aabbCc - Orange Stripes',
+                'aabbcc - Two-Color Koi'
+            ]
+        },
+        'Glubleko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Pink',
+                'AABb - Silver',
+                'AAbb - Brown',
+                'AaBB - Blue',
+                'AaBb - Orange',
+                'Aabb - Red',
+                'aaBB - Blue Gray',
+                'aaBb - Black',
+                'aabb - Green'
+            ],
+            'Markings': [                
+                'AABB - Pine Barrens Tree Frog',
+                'AABb - Angelfish',
+                'AAbb - Spots',
+                'AaBB - Koi',
+                'AaBb - None',
+                'Aabb - Lionfish',
+                'aaBB - Belly',
+                'aaBb - Frogfish Spots',
+                'aabb - Tree Frog'
+            ],
+            'Back': [                
+                'AABB - Axolotl',
+                'AABb - Angelfish',
+                'AAbb - Anglerfish',
+                'AaBB - Betta',
+                'AaBb - Goldfish',
+                'Aabb - Lionfish',
+                'aaBB - Shark',
+                'aaBb - Juvenile Painted Frogfish',
+                'aabb - Spikes'
+            ]
+        },
+        'Gudra Kornaro': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Bronze',
+                'Aa - Abyss',
+                'aa - Ghost'
+            ],
+            'Antlers': [                
+                'AABB - Shattered Glass',
+                'AABb - Optical Nerve',
+                'AAbb - Ribcage',
+                'AaBB - Mould Growth',
+                'AaBb - Chalice',
+                'Aabb - Bird',
+                'aaBB - Spiral',
+                'aaBb - Tree Branches',
+                'aabb - Bat Wings'
+            ]
+        },
+        'Imsanga Afero': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Outcome': [
+                'AABBCC - Pug Dog',
+                'AABBCc - Olive Damselfish',
+                'AABBcc - Peppered Llamachicken',
+                'AABbCC - Black Llamachicken',
+                'AABbCc - Black Pigzard',
+                'AABbcc - Bronze Isopod',
+                'AAbbCC - Brown Dog',
+                'AAbbCc - Orange Damselfish',
+                'AAbbcc - Pink Pigzard',
+                'AaBBCC - Red Llamachicken',
+                'AaBBCc - Orange Isopod',
+                'AaBBcc - Tan Llamachicken',
+                'AaBbCC - Pink Damselfish',
+                'AaBbCc - Red Pigzard',
+                'AaBbcc - Red Dog',
+                'AabbCC - Bernese Dog',
+                'AabbCc - Pink Isopod',
+                'Aabbcc - Red Damselfish',
+                'aaBBCC - Green Isopod',
+                'aaBBCc - Green Dog',
+                'aaBBcc - White Llamachicken',
+                'aaBbCC - Blue Dog',
+                'aaBbCc - Green Pigzard',
+                'aaBbcc - Green Damselfish',
+                'aabbCC - Teal Isopod',
+                'aabbCc - Blue Damselfish',
+                'aabbcc - Blue Pigzard'
+            ]
+        },
+        'Inkuba Brulajo': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Striped (tan belly)',
+                'Aa - Gray (red belly)',
+                'aa - Red (black belly)'
+            ],
+            'Legs': [
+                'AA - Orange',
+                'Aa - Gold',
+                'aa - Bone'
+            ],
+            'Glow': [
+                'AA - Purple',
+                'Aa - Red',
+                'aa - Lime Green'
+            ]
+        },
+        'Kasa Gardanto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Claws': [
+                'AA - Black',
+                'Aa - Brown',
+                'aa - White'
+            ],
+            'Belly': [                
+                'AABB - Black',
+                'AABb - Green',
+                'AAbb - White',
+                'AaBB - Brown',
+                'AaBb - Sand',
+                'Aabb - Tan',
+                'aaBB - Red',
+                'aaBb - Orange',
+                'aabb - Pink'
+            ],
+            'Body': [                
+                'AABB - Black',
+                'AABb - Green',
+                'AAbb - White',
+                'AaBB - Brown Hairless',
+                'AaBb - Brown Fluffy',
+                'Aabb - Tan',
+                'aaBB - Red',
+                'aaBb - Orange',
+                'aabb - Pink Hairless'
+            ],
+            'Markingsa': [                
+                'AABB - Spots Big',
+                'AABb - Spots Small</option><option value="AAbb">AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB - Stripes Big',
+                'aaBb - Stripes Small',
+                'aabb'
+            ],
+            'Scales': [                
+                'AABB - Black',
+                'AABb - Green',
+                'AAbb - White',
+                'AaBB - Brown',
+                'AaBb - Sand',
+                'Aabb - Tan',
+                'aaBB - Red',
+                'aaBb - Orange',
+                'aabb - Pink'
+            ],
+            'Markingsb': [                
+                'AABB - Black Edges',
+                'AABb - Black Inverse Edges</option><option value="AAbb">AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB - Bracket',
+                'aaBb - Black Alternating Stripes',
+                'aabb - Black Center Stripe'
+            ],
+            'White': [
+                'AABBCC - White Inverse Outline',
+                'AABBCc - White Inverse Edges',
+                'AABBcc',
+                'AABbCC - White Edges',
+                'AABbCc - White Outline',
+                'AABbcc',
+                'AAbbCC - White Bracket',
+                'AAbbCc - White Alternating Stripes',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC - Blue Outline',
+                'aaBBCc - Blue Glow',
+                'aaBBcc',
+                'aaBbCC - Green Outline',
+                'aaBbCc - Green Glow',
+                'aaBbcc',
+                'aabbCC - Orange Outline',
+                'aabbCc - Orange Glow',
+                'aabbcc'
+            ],
+            'Extras': [
+                'AABBCC - Scales',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC - Star Nose Dark',
+                'aabbCc - Star Nose Light',
+                'aabbcc'
+            ]
+        },
+        'Kauri Makzelo': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Gold',
+                'Aa - Silver',
+                'aa - Stormy'
+            ],
+            'Markinga': [
+                'AA - Gold Painted',
+                'Aa - Brindled',
+                'aa - Snow Leopard'
+            ],
+            'Markingb': [
+                'AA - White Mask/Pinions',
+                'Aa - Wing Tips',
+                'aa - Tuxedo'
+            ]
+        },
+        'Klara Alsalto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Silver (green eye)',
+                'AABBCc - Pearl',
+                'AABBcc - Sapphire',
+                'AABbCC - Red (gold eye)',
+                'AABbCc - Silver (blue eye)',
+                'AABbcc - Opal/Piano',
+                'AAbbCC - Cross',
+                'AAbbCc - Fire Cross',
+                'AAbbcc - Moonglow',
+                'AaBBCC - Colicott Brown',
+                'AaBBCc - Pastel',
+                'AaBBcc - Burgundy Cross',
+                'AaBbCC - Red (green eye)',
+                'AaBbCc - Red (blue eye)',
+                'AaBbcc - Wildfire',
+                'AabbCC - Platinum Cross',
+                'AabbCc - Pink Cross',
+                'Aabbcc - Autumn Fire',
+                'aaBBCC - Georgian',
+                'aaBBCc - Radium',
+                'aaBBcc - Dawn Glow',
+                'aaBbCC - Red (red eye)',
+                'aaBbCc - Snow Glow',
+                'aaBbcc - Leucistic',
+                'aabbCC - Pearl Platinum',
+                'aabbCc - Pink Champagne',
+                'aabbcc - Albino'
+            ],
+            'Tails': [
+                'AA - 9 tails',
+                'Aa - 6 tails',
+                'aa - 3 tails'
+            ],
+            'Ice': [
+                'AA - None',
+                'Aa - None',
+                'aa - None'
+            ],
+            'Fire': [
+                'AA - Large',
+                'Aa - Small',
+                'aa - None'
+            ]
+        },
+        'Klipeta Kapto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Copper',
+                'AABb - Orange',
+                'AAbb - White',
+                'AaBB - Brown',
+                'AaBb - Tan',
+                'Aabb - Purple',
+                'aaBB - Black',
+                'aaBb - Green',
+                'aabb - Blue'
+            ],
+            'Legs': [                
+                'AABB - Copper',
+                'AABb - Orange',
+                'AAbb - White',
+                'AaBB - Brown',
+                'AaBb - Tan',
+                'Aabb - Purple',
+                'aaBB - Black',
+                'aaBb - Green',
+                'aabb - Blue'
+            ],
+            'Pincers': [                
+                'AABB - Copper',
+                'AABb - Orange',
+                'AAbb - White',
+                'AaBB - Brown',
+                'AaBb - Tan',
+                'Aabb - Purple',
+                'aaBB - Black',
+                'aaBb - Green',
+                'aabb - Blue'
+            ],
+            'Pattern': [
+                'AABBCC',
+                'AABBCc - Red Stripes',
+                'AABBcc - Magenta Stripes',
+                'AABbCC - Lime Green Stripes',
+                'AABbCc - Yellow Stripes',
+                'AABbcc - Orange Stripes',
+                'AAbbCC',
+                'AAbbCc - Blue Stripes',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc - Gray Stripes',
+                'AaBBcc',
+                'AaBbCC - White Birdskull',
+                'AaBbCc',
+                'AaBbcc - White Stripes',
+                'AabbCC',
+                'AabbCc - Black Birdskull',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc - Red Birdskull',
+                'aaBBcc - Magenta Birdskull',
+                'aaBbCC - Lime Green Birdskull',
+                'aaBbCc - Yellow Birdskull',
+                'aaBbcc - Orange Birdskull',
+                'aabbCC',
+                'aabbCc - Blue Birdskull',
+                'aabbcc'
+            ]
+        },
+        'Koleratako': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - White',
+                'AAbb - Red',
+                'AaBB - Grey',
+                'AaBb - Yellow',
+                'Aabb - Pink',
+                'aaBB - Green',
+                'aaBb - Blue',
+                'aabb - Teal'
+            ],
+            'Limbs': [
+                'AA - Pink',
+                'Aa - Brown',
+                'aa - Grey'
+            ],
+            'Feathers': [                
+                'AABB - Black',
+                'AABb - White',
+                'AAbb - Red',
+                'AaBB - Grey',
+                'AaBb - Yellow',
+                'Aabb - Pink',
+                'aaBB - Green',
+                'aaBb - Blue',
+                'aabb - Teal'
+            ],
+            'Crest': [                
+                'AABB - White Mitchells',
+                'AABb - White Cockatoo',
+                'AAbb - Red Mitchells',
+                'AaBB - Pink Cockatoo',
+                'AaBb - Yellow Cockatoo',
+                'Aabb - Pink Mitchells',
+                'aaBB - Red Cockatoo',
+                'aaBb - Yellow Mitchells',
+                'aabb - Palm Cockatoo'
+            ],
+            'Face': [                
+                'AABB - Gold Stripes',
+                'AABb - Pink Cheek',
+                'AAbb - Purple Cheek',
+                'AaBB - White Cheek',
+                'AaBb - White Stripe',
+                'Aabb - Yellow Cheek',
+                'aaBB',
+                'aaBb - Red Cheek',
+                'aabb - Blue Stripes'
+            ],
+            'Tail': [
+                'AABB - Pink',
+                'AABb - Yellow',
+                'AAbb - Emerald',
+                'AaBB - White',
+                'AaBb - Red',
+                'Aabb',
+                'aaBB - Blue',
+                'aaBb - Peach',
+                'aabb - Purple'
+            ]
+        },
+        'Kora Voko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Daybreak',
+                'AABb - Sunrise',
+                'AAbb - Sunset',
+                'AaBB - Dusk',
+                'AaBb - Evening',
+                'Aabb - Twilight',
+                'aaBB - Sundown',
+                'aaBb - Dawn',
+                'aabb - Airglow'
+            ],
+            'Wings': [                
+                'AABB - Dark',
+                'AABb - Silver',
+                'AAbb - Green',
+                'AaBB - Purple Duotone',
+                'AaBb - Shimmer',
+                'Aabb - Rainbow Duotone',
+                'aaBB - Morning Frost',
+                'aaBb - Sunrise',
+                'aabb - Dawn'
+            ],
+            'Tail': [
+                'AABBCC - Daybreak Morning Glory',
+                'AABBCc - Daybreak 4 Oclock',
+                'AABBcc - Daybreak Jasmine',
+                'AABbCC - Sunrise Morning Glory',
+                'AABbCc - Sunrise Marigold',
+                'AABbcc - Sunrise Honeysuckle',
+                'AAbbCC - Sunset Squash Flower',
+                'AAbbCc - Sunset Marigold',
+                'AAbbcc - Sunset Jasmine',
+                'AaBBCC - Dusk 4 Oclock',
+                'AaBBCc - Dusk Squash Flower',
+                'AaBBcc - Dusk Water Lily',
+                'AaBbCC - Evening Primrose',
+                'AaBbCc - Evening Honeysuckle',
+                'AaBbcc - Evening Lily',
+                'AabbCC - Twilight Primrose',
+                'AabbCc - Twilight Marigold',
+                'Aabbcc - Twilight Lily',
+                'aaBBCC - Sundown Primrose',
+                'aaBBCc - Sundown Lily',
+                'aaBBcc - Sundown Water Lily',
+                'aaBbCC - Dawn 4 Oclock',
+                'aaBbCc - Dawn Jasmine',
+                'aaBbcc - Dawn Water Lily',
+                'aabbCC - Airglow Morning Glory',
+                'aabbCc - Airglow Squash Flower',
+                'aabbcc - Airglow Honeysuckle'
+            ],
+            'Markings': [
+                'AABB',
+                'AABb - Silver Cap',
+                'AAbb - Silver Streak',
+                'AaBB - Silver Mask',
+                'AaBb - Silver',
+                'Aabb - Gold Rays',
+                'aaBB - Gold Cloudscape',
+                'aaBb - Gold',
+                'aabb - Gold Collar'
+            ],
+            'Plumage': [                
+                'AABB - Black Halo',
+                'AABb - Gold Crown',
+                'AAbb - Black Droplets',
+                'AaBB - Blue Crown',
+                'AaBb - Silver Fan',
+                'Aabb - Gold Plume',
+                'aaBB - Blue Curl',
+                'aaBb - Lavender Collar',
+                'aabb - Gold Grebe'
+            ]
+        },
+        'Kosmira Girafo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Redbrown',
+                'AABb - Black',
+                'AAbb - Green',
+                'AaBB - Purple',
+                'AaBb - Brown',
+                'Aabb - Orange',
+                'aaBB - Dark Blue',
+                'aaBb - Tan',
+                'aabb - Swamp'
+            ],
+            'Spots': [                
+                'AABB - Purple',
+                'AABb - Iridescent Blue',
+                'AAbb - Orange',
+                'AaBB - Gold',
+                'AaBb - Red',
+                'Aabb - Pink',
+                'aaBB - Teal',
+                'aaBb - Bluegray',
+                'aabb - Green'
+            ],
+            'Stripes': [                
+                'AABB - Black',
+                'AABb - Purple',
+                'AAbb - Iridescent Purple',
+                'AaBB - Tan',
+                'AaBb - Brown',
+                'Aabb - Brown Purple',
+                'aaBB - Iridescent Blue',
+                'aaBb - Gray',
+                'aabb - Swamp'
+            ]
+        },
+        'Kvieta Kiraso': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Dark purple',
+                'AABBCc - Mauve',
+                'AABBcc - Light blue',
+                'AABbCC - Dark blue',
+                'AABbCc - Green tea',
+                'AABbcc - Ice blue',
+                'AAbbCC - Iridescent blue',
+                'AAbbCc - Lime green',
+                'AAbbcc - Iridescent green',
+                'AaBBCC - Silver',
+                'AaBBCc - Gray',
+                'AaBBcc - Dark green',
+                'AaBbCC - Gray',
+                'AaBbCc - Gray',
+                'AaBbcc - Bronze',
+                'AabbCC - Creme',
+                'AabbCc - Bronze',
+                'Aabbcc - Black',
+                'aaBBCC - Gold',
+                'aaBBCc - Light brown',
+                'aaBBcc - Light brown',
+                'aaBbCC - Red brown',
+                'aaBbCc - Red brown',
+                'aaBbcc - Dark brown',
+                'aabbCC - Iridescent orange',
+                'aabbCc - Orange',
+                'aabbcc - Red'
+            ],
+            'Markings': [
+                'AABBCC - White spots',
+                'AABBCc - White thin stripes',
+                'AABBcc - Blue turtle',
+                'AABbCC - Blue duotone',
+                'AABbCc',
+                'AABbcc - Blue tapir',
+                'AAbbCC - Blue stripes',
+                'AAbbCc - Dorsal stripe',
+                'AAbbcc - Black side stripe',
+                'AaBBCC - Black spots',
+                'AaBBCc - Olive thin stripes',
+                'AaBBcc - Purple turtle',
+                'AaBbCC - Purple duotone',
+                'AaBbCc',
+                'AaBbcc - Olive tapir',
+                'AabbCC - Pink stripes',
+                'AabbCc - Black stripes',
+                'Aabbcc - Black marbled',
+                'aaBBCC - Red spots',
+                'aaBBCc - Red thin stripes',
+                'aaBBcc - Tan turtle',
+                'aaBbCC - Yellow-green duotone',
+                'aaBbCc',
+                'aaBbcc - Tan tapir',
+                'aabbCC - Yellow stripes',
+                'aabbCc - Green spots',
+                'aabbcc - Green side stripe'
+            ],
+            'Belly': [
+                'AA - Faded',
+                'Aa - None',
+                'aa - Small'
+            ],
+            'Back': [
+                'AABBCC - Loricatosaurus orange',
+                'AABBCc - Loricatosaurus bone',
+                'AABBcc - Stegosaurus green',
+                'AABbCC - Loricatosaurus bone',
+                'AABbCc - None',
+                'AABbcc - Hesperosaurus',
+                'AAbbCC - Panoplosaurus',
+                'AAbbCc - None',
+                'AAbbcc - Edaphosaurus',
+                'AaBBCC - Spike crested lizard',
+                'AaBBCc - Kentrosaurus',
+                'AaBBcc - Stegosaurus bone',
+                'AaBbCC - Kentrosaurus',
+                'AaBbCc - None',
+                'AaBbcc - None',
+                'AabbCC - Panoplosaurus',
+                'AabbCc - Euoplocephalus',
+                'Aabbcc - Spikes',
+                'aaBBCC - Spike crested lizard',
+                'aaBBCc - Jiangjunosaurus blue',
+                'aaBBcc - Stegosaurus blue',
+                'aaBbCC - Jiangjunosaurus green',
+                'aaBbCc - None',
+                'aaBbcc - Wuerhosaurus',
+                'aabbCC - Gigantospinosaurus',
+                'aabbCc - Euoplocephalus',
+                'aabbcc - Spikes'
+            ],
+            'Crest': [                
+                'AABB - Protoceratops',
+                'AABb - Triceratops',
+                'AAbb - Styracosaurus',
+                'AaBB - Machairoceratops',
+                'AaBb - Base',
+                'Aabb - Albertaceratops',
+                'aaBB - Diabloceratops',
+                'aaBb - Mojoceratops',
+                'aabb - Agujaceratops'
+            ],
+            'Horn': [                
+                'AABB - Sumatran rhino',
+                'AABb - Woolly rhino',
+                'AAbb - Elasmotherium',
+                'AaBB',
+                'AaBb - Spiked',
+                'Aabb - Embolotherium',
+                'aaBB - Forward facing',
+                'aaBb - Arsenotherium',
+                'aabb - Brontotherium'
+            ]
+        },
+        'Lanuga Vizago': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Gold',
+                'Aa - Silver',
+                'aa - Stormy'
+            ],
+            'Markinga': [
+                'AA - Gold Painted',
+                'Aa - Brindled',
+                'aa - Snow Leopard'
+            ],
+            'Markingb': [
+                'AA - White Mask/Pinions',
+                'Aa - Wing Tips',
+                'aa - Tuxedo'
+            ]
+        },
+        'Limaka Cevalo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Silver',
+                'AABb - Blue',
+                'AAbb - Black',
+                'AaBB - Pink',
+                'AaBb - Glaucus',
+                'Aabb - Green',
+                'aaBB - Red',
+                'aaBb - Orange',
+                'aabb - Lime Green'
+            ],
+            'Head': [
+                'AABBCC - Silver Seasnare',
+                'AABBCc - Silver Searunner',
+                'AABBcc - Silver Gardener',
+                'AABbCC - Blue Seasnare',
+                'AABbCc - Blue Searunner',
+                'AABbcc - Blue Gardener',
+                'AAbbCC - Black Seasnare',
+                'AAbbCc - Black Searunner',
+                'AAbbcc - Black Gardener',
+                'AaBBCC - Pink Seasnare',
+                'AaBBCc - Pink Searunner',
+                'AaBBcc - Pink Gardener',
+                'AaBbCC - Glaucus Seasnare',
+                'AaBbCc - Glaucus Searunner',
+                'AaBbcc - Glaucus Gardener',
+                'AabbCC - Green Seasnare',
+                'AabbCc - Green Searunner',
+                'Aabbcc - Green Gardener',
+                'aaBBCC - Red Seasnare',
+                'aaBBCc - Red Searunner',
+                'aaBBcc - Red Gardener',
+                'aaBbCC - Orange Seasnare',
+                'aaBbCc - Orange Searunner',
+                'aaBbcc - Orange Gardener',
+                'aabbCC - Teal Seasnare',
+                'aabbCc - Teal Searunner',
+                'aabbcc - Teal Gardener'
+            ],
+            'Fins': [
+                'AABBCC - Muted Pink Spine',
+                'AABBCc - Silver Betta',
+                'AABBcc - Muted Pink Leafy',
+                'AABbCC - Blue Spines',
+                'AABbCc - Blue Betta',
+                'AABbcc - Blue Leafy',
+                'AAbbCC - Teal Spines',
+                'AAbbCc - Black Betta',
+                'AAbbcc - Teal Leafy',
+                'AaBBCC - Pink Spines',
+                'AaBBCc - Pink Betta',
+                'AaBBcc - Pink Leafy',
+                'AaBbCC - Dark Blue Spines',
+                'AaBbCc - Glaucus Betta',
+                'AaBbcc - Glaucus Leafy',
+                'AabbCC - Green Spines',
+                'AabbCc - Green Betta',
+                'Aabbcc - Green Leafy',
+                'aaBBCC - Yellow Spines',
+                'aaBBCc - Red Betta',
+                'aaBBcc - Yellow Leafy',
+                'aaBbCC - Orange Spines',
+                'aaBbCc - Orange Betta',
+                'aaBbcc - Orange Leafy',
+                'aabbCC - Green Spines',
+                'aabbCc - Cyan Betta',
+                'aabbcc - Lime Leafy'
+            ],
+            'Markings': [                
+                'AABB - Green Bioluminescence',
+                'AABb - none',
+                'AAbb - Blue Bioluminescence',
+                'AaBB - none',
+                'AaBb - none',
+                'Aabb - none',
+                'aaBB - koi',
+                'aaBb - none',
+                'aabb - Tricolour Koi'
+            ]
+        },
+        'Luma Mordo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Blue',
+                'AABb - Electric Blue',
+                'AAbb - Purple',
+                'AaBB - Teal',
+                'AaBb - Gray',
+                'Aabb - Red',
+                'aaBB - Green',
+                'aaBb - Copper',
+                'aabb - Black'
+            ],
+            'Head': [                
+                'AABB - Blue',
+                'AABb - Electric Blue',
+                'AAbb - Purple',
+                'AaBB - Teal',
+                'AaBb - Gray',
+                'Aabb - Red',
+                'aaBB - Green',
+                'aaBb - Copper',
+                'aabb - Black'
+            ],
+            'Biolum': [                
+                'AABB - Blue Purple',
+                'AABb - Blue',
+                'AAbb - Purple',
+                'AaBB - Teal',
+                'AaBb - Yellow Green',
+                'Aabb - Magenta',
+                'aaBB - Green',
+                'aaBb - Orange',
+                'aabb - Red'
+            ],
+            'Fins': [                
+                'AABB - Blue',
+                'AABb - Electric Blue',
+                'AAbb - Purple',
+                'AaBB - Teal',
+                'AaBb - Gray',
+                'Aabb - Red',
+                'aaBB - Green',
+                'aaBb - Copper',
+                'aabb - Black'
+            ],
+            'Tailfins': [
+                'AABBCC - Blue Newt',
+                'AABBCc - Electric Blue Thresher',
+                'AABBcc - Purple Small Spikes',
+                'AABbCC - Teal Newt',
+                'AABbCc - Gray Thresher',
+                'AABbcc - Purple Spikes',
+                'AAbbCC - Green Spikes',
+                'AAbbCc - Copper Betta',
+                'AAbbcc - Black Horizontal',
+                'AaBBCC - None',
+                'AaBBCc - Black Thresher',
+                'AaBBcc - Purple Thresher',
+                'AaBbCC - Teal Thresher',
+                'AaBbCc - Green Small Spikes',
+                'AaBbcc - Purple Horizontal',
+                'AabbCC - Green Horizontal',
+                'AabbCc - Copper Fin',
+                'Aabbcc - Black Fin',
+                'aaBBCC - Teal Fin',
+                'aaBBCc - Blue Thresher',
+                'aaBBcc - None',
+                'aaBbCC - Red Spikes',
+                'aaBbCc - Black Spikes',
+                'aaBbcc - RedBetta',
+                'aabbCC - Green Thresher',
+                'aabbCc - Blue Betta',
+                'aabbcc - Black Small Spikes'
+            ],
+            'Variation': [                
+                'AABB - Sawfish',
+                'AABb - Hammerhead',
+                'AAbb - Shovelhead',
+                'AaBB - Bladehead',
+                'AaBb - Great white',
+                'Aabb - Great white',
+                'aaBB - Goblin shark',
+                'aaBb - Mako',
+                'aabb - Helicoprion'
+            ]
+        },
+        'Luna Hundo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Titan',
+                'AABb - Callisto',
+                'AAbb - Blue Moon',
+                'AaBB - Lunar Eclipse',
+                'AaBb - Io',
+                'Aabb - Luna',
+                'aaBB - New Moon',
+                'aaBb - Europa',
+                'aabb - Purple'
+            ],
+            'Spots': [
+                'AA - Large',
+                'Aa - Medium',
+                'aa - None'
+            ],
+            'Tux': [
+                'AABBCC - N/a',
+                'AABBCc - N/a',
+                'AABBcc - Titan',
+                'AABbCC - N/a',
+                'AABbCc - N/a',
+                'AABbcc - Callisto',
+                'AAbbCC - N/a',
+                'AAbbCc - N/a',
+                'AAbbcc - Blue Moon',
+                'AaBBCC - N/a',
+                'AaBBCc - N/a',
+                'AaBBcc - Lunar Eclipse',
+                'AaBbCC - N/a',
+                'AaBbCc - N/a',
+                'AaBbcc - Io',
+                'AabbCC - N/a',
+                'AabbCc - N/a',
+                'Aabbcc - Luna',
+                'aaBBCC - N/a',
+                'aaBBCc - N/a',
+                'aaBBcc - New Moon',
+                'aaBbCC - N/a',
+                'aaBbCc - N/a',
+                'aaBbcc - Europa',
+                'aabbCC - N/a',
+                'aabbCc - N/a',
+                'aabbcc - Purple'
+            ],
+            'Mane': [
+                'AABBCC - Large (Titan)',
+                'AABBCc - Regular (Titan)',
+                'AABBcc - Back only (Titan)',
+                'AABbCC - Large (Callisto)',
+                'AABbCc - Regular (Callisto)',
+                'AABbcc - Back only (Callisto)',
+                'AAbbCC - Large (Blue Moon)',
+                'AAbbCc - Regular (Blue Moon)',
+                'AAbbcc - Back only (Blue Moon)',
+                'AaBBCC - Large (Lunar Eclipse)',
+                'AaBBCc - Regular (Lunar Eclipse)',
+                'AaBBcc - Back only (Lunar Eclipse)',
+                'AaBbCC - Large (Io)',
+                'AaBbCc - Regular (Io)',
+                'AaBbcc - Back only (Io)',
+                'AabbCC - Large (Luna)',
+                'AabbCc - Regular (Luna)',
+                'Aabbcc - Back only (Luna)',
+                'aaBBCC - Large (New Moon)',
+                'aaBBCc - Regular (New Moon)',
+                'aaBBcc - Back only (New Moon)',
+                'aaBbCC - Large (Europa)',
+                'aaBbCc - Regular (Europa)',
+                'aaBbcc - Mane only (Europa)',
+                'aabbCC - Large (Purple)',
+                'aabbCc - Regular (Purple)',
+                'aabbcc - Mane only (Purple)'
+            ]
+        },
+        'Malbenita Beno': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Walnut',
+                'Aa - Cinnamon',
+                'aa - Snow'
+            ],
+            'Morph': [                
+                'AABB - Dark Coat',
+                'AABb - Red Coat',
+                'AAbb - Horns',
+                'AaBB - Lump of Coal',
+                'AaBb - Snowman',
+                'Aabb',
+                'aaBB - Cerulean Mane',
+                'aaBb - Pearl Mane',
+                'aabb - Wings'
+            ]
+        },
+        'Malvolva Kapo': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - White (black wingtips)',
+                'Aa - Brown (dark wings)',
+                'aa - Gray'
+            ],
+            'Head': [
+                'AA - Red',
+                'Aa - Purple (brown head)',
+                'aa - Blue'
+            ],
+            'Glow': [
+                'AA - Orange',
+                'Aa - None',
+                'aa - Iridescent Blue'
+            ]
+        },
+        'Membra Cerbo': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Tan',
+                'Aa - Red',
+                'aa - Purple'
+            ],
+            'Marking': [
+                'AA - Orange Boots',
+                'Aa - None',
+                'aa - Blue Webbing'
+            ],
+            'Variant': [
+                'AA - Tan Mantle',
+                'Aa - Red Mantle',
+                'aa - Shell'
+            ]
+        },
+        'Minuskla Casadisto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Pink',
+                'AABBCc - Orange',
+                'AABBcc - Brown',
+                'AABbCC - Ruby',
+                'AABbCc - Dark Blue',
+                'AABbcc - Light Pink',
+                'AAbbCC - Red',
+                'AAbbCc - Orange',
+                'AAbbcc - Brown',
+                'AaBBCC - Pale Gold',
+                'AaBBCc - Bronze',
+                'AaBBcc - Teal',
+                'AaBbCC - Lime Green',
+                'AaBbCc - Yellow',
+                'AaBbcc - Mint Green',
+                'AabbCC - Pale Gold',
+                'AabbCc - Bronze',
+                'Aabbcc - Teal',
+                'aaBBCC - Albino',
+                'aaBBCc - Tan',
+                'aaBBcc - Silver',
+                'aaBbCC - White',
+                'aaBbCc - Dark Blue',
+                'aaBbcc - Steel Blue',
+                'aabbCC - Black',
+                'aabbCc - Tan',
+                'aabbcc - Sapphire Blue'
+            ],
+            'Wings': [
+                'AABBCC - Pink',
+                'AABBCc - Light Pink',
+                'AABBcc - Brown',
+                'AABbCC - Ruby',
+                'AABbCc - Black',
+                'AABbcc - Orange',
+                'AAbbCC - Red',
+                'AAbbCc - Light Pink',
+                'AAbbcc - Brown',
+                'AaBBCC - Pale Gold',
+                'AaBBCc - Bronze',
+                'AaBBcc - Silver',
+                'AaBbCC - Lime Green',
+                'AaBbCc - Yellow',
+                'AaBbcc - Mint Green',
+                'AabbCC - Pale Gold',
+                'AabbCc - Bronze',
+                'Aabbcc - Teal',
+                'aaBBCC - White',
+                'aaBBCc - Tan',
+                'aaBBcc - Silver',
+                'aaBbCC - Dark Blue',
+                'aaBbCc - Black',
+                'aaBbcc - Steel Blue',
+                'aabbCC - White',
+                'aabbCc - Tan',
+                'aabbcc - Sapphire Blue'
+            ],
+            'Markinga': [                
+                'AABB - Tuxedo',
+                'AABb - Pink Belly',
+                'AAbb - White Boots',
+                'AaBB - Black Mask',
+                'AaBb - White Breast',
+                'Aabb - Green Cap',
+                'aaBB - Gold Mane',
+                'aaBb - Yellow Mask and Belly',
+                'aabb - None'
+            ],
+            'Markingb': [                
+                'AABB - Blue Wing Linings',
+                'AABb - Black Wing Lining Tips',
+                'AAbb - Black Mane',
+                'AaBB - Black Speckles',
+                'AaBb - White Wingtips',
+                'Aabb - Teal Mask',
+                'aaBB - Black Mantle',
+                'aaBb - Yellow Cape',
+                'aabb - None'
+            ]
+        },
+        'Monta Selo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Green Purple',
+                'AABb - Dark Red',
+                'AAbb - Blue Red',
+                'AaBB - Swamp',
+                'AaBb - Dark Green',
+                'Aabb - Black',
+                'aaBB - Gray',
+                'aaBb - Purple',
+                'aabb - Red Green'
+            ],
+            'Shell': [                
+                'AABB - Iridescent Blue',
+                'AABb - Yellow',
+                'AAbb - Dark Brown',
+                'AaBB - Flecked',
+                'AaBb - Iridescent Black',
+                'Aabb - Dark Gray',
+                'aaBB - Red',
+                'aaBb - Purple (green highlights)',
+                'aabb - Purple (blue highlights)'
+            ],
+            'Crystals': [                
+                'AABB - Ruby',
+                'AABb - Emerald',
+                'AAbb - Watermelon Tourmaline',
+                'AaBB - Amethyst',
+                'AaBb - Quartz',
+                'Aabb - Rose Quartz',
+                'aaBB - Sapphire',
+                'aaBb - Citrine',
+                'aabb - Garnet'
+            ]
+        },
+        'Muska Felo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Dark Green',
+                'AAbb - Dark Gray',
+                'AaBB - Red',
+                'AaBb - Swamp',
+                'Aabb - Creme',
+                'aaBB - Beige',
+                'aaBb - Sage Green',
+                'aabb - White'
+            ],
+            'Variationa': [                
+                'AABB - Ruby',
+                'AABb - Emerald',
+                'AAbb - Watermelon Tourmaline',
+                'AaBB - Amethyst',
+                'AaBb - Quartz',
+                'Aabb - Rose Quartz',
+                'aaBB - Sapphire',
+                'aaBb - Citrine',
+                'aabb - Garnet'
+            ],
+            'Variationb': [                
+                'AABB - Ruby',
+                'AABb - Emerald',
+                'AAbb - Watermelon Tourmaline',
+                'AaBB - Amethyst',
+                'AaBb - Quartz',
+                'Aabb - Rose Quartz',
+                'aaBB - Sapphire',
+                'aaBb - Citrine',
+                'aabb - Garnet'
+            ],
+            'Markinga': [
+                'AA - None',
+                'Aa - Small stripes',
+                'aa - Large stripes'
+            ],
+            'Markingb': [
+                'AA - None',
+                'Aa - Tuxedo',
+                'aa - Calico'
+            ],
+            'Markingc': [
+                'AA - None',
+                'Aa - Large spots',
+                'aa - Small spots'
+            ],
+            'Length': [
+                'AA - Large ears',
+                'Aa - Medium ears',
+                'aa - Small ears'
+            ]
+        },
+        'Muskbirdo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Gray',
+                'AABb - Dark Red',
+                'AAbb - Goldenrod',
+                'AaBB - Eggplant',
+                'AaBb - Dark Blue',
+                'Aabb - Brown',
+                'aaBB - Dark Purple',
+                'aaBb - Dark Green',
+                'aabb - Tan'
+            ],
+            'Second': [                
+                'AABB - Yellowgreen',
+                'AABb - Gold',
+                'AAbb - Dark Green',
+                'AaBB - Blue Purple',
+                'AaBb - Dark Purple',
+                'Aabb - Red',
+                'aaBB - Purple',
+                'aaBb - Bluegreen',
+                'aabb - Pink'
+            ],
+            'Df': [                
+                'AABB - Dark Purple',
+                'AABb - Orange',
+                'AAbb - Green',
+                'AaBB - Eggplant',
+                'AaBb - Black',
+                'Aabb - Red',
+                'aaBB - Gray',
+                'aaBb - Charcoal',
+                'aabb - Petrol'
+            ],
+            'Feet': [                
+                'AABB - Turquoise',
+                'AABb - Dark Green',
+                'AAbb - Green',
+                'AaBB - Swamp Green',
+                'AaBb - Blue',
+                'Aabb - Red',
+                'aaBB - Purple',
+                'aaBb - Petrol',
+                'aabb - Pale Green'
+            ],
+            'Beak': [                
+                'AABB - Gray',
+                'AABb - Red',
+                'AAbb - Green',
+                'AaBB - Swamp Green',
+                'AaBb - Purple',
+                'Aabb - Black',
+                'aaBB - Pink',
+                'aaBb - Charcoal',
+                'aabb - Brown'
+            ]
+        },
+        'Nebula Glisanto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Powder Blue',
+                'AABb - Light Blue',
+                'AAbb - Periwinkle',
+                'AaBB - Pale Yellow',
+                'AaBb - Blue',
+                'Aabb - Lavender',
+                'aaBB - Peach',
+                'aaBb - Pink',
+                'aabb - Purple'
+            ],
+            'Marking': [                
+                'AABB - None',
+                'AABb - Orca Body',
+                'AAbb - Right Whale',
+                'AaBB - Humpback Body',
+                'AaBb - None',
+                'Aabb - Blue Whale',
+                'aaBB - Whale Shark',
+                'aaBb - Humpback Markings',
+                'aabb - Orca Markings'
+            ],
+            'Markingb': [                
+                'AABB - None',
+                'AABb - Orca Body',
+                'AAbb - Right Whale',
+                'AaBB - Humpback Body',
+                'AaBb - None',
+                'Aabb - Blue Whale',
+                'aaBB - None',
+                'aaBb - Humpback Markings',
+                'aabb - Orca Markings'
+            ],
+            'Clouds': [
+                'none',
+                'white',
+                'dark',
+                'stormy',
+                'dawn',
+                'dusk'
+            ]
+        },
+        'Nektara Veziko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Chartreuse Green',
+                'AABb - Gold',
+                'AAbb - Lime Green',
+                'AaBB - Khaki Green',
+                'AaBb - Emerald Green',
+                'Aabb - Jade Green',
+                'aaBB - Olive Green',
+                'aaBb - Brown',
+                'aabb - Blue Green'
+            ],
+            'Belly': [                
+                'AABB - Yellow',
+                'AABb - Orange',
+                'AAbb - Red',
+                'AaBB - Fire',
+                'AaBb - Green',
+                'Aabb - Purple',
+                'aaBB - Magma',
+                'aaBb - Brown',
+                'aabb - Blue'
+            ],
+            'Markings': [                
+                'AABB - Tan',
+                'AABb - Gold',
+                'AAbb - Red',
+                'AaBB - Emerald Green',
+                'AaBb - Lime Green',
+                'Aabb - Pink',
+                'aaBB - Brown',
+                'aaBb - Copper',
+                'aabb - Blue'
+            ],
+            'Overlay': [
+                'AABBCC - Black',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc - Blue Orange'
+            ]
+        },
+        'Netimo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Koi',
+                'AABb - Tiger',
+                'AAbb - Gold',
+                'AaBB - Purple',
+                'AaBb - Oilspill',
+                'Aabb - Iridescent Green',
+                'aaBB - Red',
+                'aaBb - Abyssal',
+                'aabb - Prismatic'
+            ],
+            'Markings': [                
+                'AABB - Koi',
+                'AABb - Prismatic Belly</option><option value="AAbb">AAbb',
+                'AaBB - Black Backscales',
+                'AaBb - Abyssal Belly',
+                'Aabb - Gold Eye Markings',
+                'aaBB - Gold Belly',
+                'aaBb - Oilspill Belly',
+                'aabb - Blue Eye Markings'
+            ],
+            'Fins': [                
+                'AABB - Charcoal',
+                'AABb - Siamese',
+                'AAbb - Gold',
+                'AaBB - Pink',
+                'AaBb - Blue',
+                'Aabb - Green',
+                'aaBB - Oilspill',
+                'aaBb - Purple',
+                'aabb - Prismatic'
+            ]
+        },
+        'Nokta Voko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Moon',
+                'AABb - Nebula',
+                'AAbb - Nightfall',
+                'AaBB - Twilight',
+                'AaBb - Midnight',
+                'Aabb - Aurora',
+                'aaBB - Gloam',
+                'aaBb - Dusk',
+                'aabb - Airglow'
+            ],
+            'Wings': [
+                'AABB',
+                'AABb - Black Duotone',
+                'AAbb - Gold Fade',
+                'AaBB - Lavender Tips',
+                'AaBb - Dotted',
+                'Aabb - Blue Duotone',
+                'aaBB - Lavender Coverts',
+                'aaBb - Rainbow Duotone',
+                'aabb - Gold Primaries'
+            ],
+            'Tail': [
+                'AABBCC - Moon Orchid',
+                'AABBCc - Moon Queen',
+                'AABBcc - Moon Lily',
+                'AABbCC - Nebula Phlox',
+                'AABbCc - Nebula Gladiolus',
+                'AABbcc - Nebula Orchid',
+                'AAbbCC - Nightfall Gardenia',
+                'AAbbCc - Nightfall Gladiolus',
+                'AAbbcc - Nightfall Queen',
+                'AaBBCC - Twilight Gladiolus',
+                'AaBBCc - Twilight Orchid',
+                'AaBBcc - Twilight Lily',
+                'AaBbCC - Midnight Phlox',
+                'AaBbCc - Midnight Water Lily',
+                'AaBbcc - Midnight Lily',
+                'AabbCC - Aurora Phlox',
+                'AabbCc - Aurora Jasmine',
+                'Aabbcc - Aurora Moonflower',
+                'aaBBCC - Gloam Water Lily',
+                'aaBBCc - Gloam Gardenia',
+                'aaBBcc - Gloam Moonflower',
+                'aaBbCC - Dusk Jasmine',
+                'aaBbCc - Dusk Water Lily',
+                'aaBbcc - Dusk Queen',
+                'aabbCC - Airglow Jasmine',
+                'aabbCc - Airglow Gardenia',
+                'aabbcc - Airglow Moonflower'
+            ],
+            'Markings': [
+                'AABB',
+                'AABb - Mooncap',
+                'AAbb - Crescent Moon',
+                'AaBB - Moon Starburst',
+                'AaBb - Moon',
+                'Aabb - Gold Star',
+                'aaBB - Moonscape',
+                'aaBb - Gold',
+                'aabb - Crescent Gold'
+            ],
+            'Plumage': [                
+                'AABB - Moon Crown',
+                'AABb',
+                'AAbb - Secretary',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB - Lavender Curl',
+                'aaBb',
+                'aabb - Grebe'
+            ]
+        },
+        'Okula Pikilo': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Green (orange abdomen)',
+                'Aa - Black (gold stripes)',
+                'aa - Red Black (orange stripes)'
+            ],
+            'Legs': [
+                'AA - Gold',
+                'Aa - Black',
+                'aa - Sunset'
+            ],
+            'Wings': [
+                'AA - none',
+                'Aa - Gold',
+                'aa - Gray'
+            ]
+        },
+        'Ombra Vesperto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Light Brown',
+                'AABb - Light Blue',
+                'AAbb - Purple',
+                'AaBB - Red',
+                'AaBb - Bluegreen',
+                'Aabb - Green',
+                'aaBB - Blue',
+                'aaBb - Tan',
+                'aabb - Orange'
+            ],
+            'Belly': [                
+                'AABB - Sunset',
+                'AABb - Light Blue',
+                'AAbb - Purple',
+                'AaBB - Dark Red',
+                'AaBb - Gray',
+                'Aabb - Teal',
+                'aaBB - Dark Blue',
+                'aaBb - White',
+                'aabb - Red'
+            ],
+            'Marking': [                
+                'AABB - Brown',
+                'AABb - Yellow',
+                'AAbb - Purple',
+                'AaBB - Pink',
+                'AaBb - Lime Green',
+                'Aabb - Cyan',
+                'aaBB - Black',
+                'aaBb - Gray',
+                'aabb - Red'
+            ],
+            'Scales': [                
+                'AABB - Black',
+                'AABb - Light Blue',
+                'AAbb - Purple',
+                'AaBB - Orange',
+                'AaBb - Dark Gray',
+                'Aabb - Teal',
+                'aaBB - Dark Blue',
+                'aaBb - Light Gray',
+                'aabb - Red'
+            ]
+        },
+        'Osta Frakaso': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Dark Gray',
+                'AABBCc - Iridescent',
+                'AABBcc - Silver',
+                'AABbCC - Iridescent',
+                'AABbCc - Dark Gray',
+                'AABbcc - Silver',
+                'AAbbCC - Iridescent',
+                'AAbbCc - Silver',
+                'AAbbcc - Dark Gray',
+                'AaBBCC - Silver',
+                'AaBBCc - Iridescent',
+                'AaBBcc - Dark Gray',
+                'AaBbCC - Silver',
+                'AaBbCc - Dark Gray',
+                'AaBbcc - Iridescent',
+                'AabbCC - Dark Gray',
+                'AabbCc - Silver',
+                'Aabbcc - Iridescent',
+                'aaBBCC - Dark Gray',
+                'aaBBCc - Iridescent',
+                'aaBBcc - Silver',
+                'aaBbCC - Iridescent',
+                'aaBbCc - Dark Gray',
+                'aaBbcc - Silver',
+                'aabbCC - Iridescent',
+                'aabbCc - Silver',
+                'aabbcc - Dark Gray'
+            ],
+            'Marking': [
+                'AABBCC - Spots',
+                'AABBCc',
+                'AABBcc - Spots',
+                'AABbCC - Spots',
+                'AABbCc - Spots',
+                'AABbcc',
+                'AAbbCC - Spots',
+                'AAbbCc',
+                'AAbbcc - Spots',
+                'AaBBCC - Stripes',
+                'AaBBCc',
+                'AaBBcc - Spots',
+                'AaBbCC - Stripes',
+                'AaBbCc',
+                'AaBbcc - Spots',
+                'AabbCC - Spots',
+                'AabbCc',
+                'Aabbcc - Stripes',
+                'aaBBCC - Stripes',
+                'aaBBCc',
+                'aaBBcc - Stripes',
+                'aaBbCC',
+                'aaBbCc - Stripes',
+                'aaBbcc - Stripes',
+                'aabbCC - Stripes',
+                'aabbCc',
+                'aabbcc - Stripes'
+            ],
+            'Mane': [
+                'AABBCC - Black',
+                'AABBCc',
+                'AABBcc - Black',
+                'AABbCC - Black',
+                'AABbCc - Black',
+                'AABbcc',
+                'AAbbCC - Black',
+                'AAbbCc',
+                'AAbbcc - Black',
+                'AaBBCC - Purple',
+                'AaBBCc',
+                'AaBBcc - Black',
+                'AaBbCC - Purple',
+                'AaBbCc',
+                'AaBbcc - Black',
+                'AabbCC - Black',
+                'AabbCc',
+                'Aabbcc - Purple',
+                'aaBBCC - Purple',
+                'aaBBCc',
+                'aaBBcc - Purple',
+                'aaBbCC',
+                'aaBbCc - Purple',
+                'aaBbcc - Purple',
+                'aabbCC - Purple',
+                'aabbCc',
+                'aabbcc - Purple'
+            ],
+            'Antlers': [
+                'AABB',
+                'AABb',
+                'AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB',
+                'aaBb',
+                'aabb'
+            ]
+        },
+        'Pieda Pastigo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Pine',
+                'AABb - Ice',
+                'AAbb - Gold',
+                'AaBB - Charcoal',
+                'AaBb - Brown',
+                'Aabb - Tan',
+                'aaBB - Red',
+                'aaBb - Pink',
+                'aabb - Pearl'
+            ],
+            'Markings': [
+                'AA - Bronze Overlay',
+                'Aa - White Stripes',
+                'aa - White Overlay'
+            ]
+        },
+        'Pompaca Floro': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Yellow',
+                'AAbb - Red',
+                'AaBB - Green',
+                'AaBb - Seafoam',
+                'Aabb - Pink',
+                'aaBB - Green-Purple',
+                'aaBb - Purple',
+                'aabb - Iridescent Blue'
+            ],
+            'Belly': [                
+                'AABB - Mauve',
+                'AABb - Yellow',
+                'AAbb - Orange',
+                'AaBB - Green',
+                'AaBb - Fuchsia',
+                'Aabb - Pink',
+                'aaBB - Iridescent Blue',
+                'aaBb - Purple',
+                'aabb - Dark Purple'
+            ],
+            'Stripes': [
+                'AA - Pink',
+                'Aa - Green',
+                'aa - Purple'
+            ],
+            'Iridescence': [                
+                'AABB - Pale Gold',
+                'AABb - Orange',
+                'AAbb - Red',
+                'AaBB - Yellow',
+                'AaBb - Seafoam',
+                'Aabb - Pink',
+                'aaBB - Green',
+                'aaBb - Cyan',
+                'aabb - Blue'
+            ],
+            'Spots': [                
+                'AABB - Light Blue',
+                'AABb - Olive',
+                'AAbb - Orange',
+                'AaBB - Teal',
+                'AaBb - Green',
+                'Aabb - Red',
+                'aaBB - Blue',
+                'aaBb - Purple',
+                'aabb - Dark Blue'
+            ],
+            'Eyes': [
+                'AA - Pink',
+                'Aa - Cyan',
+                'aa - Yellow'
+            ]
+        },
+        'Ranbleko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Tangerine',
+                'AABb - Sunflower',
+                'AAbb - Banana',
+                'AaBB - Orange',
+                'AaBb - Red',
+                'Aabb - Copper',
+                'aaBB - Brown Orange',
+                'aaBb - Burnt Orange',
+                'aabb - Tan'
+            ],
+            'Markings': [                
+                'AABB - Full Body',
+                'AABb - Back Stripe',
+                'AAbb - Spotted Back Stripe',
+                'AaBB - Back Spots',
+                'AaBb - Tiger Stripes',
+                'Aabb - None',
+                'aaBB - Large Splotches',
+                'aaBb - Body Spots',
+                'aabb - Belly Spots'
+            ],
+            'Back': [                
+                'AABB - Red Axolotl',
+                'AABb - None',
+                'AAbb - Large Spine',
+                'AaBB - Tail Spine',
+                'AaBb - None',
+                'Aabb - Black Axolotl',
+                'aaBB - Large Spikes',
+                'aaBb - Small Body Spikes',
+                'aabb - Small Tail Spikes'
+            ],
+            'Tongue': [
+                'no',
+                'up',
+                'down'
+            ]
+        },
+        'Reganta Plumaro': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Brown',
+                'AABBCc - Brown',
+                'AABBcc - Gray',
+                'AABbCC - Brown',
+                'AABbCc - Brown',
+                'AABbcc - Gray',
+                'AAbbCC - Umber',
+                'AAbbCc - Umber',
+                'AAbbcc - Red',
+                'AaBBCC - Brown',
+                'AaBBCc - Brown',
+                'AaBBcc - Gray',
+                'AaBbCC - Brown',
+                'AaBbCc - Brown',
+                'AaBbcc - Gray',
+                'AabbCC - Umber',
+                'AabbCc - Umber',
+                'Aabbcc - Red',
+                'aaBBCC - Night',
+                'aaBBCc - Night',
+                'aaBBcc - Green',
+                'aaBbCC - Night',
+                'aaBbCc - Night',
+                'aaBbcc - Green',
+                'aabbCC - Pink',
+                'aabbCc - Pink',
+                'aabbcc - White'
+            ],
+            'Head': [                
+                'AABB - Umber Watcher',
+                'AABb - Red Watcher',
+                'AAbb - Watcher',
+                'AaBB - Umber Watcher',
+                'AaBb - Red Watcher',
+                'Aabb - Watcher',
+                'aaBB - Umber',
+                'aaBb - Red',
+                'aabb'
+            ],
+            'Horns': [
+                'AA - Long',
+                'Aa - Long',
+                'aa - Short'
+            ],
+            'Belly': [                
+                'AABB - Umber',
+                'AABb - Orange',
+                'AAbb - Umber Stripes',
+                'AaBB - Red',
+                'AaBb - Beige',
+                'Aabb - Red Stripes',
+                'aaBB - Gray',
+                'aaBb',
+                'aabb - White'
+            ],
+            'Tail2': [                
+                'AABB - Dark Red',
+                'AABb - Red',
+                'AAbb - Gray',
+                'AaBB - Dark Red',
+                'AaBb - Red',
+                'Aabb - Gray',
+                'aaBB - Pink',
+                'aaBb - Blue',
+                'aabb - White'
+            ],
+            'Tail1': [
+                'AABBCC - Umber Stripes',
+                'AABBCc - Umber Stripes',
+                'AABBcc - Red Stripes',
+                'AABbCC - Umber Stripes',
+                'AABbCc - Umber Stripes',
+                'AABbcc - Red Stripes',
+                'AAbbCC - Night Stripes',
+                'AAbbCc - Night Stripes',
+                'AAbbcc - Pink Stripes',
+                'AaBBCC - Umber Hearts',
+                'AaBBCc - Umber Hearts',
+                'AaBBcc - Red Hearts',
+                'AaBbCC - Umber Hearts',
+                'AaBbCc - Umber Hearts',
+                'AaBbcc - Red Hearts',
+                'AabbCC - Night Hearts',
+                'AabbCc - Night Hearts',
+                'Aabbcc - Pink Hearts',
+                'aaBBCC - Umber',
+                'aaBBCc - Umber',
+                'aaBBcc - Red',
+                'aaBbCC - Umber',
+                'aaBbCc - Umber',
+                'aaBbcc - Red',
+                'aabbCC - Night',
+                'aabbCc - Night',
+                'aabbcc - Pink'
+            ],
+            'Wings': [                
+                'AABB - Dark Red',
+                'AABb - Red',
+                'AAbb - Gray',
+                'AaBB - Dark Red',
+                'AaBb - Red',
+                'Aabb - Gray',
+                'aaBB - Pink',
+                'aaBb - Blue',
+                'aabb - White'
+            ]
+        },
+        'Rida Frakaso': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Black',
+                'AABBCc - Caramel',
+                'AABBcc - White',
+                'AABbCC - Caramel',
+                'AABbCc - Brown',
+                'AABbcc - White',
+                'AAbbCC - Tan',
+                'AAbbCc - White',
+                'AAbbcc - Brown',
+                'AaBBCC - Gold',
+                'AaBBCc - Tan',
+                'AaBBcc - Brown',
+                'AaBbCC - Gray',
+                'AaBbCc - Brown',
+                'AaBbcc - Tan',
+                'AabbCC - Maroon',
+                'AabbCc - Gray',
+                'Aabbcc - Tan',
+                'aaBBCC - Red',
+                'aaBBCc - Tan',
+                'aaBBcc - Gray',
+                'aaBbCC - Creme',
+                'aaBbCc - Orange',
+                'aaBbcc - Lavender',
+                'aabbCC - Creme',
+                'aabbCc - Rose',
+                'aabbcc - Orange'
+            ],
+            'Marking': [
+                'AABBCC',
+                'AABBCc - Brown Spots',
+                'AABBcc',
+                'AABbCC - spots',
+                'AABbCc - Gray Stripes',
+                'AABbcc - Black Stripes',
+                'AAbbCC - Gray Spots',
+                'AAbbCc - Brown Stripes',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc - White Spots',
+                'AaBBcc',
+                'AaBbCC - Yellow Spots',
+                'AaBbCc',
+                'AaBbcc - White Stripes',
+                'AabbCC',
+                'AabbCc - Yellow Stripes',
+                'Aabbcc',
+                'aaBBCC - Green Spots',
+                'aaBBCc - Pink Spots',
+                'aaBBcc',
+                'aaBbCC - Purple Spots',
+                'aaBbCc - Green Stripes',
+                'aaBbcc - Pink Stripes',
+                'aabbCC',
+                'aabbCc - Purple Stripes',
+                'aabbcc'
+            ],
+            'Mane': [
+                'AABBCC - Black Full back',
+                'AABBCc',
+                'AABBcc - Maroon Full Back',
+                'AABbCC - Black Mohawk',
+                'AABbCc - Gray Full Back',
+                'AABbcc',
+                'AAbbCC - Gray Mohawk',
+                'AAbbCc',
+                'AAbbcc - Maroon Mohawk',
+                'AaBBCC - Yellow Full Back',
+                'AaBBCc',
+                'AaBBcc - Red Full Back',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC - Red Mohawk',
+                'AabbCc',
+                'Aabbcc - Yellow Mohawk',
+                'aaBBCC - Tan Full Back',
+                'aaBBCc',
+                'aaBBcc - White Full Back',
+                'aaBbCC',
+                'aaBbCc - Creme Full Back',
+                'aaBbcc - White Mohawk',
+                'aabbCC - Tan Mohawk',
+                'aabbCc',
+                'aabbcc - Creme Mohawk'
+            ],
+            'Antlers': [                
+                'AABB - Caribou',
+                'AABb',
+                'AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB',
+                'aaBb',
+                'aabb - Black Deer'
+            ]
+        },
+        'Ruzafolio': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Red',
+                'Aa - Brown',
+                'aa - Green-Orange'
+            ],
+            'Leaves': [                
+                'AABB - Red Maple',
+                'AABb - Fading Chestnut',
+                'AAbb - Yellow Chestnut',
+                'AaBB - Red Birch',
+                'AaBb - Fading Oak',
+                'Aabb - Brown Oak',
+                'aaBB - Yellow Maple',
+                'aaBb - Yellow Birch',
+                'aabb - Brown Veins'
+            ]
+        },
+        'Sabla Rego': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Firelit',
+                'Aa - Black',
+                'aa - Brown'
+            ],
+            'Markings': [
+                'AA - Skeleton',
+                'Aa - none',
+                'aa - none'
+            ],
+            'Horns': [
+                'AA - Gold',
+                'Aa - Gray',
+                'aa - Bone'
+            ]
+        },
+        'Saltanta': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Orangebrown',
+                'AABb - Gray',
+                'AAbb - Black',
+                'AaBB - Orange',
+                'AaBb - Dark Blue',
+                'Aabb - Brown',
+                'aaBB - Red',
+                'aaBb - Purple',
+                'aabb - Silver'
+            ],
+            'Mane': [                
+                'AABB - Dark Blue',
+                'AABb - Silver',
+                'AAbb - Black',
+                'AaBB - Red',
+                'AaBb - Blue Purple',
+                'Aabb - Gold',
+                'aaBB - Dark Red',
+                'aaBb - Purple',
+                'aabb - Swamp'
+            ],
+            'Marking': [                
+                'AABB - Striped Brown',
+                'AABb - Rosette Black',
+                'AAbb - Spotted Gray',
+                'AaBB - Striped Orange',
+                'AaBb - Spotted Purple',
+                'Aabb - Spotted Brown',
+                'aaBB - Rosette Red',
+                'aaBb - Rosette Purple',
+                'aabb - Striped Black'
+            ],
+            'Horn': [                
+                'AABB - Dark Blue',
+                'AABb - Black',
+                'AAbb - Dark Gray',
+                'AaBB - Bone',
+                'AaBb - Dark Purple',
+                'Aabb - Gold',
+                'aaBB - Dark Red',
+                'aaBb - Ice',
+                'aabb - Swamp'
+            ]
+        },
+        'Sauma Kudrilo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Bronze',
+                'AABb - Bronze',
+                'AAbb - Pink',
+                'AaBB - Gold',
+                'AaBb - Gold',
+                'Aabb - Teal',
+                'aaBB - Silver',
+                'aaBb - Silver',
+                'aabb - Green-Gold'
+            ],
+            'Bandsone': [
+                'AABBCC - Red',
+                'AABBCc - Magenta',
+                'AABBcc - Orange',
+                'AABbCC - Indigo',
+                'AABbCc - Purple',
+                'AABbcc - Pink',
+                'AAbbCC - Blue',
+                'AAbbCc - Light Teal',
+                'AAbbcc - Silver',
+                'AaBBCC - Red',
+                'AaBBCc - Magenta',
+                'AaBBcc - Orange',
+                'AaBbCC - Indigo',
+                'AaBbCc - Purple',
+                'AaBbcc - Pink',
+                'AabbCC - Blue',
+                'AabbCc - Light Teal',
+                'Aabbcc - Silver',
+                'aaBBCC - Yellow',
+                'aaBBCc - Gold',
+                'aaBBcc - Brown',
+                'aaBbCC - Light Green',
+                'aaBbCc - Teal',
+                'aaBbcc - Olive',
+                'aabbCC - Black',
+                'aabbCc - Green',
+                'aabbcc - Green-Gold'
+            ],
+            'Bandstwo': [
+                'AABBCC - Red',
+                'AABBCc - Magenta',
+                'AABBcc - Orange',
+                'AABbCC - Indigo',
+                'AABbCc - Purple',
+                'AABbcc - Pink',
+                'AAbbCC - Blue',
+                'AAbbCc - Light Teal',
+                'AAbbcc - Silver',
+                'AaBBCC - Red',
+                'AaBBCc - Magenta',
+                'AaBBcc - Orange',
+                'AaBbCC - Indigo',
+                'AaBbCc - Purple',
+                'AaBbcc - Pink',
+                'AabbCC - Blue',
+                'AabbCc - Light Teal',
+                'Aabbcc - Silver',
+                'aaBBCC - Yellow',
+                'aaBBCc - Gold',
+                'aaBBcc - Brown',
+                'aaBbCC - Light Green',
+                'aaBbCc - Teal',
+                'aaBbcc - Olive',
+                'aabbCC - Black',
+                'aabbCc - Green',
+                'aabbcc - Green-Gold'
+            ],
+            'Pattern': [
+                'AABBCC - Full Body Dark Head',
+                'AABBCc - Full Body Dark Head',
+                'AABBcc - Full Body Light Head',
+                'AABbCC - Partial Stripes Dark Head',
+                'AABbCc - Partial Stripes Dark Head',
+                'AABbcc - Partial Stripes and Slit Eyes',
+                'AAbbCC - Partial Spots Dark Head',
+                'AAbbCc - Partial Spots Dark Head',
+                'AAbbcc - Partial Spots and Slit Eyes',
+                'AaBBCC - Full Body Dark Head',
+                'AaBBCc - Full Body Dark Head',
+                'AaBBcc - Full Body Light Head',
+                'AaBbCC - Partial Stripes Dark Head',
+                'AaBbCc - Partial Stripes Dark Head',
+                'AaBbcc - Partial Stripes Light Head',
+                'AabbCC - Partial Spots Dark Head',
+                'AabbCc - Partial Spots Dark Head',
+                'Aabbcc - Partial Spots and Slit Eyes',
+                'aaBBCC - Small Spots Dark Head',
+                'aaBBCc - Small Spots Dark Head',
+                'aaBBcc -  Dark Head',
+                'aaBbCC - Large Spots Dark Head',
+                'aaBbCc - Large Spots Dark Head',
+                'aaBbcc - Slit Eyes',
+                'aabbCC - Inverse Spots Dark Head',
+                'aabbCc - Inverse Spots Dark Head',
+                'aabbcc - Round Eyes'
+            ],
+            'Head': [
+                'AA',
+                'Aa',
+                'aa - White'
+            ],
+            'Fins': [
+                'AABBCC - Wide Black-Orange',
+                'AABBCc - Wide Black-White',
+                'AABBcc - Small Black',
+                'AABbCC - Wide Tricolor',
+                'AABbCc - Wide Red-White',
+                'AABbcc - Small Red',
+                'AAbbCC - Wide Orange-Teal',
+                'AAbbCc - Wide Teal-Blue',
+                'AAbbcc - Small Blue',
+                'AaBBCC - Leafy Black-Orange',
+                'AaBBCc - Leafy Black-White',
+                'AaBBcc - Small Teal',
+                'AaBbCC - Leafy Tricolor',
+                'AaBbCc - Leafy Red-White',
+                'AaBbcc - Small Olive',
+                'AabbCC - Leafy Orange-Teal',
+                'AabbCc - Leafy Teal-Blue',
+                'Aabbcc - Small Purple',
+                'aaBBCC - Leafy Black',
+                'aaBBCc - Leafy Teal',
+                'aaBBcc - Small Light Teal',
+                'aaBbCC - Leafy Red',
+                'aaBbCc - Leafy Olive',
+                'aaBbcc - Small Orange',
+                'aabbCC - Leafy Orange',
+                'aabbCc - Leafy Silver',
+                'aabbcc - Small Silver'
+            ]
+        },
+        'Sencesa Simfonio': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Dark',
+                'AABb - Ash',
+                'AAbb - Blue',
+                'AaBB - Dark Brown',
+                'AaBb - Orange Brown',
+                'Aabb - Light',
+                'aaBB - Red Brown',
+                'aaBb - Green Brown',
+                'aabb - Green'
+            ],
+            'Overlay': [
+                'AABBCC - Black',
+                'AABBCc',
+                'AABBcc',
+                'AABbCC',
+                'AABbCc',
+                'AABbcc',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc',
+                'AaBBCC',
+                'AaBBCc',
+                'AaBBcc',
+                'AaBbCC',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc',
+                'aaBbCC',
+                'aaBbCc',
+                'aaBbcc',
+                'aabbCC',
+                'aabbCc',
+                'aabbcc - Gold'
+            ],
+            'Pattern': [                
+                'AABB - White Band',
+                'AABb - Strings',
+                'AAbb',
+                'AaBB - White Stripes',
+                'AaBb - Mask',
+                'Aabb',
+                'aaBB - Dark Stripes',
+                'aaBb - Diamonds',
+                'aabb - Mosaic'
+            ],
+            'Legs': [                
+                'AABB - Dark',
+                'AABb - Red',
+                'AAbb',
+                'AaBB - Dark and Gold',
+                'AaBb - Red and Gold',
+                'Aabb',
+                'aaBB - Dark Socks',
+                'aaBb - Red Socks',
+                'aabb'
+            ],
+            'Wings': [
+                'AABBCC - Dark',
+                'AABBCc - Dark',
+                'AABBcc - Dark Short',
+                'AABbCC - Dark and Red',
+                'AABbCc - Dark and Red',
+                'AABbcc - Dark and Red Short',
+                'AAbbCC - Red',
+                'AAbbCc - Red',
+                'AAbbcc - Red Short',
+                'AaBBCC - Dark',
+                'AaBBCc - Dark',
+                'AaBBcc - Dark Short',
+                'AaBbCC - Dark and Red',
+                'AaBbCc - Dark and Red',
+                'AaBbcc - Dark and Red Short',
+                'AabbCC - Red',
+                'AabbCc - Red',
+                'Aabbcc - Red Short',
+                'aaBBCC - Blue',
+                'aaBBCc - Blue',
+                'aaBBcc - Blue Short',
+                'aaBbCC - Gold',
+                'aaBbCc - Gold',
+                'aaBbcc - Gold Short',
+                'aabbCC - Light',
+                'aabbCc - Light',
+                'aabbcc - Light Short'
+            ],
+            'Shield': [                
+                'AABB - Dark',
+                'AABb - Circles</option><option value="AAbb">AAbb',
+                'AaBB - Checkerboard',
+                'AaBb - Spots',
+                'Aabb',
+                'aaBB - Stripes',
+                'aaBb - Stripes',
+                'aabb - Gold'
+            ],
+            'Eyes': [                
+                'AABB - Dark',
+                'AABb - Dark',
+                'AAbb - Blue',
+                'AaBB - Dark',
+                'AaBb - Dark',
+                'Aabb - Blue',
+                'aaBB - Red',
+                'aaBb - Red',
+                'aabb - Gold'
+            ],
+            'Horn': [                
+                'AABB - Amplified',
+                'AABb - Note</option><option value="AAbb">AAbb',
+                'AaBB - Neck',
+                'AaBb - Clef',
+                'Aabb',
+                'aaBB - Flute',
+                'aaBb - Brass',
+                'aabb - Bells'
+            ]
+        },
+        'Senfina Krizo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - White',
+                'AABBCc - Yellow',
+                'AABBcc - Orange',
+                'AABbCC - Tan',
+                'AABbCc - Blood Red',
+                'AABbcc - Firelit',
+                'AAbbCC - Blue Gray',
+                'AAbbCc - Gold',
+                'AAbbcc - Dirt',
+                'AaBBCC - Ice Blue',
+                'AaBBCc - Sunrise',
+                'AaBBcc - Aurora',
+                'AaBbCC - Mint',
+                'AaBbCc - Watermelon',
+                'AaBbcc - Dirty White',
+                'AabbCC - Teal',
+                'AabbCc - Pine Green',
+                'Aabbcc - Arcari Green',
+                'aaBBCC - Blue Pink',
+                'aaBBCc - Blue Beige',
+                'aaBBcc - Pink',
+                'aaBbCC - Bright Blue',
+                'aaBbCc - Blue Pink',
+                'aaBbcc - Purple',
+                'aabbCC - Silver',
+                'aabbCc - Soft Blue',
+                'aabbcc - Black'
+            ],
+            'Wing': [
+                'AABBCC - White',
+                'AABBCc - Yellow Green',
+                'AABBcc - Orange',
+                'AABbCC - Tan',
+                'AABbCc - Blood Red',
+                'AABbcc - Firelit',
+                'AAbbCC - Brown Red',
+                'AAbbCc - Purple Gold',
+                'AAbbcc - Dark Blue Brown',
+                'AaBBCC - Ice Blue',
+                'AaBBCc - Dark Red Pink',
+                'AaBBcc - Purple Green',
+                'AaBbCC - Mint',
+                'AaBbCc - Watermelon',
+                'AaBbcc - Gray',
+                'AabbCC - Blue Green',
+                'AabbCc - Pine Green',
+                'Aabbcc - Arcari Green',
+                'aaBBCC - Dirty White',
+                'aaBBCc - Purple Tan',
+                'aaBBcc - Pink',
+                'aaBbCC - Bright Blue',
+                'aaBbCc - Blue Pink',
+                'aaBbcc - Purple',
+                'aabbCC - Silver',
+                'aabbCc - Soft Blue',
+                'aabbcc - Black'
+            ],
+            'Crest': [
+                'AABBCC - Ghost White',
+                'AABBCc - White',
+                'AABBcc - Gold + Eyespots',
+                'AABbCC - Gold + Orange',
+                'AABbCc - Tropical',
+                'AABbcc - Red + Purple Swirls',
+                'AAbbCC - Yellow',
+                'AAbbCc - Orange',
+                'AAbbcc - Red',
+                'AaBBCC - Blue',
+                'AaBBCc - Vivid Purple',
+                'AaBBcc - Blue + Eyespots',
+                'AaBbCC - Green + Blue',
+                'AaBbCc - Green + Orange',
+                'AaBbcc - Firelit',
+                'AabbCC - Lime Green',
+                'AabbCc - Orange + Petrol + Purple',
+                'Aabbcc - Watermelon',
+                'aaBBCC - White + blue swirls',
+                'aaBBCc - Steel',
+                'aaBBcc - Purple + Eyespots',
+                'aaBbCC - White + Swirls',
+                'aaBbCc - chaotic',
+                'aaBbcc - Iridescent Black',
+                'aabbCC - Ice Blue',
+                'aabbCc - Abyss',
+                'aabbcc - Deep Black'
+            ],
+            'Markinga': [
+                'AABBCC - Yellow Chevron',
+                'AABBCc - White Throat',
+                'AABBcc - Red Tongue',
+                'AABbCC - Toucan',
+                'AABbCc - Red Back',
+                'AABbcc - Blue Toucan',
+                'AAbbCC - Orange Tongue',
+                'AAbbCc - Yellow Toucan',
+                'AAbbcc - Red Throat',
+                'AaBBCC - Teal Chevron',
+                'AaBBCc - Stained Glass Yellow',
+                'AaBBcc - Gold/White Bars',
+                'AaBbCC - Green Chevron',
+                'AaBbCc - Stained Glass Green',
+                'AaBbcc - Blue Wing Lines',
+                'AabbCC - Teal Tongue',
+                'AabbCc - Stained Glass Blue',
+                'Aabbcc - Teal Throat',
+                'aaBBCC - Purple Chevron',
+                'aaBBCc - Blue Crest Stripes',
+                'aaBBcc - Purple Tongue',
+                'aaBbCC - Purple Crest Stripes',
+                'aaBbCc - Red Crest Stripes',
+                'aaBbcc - Purple Wing Lines',
+                'aabbCC - Blue Tongue',
+                'aabbCc - Blue/White Bars',
+                'aabbcc - Blue Throat'
+            ],
+            'Markingb': [
+                'AABBCC - Red Boots',
+                'AABBCc - Red Wing Zigzag',
+                'AABBcc - White Stripe',
+                'AABbCC - Yellow Neck',
+                'AABbCc - Brown Giraffe',
+                'AABbcc - Brown Tiger',
+                'AAbbCC - Pink Wingeyes',
+                'AAbbCc - Red/Orange Wingeyes',
+                'AAbbcc - White Face',
+                'AaBBCC - Gray Boots',
+                'AaBBCc - Purple Wing Zigzag',
+                'AaBBcc - Black Stripe',
+                'AaBbCC - Black Neck',
+                'AaBbCc - Blue Giraffe',
+                'AaBbcc - Gray Tiger',
+                'AabbCC - Orange/Green Wingeyes',
+                'AabbCc - Pink Wing Zigzag',
+                'Aabbcc - Blue Face',
+                'aaBBCC - Blue Boots',
+                'aaBBCc - Blue Wing Zigzag',
+                'aaBBcc - Pink Stripe',
+                'aaBbCC - Pink Neck',
+                'aaBbCc - Purple Giraffe',
+                'aaBbcc - Black Tiger',
+                'aabbCC - Blue/Yellow Wingeyes',
+                'aabbCc - none',
+                'aabbcc - Black Face'
+            ]
+        },
+        'Senvida Naganto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Dark Copper',
+                'AABb - Tarnished Copper',
+                'AAbb - Purple Blue',
+                'AaBB - Silver',
+                'AaBb - Iridescent Bluegreen',
+                'Aabb - Black',
+                'aaBB - Dark Purple',
+                'aaBb - Dark Red',
+                'aabb - Gold'
+            ],
+            'Scales': [                
+                'AABB - Orange',
+                'AABb - Tarnished Copper',
+                'AAbb - Dark Purple',
+                'AaBB - Silver',
+                'AaBb - Copper',
+                'Aabb - Black',
+                'aaBB - Dark Red',
+                'aaBb - Red',
+                'aabb - Gold'
+            ],
+            'Fins': [                
+                'AABB - Orange',
+                'AABb - Black',
+                'AAbb - Dark Red',
+                'AaBB - Silver',
+                'AaBb - Green',
+                'Aabb - Gray',
+                'aaBB - Dark Purple',
+                'aaBb - Red',
+                'aabb - Gold'
+            ]
+        },
+        'Silenta Spuristo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Sunset',
+                'AABBCc - Sunset',
+                'AABBcc - Sunset',
+                'AABbCC - Sunset',
+                'AABbCc - Sunset',
+                'AABbcc - Sunset',
+                'AAbbCC - Sunset',
+                'AAbbCc - Sunset',
+                'AAbbcc - Sunset',
+                'AaBBCC - Midnight',
+                'AaBBCc - Midnight',
+                'AaBBcc - Midnight',
+                'AaBbCC - Midnight',
+                'AaBbCc - Midnight',
+                'AaBbcc - Midnight',
+                'AabbCC - Midnight',
+                'AabbCc - Midnight',
+                'Aabbcc - Midnight',
+                'aaBBCC - Aurora',
+                'aaBBCc - Aurora',
+                'aaBBcc - Aurora',
+                'aaBbCC - Aurora',
+                'aaBbCc - Aurora',
+                'aaBbcc - Aurora',
+                'aabbCC - Aurora',
+                'aabbCc - Aurora',
+                'aabbcc - Aurora'
+            ],
+            'Tails': [
+                'AA - 9 tails',
+                'Aa - 6 tails',
+                'aa - 3 tails'
+            ],
+            'Ice': [
+                'AA',
+                'Aa',
+                'aa'
+            ],
+            'Fire': [
+                'AA - Large',
+                'Aa - Small',
+                'aa - None'
+            ]
+        },
+        'Songa Kreinto': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Gold',
+                'Aa - Purple',
+                'aa - Red'
+            ],
+            'Legs': [
+                'AA - Tan',
+                'Aa - Dark Blue',
+                'aa - Black'
+            ],
+            'Glow': [
+                'AA - Banded',
+                'Aa - Ghost',
+                'aa - Pumpkin'
+            ]
+        },
+        'Stepa Safido': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Dusk',
+                'AABBCc - Gemstones',
+                'AABBcc - Stones',
+                'AABbCC - Infernos',
+                'AABbCc - Stars',
+                'AABbcc - Forests',
+                'AAbbCC - Strikes',
+                'AAbbCc - Mountains',
+                'AAbbcc - Waves',
+                'AaBBCC - Night',
+                'AaBBCc - Storms',
+                'AaBBcc - Steppes',
+                'AaBbCC - Gales',
+                'AaBbCc - Steppes',
+                'AaBbcc - Gales',
+                'AabbCC - Steppes',
+                'AabbCc - Storms',
+                'Aabbcc - Night',
+                'aaBBCC - Glaciers',
+                'aaBBCc - Skies',
+                'aaBBcc - Sparks',
+                'aaBbCC - Fields',
+                'aaBbCc - Slugs',
+                'aaBbcc - Embers',
+                'aabbCC - Sands',
+                'aabbCc - Flowers',
+                'aabbcc - Dawn'
+            ],
+            'Patternb': [
+                'AABBCC - Umbras',
+                'AABBCc',
+                'AABBcc - Salts',
+                'AABbCC',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc - Whorls',
+                'AaBBCC',
+                'AaBBCc - Shadows',
+                'AaBBcc',
+                'AaBbCC - Steppes',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc - Squalls',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc - Crags',
+                'aaBbCC',
+                'aaBbCc - Bolts',
+                'aaBbcc - Flames',
+                'aabbCC - Clouds',
+                'aabbCc',
+                'aabbcc - Astras'
+            ],
+            'Patterna': [
+                'AABBCC - Umbras',
+                'AABBCc',
+                'AABBcc - Salts',
+                'AABbCC',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC',
+                'AAbbCc',
+                'AAbbcc - Whorls',
+                'AaBBCC',
+                'AaBBCc - Shadows',
+                'AaBBcc',
+                'AaBbCC - Steppes',
+                'AaBbCc',
+                'AaBbcc',
+                'AabbCC',
+                'AabbCc - Squalls',
+                'Aabbcc',
+                'aaBBCC',
+                'aaBBCc',
+                'aaBBcc - Crags',
+                'aaBbCC',
+                'aaBbCc - Bolts',
+                'aaBbcc - Flames',
+                'aabbCC - Clouds',
+                'aabbCc',
+                'aabbcc - Astras'
+            ],
+            'Frontlegs': [
+                'AABBCC - Umbras (Black)',
+                'AABBCc - Salts (Black)',
+                'AABBcc - Crags (Black)',
+                'AABbCC - Flames (Black)',
+                'AABbCc - Nebulas (Black)',
+                'AABbcc - Growths (Black)',
+                'AAbbCC - Bolts (Black)',
+                'AAbbCc - Clouds (Black)',
+                'AAbbcc - Whorls (Black)',
+                'AaBBCC - Steppes (Black)',
+                'AaBBCc - Squalls (Black)',
+                'AaBBcc - Astras (Black)',
+                'AaBbCC - White',
+                'AaBbCc - Black',
+                'AaBbcc - Black',
+                'AabbCC - Shadows (White)',
+                'AabbCc - Squalls (White)',
+                'Aabbcc - Umbras (White)',
+                'aaBBCC - Whorls (White)',
+                'aaBBCc - Clouds (White)',
+                'aaBBcc - Bolts (White)',
+                'aaBbCC - Growths (White)',
+                'aaBbCc - Nebulas (White)',
+                'aaBbcc - Flames (White)',
+                'aabbCC - Crags (White)',
+                'aabbCc - Salts (White)',
+                'aabbcc - Astras (White)'
+            ],
+            'Rearlegs': [
+                'AABBCC - Umbras (Black)',
+                'AABBCc - Salts (Black)',
+                'AABBcc - Crags (Black)',
+                'AABbCC - Flames (Black)',
+                'AABbCc - Nebulas (Black)',
+                'AABbcc - Growths (Black)',
+                'AAbbCC - Bolts (Black)',
+                'AAbbCc - Clouds (Black)',
+                'AAbbcc - Whorls (Black)',
+                'AaBBCC - Steppes (Black)',
+                'AaBBCc - Squalls (Black)',
+                'AaBBcc - Astras (Black)',
+                'AaBbCC - White',
+                'AaBbCc - Black',
+                'AaBbcc - Black',
+                'AabbCC - Shadows (White)',
+                'AabbCc - Squalls (White)',
+                'Aabbcc - Umbras (White)',
+                'aaBBCC - Whorls (White)',
+                'aaBBCc - Clouds (White)',
+                'aaBBcc - Bolts (White)',
+                'aaBbCC - Growths (White)',
+                'aaBbCc - Nebulas (White)',
+                'aaBbcc - Flames (White)',
+                'aabbCC - Crags (White)',
+                'aabbCc - Salts (White)',
+                'aabbcc - Astras (White)'
+            ],
+            'Rearmane': [
+                'AABBCC - Umbras',
+                'AABBCc',
+                'AABBcc - Salts',
+                'AABbCC',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC - Shadows',
+                'AAbbCc',
+                'AAbbcc - Whorls',
+                'AaBBCC',
+                'AaBBCc - Shadows',
+                'AaBBcc',
+                'AaBbCC - Steppes',
+                'AaBbCc',
+                'AaBbcc - Steppes',
+                'AabbCC',
+                'AabbCc - Squalls',
+                'Aabbcc',
+                'aaBBCC - Squalls',
+                'aaBBCc',
+                'aaBBcc - Crags',
+                'aaBbCC',
+                'aaBbCc - Bolts',
+                'aaBbcc - Flames',
+                'aabbCC - Clouds',
+                'aabbCc',
+                'aabbcc - Astras'
+            ],
+            'Frontmane': [
+                'AABBCC - Umbras',
+                'AABBCc',
+                'AABBcc - Salts',
+                'AABbCC',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC - Shadows',
+                'AAbbCc',
+                'AAbbcc - Whorls',
+                'AaBBCC',
+                'AaBBCc - Shadows',
+                'AaBBcc',
+                'AaBbCC - Steppes',
+                'AaBbCc',
+                'AaBbcc - Steppes',
+                'AabbCC',
+                'AabbCc - Squalls',
+                'Aabbcc',
+                'aaBBCC - Squalls',
+                'aaBBCc',
+                'aaBBcc - Crags',
+                'aaBbCC',
+                'aaBbCc - Bolts',
+                'aaBbcc - Flames',
+                'aabbCC - Clouds',
+                'aabbCc',
+                'aabbcc - Astras'
+            ],
+            'Head': [
+                'AABBCC - Splotched Black',
+                'AABBCc - Dipped Black',
+                'AABBcc - Spotted Black',
+                'AABbCC - Freckled Black',
+                'AABbCc - Black',
+                'AABbcc - Nosed Black',
+                'AAbbCC - Striped Black',
+                'AAbbCc - Streaked Black',
+                'AAbbcc - Ears Black',
+                'AaBBCC - Ears Black',
+                'AaBBCc - White',
+                'AaBBcc - Ears Black',
+                'AaBbCC - Black',
+                'AaBbCc - Black',
+                'AaBbcc - Black',
+                'AabbCC - Ears White',
+                'AabbCc - White',
+                'Aabbcc - Ears White',
+                'aaBBCC - Ears White',
+                'aaBBCc - Streaked White',
+                'aaBBcc - Striped White',
+                'aaBbCC - Nosed White',
+                'aaBbCc - White',
+                'aaBbcc - Freckled White',
+                'aabbCC - Spotted White',
+                'aabbCc - Dipped White',
+                'aabbcc - Splotched White'
+            ],
+            'Eartufts': [
+                'AABBCC - Dusk',
+                'AABBCc',
+                'AABBcc - Salts',
+                'AABbCC',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC - Shadows',
+                'AAbbCc',
+                'AAbbcc - Whorls',
+                'AaBBCC',
+                'AaBBCc - Shadows',
+                'AaBBcc',
+                'AaBbCC - Steppes',
+                'AaBbCc',
+                'AaBbcc - Steppes',
+                'AabbCC',
+                'AabbCc - Squalls',
+                'Aabbcc',
+                'aaBBCC - Squalls',
+                'aaBBCc',
+                'aaBBcc - Crags',
+                'aaBbCC',
+                'aaBbCc - Bolts',
+                'aaBbcc - Flames',
+                'aabbCC - Clouds',
+                'aabbCc',
+                'aabbcc - Astras'
+            ],
+            'Eyes': [
+                'AABBCC - Umbras',
+                'AABBCc - Salts',
+                'AABBcc - Crags',
+                'AABbCC - Flames',
+                'AABbCc - Nebulas',
+                'AABbcc - Growths',
+                'AAbbCC - Bolts',
+                'AAbbCc - Mountains',
+                'AAbbcc - Whorls',
+                'AaBBCC - Shadows',
+                'AaBBCc - Squalls',
+                'AaBBcc - Steppes',
+                'AaBbCC - Squalls',
+                'AaBbCc - Steppes',
+                'AaBbcc - Squalls',
+                'AabbCC - Steppes',
+                'AabbCc - Squalls',
+                'Aabbcc - Shadows',
+                'aaBBCC - Whorls',
+                'aaBBCc - Clouds',
+                'aaBBcc - Bolts',
+                'aaBbCC - Growths',
+                'aaBbCc - Nebulas',
+                'aaBbcc - Flames',
+                'aabbCC - Crags',
+                'aabbCc - Salts',
+                'aabbcc - Astras'
+            ],
+            'Tail': [
+                'AABB - Long (Black)',
+                'AABb - Small (Black)',
+                'AAbb',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB',
+                'aaBb - Small (White)',
+                'aabb - Long (White)'
+            ],
+            'Horns': [                
+                'AABB - Large (Black)',
+                'AABb',
+                'AAbb - Small (Black)',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB - Small (White)',
+                'aaBb',
+                'aabb - Large (White)'
+            ]
+        },
+        'Stranga Sciuro': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Base': [                
+                'AABB - Dark Gray',
+                'AABb - Dark Gray',
+                'AAbb - Creme belly',
+                'AaBB - Tan',
+                'AaBb - Tan',
+                'Aabb - Albino',
+                'aaBB - Brown Black Red',
+                'aaBb - White',
+                'aabb - White'
+            ],
+            'Wing': [                
+                'AABB - Dark Brown',
+                'AABb - Redbrown',
+                'AAbb - Green',
+                'AaBB - Dark Brown',
+                'AaBb - Bluegray',
+                'Aabb - White',
+                'aaBB - Purple',
+                'aaBb - Swamp',
+                'aabb - Dark Brown'
+            ],
+            'Marking': [                
+                'AABB - Gray',
+                'AABb - Red',
+                'AAbb - Green',
+                'AaBB - Matches Wing',
+                'AaBb - Blue',
+                'Aabb - Tan',
+                'aaBB - Pink',
+                'aaBb - Gold',
+                'aabb - Yellow'
+            ]
+        },
+        'Strigosto': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Green (green eyes)',
+                'Aa - Blue (yellow eyes)',
+                'aa - Black (red eyes)'
+            ],
+            'Horns': [
+                'AA - Gold',
+                'Aa - Gray',
+                'aa - Green'
+            ],
+            'Markings': [
+                'AA - Copper',
+                'Aa - Red',
+                'aa - Green'
+            ]
+        },
+        'Suna Hundo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Orange',
+                'AABb - Ice',
+                'AAbb - Blue',
+                'AaBB - Red',
+                'AaBb - Yellow',
+                'Aabb - White',
+                'aaBB - Black',
+                'aaBb - Brown',
+                'aabb - Green'
+            ],
+            'Spots': [
+                'AA - Large',
+                'Aa - Medium',
+                'aa - Small'
+            ],
+            'Tux': [
+                'AABBCC - n/a',
+                'AABBCc - n/a',
+                'AABBcc - Orange',
+                'AABbCC - n/a',
+                'AABbCc - n/a',
+                'AABbcc - Ice',
+                'AAbbCC - n/a',
+                'AAbbCc - n/a',
+                'AAbbcc - Blue',
+                'AaBBCC - n/a',
+                'AaBBCc - n/a',
+                'AaBBcc - Red',
+                'AaBbCC - n/a',
+                'AaBbCc - N/a',
+                'AaBbcc - Yellow',
+                'AabbCC - n/a',
+                'AabbCc - n/a',
+                'Aabbcc - White',
+                'aaBBCC - n/a',
+                'aaBBCc - n/a',
+                'aaBBcc - Black',
+                'aaBbCC - n/a',
+                'aaBbCc - n/a',
+                'aaBbcc - Brown',
+                'aabbCC - n/a',
+                'aabbCc - n/a',
+                'aabbcc - Green'
+            ],
+            'Mane': [
+                'AABBCC - Large Orange',
+                'AABBCc - Regular Orange',
+                'AABBcc - Tail only Orange',
+                'AABbCC - Large Ice',
+                'AABbCc - Regular Ice',
+                'AABbcc - Tail only Ice',
+                'AAbbCC - Large Blue',
+                'AAbbCc - Regular Blue',
+                'AAbbcc - Tail only Blue',
+                'AaBBCC - Large red',
+                'AaBBCc - Regular Red',
+                'AaBBcc - Tail only Red',
+                'AaBbCC - Large Yellow',
+                'AaBbCc - Regular Yellow',
+                'AaBbcc - Tail only Yellow',
+                'AabbCC - Large White',
+                'AabbCc - Regular White',
+                'Aabbcc - Tail only White',
+                'aaBBCC - Large Black',
+                'aaBBCc - Regular Black',
+                'aaBBcc - Tail only Black',
+                'aaBbCC - Large Brown',
+                'aaBbCc - Regular Brown',
+                'aaBbcc - Tail only Brown',
+                'aabbCC - Large Green',
+                'aabbCc - Regular Green',
+                'aabbcc - Tail only Green'
+            ]
+        },
+        'Tagalo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black',
+                'AABb - Red',
+                'AAbb - Blue',
+                'AaBB - Pink',
+                'AaBb - Purple',
+                'Aabb - Orange',
+                'aaBB - Gold',
+                'aaBb - Green',
+                'aabb - Silver'
+            ],
+            'Belly': [                
+                'AABB - Black',
+                'AABb - Pink',
+                'AAbb - Grayblue',
+                'AaBB - Matches Body',
+                'AaBb - Graypurple',
+                'Aabb - Brown',
+                'aaBB - Orange',
+                'aaBb - Mint',
+                'aabb - White'
+            ],
+            'Marking': [
+                'AA - Black Stripes',
+                'Aa - Gold Stripes',
+                'aa - None'
+            ]
+        },
+        'Tagluma Valso': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Cloud',
+                'AABb - Dawn',
+                'AAbb - Lime',
+                'AaBB - Sky',
+                'AaBb - Sunshine',
+                'Aabb - Jade',
+                'aaBB - Sundown',
+                'aaBb - Daybreak',
+                'aabb - Green'
+            ],
+            'Wings': [
+                'AABB',
+                'AABb - Silver Duotone',
+                'AAbb - Sky',
+                'AaBB - Sunset Fade',
+                'AaBb - Shimmer',
+                'Aabb - Rainbow Duotone',
+                'aaBB - Morning Frost',
+                'aaBb - Green',
+                'aabb - Dawn'
+            ],
+            'Tail': [
+                'AABBCC - Cloud Daisy',
+                'AABBCc - Cloud Crocus',
+                'AABBcc - Cloud Lotus',
+                'AABbCC - Dawn Water Lily',
+                'AABbCc - Dawn Daisy',
+                'AABbcc - Dawn Sunflower',
+                'AAbbCC - Lime Moss Rose',
+                'AAbbCc - Lime Daisy',
+                'AAbbcc - Lime Sunflower',
+                'AaBBCC - Sky Moss Rose',
+                'AaBBCc - Sky Hibiscus',
+                'AaBBcc - Sky Poppy',
+                'AaBbCC - Sunshine Tulip',
+                'AaBbCc - Sunshine Hibiscus',
+                'AaBbcc - Sunshine Lotus',
+                'AabbCC - Jade Tulip',
+                'AabbCc - Jade Water Lily',
+                'Aabbcc - Jade Hibiscus',
+                'aaBBCC - Sundown Tulip',
+                'aaBBCc - Sundown Water Lily',
+                'aaBBcc - Sundown Sunflower',
+                'aaBbCC - Sunrise Moss Rose',
+                'aaBbCc - Sunrise Crocus',
+                'aaBbcc - Sunrise Poppy',
+                'aabbCC - Green Crocus',
+                'aabbCc - Green Lotus',
+                'aabbcc - Green Poppy'
+            ],
+            'Markings': [                
+                'AABB - Blue',
+                'AABb',
+                'AAbb - Blue',
+                'AaBB',
+                'AaBb',
+                'Aabb',
+                'aaBB - Gold',
+                'aaBb',
+                'aabb - Gold'
+            ],
+            'Plumage': [                
+                'AABB - Sky Crown',
+                'AABb - Silver Fan',
+                'AAbb - Sky Droplets',
+                'AaBB - Storm Crest',
+                'AaBb - Sunshine Crown',
+                'Aabb - Sunshine Plume',
+                'aaBB - Sky Secretary',
+                'aaBb - Green Collar',
+                'aabb - Daybreak Fan'
+            ]
+        },
+        'Tera Girafo': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Black Dappled',
+                'AABb - Bay',
+                'AAbb - Gray',
+                'AaBB - Silver',
+                'AaBb - Black',
+                'Aabb - Brown',
+                'aaBB - Taupe',
+                'aaBb - Silver-Brown',
+                'aabb - Slate'
+            ],
+            'Spots': [                
+                'AABB - Pearl',
+                'AABb - Rose gold',
+                'AAbb - Cream',
+                'AaBB - Purple',
+                'AaBb - Bronze',
+                'Aabb - Ash',
+                'aaBB - Silver',
+                'aaBb - Ochre',
+                'aabb - Taupe'
+            ],
+            'Stripes': [                
+                'AABB - Sable (medium)',
+                'AABb - Ochre (long)',
+                'AAbb - White (long)',
+                'AaBB - Black (short)',
+                'AaBb - Gold (long)',
+                'Aabb - Mocha (short)',
+                'aaBB - Gray (medium)',
+                'aaBb - Brown (medium)',
+                'aabb - Furless'
+            ]
+        },
+        'Terura Fisisto': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Abyss',
+                'Aa - Ghost',
+                'aa - Blood'
+            ],
+            'Belly': [
+                'AA - Abyss',
+                'Aa - Ghost',
+                'aa - Blood'
+            ],
+            'Wing': [
+                'AA - Abyss',
+                'Aa - Ghost',
+                'aa - Blood'
+            ]
+        },
+        'Timiga Dancanto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Abdomen': [
+                'AA - Green',
+                'Aa - Orange',
+                'aa - Blue'
+            ],
+            'Body': [
+                'AA - Tan',
+                'Aa - Dark Brown',
+                'aa - Gray'
+            ],
+            'Legs': [
+                'AA - Teal',
+                'Aa - Orange',
+                'aa - Purple'
+            ]
+        },
+        'Toksa Muko': {
+                'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AA - Ember',
+                'Aa - Moss',
+                'aa - Decay'
+            ],
+            'Slime': [      
+                'AA - Yellow',
+                'Aa - Gray',
+                'aa - Green'
+            ],
+            'Eyestalks': [      
+                'AA - Orange',
+                'Aa - Purple',
+                'aa - Green'
+            ]
+        },
+        'Tonbleko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Pink',
+                'AABb - Silver',
+                'AAbb - Brown',
+                'AaBB - Blue',
+                'AaBb - Orange',
+                'Aabb - Red',
+                'aaBB - Blue Gray',
+                'aaBb - Black',
+                'aabb - Green'
+            ],
+            'Markings': [                
+                'AABB - Full Body',
+                'AABb - Back Stripe',
+                'AAbb - Spotted Back Stripe',
+                'AaBB - Back Spots',
+                'AaBb - Tiger Stripes',
+                'Aabb - None',
+                'aaBB - Large Splotches',
+                'aaBb - Body Spots',
+                'aabb - Belly Spots'
+            ],
+            'Back': [                
+                'AABB - Axolotl',
+                'AABb - Angelfish',
+                'AAbb - Anglerfish',
+                'AaBB - Betta',
+                'AaBb - Goldfish',
+                'Aabb - Lionfish',
+                'aaBB - Shark',
+                'aaBb - Juvenile Painted Frogfish',
+                'aabb - Red Spikes'
+            ]
+        },
+        'Transira Alsalto': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Snowfire',
+                'AABBCc - Pearl',
+                'AABBcc - Sapphire',
+                'AABbCC - Ice Blue',
+                'AABbCc - Silver (blue eye)',
+                'AABbcc - Opal/Piano',
+                'AAbbCC - Cross',
+                'AAbbCc - Fire Cross',
+                'AAbbcc - Moonglow',
+                'AaBBCC - Colicott Brown',
+                'AaBBCc - Pastel',
+                'AaBBcc - Burgundy Cross',
+                'AaBbCC - Red (green eye)',
+                'AaBbCc - Red (blue eye)',
+                'AaBbcc - Wildfire',
+                'AabbCC - Platinum cross',
+                'AabbCc - Pink cross',
+                'Aabbcc - Autumn Fire',
+                'aaBBCC - Georgian',
+                'aaBBCc - Radium',
+                'aaBBcc - Dawn Glow',
+                'aaBbCC - Red (red eye)',
+                'aaBbCc - Snow Glow',
+                'aaBbcc - Leucistic',
+                'aabbCC - Pearl Platinum',
+                'aabbCc - Pink Champagne',
+                'aabbcc - Albino'
+            ],
+            'Tails': [      
+                'AA - 9 tails',
+                'Aa - 6 tails',
+                'aa - 3 tails'
+            ],
+            'Ice': [      
+                'AA - Large',
+                'Aa - Small',
+                'aa - None'
+            ],
+            'Fire': [      
+                'AA - Large',
+                'Aa - Small',
+                'aa - None'
+            ],
+        },
+        "Vetura Oazo": {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABB - Light Blue',
+                'AABb - Light Green',
+                'AAbb - Red',
+                'AaBB - Tan',
+                'AaBb - Bronze',
+                'Aabb - Brown',
+                'aaBB - Dark Teal',
+                'aaBb - Dark Green',
+                'aabb - Dark Blue'
+            ],
+            'Shell': [                
+                'AABB - Mosaica Floro',
+                'AABb - Florada Hedero',
+                'AAbb - Koka Fungo',
+                'AaBB - Hela Likeno',
+                'AaBb - Verda Musko',
+                'Aabb - Saleta Fungo',
+                'aaBB - Purpura Trumpeto',
+                'aaBb - Rampa Mosto',
+                'aabb - Magra Kano / Sorca Fungo'
+            ],
+            'Bioa': [
+                'AABB',
+                'AABb - Pink',
+                'AAbb - Teal',
+                'AaBB - Green',
+                'AaBb',
+                'Aabb - Orange',
+                'aaBB - Purple',
+                'aaBb - Blue',
+                'aabb'
+            ],
+            'Biob': [
+                'AABB',
+                'AABb - Pink',
+                'AAbb - Teal',
+                'AaBB - Green',
+                'AaBb',
+                'Aabb - Orange',
+                'aaBB - Purple',
+                'aaBb - Blue',
+                'aabb'
+            ],
+            'Bioc': [
+                'AABB',
+                'AABb - Pink',
+                'AAbb - Teal',
+                'AaBB - Green',
+                'AaBb',
+                'Aabb - Orange',
+                'aaBB - Purple',
+                'aaBb - Blue',
+                'aabb'
+            ]
+        },
+        'Vira Beko': {
+            'Gender' : [
+                'Male',
+                'Female'
+            ],
+            'Body': [
+                'AABBCC - Black White Red',
+                'AABBCc - Purple',
+                'AABBcc - Gray Brown',
+                'AABbCC - Green Orange',
+                'AABbCc - Dark Purple',
+                'AABbcc - Iridescent',
+                'AAbbCC - Iridescent Teal',
+                'AAbbCc - Blue',
+                'AAbbcc - rainbow',
+                'AaBBCC - koi',
+                'AaBBCc - Yellowbrown',
+                'AaBBcc - Brown',
+                'AaBbCC - Orange wyandotte chicken',
+                'AaBbCc - Gold',
+                'AaBbcc - Redbrown',
+                'AabbCC - Orange',
+                'AabbCc - Red',
+                'Aabbcc - Brown (gray chest)',
+                'aaBBCC - Dark Brown',
+                'aaBBCc - Gold Brown',
+                'aaBBcc - Blue Bronze',
+                'aaBbCC - Tan',
+                'aaBbCc - Creme',
+                'aaBbcc - skeleton',
+                'aabbCC - White',
+                'aabbCc - White wyandotte chicken',
+                'aabbcc - Black'
+            ],
+            'Tail': [
+                'AABBCC - Black White Red',
+                'AABBCc - Pink White',
+                'AABBcc - Argus Phaesant',
+                'AABbCC - Oscellated Turkey',
+                'AABbCc - Dark Purple',
+                'AABbcc - White Blue Red',
+                'AAbbCC - Iridescent Teal',
+                'AAbbCc - peacock',
+                'AAbbcc - Trans Pride',
+                'AaBBCC - koi',
+                'AaBBCc - Dark Brown White',
+                'AaBBcc - Light and Dark Brown',
+                'AaBbCC - Brown Wyandotte Chicken',
+                'AaBbCc - Gold',
+                'AaBbcc - Brown Black Creme',
+                'AabbCC - phoenix',
+                'AabbCc - Rhode Island Red Chicken',
+                'Aabbcc - Redbrown Dark Brown White',
+                'aaBBCC - Tan',
+                'aaBBCc - Creme Dark Brown',
+                'aaBBcc - Blue Dark Brown Gold',
+                'aaBbCC - Light Brown Creme',
+                'aaBbCc - Creme',
+                'aaBbcc - skeleton',
+                'aabbCC - White Black',
+                'aabbCc - dalmatian',
+                'aabbcc - Black'
+            ],
+            'Wing': [
+                'AABBCC - Black Red (feathered)',
+                'AABBCc - White Pink (feathered)',
+                'AABBcc - Brindled (feathered)',
+                'AABbCC - Green Brown (feathered)',
+                'AABbCc - Tan (feathered)',
+                'AABbcc - Iridescent (feathered)',
+                'AAbbCC - Brown Creme (feathered)',
+                'AAbbCc - Orange Wyandotte Chicken (feathered)',
+                'AAbbcc - Snowy Owl (feathered)',
+                'AaBBCC - White (nubby)',
+                'AaBBCc - Brown (nubby)',
+                'AaBBcc - Tan (nubby)',
+                'AaBbCC - Blue (nubby)',
+                'AaBbCc - Gold (nubby)',
+                'AaBbcc - Green (nubby)',
+                'AabbCC - Pink (nubby)',
+                'AabbCc - Orange (nubby)',
+                'Aabbcc - Black (nubby)',
+                'aaBBCC - Tan (therizino)',
+                'aaBBCc - Brown (raptor)',
+                'aaBBcc - Brown (therizino)',
+                'aaBbCC - Blue (raptor)',
+                'aaBbCc - Green Orange (therizino)',
+                'aaBbcc - Green (raptor)',
+                'aabbCC - Purple (therizino)',
+                'aabbCc - Brown Green (therizino)',
+                'aabbcc - Black (therizino)'
+            ],
+            'Head': [
+                'AABBCC - Toucan r',
+                'AABBCc - Oscellated turkey r',
+                'AABBcc - Argus pheasant r',
+                'AABbCC - Oscellated turkey l',
+                'AABbCc - Blue turkey m',
+                'AABbcc - Gray turkey',
+                'AAbbCC - Argus phaesant l',
+                'AAbbCc - Gray turkey',
+                'AAbbcc - Blue turkey l',
+                'AaBBCC - Silkie chicken r',
+                'AaBBCc - Turkey vulture r',
+                'AaBBcc - Blue turkey r',
+                'AaBbCC - Terror bird',
+                'AaBbCc - Golden terror bird',
+                'AaBbcc - Turkey r',
+                'AabbCC - Silkie chicken l',
+                'AabbCc - Turkey vulture l',
+                'Aabbcc - Toucan l',
+                'aaBBCC - Velociraptor',
+                'aaBBCc - Turkey r',
+                'aaBBcc - Bullocksornis r',
+                'aaBbCC - Cassowary r',
+                'aaBbCc - Turkey l',
+                'aaBbcc - Cassowary l',
+                'aabbCC - Velociraptor',
+                'aabbCc - Turkey l',
+                'aabbcc - Bullocksornis l'
+            ],
+            'Cimo': [
+                'no',
+                'yes'
+            ]
+        }
+    }

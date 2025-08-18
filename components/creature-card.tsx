@@ -27,7 +27,7 @@ export function CreatureCard({ creature, allCreaturesData }: CreatureCardProps) 
   };
 
   return (
-    <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain">
+    <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
       <CardContent className="p-4">
         {/* Creature Image */}
         <div className="bg- rounded-lg p-4 mb-4 flex justify-center">

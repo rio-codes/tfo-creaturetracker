@@ -5,11 +5,15 @@ import { authConfig } from "@/auth.config"
 const { auth } = NextAuth(authConfig);
 
 export default auth((req: NextRequest) => {
-  const isAuthenticated = (req.cookies.toString().includes("__Secure-authjs.session-token"))
   const reqPath = req.nextUrl.pathname;
+  var isAuthenticated: boolean = false;
 
-  if (isAuthenticated) {
+  if (req.auth) {
+    isAuthenticated = true;
     console.log("Logged in")
+  }
+  else {
+    console.log("Logged out")
   }
 
   // Public routes

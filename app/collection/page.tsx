@@ -28,7 +28,7 @@ export default async function CollectionPage({
   );
 
   return (
-    <div className="bg-barely-lilac min-h-screen">
+    <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
       <div className="container mx-auto px-4 py-8">
         <Suspense fallback={<div>Loading collection...</div>}>
             <CollectionClient 

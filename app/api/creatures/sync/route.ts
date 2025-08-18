@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Server configuration error. Contact administrator.' }, { status: 500 });
     }
 
-    if (!session?.user?.id) {
+    if (!userId) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 

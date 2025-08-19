@@ -43,9 +43,7 @@ export async function getCreaturesForUser(
                 ilike(creatures.creatureName, `%${query}%`)
             )
             : undefined,
-        genders && genders.length > 0
-            ? inArray(creatures.gender, genders as ("male" | "female")[])
-            : undefined,
+        genders ? inArray(creatures.gender, genders as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)

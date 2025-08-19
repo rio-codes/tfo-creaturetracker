@@ -19,7 +19,14 @@ export default async function CollectionPage({
     const query = searchParams?.query;
     const stage = searchParams?.stage;
     const species = searchParams?.species;
-    const genders = searchParams?.genders ? searchParams.genders.split(',') : [];
+    const gendersParam = searchParams?.genders;
+    let genders: string[] | undefined;
+
+    if (gendersParam === undefined) {
+        genders = undefined;
+    } else {
+        genders = gendersParam.split(",").filter((g) => g);
+    }
 
     const { creatures, totalPages } = await getCreaturesForUser(
         currentPage,

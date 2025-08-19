@@ -4,6 +4,7 @@ import {
     integer,
     boolean,
     timestamp,
+    jsonb,
     pgEnum,
     uniqueIndex,
     primaryKey
@@ -97,4 +98,18 @@ export const creatures = pgTable('creature', {
     return {
         userCreatureCodeIndex: uniqueIndex('user_creature_code_idx').on(table.userId, table.code),
     };
+});
+
+export const researchGoals = pgTable('research_goal', {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+
+    name: text('name').notNull(),
+    species: text('species').notNull(),
+    imageUrl: text('image_url'), // Will store the Vercel Blob URL
+
+    genes: jsonb('genes').notNull(),
+    
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

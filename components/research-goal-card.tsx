@@ -1,57 +1,114 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-
-interface ResearchGoal {
-  id: number
-  title: string
-  species: string
-  gender: string
-  image: string
-  [key: string]: any // For dynamic genetic traits
-}
+"use client";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import { ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import type { ResearchGoal } from "@/types/index";
 
 interface ResearchGoalCardProps {
-  goal: ResearchGoal
+    goal: ResearchGoal;
 }
 
 export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
-  // Extract genetic traits (excluding id, title, species, gender, image)
-  const geneticTraits = Object.entries(goal).filter(
-    ([key]) => !["id", "title", "species", "gender", "image"].includes(key),
-  )
+    const router = useRouter();
+    const [isDeleting, setIsDeleting] = useState(false);
 
-  return (
-    <Card className="bg-card border-border overflow-hidden">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-bold text-card-foreground">{goal.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        {/* Creature Image */}
-        <div className="bg-purple-200 rounded-lg p-4 mb-4 flex justify-center">
-          <img src={goal.image || "/placeholder.svg"} alt={goal.title} className="w-32 h-32 object-contain" />
-        </div>
+    const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
-        {/* Genetic Details */}
-        <ScrollArea className="h-32 mb-4">
-          <div className="text-sm text-card-foreground space-y-1">
-            <div>
-              <strong>Species:</strong> {goal.species}
-            </div>
-            <div>
-              <strong>Gender:</strong> {goal.gender}
-            </div>
-            {geneticTraits.map(([key, value]) => (
-              <div key={key}>
-                <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {value}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+    const handleDelete = async () => {
+      if (!window.confirm(`Are you sure you want to delete the goal "${goal.name}"? This cannot be undone.`)) {
+          return;
+      }
+  
+      setIsDeleting(true);
+  
+      try {
+          const response = await fetch(`/api/research-goals/${goal.id}`, {
+              method: 'DELETE',
+          });
+          if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.error || 'Failed to delete the goal.');
+          }
+          router.refresh();
+      } catch (error: any) {
+          alert(error.message); // Show an alert on failure
+      } finally {
+          setIsDeleting(false);
+      }
+    };
 
-        {/* View Goal Stats Button */}
-        <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">View Goal Stats</Button>
-      </CardContent>
-    </Card>
-  )
+    return (
+        <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+            <CardContent className="p-4">
+                {/* Goal Image */}
+                <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
+                    <img
+                        src={goal.imageUrl || "/placeholder.png"}
+                        alt={goal.name}
+                        className="w-35 h-35 object-scale-down"
+                    />
+                </div>
+
+                {/* Goal Details in Scrollable Area */}
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
+                    <div className="text-sm text-card-foreground space-y-1">
+                        <div>
+                            <strong>Name:</strong> {goal.name}
+                        </div>
+                        <div>
+                            <strong>Species:</strong> {goal.species}
+                        </div>
+                        <div className="whitespace-pre-line pr-4">
+                            <strong>Target Genes:</strong>
+                            {geneEntries.length > 0 ? (
+                                <div className="pl-2 text-dusk-purple text-xs font-mono mt-1">
+                                    {geneEntries.map(([category, genotype]) => (
+                                        <div key={category}>
+                                            {category}: {genotype as string}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p>No specific genes targeted.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <ScrollBar orientation="vertical" />
+
+                    {/* Fake Scrollbar Hint */}
+                    <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
+                        <ChevronUp className="h-4 w-4 text-barely-lilac" />
+                        <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                    </div>
+                </ScrollArea>
+
+                {/* Action Buttons (placeholders for now) */}
+                <div className="flex w-full gap-0.5 justify-between">
+                    <Button
+                        disabled
+                        className="bg-dusk-purple text-pompaca-purple"
+                    >
+                        Goal Stats
+                    </Button>
+                    <Button 
+                        disabled 
+                        className="bg-dusk-purple text-pompaca-purple"
+                    >
+                        Edit Goal
+                    </Button>
+                    <Button 
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                        className="bg-dusk-purple text-pompaca-purple"
+                    >
+                    {isDeleting ? 'Deleting...' : <><Trash2 className="h-4 w-4 mr-2" /> Delete</>}
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
 }

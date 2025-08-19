@@ -23,7 +23,7 @@ export function AddGoalDialog({ isOpen, onClose }: DialogProps) {
             onClick={handleClose}
         >
             <div
-                className="bg-barely-lilac rounded-lg shadow-xl overflow-y-scroll p-6 space-y-4 w-full max-h-3/4 max-w-md z-50"
+                className="bg-barely-lilac rounded-lg shadow-xl overflow-y-auto p-6 space-y-4 w-full max-h-3/4 max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-2xl font-bold text-pompaca-purple mb-4">New Research Goal</h2>

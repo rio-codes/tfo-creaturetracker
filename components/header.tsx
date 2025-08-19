@@ -1,13 +1,18 @@
-"use client"
-import Link from 'next/link';
-import { useState } from "react"
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronsDown, LogIn, LogOut, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { ChevronsDown, LogIn, LogOut, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
 
   return (
@@ -17,84 +22,95 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenuTrigger asChild>
-              <Button size="lg" className="text-barely-lilac hover:bg-transparent focus-visible:ring-0">
+              <Button
+                size="lg"
+                className="text-barely-lilac hover:bg-transparent focus-visible:ring-0"
+              >
                 <ChevronsDown className="size-10" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-50 bg-barely-lilac">
-              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'> 
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
                 <Link href="/collection" className="text-lg w-full h-full">
-                  🦋  Collection
+                  🦋 Collection
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
                 <Link href="/research-goals" className="text-lg w-full h-full">
-                  🧪  Research Goals
+                  🧪 Research Goals
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
                 <Link href="/breeding-pairs" className="text-lg w-full h-full">
-                  💜  Breeding Pairs
+                  💜 Breeding Pairs
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className='bg-barely-lilac hover:bg-dusk-purple h-10'>
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
                 <Link href="/settings" className="text-lg w-full h-full">
-                  🔧  Settings
+                  🔧 Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <div className="flex items-center gap-2">
-            
-            <div className="text-yellow-300 text-2xl"><Link href="/">🧬</Link></div>
+            <div className="text-yellow-300 text-2xl">
+              <Link href="/">🧬</Link>
+            </div>
             <div>
-              <h1 className="text-xl font-bold"><Link href="/">TFO.creaturetracker</Link></h1>
-              <p className="text-sm text-purple-200"><Link href="/">a breeding tracker for The Final Outpost</Link></p>
+              <h1 className="text-xl font-bold">
+                <Link href="/">TFO.creaturetracker</Link>
+              </h1>
+              <p className="text-sm text-purple-200">
+                <Link href="/">a breeding tracker for The Final Outpost</Link>
+              </p>
             </div>
           </div>
-          
         </div>
 
         {/* Right side - User info and actions */}
-        {status === 'authenticated' && (
+        {status === "authenticated" && (
           <div className="flex flex-col items-end py-1">
-            <div className='py-1'>
-              Welcome back, {session.user.username}!
-            </div>
-            <div className='py-1'> 
-              <Button           
-                onClick={() => signOut({ callbackUrl: '/' })} 
-                variant="ghost" 
-                size="sm" 
+            <div className="py-1">Welcome back, {session.user.username}!</div>
+            <div className="py-1">
+              <Button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                variant="ghost"
+                size="sm"
                 className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple shadow-xl"
-                >
-                  Log Out
-                  <LogOut className="h-4 w-4 mr-2" />
+              >
+                Log Out
+                <LogOut className="h-4 w-4 mr-2" />
               </Button>
             </div>
           </div>
         )}
-        {status === 'loading' && ( 
+        {status === "loading" && (
           <div className="flex flex-col items-end py-1">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              disabled 
-              className="text-barely-lilac">
-                <Loader2 className="h-4 w-4 animate-spin" />
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled
+              className="text-barely-lilac"
+            >
+              <Loader2 className="h-4 w-4 animate-spin" />
             </Button>
           </div>
         )}
-        {status != 'authenticated' && status != 'loading' && (
-        <div className="flex flex-col items-end py-1"> 
-          <Button onClick={() => signIn()} variant="ghost" size="sm" className="text-barely-lilac hover:bg-dusk-purple">
+        {status != "authenticated" && status != "loading" && (
+          <div className="flex flex-col items-end py-1">
+            <Button
+              onClick={() => signIn()}
+              variant="ghost"
+              size="sm"
+              className="text-barely-lilac hover:bg-dusk-purple"
+            >
               Log In
               <LogIn className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
+            </Button>
+          </div>
         )}
       </div>
     </header>
-  )
+  );
 }

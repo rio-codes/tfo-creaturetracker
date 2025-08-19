@@ -11,17 +11,17 @@ const registerUserSchema = z.object({
     email: z.email("Invalid email address"),
     password: z
         .string()
-        .min(12, { 
-            message: "Password must be at least 12 characters long" 
+        .min(12, {
+            message: "Password must be at least 12 characters long",
         })
-        .regex(/[a-zA-Z]/, { 
-            message: 'Password must contain at least one letter.' 
+        .regex(/[a-zA-Z]/, {
+            message: "Password must contain at least one letter.",
         })
-        .regex(/[0-9]/, { 
-            message: 'Password must contain at least one number.' 
+        .regex(/[0-9]/, {
+            message: "Password must contain at least one number.",
         })
         .regex(/[^a-zA-Z0-9]/, {
-            message: 'Password must contain at least one special character.',
+            message: "Password must contain at least one special character.",
         })
         .trim(),
 });
@@ -37,7 +37,8 @@ export async function POST(req: Request) {
         });
         if (existingUserByUsername) {
             return NextResponse.json(
-                { message: "Username is already taken" }, { status: 409 }
+                { message: "Username is already taken" },
+                { status: 409 }
             );
         }
         const existingUserByEmail = await db.query.users.findFirst({
@@ -45,25 +46,26 @@ export async function POST(req: Request) {
         });
         if (existingUserByEmail) {
             return NextResponse.json(
-                { message: "Email is already in use" }, { status: 409 }
+                { message: "Email is already in use" },
+                { status: 409 }
             );
         }
 
-    // Hash the password
-    const hashedPassword = await hash(password, 12);
+        // Hash the password
+        const hashedPassword = await hash(password, 12);
 
-    // Create the new user
-    await db.insert(users).values({
-        id: crypto.randomUUID(), // Generate a UUID for the user id
-        username: username,
-        email: email,
-        password: hashedPassword,
-    });
+        // Create the new user
+        await db.insert(users).values({
+            id: crypto.randomUUID(), // Generate a UUID for the user id
+            username: username,
+            email: email,
+            password: hashedPassword,
+        });
 
-    return NextResponse.json(
-        { user: { username }, message: "User created successfully" },
-        { status: 201 } // 201 Created
-    );
+        return NextResponse.json(
+            { user: { username }, message: "User created successfully" },
+            { status: 201 } // 201 Created
+        );
     } catch (error) {
         if (error instanceof z.ZodError) {
             // console.error("Zod Validation Failed:", error.flatten().fieldErrors);
@@ -72,7 +74,7 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-            
+
         // console.error("Registration Error:", error);
         return NextResponse.json(
             { message: "An unexpected error occurred." },

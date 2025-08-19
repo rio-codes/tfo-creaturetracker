@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "@/src/db";
 import { creatures, researchGoals } from "@/src/db/schema";
 import { auth } from "@/auth";
-import { and, ilike, or, eq, desc, count, inArray } from "drizzle-orm";
+import { and, ilike, or, eq, desc, count } from "drizzle-orm";
 import type { Creature, ResearchGoal } from "@/types";
 
 const ITEMS_PER_PAGE = 12;
@@ -11,7 +11,7 @@ const GOALS_PER_PAGE = 12;
 export async function getCreaturesForUser(
     currentPage: number,
     query?: string,
-    genders?: string[],
+    gender?: string[],
     stage?: string,
     species?: string
 ) {
@@ -31,10 +31,6 @@ export async function getCreaturesForUser(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
-    if (genders && genders.length === 0) {
-        return { creatures: [], totalPages: 0 };
-    }
-
     const conditions = [
         eq(creatures.userId, userId),
         query
@@ -43,7 +39,7 @@ export async function getCreaturesForUser(
                 ilike(creatures.creatureName, `%${query}%`)
             )
             : undefined,
-        genders ? inArray(creatures.gender, genders as any) : undefined,
+        gender && gender !== 'all' ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)

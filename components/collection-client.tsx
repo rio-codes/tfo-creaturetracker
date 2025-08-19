@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { act, useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import type { Creature } from "@/types";
@@ -40,42 +40,6 @@ export function CollectionClient({ initialCreatures, totalPages }) {
         setIsSyncDialogOpen(false);
     };
 
-    const handleGenderChange = (
-        gender: "male" | "female",
-        isChecked: boolean
-    ) => {
-        const params = new URLSearchParams(searchParams);
-        params.set("page", "1");
-
-        const currentGenders = params.get("genders")?.split(",") || [];
-        const activeGenders = currentGenders.filter((g) => g);
-
-        if (isChecked) {
-            params.set("genders", gender)
-            if (!activeGenders.includes(gender)) {
-                activeGenders.push(gender);
-            }
-        } else {
-            params.delete("genders", gender)
-            const index = activeGenders.indexOf(gender);
-            if (index > -1) {
-                activeGenders.splice(index, 1);
-            }
-        }
-
-        // Update the 'genders' parameter in the URL
-        if (activeGenders.length > 0) {
-            // If there are selected genders, join them with a comma.
-            params.set("genders", activeGenders.join(","));
-        } else {
-            // If no genders are selected, set the parameter to an empty string.
-            // This is how we tell the server "the user wants to see nothing".
-            params.set("genders", "");
-        }
-
-        replace(`${pathname}?${params.toString()}`);
-    };
-
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
             var params = new URLSearchParams();
@@ -97,8 +61,6 @@ export function CollectionClient({ initialCreatures, totalPages }) {
     ); // 300ms debounce delay
 
     const currentSpecies = searchParams.get("species") || "all";
-    const gendersParam = searchParams.get("genders");
-    const currentGenders = gendersParam === null ? "male,female" : gendersParam;
     const currentStage = searchParams.get("stage") || "all";
     const currentQuery = searchParams.get("query") || "";
 
@@ -135,42 +97,33 @@ export function CollectionClient({ initialCreatures, totalPages }) {
                     </div>
 
                     {/* Gender Filters */}
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="female"
-                                defaultChecked={currentGenders.includes(
-                                    "female"
-                                )}
-                                onCheckedChange={(checked) =>
-                                    handleGenderChange("female", !!checked)
-                                }
-                            />
-                            <Label
-                                htmlFor="female"
-                                className="text-pompaca-purple font-medium"
+                    <Select
+                        defaultValue={searchParams.get("gender") || "all"}
+                        onValueChange={(value) =>
+                            handleFilterChange("gender", value)
+                        }
+                    >
+                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500">
+                            <SelectValue placeholder="Filter by gender..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-barely-lilac">
+                            <SelectItem value="all" className="bg-barely-lilac">
+                                All Genders
+                            </SelectItem>
+                            <SelectItem
+                                value="female"
+                                className="bg-barely-lilac"
                             >
                                 Female
-                            </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="male"
-                                defaultChecked={currentGenders.includes(
-                                    "male"
-                                )}
-                                onCheckedChange={(checked) =>
-                                    handleGenderChange("male", !!checked)
-                                }
-                            />
-                            <Label
-                                htmlFor="male"
-                                className="text-pompaca-purple font-medium"
+                            </SelectItem>
+                            <SelectItem
+                                value="male"
+                                className="bg-barely-lilac"
                             >
                                 Male
-                            </Label>
-                        </div>
-                    </div>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
 
                     {/* Stage Filter */}
                     <Select

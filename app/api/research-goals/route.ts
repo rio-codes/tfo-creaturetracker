@@ -1,19 +1,18 @@
-// app/api/research-goals/route.ts
-
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { speciesCodes } from "@/app/lib/creature_data";
+import { TFO_SPECIES_CODES } from "@/lib/creature-data";
 import { put as vercelBlobPut } from "@vercel/blob";
+import { constructTfoImageUrl } from "@/lib/tfo-utils";
 
 const goalSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters."),
-    species: z.string().min(1, "Species is required."),
-    genes: z.record(z.string()),
-});
+    name: z.string().min(3),
+    species: z.string().min(1),
+    genes: z.record(z.string(), z.string())
+})
 
 export async function POST(req: Request) {
     const session = await auth();
@@ -29,6 +28,7 @@ export async function POST(req: Request) {
         const validatedFields = goalSchema.safeParse(body);
 
         if (!validatedFields.success) {
+            console.error("Zod Validation Failed:", validatedFields.error.flatten());
             return NextResponse.json(
                 {
                     error: "Invalid data provided.",
@@ -39,22 +39,11 @@ export async function POST(req: Request) {
         }
         const { name, species, genes } = validatedFields.data;
 
-        const speciesCode = speciesCodes[species];
+        const speciesCode = TFO_SPECIES_CODES[species];
         if (!speciesCode)
             throw new Error(`Invalid species provided: ${species}`);
 
-        const gender = genes["Gender"]?.toLowerCase();
-        if (!["male", "female"].includes(gender))
-            throw new Error("A valid gender must be selected.");
-
-        const geneticsString = Object.entries(genes)
-            .map(([cat, gen]) => `${cat}:${gen}`)
-            .join(",");
-
-        const tfoImageUrl = new URL("https://finaloutpost.net/ln");
-        tfoImageUrl.searchParams.append("s", speciesCode);
-        tfoImageUrl.searchParams.append("c", geneticsString);
-        tfoImageUrl.searchParams.append("g", gender);
+        const tfoImageUrl = constructTfoImageUrl(species, genes);
 
         let finalImageUrl = "";
 

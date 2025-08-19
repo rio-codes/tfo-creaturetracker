@@ -2216,8 +2216,8 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
-  electron-to-chromium@1.5.204:
-    resolution: {integrity: sha512-s9VbBXWxfDrl67PlO4avwh0/GU2vcwx8Fph3wlR8LJl7ySGYId59EFE17VWVcuC3sLWNPENm6Z/uGqKbkPCcXA==}
+  electron-to-chromium@1.5.206:
+    resolution: {integrity: sha512-/eucXSTaI8L78l42xPurxdBzPTjAkMVCQO7unZCWk9LnZiwKcSvQUhF4c99NWQLwMQXxjlfoQy0+8m9U2yEDQQ==}
 
   embla-carousel-react@8.6.0:
     resolution: {integrity: sha512-0/PjqU7geVmo6F734pmPqpyHqiM99olvyecY7zdweCw+6tKEXnrE90pBiBbMMU8s5tICemzpQ3hi5EpxzGW+JA==}
@@ -5087,7 +5087,7 @@ snapshots:
   browserslist@4.25.3:
     dependencies:
       caniuse-lite: 1.0.30001735
-      electron-to-chromium: 1.5.204
+      electron-to-chromium: 1.5.206
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.3)
 
@@ -5286,7 +5286,7 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  electron-to-chromium@1.5.204: {}
+  electron-to-chromium@1.5.206: {}
 
   embla-carousel-react@8.6.0(react@19.1.1):
     dependencies:

@@ -1,71 +1,116 @@
-"use client"
+"use client";
 
+import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import type { Creature } from '@/types';
+import { useDebouncedCallback } from 'use-debounce';
+import type { ResearchGoal } from '@/types';
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Pagination } from "@/components/pagination"
-import { Button } from "@/components/ui/button"
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ResearchGoalCard } from '@/components/research-goal-card';
+import { Pagination } from '@/components/ui/pagination';
+import { AddGoalDialog } from '@/components/add-goal-dialog'
+import { speciesList } from "@/lib/creature-data"
 
-type CollectionClientProps = {
-    initialCreatures: Creature[];
+type ResearchGoalClientProps = {
+    goals: ResearchGoal[];
     totalPages: number;
 };
 
-export function ResearchGoalClient({initialCreatures, totalPages}) {
+export function ResearchGoalClient({ initialGoals, totalPages }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
 
+    const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
+    const handleOpenGoalDialog = () => {
+        setIsGoalDialogOpen(true);
+    };
+    const handleCloseDialog = () => {
+        setIsGoalDialogOpen(false);
+    };
+
+    const handleFilterChange = useDebouncedCallback((filterName: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('page', '1');
+      if (value && value !== 'all') {
+        params.set(filterName, value);
+      } else {
+        params.delete(filterName);
+      }
+      replace(`${pathname}?${params.toString()}`);
+    }, 300);
+
     return (
         <div className="bg-barely-lilac min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple mb-8">Resarch Goals</h1>
-                <Button onClick={handleOpenSyncDialog} className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac drop-shadow-md drop-shadow-gray-500">
+                <h1 className="text-5xl font-bold text-pompaca-purple mb-8">
+                    Research Goals
+                </h1>
+                <Button
+                    onClick={handleOpenGoalDialog}
+                    className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac drop-shadow-md drop-shadow-gray-500"
+                >
                     + Add New Research Goal
                 </Button>
-    
-                {/* Species Filter */}
-                <div className="flex items-center gap-2">
-                  <span className="text-purple-900 font-medium">Species</span>
-                  <Select defaultValue="all">
-                    <SelectTrigger className="w-32 bg-purple-600 text-white border-purple-600">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="sencesa">Sencesa</SelectItem>
-                      <SelectItem value="ebena-kuranto">Ebena Kuranto</SelectItem>
-                      <SelectItem value="dompaca-flora">Dompaca Flora</SelectItem>
-                      <SelectItem value="cielarka-cimo">Cielarka Cimo</SelectItem>
-                      <SelectItem value="nokta-volko">Nokta Volko</SelectItem>
-                      <SelectItem value="avka-felo">Avka Felo</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <AddGoalDialog
+                    isOpen={isGoalDialogOpen}
+                    onClose={handleCloseDialog}
+                />
+
+              {/* Search and Filters */}
+              <div className="flex flex-col md:flex-row gap-4 mb-8">
+                {/* Search Bar */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dusk-purple h-4 w-4" />
+                  <Input
+                    placeholder="search for a goal by name..."
+                    className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                    defaultValue={searchParams.get('query') || ''}
+                    onChange={(e) => handleFilterChange('query', e.target.value)}
+                  />
                 </div>
+
+                {/* Species Filter */}
+                <Select
+                  defaultValue={searchParams.get('species') || 'all'}
+                  onValueChange={(value) => handleFilterChange('species', value)}
+                >
+                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Species</SelectItem>
+                    {speciesList.map((species) => (
+                      <SelectItem key={species} value={species}>{species}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-    
-            // Search Bar
-            <div className="relative mb-8">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-600 h-4 w-4" />
-              <Input
-                placeholder="search for a creature..."
-                className="pl-10 bg-purple-200 border-purple-300 text-purple-900 placeholder:text-purple-600"
-              />
-            </div>
-    
-            {/* Research Goals Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {researchGoals.map((goal) => (
-                <ResearchGoalCard key={goal.id} goal={goal} />
-              ))}
-            </div>
-    
-            {/* Pagination */}
-            <Pagination currentPage={1} totalPages={68} />
-            </div>
-        </div>
-    )
+
+              {/* Goal Grid */}
+              {initialGoals.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {initialGoals.map((goal) => (
+                    <ResearchGoalCard key={goal.id} goal={goal} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
+                  <h2 className="text-2xl font-semibold text-pompaca-purple">No Goals Found</h2>
+                  <p className="text-dusk-purple mt-2">
+                    Try adjusting your search or filter, or create a new goal.
+                  </p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              <div className="mt-8 flex justify-center">
+                <Pagination totalpages={totalPages} />
+              </div>
+          </div>
+      </div>
+    );
 }

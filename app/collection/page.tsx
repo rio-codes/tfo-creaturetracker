@@ -1,4 +1,4 @@
-import { getCreaturesForUser } from "@/app/lib/data";
+import { getCreaturesForUser } from "@/lib/data";
 import { CollectionClient } from "@/components/collection-client";
 import { Suspense } from "react";
 

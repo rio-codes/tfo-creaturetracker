@@ -9383,7 +9383,7 @@ export const structuredGeneData = {
     },
 };
 
-export const speciesCodes = { [key: string]: string } = {
+export const TFO_SPECIES_CODES: { [key: string]: string } = {
     "Abomena Pahidermo": "gFA9i",
     "Alta Koltuko": "ZMOds",
     "Arba Brakumo": "AaSyJ",
@@ -9464,4 +9464,4 @@ export const speciesCodes = { [key: string]: string } = {
     "Transira Alsalto": "YsPYT",
     "Vetura Oazo": "km4eo",
     "Vira Beko": "tagXL"
-}
+};

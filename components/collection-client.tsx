@@ -51,10 +51,12 @@ export function CollectionClient({ initialCreatures, totalPages }) {
         const activeGenders = currentGenders.filter((g) => g);
 
         if (isChecked) {
+            params.set("genders", gender)
             if (!activeGenders.includes(gender)) {
                 activeGenders.push(gender);
             }
         } else {
+            params.delete("genders", gender)
             const index = activeGenders.indexOf(gender);
             if (index > -1) {
                 activeGenders.splice(index, 1);

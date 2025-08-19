@@ -145,7 +145,7 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
                 <Label htmlFor="goal-name">Goal Name</Label>
                 <Input
                     id="goal-name"
-                    placeholder="e.g., Perfect Silver Male"
+                    placeholder="enter a name for your goal"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"

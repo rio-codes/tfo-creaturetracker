@@ -40,9 +40,47 @@ export function CollectionClient({ initialCreatures, totalPages }) {
         setIsSyncDialogOpen(false);
     };
 
+    const handleGenderChange = (
+        gender: "male" | "female",
+        isChecked: boolean
+    ) => {
+        const params = new URLSearchParams(searchParams);
+        params.set("page", "1");
+
+        const currentGenders = params.get("genders")?.split(",") || [];
+
+        if (isChecked) {
+            // If checked, add the gender to the list (if it's not already there)
+            if (!currentGenders.includes(gender)) {
+                currentGenders.push(gender);
+            }
+        } else {
+            // If unchecked, remove the gender from the list
+            const index = currentGenders.indexOf(gender);
+            if (index > -1) {
+                currentGenders.splice(index, 1);
+            }
+        }
+
+        // Update the 'genders' parameter in the URL
+        if (currentGenders.length > 0) {
+            params.set("genders", currentGenders.join(","));
+        } else {
+            // If no genders are selected, remove the parameter entirely
+            params.delete("genders");
+        }
+
+        replace(`${pathname}?${params.toString()}`);
+    };
+
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
-            const params = new URLSearchParams(searchParams);
+            var params = new URLSearchParams();
+            if (filterName == "male" || filterName == "female") {
+                params = new URLSearchParams("genders");
+            } else {
+                params = new URLSearchParams(searchParams);
+            }
             params.set("page", "1");
 
             if (value && value !== "all") {
@@ -56,6 +94,8 @@ export function CollectionClient({ initialCreatures, totalPages }) {
     ); // 300ms debounce delay
 
     const currentSpecies = searchParams.get("species") || "all";
+    const gendersParam = searchParams.get('genders');
+    const currentGenders = gendersParam === null ? 'male,female' : gendersParam;
     const currentStage = searchParams.get("stage") || "all";
     const currentQuery = searchParams.get("query") || "";
 
@@ -96,11 +136,11 @@ export function CollectionClient({ initialCreatures, totalPages }) {
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="female"
-                                defaultChecked={
-                                    searchParams.get("female") !== "false"
-                                }
+                                // The checkbox is checked if 'female' is in the URL string
+                                defaultChecked={currentGenders.includes("female")}
+                                // The handler receives the new checked state (true/false)
                                 onCheckedChange={(checked) =>
-                                    handleFilterChange("female", !!checked)
+                                    handleGenderChange("female", !!checked)
                                 }
                             />
                             <Label
@@ -113,11 +153,9 @@ export function CollectionClient({ initialCreatures, totalPages }) {
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="male"
-                                defaultChecked={
-                                    searchParams.get("male") !== "false"
-                                }
+                                defaultChecked={currentGenders.includes("male")}
                                 onCheckedChange={(checked) =>
-                                    handleFilterChange("male", !!checked)
+                                    handleGenderChange("male", !!checked)
                                 }
                             />
                             <Label

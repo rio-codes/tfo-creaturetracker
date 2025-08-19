@@ -31,6 +31,10 @@ export async function getCreaturesForUser(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
+    if (genders && genders.length === 0) {
+        return { creatures: [], totalPages: 0 };
+    }
+
     const conditions = [
         eq(creatures.userId, userId),
         query
@@ -46,7 +50,7 @@ export async function getCreaturesForUser(
         species && species !== "all"
             ? ilike(creatures.species, species)
             : undefined,
-    ].filter(Boolean); // This safely removes any undefined conditions
+    ].filter(Boolean);
 
     try {
         // Get the creatures for the current page

@@ -81,10 +81,10 @@ export function ResearchGoalClient({ initialGoals, totalPages }) {
                   <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Species</SelectItem>
+                  <SelectContent className="bg-barely-lilac">
+                    <SelectItem value="all" className="bg-barely-lilac">All Species</SelectItem>
                     {speciesList.map((species) => (
-                      <SelectItem key={species} value={species}>{species}</SelectItem>
+                      <SelectItem key={species} value={species} className="bg-barely-lilac">{species}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

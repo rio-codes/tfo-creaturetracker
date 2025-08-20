@@ -71,7 +71,7 @@ export default function Header() {
         {/* Right side - User info and actions */}
         {status === "authenticated" && (
           <div className="flex flex-col items-end py-1">
-            <div className="py-1">Welcome back, {session.user.username}!</div>
+            <div className="py-1 hidden md:block">Welcome back, {session.user.username}!</div>
             <div className="py-1">
               <Button
                 onClick={() => signOut({ callbackUrl: "/" })}

@@ -49,22 +49,24 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
             structuredGeneData[species]
         )) {
             const phenotypeMap = new Map<string, string[]>();
-
             (genes as { genotype: string; phenotype: string }[]).forEach(
                 (gene) => {
-                    const existing = phenotypeMap.get(gene.phenotype) || [];
-                    phenotypeMap.set(gene.phenotype, [
-                        ...existing,
-                        gene.genotype,
-                    ]);
+                    if (category != "Gender") {
+                        const existing = phenotypeMap.get(gene.phenotype) || [];
+                        phenotypeMap.set(gene.phenotype, [
+                            ...existing,
+                            gene.genotype,
+                        ]);
+                    }
+                    else {
+                        phenotypeMap.set(gene.genotype, [gene.genotype])
+                    }
                 }
             );
-
             optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
                 ([phenotype, genotypes]) => {
-                    let displayText: string;
-
-                    if (genotypes.length === 1) {
+                    let displayText: string;                    
+                    if (genotypes.length === 1 && category != "Gender") {
                         displayText =
                             phenotype === "None"
                                 ? "None"
@@ -72,7 +74,6 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
                     } else {
                         displayText = phenotype;
                     }
-
                     return {
                         value: genotypes[0],
                         display: displayText,

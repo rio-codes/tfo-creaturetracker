@@ -45,6 +45,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
             setStatus('success');
             setMessage(data.message);
+            handleClose()
+            router.push("/collection")
             router.refresh()
         } catch (error: any) {
             setStatus('error');

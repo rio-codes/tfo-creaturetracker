@@ -1,4 +1,4 @@
-import RegisterForm from "@/components/register-form"; // Adjust path if needed
+import RegistrationFlow from "@/components/registration-flow";
 
 export default function RegisterPage() {
     return (
@@ -16,7 +16,7 @@ export default function RegisterPage() {
                         a breeding tracker for The Final Oupost
                     </p>
                 </div>
-                <RegisterForm />
+                <RegistrationFlow />
             </div>
         </div>
     );

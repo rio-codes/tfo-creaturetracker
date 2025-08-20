@@ -1,0 +1,100 @@
+import { NextResponse } from "next/server";
+import { db } from "@/src/db";
+import { users, pendingRegistrations } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
+
+const completeSchema = z.object({
+    email: z.string().email("A valid email is required."),
+});
+
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const validated = completeSchema.safeParse(body);
+        if (!validated.success) {
+            return NextResponse.json(
+                { error: "Email is required to complete registration." },
+                { status: 400 }
+            );
+        }
+        const { email } = validated.data;
+
+        const pending = await db.query.pendingRegistrations.findFirst({
+            where: eq(pendingRegistrations.email, email),
+        });
+
+        if (!pending) {
+            return NextResponse.json(
+                {
+                    error: "No pending registration found for this email. Please start over.",
+                },
+                { status: 404 }
+            );
+        }
+
+        if (new Date() > pending.expiresAt) {
+            await db
+                .delete(pendingRegistrations)
+                .where(eq(pendingRegistrations.email, email));
+            return NextResponse.json(
+                {
+                    error: "Your registration attempt has expired. Please start over.",
+                },
+                { status: 400 }
+            );
+        }
+
+        const tfoApiUrl = `https://finaloutpost.net/api/v1/creature/${pending.creatureCode}`;
+        const response = await fetch(tfoApiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                apiKey: process.env.TFO_API_KEY,
+            },
+        });
+        const tfoData = await response.json();
+
+        if (tfoData.error || !tfoData.code) {
+            return NextResponse.json(
+                {
+                    error: "Could not fetch the creature from TFO to verify its name. Please try again in a moment.",
+                },
+                { status: 400 }
+            );
+        }
+
+        const currentCreatureName = tfoData.name;
+
+        if (currentCreatureName === pending.verificationToken) {
+            await db.insert(users).values({
+                id: crypto.randomUUID(),
+                email: pending.email,
+                username: pending.tfoUsername,
+                password: pending.hashedPassword,
+                isTfoVerified: true,
+            });
+            await db
+                .delete(pendingRegistrations)
+                .where(eq(pendingRegistrations.email, email));
+
+            return NextResponse.json({
+                message: "Account created successfully! You can now log in.",
+            });
+        }
+        else {
+            return NextResponse.json(
+                {
+                    error: `Verification failed. The creature's name is currently "${currentCreatureName}", but we expected "${pending.verificationToken}". Please correct the name on TFO and try again.`,
+                },
+                { status: 400 }
+            );
+        }
+    } catch (error) {
+        console.error("Registration completion failed:", error);
+        return NextResponse.json(
+            { error: "An internal error occurred." },
+            { status: 500 }
+        );
+    }
+}

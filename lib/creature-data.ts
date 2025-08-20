@@ -5430,7 +5430,7 @@ export const structuredGeneData = {
         ],
         Carrot: [
             { genotype: "no", phenotype: "None" },
-            { genotype: "yes", phenotype: "None" },
+            { genotype: "yes", phenotype: "Present" },
         ],
     },
     Etarakido: {
@@ -7097,11 +7097,11 @@ export const structuredGeneData = {
         ],
         Clouds: [
             { genotype: "none", phenotype: "None" },
-            { genotype: "white", phenotype: "None" },
-            { genotype: "dark", phenotype: "None" },
-            { genotype: "stormy", phenotype: "None" },
-            { genotype: "dawn", phenotype: "None" },
-            { genotype: "dusk", phenotype: "None" },
+            { genotype: "white", phenotype: "White" },
+            { genotype: "dark", phenotype: "Dark" },
+            { genotype: "stormy", phenotype: "Stormy" },
+            { genotype: "dawn", phenotype: "Dawn" },
+            { genotype: "dusk", phenotype: "Dusk" },
         ],
     },
     "Nektara Veziko": {
@@ -9378,7 +9378,7 @@ export const structuredGeneData = {
         ],
         Cimo: [
             { genotype: "no", phenotype: "None" },
-            { genotype: "yes", phenotype: "None" },
+            { genotype: "yes", phenotype: "Present" },
         ],
     },
 };

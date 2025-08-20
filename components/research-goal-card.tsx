@@ -1,7 +1,7 @@
 "use client";
-import { useState } from 'react'
-import { useRouter } from 'next/navigation';
-import { ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -18,26 +18,30 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
     const handleDelete = async () => {
-      if (!window.confirm(`Are you sure you want to delete the goal "${goal.name}"? This cannot be undone.`)) {
-          return;
-      }
-  
-      setIsDeleting(true);
-  
-      try {
-          const response = await fetch(`/api/research-goals/${goal.id}`, {
-              method: 'DELETE',
-          });
-          if (!response.ok) {
-              const data = await response.json();
-              throw new Error(data.error || 'Failed to delete the goal.');
-          }
-          router.refresh();
-      } catch (error: any) {
-          alert(error.message); // Show an alert on failure
-      } finally {
-          setIsDeleting(false);
-      }
+        if (
+            !window.confirm(
+                `Are you sure you want to delete the goal "${goal.name}"? This cannot be undone.`
+            )
+        ) {
+            return;
+        }
+
+        setIsDeleting(true);
+
+        try {
+            const response = await fetch(`/api/research-goals/${goal.id}`, {
+                method: "DELETE",
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to delete the goal.");
+            }
+            router.refresh();
+        } catch (error: any) {
+            alert(error.message); // Show an alert on failure
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -87,26 +91,47 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                 </ScrollArea>
 
                 {/* Action Buttons (placeholders for now) */}
-                <div className="flex w-full gap-0.5 justify-between">
+                <div className="flex w-full gap-x-2 justify-center">
                     <Button
                         disabled
-                        className="bg-dusk-purple text-pompaca-purple"
+                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
                     >
-                        Goal Stats
+                        <span className="text-wrap wrap-normal">
+                            Goal Tracker
+                        </span>
                     </Button>
-                    <Button 
-                        disabled 
-                        className="bg-dusk-purple text-pompaca-purple"
+                    <Button
+                        disabled
+                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
                     >
-                        Edit Goal
+                        <span className="text-wrap wrap-normal">
+                            Edit Goal Genotype
+                        </span>
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleDelete}
                         disabled={isDeleting}
-                        className="bg-dusk-purple text-pompaca-purple"
+                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
                     >
-                    {isDeleting ? 'Deleting...' : <><Trash2 className="h-4 w-4 mr-2" /> Delete</>}
+                        {isDeleting ? (
+                            "Deleting..."
+                        ) : (
+                            <>
+                                <span>
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                </span>
+                                <span className="text-wrap wrap-normal">
+                                    Delete Goal
+                                </span>
+                            </>
+                        )}
                     </Button>
+                </div>
+                <div className="flex w-full justify-center">
+                    <span className="text-s text-dusk-purple text-center py-5">
+                        Note: Some features are still under development and not
+                        yet available.
+                    </span>
                 </div>
             </CardContent>
         </Card>

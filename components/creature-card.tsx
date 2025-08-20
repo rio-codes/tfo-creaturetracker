@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Trash2, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -50,6 +50,9 @@ export function CreatureCard({
                             <strong>Code:</strong> {creature.code}
                         </div>
                         <div>
+                            <strong>Species:</strong> {creature.species}
+                        </div>
+                        <div>
                             <strong>Gender:</strong> {creature.gender}
                         </div>
                         <div className="whitespace-pre-line pr-4">
@@ -65,11 +68,11 @@ export function CreatureCard({
                 </ScrollArea>
 
                 {/* Action Buttons (placeholders for now) */}
-                <div className="flex w-full gap-2 justify-center">
+                <div className="flex w-full gap-2 justify-center text-sm">
                     <Button
                         disabled
                         onClick={() => handleOpenDialog(creature)}
-                        className="bg-dusk-purple text-pompaca-purple"
+                        className="bg-dusk-purple text-pompaca-purple w-42 h-15 items-center"
                     >
                         <AddBreedingPairDialog
                             isOpen={isDialogOpen}
@@ -77,14 +80,30 @@ export function CreatureCard({
                             baseCreature={selectedCreature}
                             allCreatures={allCreaturesData}
                         />
-                        Add to Breeding Pair
+                        <span>
+                            <Shuffle />
+                        </span>
+                        <span className="text-wrap wrap-normal">
+                            Manage Breeding Pairs
+                        </span>
                     </Button>
                     <Button
                         disabled
-                        className="bg-dusk-purple text-pompaca-purple"
+                        className="bg-dusk-purple text-pompaca-purple w-42 h-15"
                     >
-                        Remove from Collection
+                        <span>
+                            <Trash2 />
+                        </span>
+                        <span className="text-wrap wrap-normal gap-y-1">
+                            Remove from Collection
+                        </span>
                     </Button>
+                </div>
+                <div className="flex w-full justify-center">
+                    <span className="text-s text-dusk-purple text-center py-5">
+                        Note: Some features are still under development and not
+                        yet available.
+                    </span>
                 </div>
             </CardContent>
         </Card>

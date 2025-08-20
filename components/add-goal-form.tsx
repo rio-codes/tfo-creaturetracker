@@ -40,36 +40,45 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
 
     const uniqueGeneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
-        const optionsByCat: { [key: string]: GeneOption[] } = {};
+
+        const optionsByCat: {
+            [key: string]: { value: string; display: string }[];
+        } = {};
+
         for (const [category, genes] of Object.entries(
             structuredGeneData[species]
         )) {
-            if (category === "Gender") {
-                optionsByCat[category] = (genes as { genotype: string }[]).map(
-                    (gene) => ({
-                        value: gene.genotype,
-                        display: gene.genotype,
-                    })
-                );
-            } else {
-                const phenotypeMap = new Map<string, string>();
-                (genes as { genotype: string; phenotype: string }[]).forEach(
-                    (gene) => {
-                        if (!phenotypeMap.has(gene.phenotype)) {
-                            phenotypeMap.set(gene.phenotype, gene.genotype);
-                        }
-                    }
-                );
-                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                    ([phenotype, genotype]) => ({
-                        value: genotype,
-                        display:
+            const phenotypeMap = new Map<string, string[]>();
+
+            (genes as { genotype: string; phenotype: string }[]).forEach(
+                (gene) => {
+                    const existing = phenotypeMap.get(gene.phenotype) || [];
+                    phenotypeMap.set(gene.phenotype, [
+                        ...existing,
+                        gene.genotype,
+                    ]);
+                }
+            );
+
+            optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
+                ([phenotype, genotypes]) => {
+                    let displayText: string;
+
+                    if (genotypes.length === 1) {
+                        displayText =
                             phenotype === "None"
                                 ? "None"
-                                : `${phenotype} (${genotype})`,
-                    })
-                );
-            }
+                                : `${phenotype} (${genotypes[0]})`;
+                    } else {
+                        displayText = phenotype;
+                    }
+
+                    return {
+                        value: genotypes[0],
+                        display: displayText,
+                    };
+                }
+            );
         }
         return optionsByCat;
     }, [species]);

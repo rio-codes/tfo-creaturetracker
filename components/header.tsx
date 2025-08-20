@@ -30,22 +30,22 @@ export default function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-50 bg-barely-lilac">
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
                 <Link href="/collection" className="text-lg w-full h-full">
                   🦋 Collection
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
                 <Link href="/research-goals" className="text-lg w-full h-full">
                   🧪 Research Goals
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
                 <Link href="/breeding-pairs" className="text-lg w-full h-full">
                   💜 Breeding Pairs
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10">
+              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
                 <Link href="/settings" className="text-lg w-full h-full">
                   🔧 Settings
                 </Link>

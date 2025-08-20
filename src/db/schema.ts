@@ -7,8 +7,9 @@ import {
     jsonb,
     pgEnum,
     uniqueIndex,
-    primaryKey
+    primaryKey,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import type { AdapterAccount } from "@auth/core/adapters";
 
 export const users = pgTable("user", {
@@ -177,6 +178,17 @@ export const breedingLogEntries = pgTable("breeding_log_entry", {
     notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
+    maleParent: one(creatures, {
+        fields: [breedingPairs.maleParentId],
+        references: [creatures.id],
+    }),
+    femaleParent: one(creatures, {
+        fields: [breedingPairs.femaleParentId],
+        references: [creatures.id],
+    }),
+}));
 
 export const achievedGoals = pgTable("achieved_goal", {
     id: text("id")

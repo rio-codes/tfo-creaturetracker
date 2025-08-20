@@ -25,24 +25,23 @@ export function BreedingPairCard({ pair }: BreedingPairCardProps) {
                 {/* Section 2: Center Statistics Block */}
                 <div className="flex-grow space-y-3">
                     <h3 className="text-2xl font-bold">{pair.pairName}</h3>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
                         {/* Parent Details */}
                         <div>
                             <strong>Male:</strong>{" "}
                             {pair.maleParent.creatureName || "Unnamed"} (
-                            {pair.maleParent.code})
-                        </div>
-                        <div>
+                            {pair.maleParent.code})<br></br>
                             <strong>Female:</strong>{" "}
                             {pair.femaleParent.creatureName || "Unnamed"} (
                             {pair.femaleParent.code})
                         </div>
                         {/* Breeding Stats */}
                         <div>
-                            <strong>Times Bred:</strong> {timesBred}
-                        </div>
-                        <div>
+                            <strong>Times Bred:</strong> {timesBred}<br></br>
                             <strong>Total Progeny:</strong> {progenyCount}
+                        </div>
+                        <div className="text-red-500">
+                            <strong>Goal not met</strong>
                         </div>
                     </div>
                     <div>
@@ -50,30 +49,11 @@ export function BreedingPairCard({ pair }: BreedingPairCardProps) {
                         <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
                             {pair.assignedGoals.length > 0 ? (
                                 pair.assignedGoals.map((goal) => (
-                                    <li key={goal.name}>
-                                        <span className="font-bold">
+                                    <div>
+                                        <span className="font-bold underline">
                                             {goal.name}
                                         </span>
-                                        <ul className="py-2">
-                                            <li>
-                                                <p className="ml-2 text-pompaca-purple ">
-                                                    [Goal in 1 Gen: Not
-                                                    Possible]
-                                                </p>
-                                            </li>
-                                            <li>
-                                                <p className="ml-2 text-pompaca-purple ">
-                                                    [Average Hybrid Accuracy
-                                                    54.5%]
-                                                </p>
-                                            </li>
-                                            <li>
-                                                <p className="ml-2 px-2 py-0.5 rounded-full bg-dusk-purple text-pompaca-purple text-xs w-fit">
-                                                    [Goal Not Met]
-                                                </p>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                    </div>
                                 ))
                             ) : (
                                 <li>No goals assigned.</li>

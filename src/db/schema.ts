@@ -38,6 +38,7 @@ export const accounts = pgTable(
     scope: text("scope"),
     id_token: text("id_token"),
     session_state: text("session_state"),
+    isTfoVerified: boolean('is_tfo_verified').default(false).notNull(),
 },
 (account) => ({
     compoundKey: primaryKey({ columns: [account.provider, account.providerAccountId] }),
@@ -103,13 +104,26 @@ export const creatures = pgTable('creature', {
 export const researchGoals = pgTable('research_goal', {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-
     name: text('name').notNull(),
     species: text('species').notNull(),
     imageUrl: text('image_url'), // Will store the Vercel Blob URL
-
     genes: jsonb('genes').notNull(),
-    
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const accountVerifications = pgTable("account_verification", {
+    userId: text("user_id").notNull().primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    creatureCode: text('creature_code').notNull(),
+    verificationToken: text('verification_token').notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+});
+
+export const pendingRegistrations = pgTable("pending_registration", {
+    email: text("email").notNull().primaryKey(),
+    tfoUsername: text("tfo_username").notNull(),
+    hashedPassword: text("hashed_password").notNull(),
+    creatureCode: text('creature_code').notNull(),
+    verificationToken: text('verification_token').notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
 });

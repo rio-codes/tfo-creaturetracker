@@ -11,7 +11,7 @@ const GOALS_PER_PAGE = 12;
 export async function getCreaturesForUser(
     currentPage: number,
     query?: string,
-    gender?: string[],
+    gender?: string,
     stage?: string,
     species?: string
 ) {
@@ -35,11 +35,11 @@ export async function getCreaturesForUser(
         eq(creatures.userId, userId),
         query
             ? or(
-                ilike(creatures.code, `%${query}%`),
-                ilike(creatures.creatureName, `%${query}%`)
-            )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
-        gender && gender !== 'all' ? eq(creatures.gender, gender) : undefined,
+        gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)
@@ -52,7 +52,7 @@ export async function getCreaturesForUser(
             .select()
             .from(creatures)
             .where(and(...conditions))
-            .orderBy(desc(creatures.createdAt))
+            .orderBy(desc(creatures.isPinned), desc(creatures.createdAt))
             .limit(ITEMS_PER_PAGE)
             .offset(offset);
 
@@ -107,7 +107,10 @@ export async function fetchFilteredResearchGoals(
             .select()
             .from(researchGoals)
             .where(and(...conditions))
-            .orderBy(desc(researchGoals.createdAt))
+            .orderBy(
+                desc(researchGoals.isPinned),
+                desc(researchGoals.createdAt)
+            )
             .limit(GOALS_PER_PAGE)
             .offset(offset);
 

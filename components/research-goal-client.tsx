@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ResearchGoalCard } from '@/components/research-goal-card';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination } from '@/components/pagination';
 import { AddGoalDialog } from '@/components/add-goal-dialog'
 import { speciesList } from "@/lib/creature-data"
 
@@ -108,7 +108,7 @@ export function ResearchGoalClient({ initialGoals, totalPages }) {
 
               {/* Pagination */}
               <div className="mt-8 flex justify-center">
-                <Pagination totalpages={totalPages} />
+                <Pagination totalPages={totalPages} />
               </div>
           </div>
       </div>

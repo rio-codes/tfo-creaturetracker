@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { Pin, PinOff, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -14,6 +14,8 @@ interface ResearchGoalCardProps {
 export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isPinned, setIsPinned] = useState(goal.isPinned);
+    const [isPinning, setIsPinning] = useState(false);
 
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
@@ -44,8 +46,49 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
         }
     };
 
+    const handlePinToggle = async () => {
+        setIsPinning(true);
+        const newPinState = !isPinned;
+
+        try {
+            const response = await fetch(`/api/research-goals/${goal.id}/pin`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isPinned: newPinState }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update pin status.");
+            }
+
+            setIsPinned(newPinState);
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            alert("Could not update pin status. Please try again.");
+        } finally {
+            setIsPinning(false);
+        }
+    };
+
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+            <div className="absolute top-1 right-1 z-10">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handlePinToggle}
+                    disabled={isPinning}
+                    aria-label={isPinned ? "Unpin goal" : "Pin goal"}
+                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                >
+                    {isPinned ? (
+                        <Pin className="h-5 w-5 text-pompaca-purple fill-pompaca-purple" />
+                    ) : (
+                        <PinOff className="h-5 w-5 text-dusk-purple" />
+                    )}
+                </Button>
+            </div>
             <CardContent className="p-4">
                 {/* Goal Image */}
                 <div className="bg- rounded-lg p-4 mb-4 flex justify-center">

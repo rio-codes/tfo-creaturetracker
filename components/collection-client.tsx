@@ -1,6 +1,6 @@
 "use client";
 
-import { act, useState } from "react";
+import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import type { Creature } from "@/types";
@@ -14,11 +14,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { CreatureCard } from "@/components/creature-card";
 import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { AddCreaturesDialog } from "@/components/add-creatures-dialog";
 import { speciesList } from "@/lib/creature-data";
 

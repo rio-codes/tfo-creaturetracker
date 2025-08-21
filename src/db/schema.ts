@@ -155,6 +155,7 @@ export const breedingPairs = pgTable("breeding_pair", {
         .notNull()
         .references(() => creatures.id, { onDelete: "cascade" }),
     assignedGoalIds: jsonb("assigned_goal_ids").$type<string[]>(),
+    isPinned: boolean("is_pinned").default(false).notNull(), // The new field for pinning
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

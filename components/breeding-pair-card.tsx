@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Creature, ResearchGoal, BreedingPairWithDetails } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/species-avatar";
-import { X } from "lucide-react"
+import { Pin, PinOff, X } from "lucide-react"
 import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog"
 
 type BreedingPairCardProps = {
@@ -14,16 +16,56 @@ type BreedingPairCardProps = {
 };
 
 export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairCardProps) {
+    const router = useRouter();
+    const [isPinned, setIsPinned] = useState(pair.isPinned);
+    const [isPinning, setIsPinning] = useState(false);
+
     // Placeholder data for stats
     const timesBred = 0; // You'll fetch this from breedingLogEntries later
     const progenyCount = 0; // You'll also fetch this
 
+    const handlePinToggle = async () => {
+        setIsPinning(true);
+        try {
+            await fetch(`/api/breeding-pairs/${pair.id}/pin`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isPinned: !isPinned }),
+            });
+            setIsPinned(!isPinned);
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            alert("Could not update pin status.");
+        } finally {
+            setIsPinning(false);
+        }
+    };
+
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 h-full">
+          {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
                 <div className="relative flex-shrink-0 w-15 h-15 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
                     <SpeciesAvatar species={pair.species} />
                 </div>
+            </div>
+
+            {/* Pin icon */}
+            <div className="absolute top-1 right-1 z-10">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handlePinToggle}
+                    disabled={isPinning}
+                    className="h-8 w-8 rounded-full"
+                >
+                    {isPinned ? (
+                        <Pin className="h-5 w-5 fill-pompaca-purple" />
+                    ) : (
+                        <PinOff className="h-5 w-5" />
+                    )}
+                </Button>
             </div>
             <CardContent className="flex-col p-4 px-10 h-full justify-items-center content-between">
                 {/* Parent Images */}
@@ -107,11 +149,14 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                         >
                             Log Breeding Event
                         </Button>
-                        <EditBreedingPairDialog pair={pair} allCreatures={allCreatures} allGoals={allGoals}>
-                          <Button
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15">
-                            Edit or Delete Goal
-                        </Button>
+                        <EditBreedingPairDialog
+                            pair={pair}
+                            allCreatures={allCreatures}
+                            allGoals={allGoals}
+                        >
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15">
+                                Edit or Delete Goal
+                            </Button>
                         </EditBreedingPairDialog>
                     </div>
                     <div className="flex w-full justify-center">

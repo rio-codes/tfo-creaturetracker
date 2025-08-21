@@ -6,6 +6,7 @@ export type ResearchGoal = InferSelectModel<typeof researchGoals>;
 
 export type BreedingPairWithDetails = {
     id: string;
+    isPinned: boolean;
     pairName: string;
     species: string;
     maleParent: Creature;

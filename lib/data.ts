@@ -146,9 +146,12 @@ export async function fetchBreedingPairs(currentPage: number) {
             where: eq(breedingPairs.userId, userId),
             with: {
                 maleParent: true,
-                femaleParent: true, 
+                femaleParent: true,
             },
-            orderBy: [desc(breedingPairs.createdAt)],
+            orderBy: [
+                desc(breedingPairs.isPinned),
+                desc(breedingPairs.createdAt),
+            ],
             limit: PAIRS_PER_PAGE,
             offset: offset,
         });

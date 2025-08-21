@@ -74,10 +74,16 @@ export function AddPairForm({
         }
         return {
             males: allCreatures.filter(
-                (c) => c.species === selectedSpecies && c.gender === "male"
+                (c) =>
+                    c.species === selectedSpecies &&
+                    c.gender === "male" &&
+                    c.growthLevel === 3
             ),
             females: allCreatures.filter(
-                (c) => c.species === selectedSpecies && c.gender === "female"
+                (c) =>
+                    c.species === selectedSpecies &&
+                    c.gender === "female" &&
+                    c.growthLevel === 3
             ),
             goals: allGoals.filter((g) => g.species === selectedSpecies),
         };

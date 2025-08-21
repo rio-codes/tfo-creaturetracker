@@ -59,10 +59,16 @@ export function EditBreedingPairForm({
     const { males, females, goals } = useMemo(() => {
         return {
             males: allCreatures.filter(
-                (c) => c.species === pair.species && c.gender === "male"
+                (c) =>
+                    c.species === pair.species &&
+                    c.gender === "male" &&
+                    c.growthLevel === 3
             ),
             females: allCreatures.filter(
-                (c) => c.species === pair.species && c.gender === "female"
+                (c) =>
+                    c.species === pair.species &&
+                    c.gender === "female" &&
+                    c.growthLevel === 3
             ),
             goals: allGoals.filter((g) => g.species === pair.species),
         };

@@ -105,7 +105,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                         {pair.femaleParent.code})
                     </div>
 
-                    <div className="h-40">
+                    <div className="h-40 text-sm">
                         {/* Breeding Stats */}
                         <div className="h-10 mb-5">
                             <strong>Times Bred:</strong> {timesBred}

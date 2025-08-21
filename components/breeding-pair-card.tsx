@@ -161,7 +161,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                         >
                             <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15">
                                 <span className="text-wrap wrap-normal">
-                                    Edit or Delete Goal
+                                    Edit or Delete Pair
                                 </span>
                             </Button>
                         </EditBreedingPairDialog>

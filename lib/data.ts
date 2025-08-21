@@ -138,7 +138,7 @@ export async function fetchBreedingPairs(currentPage: number) {
     const userId = session?.user?.id;
     if (!userId) throw new Error("Not authenticated.");
 
-    const PAIRS_PER_PAGE = 10;
+    const PAIRS_PER_PAGE = 12;
     const offset = (currentPage - 1) * PAIRS_PER_PAGE;
 
     try {

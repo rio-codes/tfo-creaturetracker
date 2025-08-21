@@ -2,9 +2,96 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
-import { eq, and } from "drizzle-orm";
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { constructTfoImageUrl } from "@/lib/tfo-utils";
+import { put as vercelBlobPut } from "@vercel/blob";
+import { and, eq } from "drizzle-orm";
 
+const editGoalSchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters."),
+    species: z.string().min(1, "Species is required."),
+    genes: z.record(z.string(), z.string()),
+});
+
+// --- UPDATE A GOAL ---
+export async function PATCH(
+    req: Request,
+    { params }: { params: { goalId: string } }
+) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json(
+            { error: "Not authenticated" },
+            { status: 401 }
+        );
+    }
+
+    try {
+        const body = await req.json();
+        const validatedFields = editGoalSchema.safeParse(body);
+        if (!validatedFields.success) {
+            return NextResponse.json(
+                {
+                    error: "Invalid data provided.",
+                    details: validatedFields.error.flatten(),
+                },
+                { status: 400 }
+            );
+        }
+        const { name, species, genes } = validatedFields.data;
+
+        // --- Fetch-and-Store new image ---
+        const tfoImageUrl = constructTfoImageUrl(species, genes);
+        const imageResponse = await fetch(tfoImageUrl);
+        if (!imageResponse.ok)
+            throw new Error("Failed to fetch generated image from TFO.");
+        const imageBlob = await imageResponse.blob();
+        const filename = `goals/${crypto.randomUUID()}.png`;
+        const blob = await vercelBlobPut(filename, imageBlob, {
+            access: "public",
+            contentType: "image/png",
+        });
+
+        // Securely update the goal only if it belongs to the logged-in user
+        const result = await db
+            .update(researchGoals)
+            .set({
+                name,
+                species,
+                genes,
+                imageUrl: blob.url,
+                updatedAt: new Date(),
+            })
+            .where(
+                and(
+                    eq(researchGoals.id, params.goalId),
+                    eq(researchGoals.userId, session.user.id)
+                )
+            )
+            .returning();
+
+        if (result.length === 0) {
+            return NextResponse.json(
+                {
+                    error: "Goal not found or you do not have permission to edit it.",
+                },
+                { status: 404 }
+            );
+        }
+
+        revalidatePath("/research-goals");
+        return NextResponse.json({ message: "Goal updated successfully!" });
+    } catch (error: any) {
+        console.error("Failed to update research goal:", error);
+        return NextResponse.json(
+            { error: error.message || "An internal error occurred." },
+            { status: 500 }
+        );
+    }
+}
+
+// --- DELETE A GOAL ---
 export async function DELETE(
     req: Request,
     { params }: { params: { goalId: string } }
@@ -17,24 +104,16 @@ export async function DELETE(
         );
     }
 
-    const { goalId } = params;
-    if (!goalId) {
-        return NextResponse.json(
-            { error: "Goal ID is required." },
-            { status: 400 }
-        );
-    }
-
     try {
         const result = await db
             .delete(researchGoals)
             .where(
                 and(
-                    eq(researchGoals.id, goalId),
+                    eq(researchGoals.id, params.goalId),
                     eq(researchGoals.userId, session.user.id)
                 )
             )
-            .returning(); 
+            .returning();
 
         if (result.length === 0) {
             return NextResponse.json(
@@ -44,16 +123,13 @@ export async function DELETE(
                 { status: 404 }
             );
         }
-        revalidatePath("/research-goals");
 
-        return NextResponse.json(
-            { message: "Goal deleted successfully." },
-            { status: 200 }
-        );
-    } catch (error) {
+        revalidatePath("/research-goals");
+        return NextResponse.json({ message: "Goal deleted successfully." });
+    } catch (error: any) {
         console.error("Failed to delete research goal:", error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: error.message || "An internal error occurred." },
             { status: 500 }
         );
     }

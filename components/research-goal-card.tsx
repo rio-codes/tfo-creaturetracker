@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { ResearchGoal } from "@/types/index";
+import { EditGoalDialog } from "./edit-goal-dialog";
 
 interface ResearchGoalCardProps {
     goal: ResearchGoal;
@@ -137,38 +138,21 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                 <div className="flex w-full gap-x-2 justify-center">
                     <Button
                         disabled
-                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
+                        className="bg-dusk-purple text-pompaca-purple h-15 w-30"
                     >
                         <span className="text-wrap wrap-normal">
                             Goal Tracker
                         </span>
                     </Button>
-                    <Button
-                        disabled
-                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
-                    >
-                        <span className="text-wrap wrap-normal">
-                            Edit Goal Genotype
-                        </span>
-                    </Button>
-                    <Button
-                        onClick={handleDelete}
-                        disabled={isDeleting}
-                        className="bg-dusk-purple text-pompaca-purple h-15 w-25"
-                    >
-                        {isDeleting ? (
-                            "Deleting..."
-                        ) : (
-                            <>
-                                <span>
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                </span>
-                                <span className="text-wrap wrap-normal">
-                                    Delete Goal
-                                </span>
-                            </>
-                        )}
-                    </Button>
+                    <EditGoalDialog goal={goal}>
+                        <Button
+                            className="bg-dusk-purple text-pompaca-purple h-15 w-30"
+                        >
+                            <span className="text-wrap wrap-normal">
+                                Edit or Delete Goal
+                            </span>
+                        </Button>
+                    </EditGoalDialog>
                 </div>
                 <div className="flex w-full justify-center">
                     <span className="text-s text-dusk-purple text-center py-5">

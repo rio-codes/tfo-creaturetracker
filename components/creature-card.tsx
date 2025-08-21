@@ -75,7 +75,7 @@ export function CreatureCard({
             </div>
             <CardContent className="p-4">
                 {/* Creature Image */}
-                <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
+                <div className="rounded-lg p-4 mb-4 flex justify-center">
                     <img
                         src={creature.imageUrl || "/placeholder.png"}
                         alt={creature.code + ", " + creature.species}

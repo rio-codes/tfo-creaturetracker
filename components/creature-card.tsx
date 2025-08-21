@@ -5,17 +5,19 @@ import { ChevronUp, ChevronDown, Trash2, Shuffle, Pin, PinOff } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import type { Creature } from "@/types/index";
-import { AddBreedingPairDialog } from "@/components/add-breeding-pair-dialog";
+import type { BreedingPairWithDetails, Creature } from "@/types/index";
+import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
 
 interface CreatureCardProps {
     creature: Creature;
     allCreaturesData: Creature[];
+    allPairs: BreedingPairWithDetails[];
 }
 
 export function CreatureCard({
     creature,
     allCreaturesData,
+    allPairs
 }: CreatureCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(creature.isPinned);
@@ -111,21 +113,19 @@ export function CreatureCard({
 
                 {/* Buttons */}
                 <div className="flex w-full gap-2 justify-center text-sm">
+                <ManageBreedingPairsDialog 
+                    baseCreature={creature}
+                    allCreatures={allCreaturesData}
+                    allPairs={allPairs}
+                >
                     <Button
-                        disabled
-                        onClick={() => handleOpenDialog(creature)}
                         className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"
                     >
-                        <AddBreedingPairDialog
-                            isOpen={isDialogOpen}
-                            onClose={handleCloseDialog}
-                            baseCreature={selectedCreature}
-                            allCreatures={allCreaturesData}
-                        />
                         <span className="text-wrap wrap-normal">
                             Manage Breeding Pairs
                         </span>
                     </Button>
+                </ManageBreedingPairsDialog>
                     <Button
                         disabled
                         className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import type { Creature } from "@/types";
+import type { BreedingPairWithDetails, Creature } from "@/types";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,10 @@ import { speciesList } from "@/lib/creature-data";
 type CollectionClientProps = {
     initialCreatures: Creature[];
     totalPages: number;
+    allPairs: BreedingPairWithDetails[];
 };
 
-export function CollectionClient({ initialCreatures, totalPages }) {
+export function CollectionClient({ initialCreatures, totalPages, allPairs }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -190,9 +191,9 @@ export function CollectionClient({ initialCreatures, totalPages }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {initialCreatures.map((creature) => (
                             <CreatureCard
-                                key={creature.id}
                                 creature={creature}
                                 allCreaturesData={initialCreatures}
+                                allPairs={allPairs}
                             />
                         ))}
                     </div>

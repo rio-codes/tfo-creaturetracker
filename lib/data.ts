@@ -221,3 +221,26 @@ export async function getAllResearchGoalsForUser(): Promise<ResearchGoal[]> {
         return [];
     }
 }
+
+export async function getAllBreedingPairsForUser() {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+    try {
+        const pairs = await db.query.breedingPairs.findMany({
+            where: eq(breedingPairs.userId, userId),
+            with: {
+                maleParent: true,
+                femaleParent: true,
+            },
+            orderBy: [desc(breedingPairs.createdAt)],
+        });
+        return pairs;
+    } catch (error) {
+        console.error(
+            "Database Error: Failed to fetch all breeding pairs.",
+            error
+        );
+        return [];
+    }
+}

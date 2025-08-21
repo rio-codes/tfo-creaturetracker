@@ -123,7 +123,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                 <h4 className="font-bold text-sm">
                                     Assigned Goals:
                                 </h4>
-                                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
+                                <ScrollArea className="h-10 relative rounded-md border p-4">
                                     <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (

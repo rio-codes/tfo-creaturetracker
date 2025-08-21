@@ -47,7 +47,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
         <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 h-full">
             {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
-                <div className="relative flex-shrink-0 w-15 h-15 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
+                <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
                     <SpeciesAvatar species={pair.species} />
                 </div>
             </div>

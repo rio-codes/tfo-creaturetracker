@@ -109,12 +109,12 @@ export function CreatureCard({
                     </div>
                 </ScrollArea>
 
-                {/* Action Buttons (placeholders for now) */}
+                {/* Buttons */}
                 <div className="flex w-full gap-2 justify-center text-sm">
                     <Button
                         disabled
                         onClick={() => handleOpenDialog(creature)}
-                        className="bg-dusk-purple text-pompaca-purple w-42 h-15 items-center"
+                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"
                     >
                         <AddBreedingPairDialog
                             isOpen={isDialogOpen}
@@ -122,20 +122,14 @@ export function CreatureCard({
                             baseCreature={selectedCreature}
                             allCreatures={allCreaturesData}
                         />
-                        <span>
-                            <Shuffle />
-                        </span>
                         <span className="text-wrap wrap-normal">
                             Manage Breeding Pairs
                         </span>
                     </Button>
                     <Button
                         disabled
-                        className="bg-dusk-purple text-pompaca-purple w-42 h-15"
+                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"
                     >
-                        <span>
-                            <Trash2 />
-                        </span>
                         <span className="text-wrap wrap-normal gap-y-1">
                             Remove from Collection
                         </span>

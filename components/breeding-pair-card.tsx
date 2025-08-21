@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Creature, ResearchGoal, BreedingPairWithDetails } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/species-avatar";
 import { Pin, PinOff, X } from "lucide-react"
@@ -43,8 +44,8 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
     };
 
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 h-full">
-          {/* Capsule icon */}
+        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 h-full">
+            {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
                 <div className="relative flex-shrink-0 w-15 h-15 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
                     <SpeciesAvatar species={pair.species} />
@@ -122,19 +123,21 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                 <h4 className="font-bold text-sm">
                                     Assigned Goals:
                                 </h4>
-                                <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
-                                    {pair.assignedGoals.length > 0 ? (
-                                        pair.assignedGoals.map((goal) => (
-                                            <div>
-                                                <span className="font-bold underline">
-                                                    {goal.name}
-                                                </span>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <li>No goals assigned.</li>
-                                    )}
-                                </ul>
+                                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
+                                    <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
+                                        {pair.assignedGoals.length > 0 ? (
+                                            pair.assignedGoals.map((goal) => (
+                                                <div>
+                                                    <span className="font-bold underline">
+                                                        {goal.name}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <li>No goals assigned.</li>
+                                        )}
+                                    </ul>
+                                </ScrollArea>
                             </div>
                         </div>
                     </div>

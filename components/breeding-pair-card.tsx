@@ -5,12 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/species-avatar";
 import { X } from "lucide-react"
+import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog"
 
 type BreedingPairCardProps = {
     pair: BreedingPairWithDetails;
+    allCreatures: Creature[];
+    allGoals: ResearchGoal[];
 };
 
-export function BreedingPairCard({ pair }: BreedingPairCardProps) {
+export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairCardProps) {
     // Placeholder data for stats
     const timesBred = 0; // You'll fetch this from breedingLogEntries later
     const progenyCount = 0; // You'll also fetch this
@@ -104,12 +107,12 @@ export function BreedingPairCard({ pair }: BreedingPairCardProps) {
                         >
                             Log Breeding Event
                         </Button>
-                        <Button
-                            disabled
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15 "
-                        >
+                        <EditBreedingPairDialog pair={pair} allCreatures={allCreatures} allGoals={allGoals}>
+                          <Button
+                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15">
                             Edit or Delete Goal
                         </Button>
+                        </EditBreedingPairDialog>
                     </div>
                     <div className="flex w-full justify-center">
                         <span className="text-xs text-dusk-purple text-center">

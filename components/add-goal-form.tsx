@@ -144,6 +144,13 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
         }
     };
 
+    const handleSpeciesChange = (newSpecies: string) => {
+        setSelectedGenes({});
+        setPreviewImageUrl(null);
+        setPreviewError("");
+        setSpecies(newSpecies);
+    };
+
     const isPreviewable = species && selectedGenes["Gender"];
     const geneCategories = uniqueGeneOptions
         ? Object.keys(uniqueGeneOptions)
@@ -164,7 +171,11 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="species-select">Species</Label>
-                <Select onValueChange={setSpecies} value={species} required>
+                <Select
+                    onValueChange={handleSpeciesChange}
+                    value={species}
+                    required
+                >
                     <SelectTrigger
                         id="species-select"
                         className="w-full bg-ebena-lavender text-pompaca-purple border-pompaca-purple"
@@ -210,10 +221,8 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
                                             placeholder={`Select ${category}...`}
                                         />
                                     </SelectTrigger>
-                                    {/* ADDED: className to style the dropdown content area */}
                                     <SelectContent className="bg-barely-lilac">
                                         {options.map((option) => (
-                                            // ADDED: className to style the individual dropdown items
                                             <SelectItem
                                                 key={option.value}
                                                 value={option.value}

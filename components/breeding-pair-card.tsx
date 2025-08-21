@@ -94,9 +94,9 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
 
                 {/* Pair Details */}
                 <div className="w-full mb-4 align-middle relative">
-                    <h3 className="text-2xl font-bold mb-3">{pair.pairName}</h3>
+                    <h3 className="text-xl font-bold mb-3">{pair.pairName}</h3>
                     {/* Parent Details */}
-                    <div>
+                    <div className="h-10 text-sm mb-5">
                         <strong>Male:</strong>{" "}
                         {pair.maleParent.creatureName || "Unnamed"} (
                         {pair.maleParent.code})<br></br>
@@ -107,7 +107,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
 
                     <div className="h-40">
                         {/* Breeding Stats */}
-                        <div className="mb-2">
+                        <div className="h-10 mb-5">
                             <strong>Times Bred:</strong> {timesBred}
                             <br></br>
                             <strong>Total Progeny:</strong> {progenyCount}
@@ -123,12 +123,12 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                 <h4 className="font-bold text-sm">
                                     Assigned Goals:
                                 </h4>
-                                <ScrollArea className="h-10 relative rounded-md border p-4">
+                                <ScrollArea className="h-15 relative rounded-md border p-4">
                                     <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (
                                                 <div>
-                                                    <span className="font-bold underline">
+                                                    <span className="font-bold underline wrap-normal">
                                                         {goal.name}
                                                     </span>
                                                 </div>
@@ -145,20 +145,24 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
 
                 {/*Buttons*/}
                 <div className="object-bottom h-20">
-                    <div className="flex w-full gap-2 justify-center text-md">
+                    <div className="flex w-full gap-2 justify-center text-xs">
                         <Button
                             disabled
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15 "
+                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15 "
                         >
-                            Log Breeding Event
+                            <span className="text-wrap wrap-normal">
+                                Log Breeding
+                            </span>
                         </Button>
                         <EditBreedingPairDialog
                             pair={pair}
                             allCreatures={allCreatures}
                             allGoals={allGoals}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-42 h-15">
-                                Edit or Delete Goal
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15">
+                                <span className="text-wrap wrap-normal">
+                                    Edit or Delete Goal
+                                </span>
                             </Button>
                         </EditBreedingPairDialog>
                     </div>

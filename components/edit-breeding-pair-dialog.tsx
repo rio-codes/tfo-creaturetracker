@@ -11,7 +11,6 @@ import {
 import { EditBreedingPairForm } from "@/components/edit-breeding-pair-form"
 import type { Creature, ResearchGoal } from "@/types";
 
-// Define the shape of the pair data the dialog expects
 type BreedingPairWithDetails = {
     id: string;
     pairName: string;
@@ -25,7 +24,7 @@ type EditBreedingPairDialogProps = {
     pair: BreedingPairWithDetails;
     allCreatures: Creature[];
     allGoals: ResearchGoal[];
-    children: React.ReactNode; // The trigger button
+    children: React.ReactNode; 
 };
 
 export function EditBreedingPairDialog({

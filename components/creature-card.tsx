@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { Creature } from "@/types/index";
-import { AddBreedingPairDialog } from "@/components/add-pair-dialog";
+import { AddBreedingPairDialog } from "@/components/add-breeding-pair-dialog";
 
 interface CreatureCardProps {
     creature: Creature;

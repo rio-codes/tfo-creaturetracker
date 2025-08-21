@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { and, eq } from "drizzle-orm";
+import { structuredGeneData } from "@/lib/creature-data"; 
 
 const editGoalSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters."),
@@ -14,7 +15,36 @@ const editGoalSchema = z.object({
     genes: z.record(z.string(), z.string()),
 });
 
-// --- UPDATE A GOAL ---
+interface GenesObject {
+    [key: string]: string;
+}
+
+export function validateGoalData(species: string, genes: GenesObject) {
+    const speciesData = structuredGeneData[species];
+    if (!speciesData) {
+        throw new Error(`Invalid species provided: ${species}`);
+    }
+
+    for (const [category, selectedGenotype] of Object.entries(genes)) {
+        const categoryData = speciesData[category];
+        if (!categoryData) {
+            throw new Error(
+                `Invalid gene category "${category}" for species "${species}".`
+            );
+        }
+
+        const isValidGenotype = (categoryData as { genotype: string }[]).some(
+            (gene) => gene.genotype === selectedGenotype
+        );
+
+        if (!isValidGenotype) {
+            throw new Error(
+                `Invalid genotype "${selectedGenotype}" for category "${category}".`
+            );
+        }
+    }
+}
+
 export async function PATCH(
     req: Request,
     { params }: { params: { goalId: string } }
@@ -40,6 +70,7 @@ export async function PATCH(
             );
         }
         const { name, species, genes } = validatedFields.data;
+        validateGoalData(species, genes);
 
         // --- Fetch-and-Store new image ---
         const tfoImageUrl = constructTfoImageUrl(species, genes);

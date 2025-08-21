@@ -16,7 +16,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Trash2 } from "lucide-react";
 import type { Creature, ResearchGoal } from "@/types";
 
-// Define the shape of the pair data the form expects
 type BreedingPairWithDetails = {
     id: string;
     pairName: string;
@@ -33,7 +32,7 @@ type EditBreedingPairFormProps = {
     onSuccess: () => void;
 };
 
-export function EditBreedingPairForm({
+export function EditPairForm({
     pair,
     allCreatures,
     allGoals,
@@ -55,7 +54,6 @@ export function EditBreedingPairForm({
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
 
-    // Memoize filtered lists for dropdowns based on the pair's species
     const { males, females, goals } = useMemo(() => {
         return {
             males: allCreatures.filter(
@@ -135,6 +133,7 @@ export function EditBreedingPairForm({
             <Select
                 value={selectedMaleId}
                 onValueChange={setSelectedMaleId}
+                disabled={!!selectedMaleId || !!selectedFemaleId}
                 required
             >
                 <SelectTrigger className="bg-barely-lilac">

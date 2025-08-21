@@ -7,12 +7,43 @@ import { revalidatePath } from "next/cache";
 import { TFO_SPECIES_CODES } from "@/lib/creature-data";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
+import { structuredGeneData } from "@/lib/creature-data";
+
+interface GenesObject {
+    [key: string]: string;
+}
 
 const goalSchema = z.object({
     name: z.string().min(3),
     species: z.string().min(1),
-    genes: z.record(z.string(), z.string())
-})
+    genes: z.record(z.string(), z.string()),
+});
+
+export function validateGoalData(species: string, genes: GenesObject) {
+    const speciesData = structuredGeneData[species];
+    if (!speciesData) {
+        throw new Error(`Invalid species provided: ${species}`);
+    }
+
+    for (const [category, selectedGenotype] of Object.entries(genes)) {
+        const categoryData = speciesData[category];
+        if (!categoryData) {
+            throw new Error(
+                `Invalid gene category "${category}" for species "${species}".`
+            );
+        }
+
+        const isValidGenotype = (categoryData as { genotype: string }[]).some(
+            (gene) => gene.genotype === selectedGenotype
+        );
+
+        if (!isValidGenotype) {
+            throw new Error(
+                `Invalid genotype "${selectedGenotype}" for category "${category}".`
+            );
+        }
+    }
+}
 
 export async function POST(req: Request) {
     const session = await auth();
@@ -38,6 +69,7 @@ export async function POST(req: Request) {
             );
         }
         const { name, species, genes } = validatedFields.data;
+        validateGoalData(species, genes);
 
         const speciesCode = TFO_SPECIES_CODES[species];
         if (!speciesCode)

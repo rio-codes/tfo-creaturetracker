@@ -32,7 +32,7 @@ export function CollectionClient({
     totalPages,
     allCreatures,
     allPairs,
-}) {
+}: CollectionClientProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();

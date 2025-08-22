@@ -10,13 +10,13 @@ import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
 
 interface CreatureCardProps {
     creature: Creature;
-    allCreaturesData: Creature[];
+    allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
 }
 
 export function CreatureCard({
     creature,
-    allCreaturesData,
+    allCreatures,
     allPairs
 }: CreatureCardProps) {
     const router = useRouter();
@@ -24,16 +24,6 @@ export function CreatureCard({
     const [isPinning, setIsPinning] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedCreature, setSelectedCreature] = useState(null);
-
-    const handleOpenDialog = (creature) => {
-        setSelectedCreature(creature);
-        setIsDialogOpen(true);
-    };
-
-    const handleCloseDialog = () => {
-        setIsDialogOpen(false);
-        setSelectedCreature(null);
-    };
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -115,7 +105,7 @@ export function CreatureCard({
                 <div className="flex w-full gap-2 justify-center text-sm">
                 <ManageBreedingPairsDialog 
                     baseCreature={creature}
-                    allCreatures={allCreaturesData}
+                    allCreatures={allCreatures}
                     allPairs={allPairs}
                 >
                     <Button

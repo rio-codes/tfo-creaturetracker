@@ -183,7 +183,7 @@ export function ManageBreedingPairsForm({
                                         value={mate.id}
                                         className="bg-barely-lilac"
                                     >
-                                        {mate.creatureName}({mate.code})
+                                        {mate.creatureName} ({mate.code})
                                     </SelectItem>
                                 ))
                             ) : (

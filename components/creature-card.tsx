@@ -74,23 +74,26 @@ export function CreatureCard({
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
-
+                <div className="text-smspace-y-1 ">
+                    <div>
+                        <strong>Name:</strong> {creature.creatureName}
+                    </div>
+                    <div>
+                        <strong>Code:</strong> {creature.code}
+                    </div>
+                    <div>
+                        <strong>Species:</strong> {creature.species}
+                    </div>
+                    <div>
+                        <strong>Gender:</strong> {creature.gender}
+                    </div>
+                </div>
+                <div>
+                    <strong>Genotype:</strong>
+                </div>
                 <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
                     <div className="text-sm text-card-foreground space-y-1 ">
-                        <div>
-                            <strong>Name:</strong> {creature.creatureName}
-                        </div>
-                        <div>
-                            <strong>Code:</strong> {creature.code}
-                        </div>
-                        <div>
-                            <strong>Species:</strong> {creature.species}
-                        </div>
-                        <div>
-                            <strong>Gender:</strong> {creature.gender}
-                        </div>
                         <div className="whitespace-pre-line pr-4">
-                            <strong>Genotype:</strong>{" "}
                             {creature.genetics?.replaceAll(",", "\n")}
                         </div>
                     </div>
@@ -103,19 +106,17 @@ export function CreatureCard({
 
                 {/* Buttons */}
                 <div className="flex w-full gap-2 justify-center text-sm">
-                <ManageBreedingPairsDialog 
-                    baseCreature={creature}
-                    allCreatures={allCreatures}
-                    allPairs={allPairs}
-                >
-                    <Button
-                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"
+                    <ManageBreedingPairsDialog
+                        baseCreature={creature}
+                        allCreatures={allCreatures}
+                        allPairs={allPairs}
                     >
-                        <span className="text-wrap wrap-normal">
-                            Manage Breeding Pairs
-                        </span>
-                    </Button>
-                </ManageBreedingPairsDialog>
+                        <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15">
+                            <span className="text-wrap wrap-normal">
+                                Manage Breeding Pairs
+                            </span>
+                        </Button>
+                    </ManageBreedingPairsDialog>
                     <Button
                         disabled
                         className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"

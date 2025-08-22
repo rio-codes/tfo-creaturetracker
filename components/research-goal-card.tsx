@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { ResearchGoal } from "@/types/index";
 import { EditGoalDialog } from "./edit-goal-dialog";
+import { SpeciesAvatar } from "@/components/species-avatar";
 
 interface ResearchGoalCardProps {
     goalMode: String;
@@ -20,7 +21,7 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
 
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
-    console.log("goal mode on card", goalMode)
+    console.log(goal.genes)
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -49,6 +50,12 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
 
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+            {/* Capsule icon */}
+            <div className="absolute top-3 left-3 z-10">
+                <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
+                    <SpeciesAvatar species={goal.species} />
+                </div>
+            </div>
             <div className="absolute top-1 right-1 z-10">
                 <Button
                     variant="ghost"
@@ -74,18 +81,17 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
-
+                <div>
+                    <strong>Name:</strong> {goal.name}
+                </div>
+                <div>
+                    <strong>Species:</strong> {goal.species}
+                </div>
                 {/* Goal Details in Scrollable Area */}
+                <strong>Target Genes:</strong>
                 <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
                     <div className="text-sm text-card-foreground space-y-1">
-                        <div>
-                            <strong>Name:</strong> {goal.name}
-                        </div>
-                        <div>
-                            <strong>Species:</strong> {goal.species}
-                        </div>
                         <div className="whitespace-pre-line pr-4">
-                            <strong>Target Genes:</strong>
                             {geneEntries.length > 0 ? (
                                 <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
                                     {geneEntries.map(([category, geneData]) => (
@@ -95,14 +101,14 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                                             </span>
                                             <div className="pl-2">
                                                 <div>
-                                                    Phenotype: {geneData.phenotype}
+                                                    Phenotype:{" "}
+                                                    {geneData.phenotype}
                                                 </div>
                                                 <div>
                                                     Genotype:{" "}
-                                                    {goalMode == "phenotype" ? (
-                                                        <span className="italic text-gray-500">
-                                                            multiple
-                                                        </span>
+                                                    {goalMode == "phenotype" &&
+                                                    geneData.isMultiGenotype ? (
+                                                        <span>multiple</span>
                                                     ) : (
                                                         geneData.genotype
                                                     )}

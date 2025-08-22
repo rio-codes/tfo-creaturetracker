@@ -9,15 +9,30 @@ import { revalidatePath } from "next/cache";
 
 // Zod schema for validating the incoming settings data
 const settingsSchema = z.object({
-    email: z.string().email().optional(),
+    email: z.email("Invalid email address.").optional(),
     password: z
         .string()
         .min(8, "Password must be at least 8 characters.")
         .optional(),
     goalMode: z.enum(["genotype", "phenotype"]).optional(),
-    collectionItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
-    goalsItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
-    pairsItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
+    collectionItemsPerPage: z.coerce
+        .number()
+        .int()
+        .min(3, "Minimum of 3 items per page.")
+        .max(30, "Maximum of 3 items per page.")
+        .optional(),
+    goalsItemsPerPage: z.coerce
+        .number()
+        .int()
+        .min(3, "Minimum of 3 items per page.")
+        .max(30, "Maximum of 3 items per page.")
+        .optional(),
+    pairsItemsPerPage: z.coerce
+        .number()
+        .int()
+        .min(3, "Minimum of 3 items per page.")
+        .max(30, "Maximum of 3 items per page.")
+        .optional(),
     goalConversions: z
         .record(
             z.string(),

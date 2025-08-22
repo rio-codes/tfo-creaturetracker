@@ -133,14 +133,6 @@ export function SettingsForm({
                 }
             }
 
-            console.log(
-                "%cFinal list of ambiguous goals to convert:",
-                "font-weight: bold;",
-                ambiguousGoals
-            );
-            console.groupEnd();
-            // --- END: DIAGNOSTIC LOGIC ---
-
             if (ambiguousGoals.length > 0) {
                 setGoalsToConvert(ambiguousGoals);
                 setIsConversionDialogOpen(true);
@@ -188,7 +180,7 @@ export function SettingsForm({
             });
             const data = await response.json();
             if (!response.ok)
-                throw new Error(data.error || "Failed to update settings.");
+                setError("Failed to update settings. " + data.error)
 
             setSuccessMessage(data.message);
             if (email !== user.email) await updateSession({ user: { email } });

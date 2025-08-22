@@ -3,6 +3,7 @@
 @import "tailwind-scrollbar-utilities";
 
 @theme {
+  --default-font-family: Tektur, monospace;
   --font-body: Tektur, monospace;
 
   --color-barely-lilac: #EADDFF;

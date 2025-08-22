@@ -20,14 +20,27 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🧬</text></svg>">
-        </link>
-      </head>
-      <body className="{tektur.className} min-h-screen flex flex-col">      
-          <ClientProviders>{children}</ClientProviders>
-      </body>
-    </html>
-  )
+      <html lang="en">
+          <head>
+              <link
+                  rel="icon"
+                  href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🧬</text></svg>"
+              ></link>
+              <head>
+                  <link rel="preconnect" href="https://fonts.googleapis.com" />
+                  <link
+                      rel="preconnect"
+                      href="https://fonts.gstatic.com"
+                  />
+                  <link
+                      href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;700&display=swap"
+                      rel="stylesheet"
+                  />
+              </head>
+          </head>
+          <body className="{tektur.className} min-h-screen flex flex-col">
+              <ClientProviders>{children}</ClientProviders>
+          </body>
+      </html>
+  );
 }

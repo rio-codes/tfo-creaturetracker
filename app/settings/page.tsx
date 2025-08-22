@@ -1,25 +1,29 @@
-import { Suspense } from 'react';
-import ResetPasswordForm from '@/components/reset-password-form';
-function Loading() {
-    return <div className="text-center">Loading...</div>;
-}
+import { auth } from "@/auth";
+import { db } from "@/src/db";
+import { users, researchGoals } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import { SettingsForm } from "@/components/settings-form";
+import { redirect } from "next/navigation";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+    const session = await auth();
+
+    const [user, allGoals] = await Promise.all([
+        db.query.users.findFirst({ where: eq(users.id, session.user.id) }),
+        db.query.researchGoals.findMany({
+            where: eq(researchGoals.userId, session.user.id),
+        }),
+    ]);
+
     return (
-        <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4 py-8">
-            <div className="w-full max-w-md">
-                {/* Logo/Branding */}
-                <div className="text-center mb-8">
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                        <div className="text-3xl">🧬</div>
-                        <h1 className="text-3xl font-bold text-pompaca-purple">TFO.creaturetracker</h1>
-                    </div>
-                    <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
-                    <div className='text-pompaca-purple py-10 text-2xl'>
-                        This is where we would put our settings page...if we had one.
-                    </div>
-                </div>
-                
+        <div className="bg-barely-lilac min-h-screen">
+            <div className="container mx-auto max-w-3xl px-4 py-8">
+                <h1 className="text-4xl font-bold text-pompaca-purple mb-8">
+                    Settings
+                </h1>
+                <SettingsForm user={user} goals={allGoals} />
             </div>
         </div>
     );

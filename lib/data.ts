@@ -1,9 +1,16 @@
 import "server-only";
 import { db } from "@/src/db";
-import { creatures, researchGoals, breedingPairs } from "@/src/db/schema";
+import {
+    users,
+    creatures,
+    researchGoals,
+    breedingPairs,
+} from "@/src/db/schema";
 import { auth } from "@/auth";
 import { and, ilike, or, eq, desc, count } from "drizzle-orm";
 import type { Creature, ResearchGoal } from "@/types";
+import { calculateGeneProbability } from "./genetics";
+import { structuredGeneData } from "@/lib/creature-data";
 
 const ITEMS_PER_PAGE = 12;
 const GOALS_PER_PAGE = 12;
@@ -35,9 +42,9 @@ export async function getCreaturesForUser(
         eq(creatures.userId, userId),
         query
             ? or(
-                ilike(creatures.code, `%${query}%`),
-                ilike(creatures.creatureName, `%${query}%`)
-            )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
@@ -85,46 +92,98 @@ export async function fetchFilteredResearchGoals(
 ) {
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) throw new Error("User is not authenticated.");
 
-    if (!userId) {
-        throw new Error("User is not authenticated.");
-    }
-
-    const offset = (currentPage - 1) * GOALS_PER_PAGE;
-
-    // Dynamically build our filter conditions array
     const conditions = [
         eq(researchGoals.userId, userId),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
         species && species !== "all"
             ? eq(researchGoals.species, species)
             : undefined,
-    ].filter(Boolean); // This removes any undefined (inactive) filters
+    ].filter(Boolean);
 
     try {
-        // Query for the paginated data
-        const paginatedGoals = await db
-            .select()
-            .from(researchGoals)
-            .where(and(...conditions))
-            .orderBy(
-                desc(researchGoals.isPinned),
-                desc(researchGoals.createdAt)
-            )
-            .limit(GOALS_PER_PAGE)
-            .offset(offset);
+        const [user, paginatedGoals] = await Promise.all([
+            db.query.users.findFirst({ where: eq(users.id, userId) }),
+            db
+                .select()
+                .from(researchGoals)
+                .where(and(...conditions))
+                .orderBy(
+                    desc(researchGoals.isPinned),
+                    desc(researchGoals.createdAt)
+                )
+                .limit(GOALS_PER_PAGE)
+        ]);
 
-        // Query for the total count for pagination
+        if (!user) throw new Error("User not found.");
+
+        const goalMode = user.goalMode;
+
+        // Query for enriched goals
+        const enrichedGoals = paginatedGoals.map((goal) => {
+            const enrichedGenes: { [key: string]: any } = {};
+            const speciesGeneData = structuredGeneData[goal.species];
+
+            if (!speciesGeneData || !goal.genes) {
+                return { ...goal, genes: {} }; // Safety check
+            }
+
+            for (const [category, selection] of Object.entries(goal.genes)) {
+                let finalGenotype: string;
+                let finalPhenotype: string;
+
+                if (
+                    typeof selection === "object" &&
+                    selection.phenotype &&
+                    selection.genotype
+                ) {
+                    finalGenotype = selection.genotype;
+                    finalPhenotype = selection.phenotype;
+                } else if (typeof selection === "string") {
+                    finalGenotype = selection;
+                    const categoryData = speciesGeneData[category] as {
+                        genotype: string;
+                        phenotype: string;
+                    }[];
+                    const matchedGene = categoryData?.find(
+                        (g) => g.genotype === finalGenotype
+                    );
+                    finalPhenotype = matchedGene?.phenotype || "Unknown"; 
+                } else {
+                    continue;
+                }
+
+                let isMulti = false;
+                // Only calculate `isMultiGenotype` if the user is in phenotype mode
+                if (goalMode === "phenotype") {
+                    const categoryData = speciesGeneData[category];
+                    const genotypesForPhenotype = categoryData?.filter(
+                        (g) => g.phenotype === finalPhenotype
+                    );
+                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                }
+
+                // Build the final, consistent object for the card
+                enrichedGenes[category] = {
+                    genotype: finalGenotype,
+                    phenotype: finalPhenotype,
+                    isMultiGenotype: isMulti,
+                };
+            }
+            return { ...goal, genes: enrichedGenes };
+        });
+
         const totalCountResult = await db
             .select({ count: count() })
             .from(researchGoals)
             .where(and(...conditions));
-
-        const totalGoals = totalCountResult[0]?.count ?? 0;
-        const totalPages = Math.ceil(totalGoals / GOALS_PER_PAGE);
+        const totalPages = Math.ceil(
+            (totalCountResult[0]?.count ?? 0) / GOALS_PER_PAGE
+        );
 
         return {
-            goals: paginatedGoals as ResearchGoal[],
+            goals: enrichedGoals as ResearchGoal[],
             totalPages: totalPages,
         };
     } catch (error) {
@@ -206,9 +265,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
@@ -268,7 +327,10 @@ export async function getAllResearchGoalsForUser(): Promise<ResearchGoal[]> {
         });
         return allUserGoals as ResearchGoal[];
     } catch (error) {
-        console.error("Database Error: Failed to fetch all research goals.", error);
+        console.error(
+            "Database Error: Failed to fetch all research goals.",
+            error
+        );
         return [];
     }
 }
@@ -297,7 +359,7 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
     const offset = (currentPage - 1) * PAIRS_PER_PAGE;
 
     try {
-        // Query 1: Get the pairs for the current page
+        // Get the pairs for the current page
         const paginatedPairs = await db.query.breedingPairs.findMany({
             where: eq(breedingPairs.userId, userId),
             with: {
@@ -312,7 +374,7 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
             offset: offset,
         });
 
-        // Query 2: Get the total count of pairs to calculate total pages
+        // Get the total count of pairs to calculate total pages
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
@@ -325,5 +387,75 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
     } catch (error) {
         console.error("Database Error: Failed to fetch breeding pairs.", error);
         return { pairs: [], totalPages: 0 };
+    }
+}
+
+export async function fetchGoalDetailsAndPredictions(goalId: string) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error("Not authenticated.");
+
+    try {
+        const [user, goal] = await Promise.all([
+            db.query.users.findFirst({ where: eq(users.id, userId) }),
+            db.query.researchGoals.findFirst({
+                where: and(
+                    eq(researchGoals.id, goalId),
+                    eq(researchGoals.userId, userId)
+                ),
+            }),
+        ]);
+
+        if (!user) throw new Error("User not found.");
+        if (!goal) throw new Error("Research goal not found.");
+
+        const goalMode = user.goalMode;
+
+        const relevantPairs = await db.query.breedingPairs.findMany({
+            where: and(
+                eq(breedingPairs.userId, userId),
+                eq(breedingPairs.species, goal.species)
+            ),
+            with: { maleParent: true, femaleParent: true },
+        });
+
+        const predictions = relevantPairs.map((pair) => {
+            let totalChance = 0;
+            let geneCount = 0;
+            const chancesByCategory: { [key: string]: number } = {};
+
+            for (const [category, targetGene] of Object.entries(goal.genes)) {
+                const chance = calculateGeneProbability(
+                    pair.maleParent,
+                    pair.femaleParent,
+                    category,
+                    targetGene as any,
+                    goalMode
+                );
+                chancesByCategory[category] = chance;
+                totalChance += chance;
+                geneCount++;
+            }
+
+            const averageChance = geneCount > 0 ? totalChance / geneCount : 0;
+            const isPossible = Object.values(chancesByCategory).some(
+                (chance) => chance > 0
+            );
+
+            return {
+                pairId: pair.id,
+                pairName: pair.pairName,
+                maleParent: pair.maleParent,
+                femaleParent: pair.femaleParent,
+                chancesByCategory,
+                averageChance,
+                isPossible,
+            };
+        });
+
+        return { goal, predictions };
+    } catch (error) {
+        console.error("Database Error: Failed to fetch goal details.", error);
+        return { goal: null, predictions: [] };
     }
 }

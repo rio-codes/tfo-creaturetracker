@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pin, PinOff, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { Pin, PinOff, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -20,32 +20,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
 
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
-    const handleDelete = async () => {
-        if (
-            !window.confirm(
-                `Are you sure you want to delete the goal "${goal.name}"? This cannot be undone.`
-            )
-        ) {
-            return;
-        }
-
-        setIsDeleting(true);
-
-        try {
-            const response = await fetch(`/api/research-goals/${goal.id}`, {
-                method: "DELETE",
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "Failed to delete the goal.");
-            }
-            router.refresh();
-        } catch (error: any) {
-            alert(error.message); // Show an alert on failure
-        } finally {
-            setIsDeleting(false);
-        }
-    };
+    console.log("Data received by ResearchGoalCard:", goal);
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -112,10 +87,28 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                         <div className="whitespace-pre-line pr-4">
                             <strong>Target Genes:</strong>
                             {geneEntries.length > 0 ? (
-                                <div className="pl-2 text-dusk-purple text-xs font-mono mt-1">
-                                    {geneEntries.map(([category, genotype]) => (
+                                <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
+                                    {geneEntries.map(([category, geneData]) => (
                                         <div key={category}>
-                                            {category}: {genotype as string}
+                                            <span className="font-bold text-pompaca-purple">
+                                                {category}:
+                                            </span>
+                                            <div className="pl-2">
+                                                <div>
+                                                    Phenotype: {category ==
+                                                    "Gender" ? "n/a" : geneData.phenotype}
+                                                </div>
+                                                <div>
+                                                    Genotype:{" "}
+                                                    {geneData.isMultiGenotype ? (
+                                                        <span className="italic text-gray-500">
+                                                            multiple
+                                                        </span>
+                                                    ) : (
+                                                        geneData.genotype
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -145,9 +138,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                         </span>
                     </Button>
                     <EditGoalDialog goal={goal}>
-                        <Button
-                            className="bg-dusk-purple text-pompaca-purple h-15 w-30"
-                        >
+                        <Button className="bg-dusk-purple text-pompaca-purple h-15 w-30">
                             <span className="text-wrap wrap-normal">
                                 Edit or Delete Goal
                             </span>

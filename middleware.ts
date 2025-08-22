@@ -28,7 +28,8 @@ export default auth((req: NextRequest) => {
   const protectedRoutes = [
     "/collection", 
     "/breeding-pairs", 
-    "/research-goals"
+    "/research-goals",
+    "/settings"
   ]; 
 
   const isProtectedRoute = protectedRoutes.includes(reqPath);

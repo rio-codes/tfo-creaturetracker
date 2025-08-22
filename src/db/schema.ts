@@ -12,6 +12,8 @@ import {
 import { relations } from "drizzle-orm";
 import type { AdapterAccount } from "@auth/core/adapters";
 
+export const goalModeEnum = pgEnum("goal_mode", ["genotype", "phenotype"]);
+
 export const users = pgTable("user", {
     id: text("id").notNull().primaryKey(),
     name: text("name"),
@@ -19,7 +21,13 @@ export const users = pgTable("user", {
     email: text("email").notNull().unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
-    password: text("password"), 
+    password: text("password"),
+    goalMode: goalModeEnum("goal_mode").default("phenotype").notNull(),
+    collectionItemsPerPage: integer("collection_items_per_page")
+        .default(12)
+        .notNull(),
+    goalsItemsPerPage: integer("goals_items_per_page").default(9).notNull(),
+    pairsItemsPerPage: integer("pairs_items_per_page").default(10).notNull(),
 });
 
 export const accounts = pgTable(

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { structuredGeneData } from "@/lib/creature-data";
 import { Loader2 } from "lucide-react";
+import { GoalMode } from "@/types"
 
 type GeneOption = {
     value: string;
@@ -21,10 +22,11 @@ type GeneOption = {
 };
 
 type CreateGoalFormProps = {
+    goalMode: GoalMode;
     onClose: () => void;
 };
 
-export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
+export default function CreateGoalForm({ goalMode, onClose }: CreateGoalFormProps) {
     const router = useRouter();
 
     const [name, setName] = useState("");
@@ -38,54 +40,68 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [previewError, setPreviewError] = useState("");
 
-    const uniqueGeneOptions = useMemo(() => {
+    const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
 
         const optionsByCat: {
-            [key: string]: { value: string; display: string }[];
+            [key: string]: {
+                value: string;
+                display: string;
+                phenotype: string;
+            }[];
         } = {};
 
         for (const [category, genes] of Object.entries(
             structuredGeneData[species]
         )) {
-            const phenotypeMap = new Map<string, string[]>();
-            (genes as { genotype: string; phenotype: string }[]).forEach(
-                (gene) => {
-                    if (category != "Gender") {
-                        const existing = phenotypeMap.get(gene.phenotype) || [];
-                        phenotypeMap.set(gene.phenotype, [
-                            ...existing,
-                            gene.genotype,
-                        ]);
+            if (goalMode === "genotype") {
+                optionsByCat[category] = (
+                    genes as { genotype: string; phenotype: string }[]
+                ).map((gene) => ({
+                    value: gene.genotype,
+                    display:
+                        gene.phenotype === "None"
+                            ? gene.genotype
+                            : `${gene.genotype} (${gene.phenotype})`,
+                    phenotype: gene.phenotype,
+                }));
+            } else {
+                // PHENOTYPE MODE: De-duplicate by phenotype.
+                const phenotypeMap = new Map<string, string>(); // phenotype -> representative genotype
+                (genes as { genotype: string; phenotype: string }[]).forEach(
+                    (gene) => {
+                        if (!phenotypeMap.has(gene.phenotype)) {
+                            phenotypeMap.set(gene.phenotype, gene.genotype);
+                        }
                     }
-                    else {
-                        phenotypeMap.set(gene.genotype, [gene.genotype])
-                    }
-                }
-            );
-            optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                ([phenotype, genotypes]) => {
-                    let displayText: string;                    
-                    if (genotypes.length === 1 && category != "Gender") {
-                        displayText =
-                            phenotype === "None"
-                                ? "None"
-                                : `${phenotype} (${genotypes[0]})`;
-                    } else {
-                        displayText = phenotype;
-                    }
-                    return {
-                        value: genotypes[0],
-                        display: displayText,
-                    };
-                }
-            );
+                );
+                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
+                    ([phenotype, genotype]) => ({
+                        value: genotype,
+                        display: phenotype,
+                        phenotype: phenotype,
+                    })
+                );
+            }
         }
         return optionsByCat;
-    }, [species]);
+    }, [species, goalMode]); // Re-run when species OR goalMode changes
 
-    const handleGeneChange = (category: string, genotype: string) => {
-        setSelectedGenes((prev) => ({ ...prev, [category]: genotype }));
+    const handleGeneChange = (category: string, selectedValue: string) => {
+        const options = geneOptions[category];
+        const selectedOption = options?.find(
+            (opt) => opt.value === selectedValue
+        );
+
+        if (selectedOption) {
+            setSelectedGenes((prev) => ({
+                ...prev,
+                [category]: {
+                    genotype: selectedOption.value,
+                    phenotype: selectedOption.phenotype,
+                },
+            }));
+        }
         setPreviewImageUrl(null);
     };
 
@@ -152,9 +168,6 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
     };
 
     const isPreviewable = species && selectedGenes["Gender"];
-    const geneCategories = uniqueGeneOptions
-        ? Object.keys(uniqueGeneOptions)
-        : [];
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -202,9 +215,10 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
                     <h3 className="font-bold text-pompaca-purple">
                         Target Genes
                     </h3>
-                    {geneCategories.map((category) => {
-                        const selectedValue = selectedGenes[category] || "";
-                        const options = uniqueGeneOptions[category] || [];
+                    {Object.keys(geneOptions).map((category) => {
+                        const selectedValue =
+                            selectedGenes[category]?.genotype || "";
+                        const options = geneOptions[category] || [];
                         return (
                             <div key={category}>
                                 <Label className="font-medium text-pompaca-purple">

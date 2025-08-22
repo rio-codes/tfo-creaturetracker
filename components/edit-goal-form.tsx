@@ -14,21 +14,22 @@ import {
 } from "@/components/ui/select";
 import { structuredGeneData } from "@/lib/creature-data";
 import { Loader2, Trash2 } from "lucide-react";
-import type { ResearchGoal } from "@/types";
+import type { User, GoalMode, ResearchGoal } from "@/types";
 
 type EditGoalFormProps = {
     goal: ResearchGoal;
+    goalMode: GoalMode;
     onSuccess: () => void;
 };
 
-export function EditGoalForm({ goal, onSuccess }: EditGoalFormProps) {
+export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
     const router = useRouter();
 
     // Initialize state with the existing goal's data
     const [name, setName] = useState(goal.name);
     const [species, setSpecies] = useState(goal.species);
     const [selectedGenes, setSelectedGenes] = useState(
-        goal.genes as { [key: string]: string }
+        goal.genes as { [key: string]: { genotype: string; phenotype: string } }
     );
 
     const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +39,71 @@ export function EditGoalForm({ goal, onSuccess }: EditGoalFormProps) {
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [previewError, setPreviewError] = useState("");
 
+    const geneOptions = useMemo(() => {
+        if (!species || !structuredGeneData[species]) return {};
 
-    const handleGeneChange = (category: string, genotype: string) => {
-        setSelectedGenes((prev) => ({ ...prev, [category]: genotype }));
+        const optionsByCat: {
+            [key: string]: {
+                value: string;
+                display: string;
+                phenotype: string;
+            }[];
+        } = {};
+
+        for (const [category, genes] of Object.entries(
+            structuredGeneData[species]
+        )) {
+            if (goalMode === "genotype") {
+                // GENOTYPE MODE: Show every single genotype as a distinct option.
+                optionsByCat[category] = (
+                    genes as { genotype: string; phenotype: string }[]
+                ).map((gene) => ({
+                    value: gene.genotype,
+                    display:
+                        gene.phenotype === "None"
+                            ? gene.genotype
+                            : `${gene.genotype} (${gene.phenotype})`,
+                    phenotype: gene.phenotype,
+                }));
+            } else {
+                // PHENOTYPE MODE: De-duplicate by phenotype.
+                const phenotypeMap = new Map<string, string>(); // phenotype -> representative genotype
+                (genes as { genotype: string; phenotype: string }[]).forEach(
+                    (gene) => {
+                        if (!phenotypeMap.has(gene.phenotype)) {
+                            phenotypeMap.set(gene.phenotype, gene.genotype);
+                        }
+                    }
+                );
+                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
+                    ([phenotype, genotype]) => ({
+                        value: genotype,
+                        display: phenotype,
+                        phenotype: phenotype,
+                    })
+                );
+            }
+        }
+        return optionsByCat;
+    }, [species, goalMode]); // Re-run when species OR goalMode changes
+
+    // This handler now correctly finds the phenotype for either mode
+    const handleGeneChange = (category: string, selectedValue: string) => {
+        const options = geneOptions[category];
+        const selectedOption = options?.find(
+            (opt) => opt.value === selectedValue
+        );
+
+        if (selectedOption) {
+            setSelectedGenes((prev) => ({
+                ...prev,
+                [category]: {
+                    genotype: selectedOption.value,
+                    phenotype: selectedOption.phenotype,
+                },
+            }));
+        }
+        setPreviewImageUrl(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

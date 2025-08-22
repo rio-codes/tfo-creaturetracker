@@ -9,16 +9,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditBreedingPairForm } from "@/components/edit-breeding-pair-form"
-import type { Creature, ResearchGoal } from "@/types";
+import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types";
 
-type BreedingPairWithDetails = {
-    id: string;
-    pairName: string;
-    species: string;
-    maleParentId: string;
-    femaleParentId: string;
-    assignedGoalIds: string[] | null;
-};
 
 type EditBreedingPairDialogProps = {
     pair: BreedingPairWithDetails;

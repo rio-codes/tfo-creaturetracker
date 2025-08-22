@@ -127,7 +127,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                     <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (
-                                                <div>
+                                                <div key={goal.id}>
                                                     <span className="font-bold underline wrap-normal">
                                                         {goal.name}
                                                     </span>

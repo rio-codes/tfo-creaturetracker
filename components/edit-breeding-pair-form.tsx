@@ -32,7 +32,7 @@ type EditBreedingPairFormProps = {
     onSuccess: () => void;
 };
 
-export function EditPairForm({
+export function EditBreedingPairForm({
     pair,
     allCreatures,
     allGoals,

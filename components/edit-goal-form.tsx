@@ -197,18 +197,19 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
         : [];
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+        <form onSubmit={handleSubmit}>
+            <div className="space-y-2 mb-3">
                 <Label htmlFor="goal-name">Goal Name</Label>
                 <Input
                     placeholder="Goal Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className="bg-ebena-lavender"
                     required
                 />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 mb-3">
                 <Label htmlFor="species-select">Species</Label>
                 <Select
                     value={species}
@@ -236,7 +237,7 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
             </div>
 
             {species && (
-                <div className="space-y-4 border p-4 rounded-md bg-ebena-lavender">
+                <div className="space-y-4 border p-4 rounded-md bg-ebena-lavender mb-5">
                     <h3 className="font-bold text-pompaca-purple">
                         Target Genes
                     </h3>
@@ -249,7 +250,7 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
                                     {category}
                                 </Label>
                                 <Select
-                                    value={selectedValue.toString()}
+                                    value={selectedValue}
                                     onValueChange={(value) =>
                                         handleGeneChange(category, value)
                                     }

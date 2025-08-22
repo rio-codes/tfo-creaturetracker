@@ -31,11 +31,11 @@ export function Pagination({ totalPages }: { totalPages: number }) {
   return (
     <div className="flex items-center gap-2 md:gap-4">
       {/* First Page Button */}
-      <Link href={createPageURL(1)} passHref legacyBehavior>
+      <Link href={createPageURL(1)} passHref>
         <Button
           variant="outline"
           size="icon"
-          className="bg-transparent border-transparent text-pompaca-purple hidden md:flex" // Hide on mobile
+          className="bg-transparent border-transparent text-pompaca-purple flex"
           disabled={isFirstPage}
           aria-disabled={isFirstPage}
           aria-label="Go to first page"
@@ -45,7 +45,7 @@ export function Pagination({ totalPages }: { totalPages: number }) {
       </Link>
       
       {/* Previous Page Button */}
-      <Link href={createPageURL(currentPage - 1)} passHref legacyBehavior>
+      <Link href={createPageURL(currentPage - 1)} passHref>
         <Button
           variant="outline"
           className="bg-pompaca-purple text-barely-lilac"
@@ -62,7 +62,7 @@ export function Pagination({ totalPages }: { totalPages: number }) {
       </span>
 
       {/* Next Page Button */}
-      <Link href={createPageURL(currentPage + 1)} passHref legacyBehavior>
+      <Link href={createPageURL(currentPage + 1)} passHref>
         <Button
           variant="outline"
           className="bg-pompaca-purple text-barely-lilac"
@@ -75,11 +75,11 @@ export function Pagination({ totalPages }: { totalPages: number }) {
       </Link>
       
       {/* Last Page Button */}
-      <Link href={createPageURL(totalPages)} passHref legacyBehavior>
+      <Link href={createPageURL(totalPages)} passHref>
         <Button
           variant="outline"
           size="icon"
-          className="bg-transparent border-transparent text-pompaca-purple hidden md:flex" // Hide on mobile
+          className="bg-transparent border-transparent text-pompaca-purple flex"
           disabled={isLastPage}
           aria-disabled={isLastPage}
           aria-label="Go to last page"

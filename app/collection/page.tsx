@@ -1,4 +1,4 @@
-import { getCreaturesForUser, getAllBreedingPairsForUser } from "@/lib/data";
+import { fetchFilteredCreatures, getAllCreaturesForUser, getAllBreedingPairsForUser } from "@/lib/data";
 import { CollectionClient } from "@/components/collection-client";
 import { Suspense } from "react";
 
@@ -21,22 +21,28 @@ export default async function CollectionPage({
     const species = searchParams?.species;
     const gender = searchParams?.gender;
 
-    const { creatures, totalPages } = await getCreaturesForUser(
-        currentPage,
-        query,
-        gender,
-        stage,
-        species
-    );
-
+    const { creatures: paginatedCreatures, totalPages } =
+        await fetchFilteredCreatures(
+            currentPage,
+            query,
+            gender,
+            stage,
+            species
+        );
+    const allCreaturesData = await getAllCreaturesForUser();
     const allPairsData = await getAllBreedingPairsForUser();
+
+    const serializableCreatures = allCreaturesData.map((creature) => ({
+        ...creature,
+        createdAt: creature.createdAt.toISOString(),
+        updatedAt: creature.updatedAt.toISOString(),
+        gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
+    }));
+
     const serializablePairs = allPairsData.map((pair) => ({
         ...pair,
-        // Serialize dates on the top-level pair object
         createdAt: pair.createdAt.toISOString(),
         updatedAt: pair.updatedAt.toISOString(),
-
-        // Serialize dates within the nested maleParent object
         maleParent: {
             ...pair.maleParent,
             createdAt: pair.maleParent.createdAt.toISOString(),
@@ -45,8 +51,6 @@ export default async function CollectionPage({
                 ? pair.maleParent.gottenAt.toISOString()
                 : null,
         },
-
-        // Serialize dates within the nested femaleParent object
         femaleParent: {
             ...pair.femaleParent,
             createdAt: pair.femaleParent.createdAt.toISOString(),
@@ -57,14 +61,16 @@ export default async function CollectionPage({
         },
     }));
 
+
     return (
         <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
-                        initialCreatures={creatures}
+                        initialCreatures={paginatedCreatures} // The paginated list for the grid
                         totalPages={totalPages}
-                        allPairs={serializablePairs}
+                        allCreatures={serializableCreatures} // The FULL list for dialogs
+                        allPairs={serializablePairs} // The FULL list for dialogs
                     />
                 </Suspense>
             </div>

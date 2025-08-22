@@ -42,7 +42,6 @@ export function ManageBreedingPairsForm({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Find all pairs this creature is already a part of
     const existingPairs = useMemo(
         () =>
             allPairs.filter(
@@ -52,21 +51,6 @@ export function ManageBreedingPairsForm({
             ),
         [allPairs, baseCreature]
     );
-
-    // Find all creatures that are suitable mates (adult, same species, opposite gender, and NOT already paired)
-    const suitableMates = useMemo(() => {
-        const pairedCreatureIds = new Set(
-            allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
-        );
-        return allCreatures.filter(
-            (c) =>
-                c.id !== baseCreature.id &&
-                c.species === baseCreature.species &&
-                c.gender !== baseCreature.gender &&
-                c.growthLevel === 3 &&
-                !pairedCreatureIds.has(c.id)
-        );
-    }, [allCreatures, allPairs, baseCreature]);
 
     const handleCreatePair = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -118,12 +102,25 @@ export function ManageBreedingPairsForm({
             await fetch(`/api/breeding-pairs/${pairId}`, { method: "DELETE" });
             router.refresh();
             onActionComplete();
-        } catch (err) {
+        } catch (err: any) {
             alert("Failed to remove pair.");
         } finally {
             setIsLoading(false);
         }
     };
+    const suitableMates = useMemo(() => {
+        const pairedCreatureIds = new Set(
+            allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
+        );
+        return allCreatures.filter(
+            (c) =>
+                c.id !== baseCreature.id &&
+                c.species === baseCreature.species &&
+                c.gender !== baseCreature.gender &&
+                c.growthLevel === 3 &&
+                !pairedCreatureIds.has(c.id)
+        );
+    }, [allCreatures, allPairs, baseCreature]);
 
     return (
         <div className="space-y-6">

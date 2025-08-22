@@ -182,23 +182,74 @@ export async function fetchBreedingPairs(currentPage: number) {
     }
 }
 
+export async function fetchFilteredCreatures(
+    currentPage: number,
+    query?: string,
+    gender?: string,
+    stage?: string,
+    species?: string
+) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error("User is not authenticated.");
+
+    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    const stageToGrowthLevel: { [key: string]: number } = {
+        capsule: 1,
+        juvenile: 2,
+        adult: 3,
+    };
+    const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
+
+    const conditions = [
+        eq(creatures.userId, userId),
+        query
+            ? or(
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
+            : undefined,
+        gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
+        growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
+        species && species !== "all"
+            ? ilike(creatures.species, species)
+            : undefined,
+    ].filter(Boolean);
+
+    try {
+        const paginatedCreatures = await db
+            .select()
+            .from(creatures)
+            .where(and(...conditions))
+            .orderBy(desc(creatures.isPinned), desc(creatures.createdAt))
+            .limit(ITEMS_PER_PAGE)
+            .offset(offset); // The .offset() call is crucial
+
+        const totalCountResult = await db
+            .select({ count: count() })
+            .from(creatures)
+            .where(and(...conditions));
+        const totalCreatures = totalCountResult[0]?.count ?? 0;
+        const totalPages = Math.ceil(totalCreatures / ITEMS_PER_PAGE);
+
+        return { creatures: paginatedCreatures as Creature[], totalPages };
+    } catch (error) {
+        console.error("Database Error: Failed to fetch creatures.", error);
+        return { creatures: [], totalPages: 0 };
+    }
+}
 export async function getAllCreaturesForUser(): Promise<Creature[]> {
     const session = await auth();
     const userId = session?.user?.id;
-
-    if (!userId) {
-        return []; // Return empty array if not logged in
-    }
-
+    if (!userId) return [];
     try {
-        const allUserCreatures = await db.query.creatures.findMany({
+        return await db.query.creatures.findMany({
             where: eq(creatures.userId, userId),
-            orderBy: [desc(creatures.createdAt)],
         });
-        return allUserCreatures as Creature[];
     } catch (error) {
         console.error("Database Error: Failed to fetch all creatures.", error);
-        return []; // Return empty array on error
+        return [];
     }
 }
 
@@ -227,20 +278,52 @@ export async function getAllBreedingPairsForUser() {
     const userId = session?.user?.id;
     if (!userId) return [];
     try {
-        const pairs = await db.query.breedingPairs.findMany({
+        return await db.query.breedingPairs.findMany({
+            where: eq(breedingPairs.userId, userId),
+            with: { maleParent: true, femaleParent: true },
+        });
+    } catch (error) {
+        console.error("Database Error: Failed to fetch all pairs.", error);
+        return [];
+    }
+}
+
+export async function fetchPaginatedBreedingPairs(currentPage: number) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { pairs: [], totalPages: 0 };
+
+    const PAIRS_PER_PAGE = 10;
+    const offset = (currentPage - 1) * PAIRS_PER_PAGE;
+
+    try {
+        // Query 1: Get the pairs for the current page
+        const paginatedPairs = await db.query.breedingPairs.findMany({
             where: eq(breedingPairs.userId, userId),
             with: {
                 maleParent: true,
                 femaleParent: true,
             },
-            orderBy: [desc(breedingPairs.createdAt)],
+            orderBy: [
+                desc(breedingPairs.isPinned),
+                desc(breedingPairs.createdAt),
+            ],
+            limit: PAIRS_PER_PAGE,
+            offset: offset,
         });
-        return pairs;
+
+        // Query 2: Get the total count of pairs to calculate total pages
+        const totalCountResult = await db
+            .select({ value: count() })
+            .from(breedingPairs)
+            .where(eq(breedingPairs.userId, userId));
+
+        const totalPairs = totalCountResult[0].value;
+        const totalPages = Math.ceil(totalPairs / PAIRS_PER_PAGE);
+
+        return { pairs: paginatedPairs, totalPages };
     } catch (error) {
-        console.error(
-            "Database Error: Failed to fetch all breeding pairs.",
-            error
-        );
-        return [];
+        console.error("Database Error: Failed to fetch breeding pairs.", error);
+        return { pairs: [], totalPages: 0 };
     }
 }

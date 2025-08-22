@@ -23,10 +23,16 @@ import { speciesList } from "@/lib/creature-data";
 type CollectionClientProps = {
     initialCreatures: Creature[];
     totalPages: number;
+    allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
 };
 
-export function CollectionClient({ initialCreatures, totalPages, allPairs }) {
+export function CollectionClient({
+    initialCreatures,
+    totalPages,
+    allCreatures,
+    allPairs,
+}) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -191,8 +197,9 @@ export function CollectionClient({ initialCreatures, totalPages, allPairs }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {initialCreatures.map((creature) => (
                             <CreatureCard
+                                key={creature.id}
                                 creature={creature}
-                                allCreaturesData={initialCreatures}
+                                allCreatures={allCreatures}
                                 allPairs={allPairs}
                             />
                         ))}

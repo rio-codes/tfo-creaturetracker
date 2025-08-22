@@ -8,7 +8,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { ManageBreedingPairsForm } from "@/components/manage-breeding-pairs-form.tsx";
+import { ManageBreedingPairsForm } from "@/components/manage-breeding-pairs-form"
 import type { Creature, ResearchGoal } from "@/types";
 
 type BreedingPairWithDetails = {

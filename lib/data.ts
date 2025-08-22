@@ -12,9 +12,6 @@ import type { Creature, ResearchGoal } from "@/types";
 import { calculateGeneProbability } from "./genetics";
 import { structuredGeneData } from "@/lib/creature-data";
 
-const ITEMS_PER_PAGE = 12;
-const GOALS_PER_PAGE = 12;
-
 export async function getCreaturesForUser(
     currentPage: number,
     query?: string,
@@ -29,7 +26,9 @@ export async function getCreaturesForUser(
         throw new Error("User is not authenticated.");
     }
 
-    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const itemsPerPage = user?.collectionItemsPerPage || 12; // Use setting or fallback
+    const offset = (currentPage - 1) * itemsPerPage;
 
     const stageToGrowthLevel: { [key: string]: number } = {
         capsule: 1,
@@ -42,16 +41,16 @@ export async function getCreaturesForUser(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)
             : undefined,
-    ].filter(Boolean);
+].filter(Boolean);
 
     try {
         // Get the creatures for the current page
@@ -60,7 +59,7 @@ export async function getCreaturesForUser(
             .from(creatures)
             .where(and(...conditions))
             .orderBy(desc(creatures.isPinned), desc(creatures.createdAt))
-            .limit(ITEMS_PER_PAGE)
+            .limit(itemsPerPage)
             .offset(offset);
 
         // Get the total count of creatures for this user
@@ -70,7 +69,7 @@ export async function getCreaturesForUser(
             .where(and(...conditions));
 
         const totalCreatures = totalCountResult[0]?.count ?? 0;
-        const totalPages = Math.ceil(totalCreatures / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalCreatures / itemsPerPage);
 
         return {
             creatures: paginatedCreatures as Creature[],
@@ -94,6 +93,12 @@ export async function fetchFilteredResearchGoals(
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
 
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
+    const goalsPerPage = user?.goalsItemsPerPage || 12; 
+    const offset = (currentPage - 1) * goalsPerPage;
+
     const conditions = [
         eq(researchGoals.userId, userId),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
@@ -113,7 +118,8 @@ export async function fetchFilteredResearchGoals(
                     desc(researchGoals.isPinned),
                     desc(researchGoals.createdAt)
                 )
-                .limit(GOALS_PER_PAGE)
+                .limit(goalsPerPage)
+                .offset(offset),
         ]);
 
         if (!user) throw new Error("User not found.");
@@ -149,7 +155,7 @@ export async function fetchFilteredResearchGoals(
                     const matchedGene = categoryData?.find(
                         (g) => g.genotype === finalGenotype
                     );
-                    finalPhenotype = matchedGene?.phenotype || "Unknown"; 
+                    finalPhenotype = matchedGene?.phenotype || "Unknown";
                 } else {
                     continue;
                 }
@@ -178,9 +184,8 @@ export async function fetchFilteredResearchGoals(
             .select({ count: count() })
             .from(researchGoals)
             .where(and(...conditions));
-        const totalPages = Math.ceil(
-            (totalCountResult[0]?.count ?? 0) / GOALS_PER_PAGE
-        );
+        const totalGoals = totalCountResult[0]?.count ?? 0;
+        const totalPages = Math.ceil(totalGoals / goalsPerPage);
 
         return {
             goals: enrichedGoals as ResearchGoal[],
@@ -197,8 +202,9 @@ export async function fetchBreedingPairs(currentPage: number) {
     const userId = session?.user?.id;
     if (!userId) throw new Error("Not authenticated.");
 
-    const PAIRS_PER_PAGE = 12;
-    const offset = (currentPage - 1) * PAIRS_PER_PAGE;
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const pairsPerPage = user?.pairsItemsPerPage || 12; // Use setting or fallback
+    const offset = (currentPage - 1) * pairsPerPage;
 
     try {
         const paginatedPairs = await db.query.breedingPairs.findMany({
@@ -211,7 +217,7 @@ export async function fetchBreedingPairs(currentPage: number) {
                 desc(breedingPairs.isPinned),
                 desc(breedingPairs.createdAt),
             ],
-            limit: PAIRS_PER_PAGE,
+            limit: pairsPerPage,
             offset: offset,
         });
 
@@ -231,7 +237,7 @@ export async function fetchBreedingPairs(currentPage: number) {
             .from(breedingPairs)
             .where(eq(breedingPairs.userId, userId));
         const totalPages = Math.ceil(
-            (totalCountResult[0]?.count ?? 0) / PAIRS_PER_PAGE
+            (totalCountResult[0]?.count ?? 0) / pairsPerPage
         );
 
         return { pairs: pairsWithGoals, totalPages };
@@ -252,7 +258,11 @@ export async function fetchFilteredCreatures(
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
 
-    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
+    const itemsPerPage = user?.collectionItemsPerPage || 12;
+    const offset = (currentPage - 1) * itemsPerPage;
 
     const stageToGrowthLevel: { [key: string]: number } = {
         capsule: 1,
@@ -265,9 +275,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
@@ -282,15 +292,15 @@ export async function fetchFilteredCreatures(
             .from(creatures)
             .where(and(...conditions))
             .orderBy(desc(creatures.isPinned), desc(creatures.createdAt))
-            .limit(ITEMS_PER_PAGE)
-            .offset(offset); // The .offset() call is crucial
+            .limit(itemsPerPage)
+            .offset(offset);
 
         const totalCountResult = await db
             .select({ count: count() })
             .from(creatures)
             .where(and(...conditions));
         const totalCreatures = totalCountResult[0]?.count ?? 0;
-        const totalPages = Math.ceil(totalCreatures / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalCreatures / itemsPerPage);
 
         return { creatures: paginatedCreatures as Creature[], totalPages };
     } catch (error) {
@@ -355,8 +365,11 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
 
-    const PAIRS_PER_PAGE = 10;
-    const offset = (currentPage - 1) * PAIRS_PER_PAGE;
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
+    const pairsPerPage = user?.pairsItemsPerPage || 12; // Use setting or fallback
+    const offset = (currentPage - 1) * pairsPerPage;
 
     try {
         // Get the pairs for the current page
@@ -370,7 +383,7 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
                 desc(breedingPairs.isPinned),
                 desc(breedingPairs.createdAt),
             ],
-            limit: PAIRS_PER_PAGE,
+            limit: pairsPerPage,
             offset: offset,
         });
 
@@ -381,7 +394,7 @@ export async function fetchPaginatedBreedingPairs(currentPage: number) {
             .where(eq(breedingPairs.userId, userId));
 
         const totalPairs = totalCountResult[0].value;
-        const totalPages = Math.ceil(totalPairs / PAIRS_PER_PAGE);
+        const totalPages = Math.ceil(totalPairs / pairsPerPage);
 
         return { pairs: paginatedPairs, totalPages };
     } catch (error) {

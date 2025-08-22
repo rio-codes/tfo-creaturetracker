@@ -17,10 +17,10 @@ const settingsSchema = z.object({
     goalMode: z.enum(["genotype", "phenotype"]).optional(),
     collectionItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
     goalsItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
-    pairsItemsPerPage: z.coerce.number().int().min(3).max(20).optional(),
+    pairsItemsPerPage: z.coerce.number().int().min(3).max(30).optional(),
     goalConversions: z
         .record(
-            z.string(), 
+            z.string(),
             z.record(
                 z.string(),
                 z.object({

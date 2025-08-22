@@ -38,16 +38,9 @@ export function SettingsForm({
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [goalMode, setGoalMode] = useState(user.goalMode);
-    const [collectionItems, setCollectionItems] = useState(
-        user.collectionItemsPerPage
-    );
-    const [researchGoalItems, setResearchGoalItems] = useState(
-        user.collectionItemsPerPage
-    );
-    const [breedingPairItems, setBreedingPairItems] = useState(
-        user.collectionItemsPerPage
-    );
-
+    const [collectionItems, setCollectionItems] = useState(user.collectionItemsPerPage);
+    const [goalsItems, setGoalsItems] = useState(user.goalsItemsPerPage);
+    const [pairsItems, setPairsItems] = useState(user.pairsItemsPerPage);
     // State for the conversion flow
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -68,8 +61,6 @@ export function SettingsForm({
         setError("");
         setSuccessMessage("");
 
-        // --- START: DIAGNOSTIC LOGIC ---
-        // Check if we need to run the conversion flow
         if (user.goalMode === "phenotype" && goalMode === "genotype") {
             console.group("--- Goal Conversion Check ---");
             console.log(
@@ -183,6 +174,8 @@ export function SettingsForm({
             const payload: any = {
                 goalMode,
                 collectionItemsPerPage: collectionItems,
+                goalsItemsPerPage: goalsItems,
+                pairsItemsPerPage: pairsItems,
             };
             if (email !== user.email) payload.email = email;
             if (password) payload.password = password;
@@ -361,9 +354,9 @@ export function SettingsForm({
                             <Input
                                 id="research-goal-items"
                                 type="number"
-                                value={researchGoalItems}
+                                value={goalsItems}
                                 onChange={(e) =>
-                                    setResearchGoalItems(Number(e.target.value))
+                                    setGoalsItems(Number(e.target.value))
                                 }
                                 min="3"
                                 max="30"
@@ -379,9 +372,9 @@ export function SettingsForm({
                             <Input
                                 id="breeding-pair-items"
                                 type="number"
-                                value={breedingPairItems}
+                                value={pairsItems}
                                 onChange={(e) =>
-                                    setBreedingPairItems(Number(e.target.value))
+                                    setPairsItems(Number(e.target.value))
                                 }
                                 min="3"
                                 max="30"

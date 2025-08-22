@@ -1,14 +1,16 @@
 "use client";
 import AddGoalForm from "@/components/add-goal-form";
+import { GoalMode } from "@/types";
 
 type DialogProps = {
+    goalMode: GoalMode;
     isOpen: boolean;
     onClose: () => void;
 };
 
 type SyncStatus = "idle" | "loading" | "success" | "error";
 
-export function AddGoalDialog({ isOpen, onClose }: DialogProps) {
+export function AddGoalDialog({ goalMode, isOpen, onClose }: DialogProps) {
     if (!isOpen) {
         return null;
     }
@@ -27,7 +29,7 @@ export function AddGoalDialog({ isOpen, onClose }: DialogProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-2xl font-bold text-pompaca-purple mb-4">New Research Goal</h2>
-                <AddGoalForm onClose={onClose}/>
+                <AddGoalForm goalMode={goalMode} onClose={onClose}/>
             </div>
         </div>
     );

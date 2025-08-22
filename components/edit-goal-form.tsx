@@ -39,57 +39,9 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [previewError, setPreviewError] = useState("");
 
-    const geneOptions = useMemo(() => {
-        if (!species || !structuredGeneData[species]) return {};
-
-        const optionsByCat: {
-            [key: string]: {
-                value: string;
-                display: string;
-                phenotype: string;
-            }[];
-        } = {};
-
-        for (const [category, genes] of Object.entries(
-            structuredGeneData[species]
-        )) {
-            if (goalMode === "genotype") {
-                // GENOTYPE MODE: Show every single genotype as a distinct option.
-                optionsByCat[category] = (
-                    genes as { genotype: string; phenotype: string }[]
-                ).map((gene) => ({
-                    value: gene.genotype,
-                    display:
-                        gene.phenotype === "None"
-                            ? gene.genotype
-                            : `${gene.genotype} (${gene.phenotype})`,
-                    phenotype: gene.phenotype,
-                }));
-            } else {
-                // PHENOTYPE MODE: De-duplicate by phenotype.
-                const phenotypeMap = new Map<string, string>(); // phenotype -> representative genotype
-                (genes as { genotype: string; phenotype: string }[]).forEach(
-                    (gene) => {
-                        if (!phenotypeMap.has(gene.phenotype)) {
-                            phenotypeMap.set(gene.phenotype, gene.genotype);
-                        }
-                    }
-                );
-                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                    ([phenotype, genotype]) => ({
-                        value: genotype,
-                        display: phenotype,
-                        phenotype: phenotype,
-                    })
-                );
-            }
-        }
-        return optionsByCat;
-    }, [species, goalMode]); // Re-run when species OR goalMode changes
-
     // This handler now correctly finds the phenotype for either mode
     const handleGeneChange = (category: string, selectedValue: string) => {
-        const options = geneOptions[category];
+        const options = uniqueGeneOptions[category];
         const selectedOption = options?.find(
             (opt) => opt.value === selectedValue
         );
@@ -177,46 +129,68 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
         if (!species || !structuredGeneData[species]) return {};
 
         const optionsByCat: {
-            [key: string]: { value: string; display: string }[];
+            [key: string]: {
+                value: string;
+                display: string;
+                phenotype: string;
+            }[];
         } = {};
 
         for (const [category, genes] of Object.entries(
             structuredGeneData[species]
         )) {
-            const phenotypeMap = new Map<string, string[]>();
-            (genes as { genotype: string; phenotype: string }[]).forEach(
-                (gene) => {
-                    if (category != "Gender") {
+            if (goalMode === "genotype") {
+                // GENOTYPE MODE: Show every single genotype as a distinct option.
+                optionsByCat[category] = (
+                    genes as { genotype: string; phenotype: string }[]
+                ).map((gene) => ({
+                    value: gene.genotype,
+                    display:
+                        gene.phenotype === "None" || category === "Gender"
+                            ? gene.genotype
+                            : `${gene.genotype} (${gene.phenotype})`,
+                    phenotype: gene.phenotype,
+                }));
+            } else {
+                // PHENOTYPE MODE: Group by phenotype and decide display text based on group size.
+
+                // Step 1: Group all genotypes by their phenotype.
+                const phenotypeMap = new Map<string, string[]>(); // phenotype -> array of genotypes
+                (genes as { genotype: string; phenotype: string }[]).forEach(
+                    (gene) => {
                         const existing = phenotypeMap.get(gene.phenotype) || [];
                         phenotypeMap.set(gene.phenotype, [
                             ...existing,
                             gene.genotype,
                         ]);
-                    } else {
-                        phenotypeMap.set(gene.genotype, [gene.genotype]);
                     }
-                }
-            );
-            optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                ([phenotype, genotypes]) => {
-                    let displayText: string;
-                    if (genotypes.length === 1 && category != "Gender") {
-                        displayText =
-                            phenotype === "None"
-                                ? "None"
-                                : `${phenotype} (${genotypes[0]})`;
-                    } else {
-                        displayText = phenotype;
+                );
+
+                // Step 2: Create the final options based on the groups.
+                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
+                    ([phenotype, genotypes]) => {
+                        let displayText: string;
+
+                        // If there is only one genotype for this phenotype, show it.
+                        if (genotypes.length === 1 && genotypes[0] !== "Male" && genotypes[0] != "Female") {
+                            displayText = `${phenotype} (${genotypes[0]})`;
+                        } else {
+                                // If there are multiple genotypes, just show the phenotype name.
+                                displayText = phenotype;
+                        }
+
+                        return {
+                            // The value is always the first genotype, used for the image preview.
+                            value: genotypes[0],
+                            display: displayText,
+                            phenotype: phenotype,
+                        };
                     }
-                    return {
-                        value: genotypes[0],
-                        display: displayText,
-                    };
-                }
-            );
+                );
+            }
         }
         return optionsByCat;
-    }, [species]);
+    }, [species, goalMode]); // Re-run when species OR goalMode changes
 
     const geneCategories = uniqueGeneOptions
         ? Object.keys(uniqueGeneOptions)
@@ -275,7 +249,7 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
                                     {category}
                                 </Label>
                                 <Select
-                                    value={selectedValue}
+                                    value={selectedValue.toString()}
                                     onValueChange={(value) =>
                                         handleGeneChange(category, value)
                                     }
@@ -335,8 +309,7 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
                     {isDeleting ? (
                         <Loader2 className="animate-spin" />
                     ) : (
-                        <Trash2 className="h-4 w-4" /> 
-                        
+                        <Trash2 className="h-4 w-4" />
                     )}
                     Delete
                 </Button>

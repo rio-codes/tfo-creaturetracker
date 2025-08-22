@@ -4414,8 +4414,8 @@ export const speciesGenes = {
 export const structuredGeneData = {
     "Abomena Pahidermo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Blue (purple feet)" },
@@ -4435,8 +4435,8 @@ export const structuredGeneData = {
     },
     "Alta Koltuko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Evergreen" },
@@ -4456,8 +4456,8 @@ export const structuredGeneData = {
     },
     "Arba Brakumo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Bandicoot" },
@@ -4477,8 +4477,8 @@ export const structuredGeneData = {
     },
     "Arbara Krono": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -4565,8 +4565,8 @@ export const structuredGeneData = {
     },
     "Arda Vosto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Red Belly" },
@@ -4587,8 +4587,8 @@ export const structuredGeneData = {
     },
     "Avka Felo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -4646,8 +4646,8 @@ export const structuredGeneData = {
     },
     "Bera Manganto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Green" },
@@ -4667,8 +4667,8 @@ export const structuredGeneData = {
     },
     "Brila Ornamo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Red Green" },
@@ -4688,8 +4688,8 @@ export const structuredGeneData = {
     },
     "Cielarka Cimo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Carapace: [
             { genotype: "AABB", phenotype: "Black" },
@@ -4756,8 +4756,8 @@ export const structuredGeneData = {
     },
     "Degela Koro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Orange" },
@@ -4777,8 +4777,8 @@ export const structuredGeneData = {
     },
     "Dentega Salto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Eyes: [
             { genotype: "AABB", phenotype: "Red" },
@@ -4944,8 +4944,8 @@ export const structuredGeneData = {
     },
     "Dormema Ventreto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -4994,8 +4994,8 @@ export const structuredGeneData = {
     },
     "Dorna Maco": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Juniper" },
@@ -5038,8 +5038,8 @@ export const structuredGeneData = {
     },
     "Ebena Kuranto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Silver" },
@@ -5305,8 +5305,8 @@ export const structuredGeneData = {
     },
     "Ekvinoska Kavigo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Charcoal" },
@@ -5435,8 +5435,8 @@ export const structuredGeneData = {
     },
     Etarakido: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Gold" },
@@ -5496,8 +5496,8 @@ export const structuredGeneData = {
     },
     "Flirtanta Flamo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Wings: [
             { genotype: "AABB", phenotype: "Paper Lantern" },
@@ -5540,8 +5540,8 @@ export const structuredGeneData = {
     },
     "Floranta Doloro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Tentacle: [
             { genotype: "AABB", phenotype: "Blue" },
@@ -5579,8 +5579,8 @@ export const structuredGeneData = {
     },
     "Fluganta Rato": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Brown" },
@@ -5629,8 +5629,8 @@ export const structuredGeneData = {
     },
     "Frida Fisisto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Black" },
@@ -5650,8 +5650,8 @@ export const structuredGeneData = {
     },
     "Furioza Vizago": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Orange" },
@@ -5671,8 +5671,8 @@ export const structuredGeneData = {
     },
     "Glacia Alsalto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Snowfire" },
@@ -5721,8 +5721,8 @@ export const structuredGeneData = {
     },
     "Glita Skvamo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Wings: [
             { genotype: "AABB", phenotype: "Blue" },
@@ -5789,8 +5789,8 @@ export const structuredGeneData = {
     },
     Glubleko: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Pink" },
@@ -5828,8 +5828,8 @@ export const structuredGeneData = {
     },
     "Gudra Kornaro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Bronze" },
@@ -5850,8 +5850,8 @@ export const structuredGeneData = {
     },
     "Imsanga Afero": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Outcome: [
             { genotype: "AABBCC", phenotype: "Pug Dog" },
@@ -5885,8 +5885,8 @@ export const structuredGeneData = {
     },
     "Inkuba Brulajo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Striped (tan belly)" },
@@ -5906,8 +5906,8 @@ export const structuredGeneData = {
     },
     "Kasa Gardanto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Claws: [
             { genotype: "AA", phenotype: "Black" },
@@ -6030,8 +6030,8 @@ export const structuredGeneData = {
     },
     "Kauri Makzelo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Gold" },
@@ -6051,8 +6051,8 @@ export const structuredGeneData = {
     },
     "Klara Alsalto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Silver (green eye)" },
@@ -6101,8 +6101,8 @@ export const structuredGeneData = {
     },
     "Klipeta Kapto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Copper" },
@@ -6169,8 +6169,8 @@ export const structuredGeneData = {
     },
     Koleratako: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -6235,8 +6235,8 @@ export const structuredGeneData = {
     },
     "Kora Voko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Daybreak" },
@@ -6314,8 +6314,8 @@ export const structuredGeneData = {
     },
     "Kosmira Girafo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Redbrown" },
@@ -6353,8 +6353,8 @@ export const structuredGeneData = {
     },
     "Kvieta Kiraso": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Dark purple" },
@@ -6473,8 +6473,8 @@ export const structuredGeneData = {
     },
     "Lanuga Vizago": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Gold" },
@@ -6494,8 +6494,8 @@ export const structuredGeneData = {
     },
     "Limaka Cevalo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Silver" },
@@ -6580,8 +6580,8 @@ export const structuredGeneData = {
     },
     "Luma Mordo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Blue" },
@@ -6670,8 +6670,8 @@ export const structuredGeneData = {
     },
     "Luna Hundo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Titan" },
@@ -6750,8 +6750,8 @@ export const structuredGeneData = {
     },
     "Malbenita Beno": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Walnut" },
@@ -6772,8 +6772,8 @@ export const structuredGeneData = {
     },
     "Malvolva Kapo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "White (black wingtips)" },
@@ -6793,8 +6793,8 @@ export const structuredGeneData = {
     },
     "Membra Cerbo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Tan" },
@@ -6814,8 +6814,8 @@ export const structuredGeneData = {
     },
     "Minuskla Casadisto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Pink" },
@@ -6900,8 +6900,8 @@ export const structuredGeneData = {
     },
     "Monta Selo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Green Purple" },
@@ -6939,8 +6939,8 @@ export const structuredGeneData = {
     },
     "Muska Felo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -6998,8 +6998,8 @@ export const structuredGeneData = {
     },
     Muskbirdo: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Gray" },
@@ -7059,8 +7059,8 @@ export const structuredGeneData = {
     },
     "Nebula Glisanto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Powder Blue" },
@@ -7106,8 +7106,8 @@ export const structuredGeneData = {
     },
     "Nektara Veziko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Chartreuse Green" },
@@ -7174,8 +7174,8 @@ export const structuredGeneData = {
     },
     Netimo: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Koi" },
@@ -7213,8 +7213,8 @@ export const structuredGeneData = {
     },
     "Nokta Voko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Moon" },
@@ -7292,8 +7292,8 @@ export const structuredGeneData = {
     },
     "Okula Pikilo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Green (orange abdomen)" },
@@ -7313,8 +7313,8 @@ export const structuredGeneData = {
     },
     "Ombra Vesperto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Light Brown" },
@@ -7363,8 +7363,8 @@ export const structuredGeneData = {
     },
     "Osta Frakaso": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Dark Gray" },
@@ -7467,8 +7467,8 @@ export const structuredGeneData = {
     },
     "Pieda Pastigo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Pine" },
@@ -7489,8 +7489,8 @@ export const structuredGeneData = {
     },
     "Pompaca Floro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -7549,8 +7549,8 @@ export const structuredGeneData = {
     },
     Ranbleko: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Tangerine" },
@@ -7593,8 +7593,8 @@ export const structuredGeneData = {
     },
     "Reganta Plumaro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Brown" },
@@ -7706,8 +7706,8 @@ export const structuredGeneData = {
     },
     "Rida Frakaso": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Black" },
@@ -7810,8 +7810,8 @@ export const structuredGeneData = {
     },
     Ruzafolio: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Red" },
@@ -7832,8 +7832,8 @@ export const structuredGeneData = {
     },
     "Sabla Rego": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Firelit" },
@@ -7853,8 +7853,8 @@ export const structuredGeneData = {
     },
     Saltanta: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Orangebrown" },
@@ -7903,8 +7903,8 @@ export const structuredGeneData = {
     },
     "Sauma Kudrilo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Bronze" },
@@ -8041,8 +8041,8 @@ export const structuredGeneData = {
     },
     "Sencesa Simfonio": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Dark" },
@@ -8171,8 +8171,8 @@ export const structuredGeneData = {
     },
     "Senfina Krizo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "White" },
@@ -8322,8 +8322,8 @@ export const structuredGeneData = {
     },
     "Senvida Naganto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Dark Copper" },
@@ -8361,8 +8361,8 @@ export const structuredGeneData = {
     },
     "Silenta Spuristo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Sunset" },
@@ -8411,8 +8411,8 @@ export const structuredGeneData = {
     },
     "Songa Kreinto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Gold" },
@@ -8432,8 +8432,8 @@ export const structuredGeneData = {
     },
     "Stepa Safido": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Dusk" },
@@ -8750,8 +8750,8 @@ export const structuredGeneData = {
     },
     "Stranga Sciuro": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Base: [
             { genotype: "AABB", phenotype: "Dark Gray" },
@@ -8789,8 +8789,8 @@ export const structuredGeneData = {
     },
     Strigosto: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Green (green eyes)" },
@@ -8810,8 +8810,8 @@ export const structuredGeneData = {
     },
     "Suna Hundo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Orange" },
@@ -8890,8 +8890,8 @@ export const structuredGeneData = {
     },
     Tagalo: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black" },
@@ -8923,8 +8923,8 @@ export const structuredGeneData = {
     },
     "Tagluma Valso": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Cloud" },
@@ -9002,8 +9002,8 @@ export const structuredGeneData = {
     },
     "Tera Girafo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Black Dappled" },
@@ -9041,8 +9041,8 @@ export const structuredGeneData = {
     },
     "Terura Fisisto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Abyss" },
@@ -9062,8 +9062,8 @@ export const structuredGeneData = {
     },
     "Timiga Dancanto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Abdomen: [
             { genotype: "AA", phenotype: "Green" },
@@ -9083,8 +9083,8 @@ export const structuredGeneData = {
     },
     "Toksa Muko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AA", phenotype: "Ember" },
@@ -9104,8 +9104,8 @@ export const structuredGeneData = {
     },
     Tonbleko: {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Pink" },
@@ -9143,8 +9143,8 @@ export const structuredGeneData = {
     },
     "Transira Alsalto": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Snowfire" },
@@ -9193,8 +9193,8 @@ export const structuredGeneData = {
     },
     "Vetura Oazo": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABB", phenotype: "Light Blue" },
@@ -9254,8 +9254,8 @@ export const structuredGeneData = {
     },
     "Vira Beko": {
         Gender: [
-            { genotype: "Male", phenotype: "None" },
-            { genotype: "Female", phenotype: "None" },
+            { genotype: "Male", phenotype: "Male" },
+            { genotype: "Female", phenotype: "Female" },
         ],
         Body: [
             { genotype: "AABBCC", phenotype: "Black White Red" },

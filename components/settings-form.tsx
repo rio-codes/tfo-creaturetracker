@@ -89,10 +89,6 @@ export function SettingsForm({
                 )) {
                     let targetPhenotype: string | undefined;
 
-                    if (category === "Gender") {
-                        continue;
-                    }
-
                     // Intelligently determine the phenotype based on the data structure.
                     if (
                         typeof geneSelection === "object" &&

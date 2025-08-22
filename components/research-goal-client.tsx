@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { ResearchGoal } from '@/types';
+import type { GoalMode, ResearchGoal } from '@/types';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,12 @@ import { AddGoalDialog } from '@/components/add-goal-dialog'
 import { speciesList } from "@/lib/creature-data"
 
 type ResearchGoalClientProps = {
+    goalMode: GoalMode;
     goals: ResearchGoal[];
     totalPages: number;
 };
 
-export function ResearchGoalClient({ initialGoals, totalPages }) {
+export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -31,6 +32,8 @@ export function ResearchGoalClient({ initialGoals, totalPages }) {
     const handleCloseDialog = () => {
         setIsGoalDialogOpen(false);
     };
+
+    console.log("client goal mode: ", goalMode)
 
     const handleFilterChange = useDebouncedCallback((filterName: string, value: string) => {
       const params = new URLSearchParams(searchParams);
@@ -56,6 +59,7 @@ export function ResearchGoalClient({ initialGoals, totalPages }) {
                     + Add New Research Goal
                 </Button>
                 <AddGoalDialog
+                    goalMode={goalMode}
                     isOpen={isGoalDialogOpen}
                     onClose={handleCloseDialog}
                 />
@@ -94,7 +98,7 @@ export function ResearchGoalClient({ initialGoals, totalPages }) {
               {initialGoals.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   {initialGoals.map((goal) => (
-                    <ResearchGoalCard key={goal.id} goal={goal} />
+                    <ResearchGoalCard key={goal.id} goalMode={goalMode} goal={goal} />
                   ))}
                 </div>
               ) : (

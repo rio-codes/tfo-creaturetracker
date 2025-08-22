@@ -1,6 +1,10 @@
 import { fetchFilteredResearchGoals } from "@/lib/data";
+import { users } from "@/src/db/schema"
 import { ResearchGoalClient } from "@/components/research-goal-client"
 import { Suspense } from "react";
+import { db } from "@/src/db"
+import { auth } from "@/auth"
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +21,13 @@ export default async function ResearchGoalsPage({
     const query = searchParams?.query;
     const species = searchParams?.species;
 
+    const session = await auth();
+    const userId = session?.user?.id
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const goalMode = user.goalMode
+    console.log(goalMode)
+
+
     const { goals, totalPages } = await fetchFilteredResearchGoals(
         currentPage,
         query,
@@ -28,6 +39,7 @@ export default async function ResearchGoalsPage({
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading goals...</div>}>
                     <ResearchGoalClient
+                        goalMode={goalMode}
                         initialGoals={goals}
                         totalPages={totalPages}
                     />

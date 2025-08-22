@@ -9,18 +9,18 @@ import type { ResearchGoal } from "@/types/index";
 import { EditGoalDialog } from "./edit-goal-dialog";
 
 interface ResearchGoalCardProps {
+    goalMode: String;
     goal: ResearchGoal;
 }
 
-export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
+export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
     const router = useRouter();
-    const [isDeleting, setIsDeleting] = useState(false);
     const [isPinned, setIsPinned] = useState(goal.isPinned);
     const [isPinning, setIsPinning] = useState(false);
 
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
-    console.log("Data received by ResearchGoalCard:", goal);
+    console.log("goal mode on card", goalMode)
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -95,12 +95,11 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                                             </span>
                                             <div className="pl-2">
                                                 <div>
-                                                    Phenotype: {category ==
-                                                    "Gender" ? "n/a" : geneData.phenotype}
+                                                    Phenotype: {geneData.phenotype}
                                                 </div>
                                                 <div>
                                                     Genotype:{" "}
-                                                    {geneData.isMultiGenotype ? (
+                                                    {goalMode == "phenotype" ? (
                                                         <span className="italic text-gray-500">
                                                             multiple
                                                         </span>
@@ -137,7 +136,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                             Goal Tracker
                         </span>
                     </Button>
-                    <EditGoalDialog goal={goal}>
+                    <EditGoalDialog goalMode={goalMode} goal={goal}>
                         <Button className="bg-dusk-purple text-pompaca-purple h-15 w-30">
                             <span className="text-wrap wrap-normal">
                                 Edit or Delete Goal

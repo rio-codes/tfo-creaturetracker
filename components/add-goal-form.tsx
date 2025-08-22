@@ -66,7 +66,6 @@ export default function CreateGoalForm({ goalMode, onClose }: CreateGoalFormProp
                     phenotype: gene.phenotype,
                 }));
             } else {
-                // PHENOTYPE MODE: De-duplicate by phenotype.
                 const phenotypeMap = new Map<string, string>(); // phenotype -> representative genotype
                 (genes as { genotype: string; phenotype: string }[]).forEach(
                     (gene) => {

@@ -12,13 +12,15 @@ import { EditGoalForm } from "@/components/edit-goal-form"
 import type { ResearchGoal } from "@/types";
 
 type EditGoalDialogProps = {
+    goalMode: String;
     goal: ResearchGoal;
     children: React.ReactNode; // The trigger button
 };
 
-export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
+export function EditGoalDialog({ goalMode, goal, children }: EditGoalDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
 
+    console.log("edit goal mode on dialog", goalMode)
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
@@ -28,7 +30,7 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
                         Edit Research Goal
                     </DialogTitle>
                 </DialogHeader>
-                <EditGoalForm goal={goal} onSuccess={() => setIsOpen(false)} />
+                <EditGoalForm goalMode={goalMode} goal={goal} onSuccess={() => setIsOpen(false)} />
             </DialogContent>
         </Dialog>
     );

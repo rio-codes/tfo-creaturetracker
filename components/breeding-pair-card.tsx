@@ -96,7 +96,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                 <div className="w-full mb-4 align-middle relative">
                     <h3 className="text-xl font-bold mb-3">{pair.pairName}</h3>
                     {/* Parent Details */}
-                    <div className="h-10 text-sm mb-5">
+                    <div className="h-10 text-sm mb-5 wrap-normal">
                         <strong>Male:</strong>{" "}
                         {pair.maleParent.creatureName || "Unnamed"} (
                         {pair.maleParent.code})<br></br>

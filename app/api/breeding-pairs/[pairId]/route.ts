@@ -7,7 +7,10 @@ import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 
 const editPairSchema = z.object({
-    pairName: z.string().min(3, "Pair name must be at least 3 characters."),
+    pairName: z
+        .string()
+        .min(3, "Pair name must be at least 3 characters.")
+        .max(32, "Pair name can not be more than 32 characters."),
     species: z.string().min(1, "Species is required."),
     maleParentId: z.string().uuid("Invalid male parent ID."),
     femaleParentId: z.string().uuid("Invalid female parent ID."),
@@ -41,83 +44,80 @@ export async function PATCH(
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-            const [maleParent, femaleParent] = await Promise.all([
-                db.query.creatures.findFirst({
-                    where: and(
-                        eq(creatures.id, maleParentId),
-                        eq(creatures.userId, session.user.id)
-                    ),
-                }),
-                db.query.creatures.findFirst({
-                    where: and(
-                        eq(creatures.id, femaleParentId),
-                        eq(creatures.userId, session.user.id)
-                    ),
-                }),
-            ]);
+        const [maleParent, femaleParent] = await Promise.all([
+            db.query.creatures.findFirst({
+                where: and(
+                    eq(creatures.id, maleParentId),
+                    eq(creatures.userId, session.user.id)
+                ),
+            }),
+            db.query.creatures.findFirst({
+                where: and(
+                    eq(creatures.id, femaleParentId),
+                    eq(creatures.userId, session.user.id)
+                ),
+            }),
+        ]);
 
-            if (!maleParent || !femaleParent) {
+        if (!maleParent || !femaleParent) {
+            return NextResponse.json(
+                {
+                    error: "One or both selected parents could not be found.",
+                },
+                { status: 404 }
+            );
+        }
+        if (maleParent.gender !== "male" || femaleParent.gender !== "female") {
+            return NextResponse.json(
+                { error: "Parents must be one male and one female." },
+                { status: 400 }
+            );
+        }
+        if (maleParent.growthLevel !== 3 || femaleParent.growthLevel !== 3) {
+            return NextResponse.json(
+                { error: "Only adult creatures can be paired." },
+                { status: 400 }
+            );
+        }
+        if (maleParent.species !== femaleParent.species) {
+            return NextResponse.json(
+                { error: "Parents must be of the same species." },
+                { status: 400 }
+            );
+        }
+
+        if (assignedGoalIds && assignedGoalIds.length > 0) {
+            const goals = await db
+                .select()
+                .from(researchGoals)
+                .where(
+                    and(
+                        inArray(researchGoals.id, assignedGoalIds),
+                        eq(researchGoals.userId, session.user.id)
+                    )
+                );
+            if (goals.length !== assignedGoalIds.length) {
                 return NextResponse.json(
                     {
-                        error: "One or both selected parents could not be found.",
+                        error: "One or more selected goals could not be found.",
                     },
                     { status: 404 }
                 );
             }
-            if (
-                maleParent.gender !== "male" ||
-                femaleParent.gender !== "female"
-            ) {
-                return NextResponse.json(
-                    { error: "Parents must be one male and one female." },
-                    { status: 400 }
-                );
-            }
-            if (
-                maleParent.growthLevel !== 3 ||
-                femaleParent.growthLevel !== 3
-            ) {
-                return NextResponse.json(
-                    { error: "Only adult creatures can be paired." },
-                    { status: 400 }
-                );
-            }
-            if (maleParent.species !== femaleParent.species) {
-                return NextResponse.json(
-                    { error: "Parents must be of the same species." },
-                    { status: 400 }
-                );
-            }
-
-            if (assignedGoalIds && assignedGoalIds.length > 0) {
-                const goals = await db
-                    .select()
-                    .from(researchGoals)
-                    .where(
-                        and(
-                            inArray(researchGoals.id, assignedGoalIds),
-                            eq(researchGoals.userId, session.user.id)
-                        )
-                    );
-                if (goals.length !== assignedGoalIds.length) {
+            for (const goal of goals) {
+                if (
+                    goal.species !== maleParent.species ||
+                    goal.species !== femaleParent.species
+                ) {
                     return NextResponse.json(
                         {
-                            error: "One or more selected goals could not be found.",
+                            error: `The goal "${goal.name}" cannot be assigned to a ${maleParent.species} pair.`,
                         },
-                        { status: 404 }
+                        { status: 400 }
                     );
                 }
-                for (const goal of goals) {
-                    if (goal.species !== maleParent.species || goal.species !== femaleParent.species) {
-                        return NextResponse.json(
-                            {
-                                error: `The goal "${goal.name}" cannot be assigned to a ${maleParent.species} pair.`,
-                            },
-                            { status: 400 }
-                        );
-                    }
-                }
             }
+        }
 
         const result = await db
             .update(breedingPairs)

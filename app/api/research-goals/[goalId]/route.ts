@@ -7,10 +7,13 @@ import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { and, eq } from "drizzle-orm";
-import { structuredGeneData } from "@/lib/creature-data"; 
+import { structuredGeneData } from "@/lib/creature-data";
 
 const editGoalSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters."),
+    name: z
+        .string()
+        .min(3, "Name must be at least 3 characters.")
+        .max(32, "Pair name can not be more than 32 characters."),
     species: z.string().min(1, "Species is required."),
     genes: z.record(z.string(), z.string()),
 });

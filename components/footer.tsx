@@ -5,7 +5,7 @@ export function Footer() {
     return (
         <footer className="items-center h-30 w-full bg-ebena-lavender text-pompaca-purple px-4 py-4 mt-auto inset-shadow-sm inset-shadow-gray-500">
             <div className="flex flex-wrap justify-between text-sm max-w-full">
-                <div>
+                <div className="mb-4 md:mb-0">
                     <span>
                         ©{year} Rio S., licensed under{" "}
                         <a

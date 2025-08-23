@@ -58,7 +58,7 @@ export function PredictionsAccordion({
                                 <div className="font-bold text-lg truncate">
                                     {p.pairName}
                                 </div>
-                                <div className="font-normal text-sm text-dusk-purple truncate">
+                                <div className="font-normal text-sm text-dusk-purple wrap-anywhere">
                                     {p.maleParent.creatureName}
                                     {" ("}{p.maleParent.code})
                                     {" x "}{p.femaleParent.creatureName}

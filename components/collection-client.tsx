@@ -203,16 +203,16 @@ export function CollectionClient({
                             allGoals={allGoals}
                         />
                     ))}
-                </div>
-                ) : (
-                <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
-                    <h2 className="text-2xl font-semibold text-pompaca-purple">
-                        No Creatures Found
-                    </h2>
-                    <p className="text-dusk-purple mt-2">
-                        Try adjusting your filters or use the button above to
-                        sync your collection.
-                    </p>
+                    ) : (
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple">
+                            No Creatures Found
+                        </h2>
+                        <p className="text-dusk-purple mt-2">
+                            Try adjusting your filters or use the button above
+                            to sync your collection.
+                        </p>
+                    </div>
                 </div>
                 ){/* Pagination */}
                 <div className="flex justify-center">

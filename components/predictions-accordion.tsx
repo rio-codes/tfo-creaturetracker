@@ -80,7 +80,7 @@ export function PredictionsAccordion({
                                         </div>
                                     </div>
                                     <div
-                                        className={`text-center font-black text-md ${
+                                        className={`text-center px-2 text-md ${
                                             p.isPossible
                                                 ? "text-green-600"
                                                 : "text-red-500"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Trash2, Loader2 } from "lucide-react";
-import type { Creature } from "@/types";
+import type { Creature, ResearchGoal } from "@/types";
 
 type BreedingPairWithDetails = {
     id: string;
@@ -20,11 +20,13 @@ type BreedingPairWithDetails = {
     maleParent: Creature;
     femaleParent: Creature;
 };
+type Prediction = { goalId: string; goalName: string; averageChance: number };
 
-type ManageBreedingPairsFormProps = {
+type ManagePairsFormProps = {
     baseCreature: Creature;
     allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
+    allGoals: ResearchGoal[]; // Now needs all goals
     onActionComplete: () => void;
 };
 
@@ -32,8 +34,9 @@ export function ManageBreedingPairsForm({
     baseCreature,
     allCreatures,
     allPairs,
+    allGoals,
     onActionComplete,
-}: ManageBreedingPairsFormProps) {
+}: ManagePairsFormProps) {
     const router = useRouter();
     const [newPairName, setNewPairName] = useState("");
     const [selectedMateId, setSelectedMateId] = useState<string | undefined>(
@@ -41,6 +44,10 @@ export function ManageBreedingPairsForm({
     );
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // State for predictions
+    const [predictions, setPredictions] = useState<Prediction[]>([]);
+    const [isPredictionLoading, setIsPredictionLoading] = useState(false);
 
     const existingPairs = useMemo(
         () =>
@@ -51,6 +58,68 @@ export function ManageBreedingPairsForm({
             ),
         [allPairs, baseCreature]
     );
+
+    // Filter suitable mates and goals
+    const suitableMates = useMemo(() => {
+        const pairedCreatureIds = new Set(
+            allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
+        );
+        return allCreatures.filter(
+            (c) =>
+                c.id !== baseCreature.id &&
+                c.species === baseCreature.species &&
+                c.gender !== baseCreature.gender &&
+                c.growthLevel === 3 &&
+                !pairedCreatureIds.has(c.id)
+        );
+    }, [allCreatures, allPairs, baseCreature]);
+
+    const relevantGoals = useMemo(
+        () => allGoals.filter((g) => g.species === baseCreature.species),
+        [allGoals, baseCreature.species]
+    );
+
+    // EFFECT: Fetch predictions whenever a mate is selected
+    useEffect(() => {
+        if (!selectedMateId) {
+            setPredictions([]);
+            return;
+        }
+
+        const fetchPredictions = async () => {
+            setIsPredictionLoading(true);
+            const maleParentId =
+                baseCreature.gender === "male"
+                    ? baseCreature.id
+                    : selectedMateId;
+            const femaleParentId =
+                baseCreature.gender === "female"
+                    ? baseCreature.id
+                    : selectedMateId;
+            const goalIds = relevantGoals.map((g) => g.id);
+
+            try {
+                const response = await fetch("/api/breeding-predictions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        maleParentId,
+                        femaleParentId,
+                        goalIds,
+                    }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                setPredictions(data.predictions);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsPredictionLoading(false);
+            }
+        };
+
+        fetchPredictions();
+    }, [selectedMateId, baseCreature, relevantGoals]);
 
     const handleCreatePair = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,23 +177,10 @@ export function ManageBreedingPairsForm({
             setIsLoading(false);
         }
     };
-    const suitableMates = useMemo(() => {
-        const pairedCreatureIds = new Set(
-            allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
-        );
-        return allCreatures.filter(
-            (c) =>
-                c.id !== baseCreature.id &&
-                c.species === baseCreature.species &&
-                c.gender !== baseCreature.gender &&
-                c.growthLevel === 3 &&
-                !pairedCreatureIds.has(c.id)
-        );
-    }, [allCreatures, allPairs, baseCreature]);
 
     return (
         <div className="space-y-6">
-            {/* Section 1: Existing Pairs */}
+            {/* Existing Pairs */}
             <div>
                 <h4 className="font-bold text-pompaca-purple mb-2">
                     Existing Pairs
@@ -155,7 +211,7 @@ export function ManageBreedingPairsForm({
                 </div>
             </div>
 
-            {/* Section 2: Create New Pair */}
+            {/* Create New Pair */}
             <div>
                 <h4 className="font-bold text-pompaca-purple mb-2">
                     Create New Pair
@@ -193,6 +249,32 @@ export function ManageBreedingPairsForm({
                             )}
                         </SelectContent>
                     </Select>
+
+                    {/* Prediction Display */}
+                    {isPredictionLoading && (
+                        <div className="text-center">
+                            <Loader2 className="animate-spin" />
+                        </div>
+                    )}
+                    {predictions.length > 0 && (
+                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender">
+                            <h5 className="font-bold">
+                                Goal Predictions for this Pairing:
+                            </h5>
+                            {predictions.map((pred) => (
+                                <div
+                                    key={pred.goalId}
+                                    className="flex justify-between"
+                                >
+                                    <span>{pred.goalName}</span>
+                                    <span className="font-mono font-bold">
+                                        {(pred.averageChance * 100).toFixed(2)}%
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     <Button
                         type="submit"

@@ -22,6 +22,7 @@ type ManageBreedingPairsDialogProps = {
     baseCreature: Creature;
     allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
+    allGoals: ResearchGoal[];
     children: React.ReactNode;
 };
 
@@ -29,6 +30,7 @@ export function ManageBreedingPairsDialog({
     baseCreature,
     allCreatures,
     allPairs,
+    allGoals,
     children,
 }: ManageBreedingPairsDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +49,7 @@ export function ManageBreedingPairsDialog({
                     baseCreature={baseCreature}
                     allCreatures={allCreatures}
                     allPairs={allPairs}
+                    allGoals={allGoals}
                     onActionComplete={() => {
                     }}
                 />

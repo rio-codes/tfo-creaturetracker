@@ -1,4 +1,9 @@
-import { fetchFilteredCreatures, getAllCreaturesForUser, getAllBreedingPairsForUser } from "@/lib/data";
+import {
+    fetchFilteredCreatures,
+    getAllCreaturesForUser,
+    getAllBreedingPairsForUser,
+    getAllResearchGoalsForUser,
+} from "@/lib/data";
 import { CollectionClient } from "@/components/collection-client";
 import { Suspense } from "react";
 
@@ -21,16 +26,30 @@ export default async function CollectionPage({
     const species = searchParams?.species;
     const gender = searchParams?.gender;
 
-    const { creatures: paginatedCreatures, totalPages } =
-        await fetchFilteredCreatures(
+    const [
+        { creatures: paginatedCreatures, totalPages },
+        allCreaturesData,
+        allPairsData,
+        allGoalsData, // Fetch the goals
+    ] = await Promise.all([
+        fetchFilteredCreatures(
             currentPage,
             query,
             gender,
             stage,
             species
-        );
-    const allCreaturesData = await getAllCreaturesForUser();
-    const allPairsData = await getAllBreedingPairsForUser();
+        ),
+        getAllCreaturesForUser(),
+        getAllBreedingPairsForUser(),
+        getAllResearchGoalsForUser(), // Add the function call here
+    ]);
+
+    const serializableGoals = allGoalsData.map((goal) => ({
+        ...goal,
+        createdAt: goal.createdAt.toISOString(),
+        updatedAt: goal.updatedAt.toISOString(),
+    }));
+
 
     const serializableCreatures = allCreaturesData.map((creature) => ({
         ...creature,
@@ -61,16 +80,16 @@ export default async function CollectionPage({
         },
     }));
 
-
     return (
         <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
-                        initialCreatures={paginatedCreatures} // The paginated list for the grid
+                        initialCreatures={paginatedCreatures}
                         totalPages={totalPages}
-                        allCreatures={serializableCreatures} // The FULL list for dialogs
-                        allPairs={serializablePairs} // The FULL list for dialogs
+                        allCreatures={serializableCreatures}
+                        allPairs={serializablePairs}
+                        allGoals={serializableGoals} 
                     />
                 </Suspense>
             </div>

@@ -10,19 +10,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import type { BreedingPairWithDetails, Creature } from "@/types/index";
+import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types/index";
 import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
 
 interface CreatureCardProps {
     creature: Creature;
     allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
+    allGoals: ResearchGoal[];
 }
 
 export function CreatureCard({
     creature,
     allCreatures,
     allPairs,
+    allGoals
 }: CreatureCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(creature.isPinned);
@@ -141,6 +143,7 @@ export function CreatureCard({
                         baseCreature={creature}
                         allCreatures={allCreatures}
                         allPairs={allPairs}
+                        allGoals={allGoals}
                     >
                         <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15">
                             <span className="text-wrap wrap-normal">

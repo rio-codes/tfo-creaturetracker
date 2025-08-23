@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import type { BreedingPairWithDetails, Creature } from "@/types";
+import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ type CollectionClientProps = {
     totalPages: number;
     allCreatures: Creature[];
     allPairs: BreedingPairWithDetails[];
+    allGoals: ResearchGoal[];
 };
 
 export function CollectionClient({
@@ -32,6 +33,7 @@ export function CollectionClient({
     totalPages,
     allCreatures,
     allPairs,
+    allGoals,
 }: CollectionClientProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -81,7 +83,6 @@ export function CollectionClient({
                 >
                     + Add or Update Creatures
                 </Button>
-
                 <AddCreaturesDialog
                     isOpen={isSyncDialogOpen}
                     onClose={handleCloseDialog}
@@ -191,32 +192,29 @@ export function CollectionClient({
                         </SelectContent>
                     </Select>
                 </div>
-
                 {/* Creature Grid */}
-                {initialCreatures.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {initialCreatures.map((creature) => (
-                            <CreatureCard
-                                key={creature.id}
-                                creature={creature}
-                                allCreatures={allCreatures}
-                                allPairs={allPairs}
-                            />
-                        ))}
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {initialCreatures.map((creature) => (
+                        <CreatureCard
+                            key={creature.id}
+                            creature={creature}
+                            allCreatures={allCreatures}
+                            allPairs={allPairs}
+                            allGoals={allGoals}
+                        />
+                    ))}
+                </div>
                 ) : (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple">
-                            No Creatures Found
-                        </h2>
-                        <p className="text-dusk-purple mt-2">
-                            Try adjusting your filters or use the button above
-                            to sync your collection.
-                        </p>
-                    </div>
-                )}
-
-                {/* Pagination */}
+                <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
+                    <h2 className="text-2xl font-semibold text-pompaca-purple">
+                        No Creatures Found
+                    </h2>
+                    <p className="text-dusk-purple mt-2">
+                        Try adjusting your filters or use the button above to
+                        sync your collection.
+                    </p>
+                </div>
+                ){/* Pagination */}
                 <div className="flex justify-center">
                     <Pagination totalPages={totalPages} />
                 </div>

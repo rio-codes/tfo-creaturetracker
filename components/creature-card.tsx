@@ -1,7 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronUp, ChevronDown, Trash2, Shuffle, Pin, PinOff } from "lucide-react";
+import {
+    ChevronUp,
+    ChevronDown,
+    Pin,
+    PinOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -17,13 +22,12 @@ interface CreatureCardProps {
 export function CreatureCard({
     creature,
     allCreatures,
-    allPairs
+    allPairs,
 }: CreatureCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(creature.isPinned);
     const [isPinning, setIsPinning] = useState(false);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedCreature, setSelectedCreature] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -44,6 +48,33 @@ export function CreatureCard({
             alert("Could not update pin status. Please try again.");
         } finally {
             setIsPinning(false);
+        }
+    };
+
+    const handleRemoveFromCollection = async () => {
+        if (
+            !window.confirm(
+                `Are you sure you want to remove "${
+                    creature.creatureName || creature.code
+                }" from your collection? This cannot be undone.`
+            )
+        ) {
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`/api/creatures/${creature.id}`, {
+                method: "DELETE",
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to remove the creature.");
+            }
+            router.refresh();
+        } catch (error: any) {
+            alert(error.message); // Show an alert on failure
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -118,12 +149,18 @@ export function CreatureCard({
                         </Button>
                     </ManageBreedingPairsDialog>
                     <Button
-                        disabled
+                        onClick={handleRemoveFromCollection}
                         className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15"
                     >
-                        <span className="text-wrap wrap-normal gap-y-1">
-                            Remove from Collection
-                        </span>
+                        {isDeleting ? (
+                            <span className="text-wrap wrap-normal gap-y-1">
+                                "Removing..."
+                            </span>
+                        ) : (
+                            <span className="text-wrap wrap-normal gap-y-1">
+                                Remove from Collection
+                            </span>
+                        )}
                     </Button>
                 </div>
                 <div className="flex w-full justify-center">

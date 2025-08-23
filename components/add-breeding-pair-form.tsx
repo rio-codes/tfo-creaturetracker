@@ -21,7 +21,6 @@ type AddPairFormProps = {
     baseCreature?: Creature | null;
     initialGoal?: ResearchGoal | null;
     onSuccess: () => void;
-    _tracerId: string;
 };
 
 export function AddPairForm({
@@ -29,8 +28,7 @@ export function AddPairForm({
     allGoals,
     baseCreature,
     initialGoal,
-    onSuccess,
-    _tracerId
+    onSuccess
 }: AddPairFormProps) {
     const router = useRouter();
     const [pairName, setPairName] = useState("");
@@ -45,6 +43,13 @@ export function AddPairForm({
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [selectedSpecies, setSelectedSpecies] = useState<string>("");
+
+    const handleSpeciesChange = (newSpecies: string) => {
+        setSelectedSpecies(newSpecies);
+        setSelectedMaleId(undefined);
+        setSelectedFemaleId(undefined);
+        setSelectedGoalIds([]);
+    };
 
     useEffect(() => {
         if (baseCreature) {
@@ -144,7 +149,7 @@ export function AddPairForm({
             {/* Species Selector */}
             <Select
                 value={selectedSpecies}
-                onValueChange={setSelectedSpecies}
+                onValueChange={handleSpeciesChange}
                 required
             >
                 <SelectTrigger className="bg-ebena-lavender">

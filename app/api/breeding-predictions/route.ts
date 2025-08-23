@@ -4,7 +4,8 @@ import { db } from "@/src/db";
 import { creatures, researchGoals, users } from "@/src/db/schema";
 import { z } from "zod";
 import { and, eq, inArray } from "drizzle-orm";
-import { calculateGeneProbability } from "@/lib/genetics"; // Your genetics engine
+import { calculateGeneProbability } from "@/lib/genetics";
+import { structuredGeneData } from "@/lib/creature-data"; 
 
 const predictionSchema = z.object({
     maleParentId: z.string().uuid(),
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
         }
         const { maleParentId, femaleParentId, goalIds } = validated.data;
 
-        // 1. Fetch all necessary data in parallel
+        // Fetch all necessary data in parallel
         const [user, maleParent, femaleParent, goals] = await Promise.all([
             db.query.users.findFirst({ where: eq(users.id, userId) }),
             db.query.creatures.findFirst({
@@ -65,8 +66,41 @@ export async function POST(req: Request) {
             );
         }
 
-        // 2. Calculate predictions for each goal
-        const predictions = goals.map((goal) => {
+        const enrichedGoals = goals.map((goal) => {
+            const enrichedGenes: { [key: string]: any } = {};
+            const speciesGeneData = structuredGeneData[goal.species];
+            if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
+
+            for (const [category, selection] of Object.entries(goal.genes)) {
+                let finalGenotype: string, finalPhenotype: string;
+                if (
+                    typeof selection === "object" &&
+                    selection.phenotype &&
+                    selection.genotype
+                ) {
+                    finalGenotype = selection.genotype;
+                    finalPhenotype = selection.phenotype;
+                } else if (typeof selection === "string") {
+                    finalGenotype = selection;
+                    const categoryData = speciesGeneData[category] as {
+                        genotype: string;
+                        phenotype: string;
+                    }[];
+                    const matchedGene = categoryData?.find(
+                        (g) => g.genotype === finalGenotype
+                    );
+                    finalPhenotype = matchedGene?.phenotype || "Unknown";
+                } else continue;
+                enrichedGenes[category] = {
+                    genotype: finalGenotype,
+                    phenotype: finalPhenotype,
+                };
+            }
+            return { ...goal, genes: enrichedGenes };
+        });
+
+        // Calculate predictions for each goal
+        const predictions = enrichedGoals.map((goal) => {
             let totalChance = 0;
             let geneCount = 0;
             for (const [category, targetGene] of Object.entries(goal.genes)) {

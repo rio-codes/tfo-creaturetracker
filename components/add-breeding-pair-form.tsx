@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Creature, ResearchGoal } from "@/types";
 
@@ -43,6 +44,14 @@ export function AddPairForm({
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [selectedSpecies, setSelectedSpecies] = useState<string>("");
+    const [predictions, setPredictions] = useState<Prediction[]>([]);
+    const [isPredictionLoading, setIsPredictionLoading] = useState(false);
+
+    type Prediction = {
+        goalId: string;
+        goalName: string;
+        averageChance: number;
+    };
 
     const handleSpeciesChange = (newSpecies: string) => {
         setSelectedSpecies(newSpecies);
@@ -94,6 +103,35 @@ export function AddPairForm({
         };
     }, [selectedSpecies, allCreatures, allGoals]);
     
+    useEffect(() => {
+        if (!selectedMaleId || !selectedFemaleId) {
+            setPredictions([]);
+            return;
+        }
+        const fetchPredictions = async () => {
+            setIsPredictionLoading(true);
+            const goalIds = goals.map((g) => g.id);
+            try {
+                const response = await fetch("/api/breeding-predictions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        maleParentId: selectedMaleId,
+                        femaleParentId: selectedFemaleId,
+                        goalIds,
+                    }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                setPredictions(data.predictions);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsPredictionLoading(false);
+            }
+        };
+        fetchPredictions();
+    }, [selectedMaleId, selectedFemaleId, goals]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -211,6 +249,44 @@ export function AddPairForm({
                     ))}
                 </SelectContent>
             </Select>
+
+            {/* Prediction Display */}
+            {isPredictionLoading && (
+                <div className="text-center">
+                    <Loader2 className="animate-spin" />
+                </div>
+            )}
+            {predictions.length > 0 && (
+                <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender">
+                    <h5 className="font-bold">
+                        Goal Predictions for this Pairing:
+                    </h5>
+                    {predictions.map((pred) => (
+                        <div
+                            key={pred.goalId}
+                            className="flex justify-between items-center"
+                        >
+                            <span>{pred.goalName}</span>
+                            <div className="flex items-center gap-4">
+                                <span
+                                    className={`font-semibold text-xs ${
+                                        pred.isPossible
+                                            ? "text-green-600"
+                                            : "text-red-500"
+                                    }`}
+                                >
+                                    {pred.isPossible
+                                        ? "POSSIBLE"
+                                        : "IMPOSSIBLE"}
+                                </span>
+                                <span className="font-mono font-bold w-20 text-right">
+                                    {(pred.averageChance * 100).toFixed(2)}%
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Goal Selector (Multi-select) */}
             {goals.length > 0 && (

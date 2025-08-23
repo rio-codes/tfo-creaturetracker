@@ -20,7 +20,14 @@ type BreedingPairWithDetails = {
     maleParent: Creature;
     femaleParent: Creature;
 };
-type Prediction = { goalId: string; goalName: string; averageChance: number };
+
+type Prediction = {
+    goalId: string;
+    goalName: string;
+    averageChance: number;
+    isPossible: boolean;
+};
+
 
 type ManagePairsFormProps = {
     baseCreature: Creature;
@@ -264,12 +271,28 @@ export function ManageBreedingPairsForm({
                             {predictions.map((pred) => (
                                 <div
                                     key={pred.goalId}
-                                    className="flex justify-between"
+                                    className="flex justify-between items-center"
                                 >
                                     <span>{pred.goalName}</span>
-                                    <span className="font-mono font-bold">
-                                        {(pred.averageChance * 100).toFixed(2)}%
-                                    </span>
+                                    <div className="flex items-center gap-4">
+                                        <span
+                                            className={`font-bold text-xs ${
+                                                pred.isPossible
+                                                    ? "text-green-600"
+                                                    : "text-red-500"
+                                            }`}
+                                        >
+                                            {pred.isPossible
+                                                ? "POSSIBLE"
+                                                : "IMPOSSIBLE"}
+                                        </span>
+                                        <span className="font-mono font-bold w-20 text-right">
+                                            {(pred.averageChance * 100).toFixed(
+                                                2
+                                            )}
+                                            %
+                                        </span>
+                                    </div>
                                 </div>
                             ))}
                         </div>

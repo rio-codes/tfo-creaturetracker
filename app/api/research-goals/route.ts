@@ -14,7 +14,10 @@ interface GenesObject {
 }
 
 const goalSchema = z.object({
-    name: z.string().min(3),
+    name: z
+        .string()
+        .min(3)
+        .max(32, "Pair name can not be more than 32 characters."),
     species: z.string().min(1),
     genes: z.record(
         z.string(),
@@ -32,7 +35,7 @@ export function validateGoalData(species: string, genes: GenesObject) {
     }
 
     for (const [category, selectedGene] of Object.entries(genes)) {
-        const selectedGenotype = selectedGene["genotype"] 
+        const selectedGenotype = selectedGene["genotype"];
         const categoryData = speciesData[category];
         if (!categoryData) {
             throw new Error(
@@ -66,7 +69,10 @@ export async function POST(req: Request) {
         const validatedFields = goalSchema.safeParse(body);
 
         if (!validatedFields.success) {
-            console.error("Zod Validation Failed:", validatedFields.error.flatten());
+            console.error(
+                "Zod Validation Failed:",
+                validatedFields.error.flatten()
+            );
             return NextResponse.json(
                 {
                     error: "Invalid data provided.",

@@ -6,7 +6,10 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 const createPairSchema = z.object({
-    pairName: z.string().min(3, "Pair name must be at least 3 characters."),
+    pairName: z
+        .string()
+        .min(3, "Pair name must be at least 3 characters.")
+        .max(32, "Pair name can not be more than 32 characters."),
     species: z.string().min(1, "Species is required."),
     maleParentId: z.string().uuid("Invalid male parent ID."),
     femaleParentId: z.string().uuid("Invalid female parent ID."),

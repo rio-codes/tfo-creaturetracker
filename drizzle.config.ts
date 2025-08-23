@@ -7,6 +7,6 @@ export default {
     out: './src/db/migrations',
     dialect: 'postgresql',
     dbCredentials: {
-        url: process.env.POSTGRES_URL!, 
+        url: process.env.DEFAULT_POSTGRES_URL!, 
     },
 } satisfies Config;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Creature, ResearchGoal, BreedingPairWithDetails } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -128,9 +129,11 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (
                                                 <div key={goal.id}>
-                                                    <span className="font-bold underline wrap-normal">
-                                                        {goal.name}
-                                                    </span>
+                                                    <Link href={`/research-goals/${goal.id}`}>
+                                                        <span className="font-bold underline wrap-normal">
+                                                            {goal.name}
+                                                        </span>
+                                                    </Link>
                                                 </div>
                                             ))
                                         ) : (

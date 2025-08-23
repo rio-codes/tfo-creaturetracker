@@ -1,9 +1,11 @@
 "use client";
-
+import { useMemo } from "react";
 import type { ResearchGoal, Creature } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PredictionsAccordion } from "@/components/predictions-accordion";
+import { AssignPairDialog } from "@/components/assign-breeding-pair-dialog"
+
 // Define the shape of the prediction data
 type Prediction = {
     pairId: string;
@@ -26,7 +28,11 @@ export function GoalDetailClient({
 }: GoalDetailClientProps) {
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
     const gender = goal.genes["Gender"].phenotype;
-    console.log(gender);
+
+    const assignedPredictions = useMemo(() => {
+        const assignedIds = new Set(goal.assignedPairIds || []);
+        return initialPredictions.filter((p) => assignedIds.has(p.pairId));
+    }, [initialPredictions, goal.assignedPairIds]);
 
     return (
         <div className="space-y-7">
@@ -40,11 +46,16 @@ export function GoalDetailClient({
                     <CardContent className="p-6 grid grid-cols-2 gap-6 items-center">
                         <div className="text-lg font-semibold">
                             <span>Species:</span>{" "}
-                            <span className="text-lg font-normal">{goal.species}</span>
+                            <span className="text-lg font-normal">
+                                {goal.species}
+                            </span>
                         </div>
                         <div className="text-lg font-semibold">
-                                Gender:
-                            <span className="text-lg font-normal"> {gender}</span>
+                            Gender:
+                            <span className="text-lg font-normal">
+                                {" "}
+                                {gender}
+                            </span>
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 pb-1">
@@ -99,14 +110,18 @@ export function GoalDetailClient({
                     <h2 className="text-3xl font-bold text-pompaca-purple">
                         Breeding Pairs
                     </h2>
-                    <Button
-                        disabled
-                        className="bg-ebena-lavender hover:bg-dusk-purple text-dusk-purple"
+                    <AssignPairDialog
+                        goal={goal}
+                        predictions={initialPredictions}
                     >
-                        + Add Breeding Pair
-                    </Button>
+                        <Button
+                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac"
+                        >
+                            Manage Breeding Pairs
+                        </Button>
+                    </AssignPairDialog>
                 </div>
-                <PredictionsAccordion predictions={initialPredictions} />
+                <PredictionsAccordion predictions={assignedPredictions} />
             </div>
 
             <div className="flex w-full justify-center">

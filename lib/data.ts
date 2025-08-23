@@ -7,7 +7,7 @@ import {
     breedingPairs,
 } from "@/src/db/schema";
 import { auth } from "@/auth";
-import { and, ilike, or, eq, desc, count } from "drizzle-orm";
+import { and, ilike, or, eq, desc, count, sql } from "drizzle-orm";
 import type { Creature, ResearchGoal } from "@/types";
 import { calculateGeneProbability } from "./genetics";
 import { structuredGeneData } from "@/lib/creature-data";
@@ -26,7 +26,9 @@ export async function getCreaturesForUser(
         throw new Error("User is not authenticated.");
     }
 
-    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
     const itemsPerPage = user?.collectionItemsPerPage || 12; // Use setting or fallback
     const offset = (currentPage - 1) * itemsPerPage;
 
@@ -41,16 +43,16 @@ export async function getCreaturesForUser(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)
             : undefined,
-].filter(Boolean);
+    ].filter(Boolean);
 
     try {
         // Get the creatures for the current page
@@ -96,7 +98,7 @@ export async function fetchFilteredResearchGoals(
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
-    const goalsPerPage = user?.goalsItemsPerPage || 12; 
+    const goalsPerPage = user?.goalsItemsPerPage || 12;
     const offset = (currentPage - 1) * goalsPerPage;
 
     const conditions = [
@@ -202,7 +204,9 @@ export async function fetchBreedingPairs(currentPage: number) {
     const userId = session?.user?.id;
     if (!userId) throw new Error("Not authenticated.");
 
-    const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
     const pairsPerPage = user?.pairsItemsPerPage || 12; // Use setting or fallback
     const offset = (currentPage - 1) * pairsPerPage;
 
@@ -275,9 +279,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
@@ -474,7 +478,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         const relevantPairs = await db.query.breedingPairs.findMany({
             where: and(
                 eq(breedingPairs.userId, userId),
-                eq(breedingPairs.species, goal.species)
+                eq(breedingPairs.species, goal.species),
             ),
             with: { maleParent: true, femaleParent: true },
         });
@@ -492,7 +496,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                         pair.maleParent,
                         pair.femaleParent,
                         category,
-                        targetGene as any, 
+                        targetGene as any,
                         goalMode
                     );
 
@@ -518,7 +522,13 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
             };
         });
 
-        return { goal: enrichedGoal, predictions };
+        const serializableGoal = {
+            ...enrichedGoal,
+            createdAt: enrichedGoal.createdAt.toISOString(),
+            updatedAt: enrichedGoal.updatedAt.toISOString(),
+        };
+
+        return { goal: serializableGoal, predictions };
     } catch (error) {
         console.error("Database Error: Failed to fetch goal details.", error);
         return { goal: null, predictions: [] };

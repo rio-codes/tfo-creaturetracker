@@ -149,11 +149,6 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                             </span>
                         </Button>
                     </EditGoalDialog>
-                    <Button disabled className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
-                        <span className="text-wrap wrap-normal">
-                            Assign Breeding Pairs
-                        </span>
-                    </Button>
                 </div>
                 <div className="flex w-full justify-center">
                     <span className="text-s text-dusk-purple text-center py-5">

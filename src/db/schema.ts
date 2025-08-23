@@ -31,26 +31,28 @@ export const users = pgTable("user", {
 });
 
 export const accounts = pgTable(
-"account",
-{
-    userId: text("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccount["type"]>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-    isTfoVerified: boolean("is_tfo_verified").default(false).notNull(),
-},
-(account) => ({
-    compoundKey: primaryKey({ columns: [account.provider, account.providerAccountId] }),
-})
+    "account",
+    {
+        userId: text("userId")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        type: text("type").$type<AdapterAccount["type"]>().notNull(),
+        provider: text("provider").notNull(),
+        providerAccountId: text("providerAccountId").notNull(),
+        refresh_token: text("refresh_token"),
+        access_token: text("access_token"),
+        expires_at: integer("expires_at"),
+        token_type: text("token_type"),
+        scope: text("scope"),
+        id_token: text("id_token"),
+        session_state: text("session_state"),
+        isTfoVerified: boolean("is_tfo_verified").default(false).notNull(),
+    },
+    (account) => ({
+        compoundKey: primaryKey({
+            columns: [account.provider, account.providerAccountId],
+        }),
+    })
 );
 
 export const sessions = pgTable("session", {
@@ -81,7 +83,10 @@ export const passwordResetTokens = pgTable("password_reset_token", {
 });
 
 export const accountVerifications = pgTable("account_verification", {
-    userId: text("user_id").notNull().primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+        .notNull()
+        .primaryKey()
+        .references(() => users.id, { onDelete: "cascade" }),
     creatureCode: text("creature_code").notNull(),
     verificationToken: text("verification_token").notNull(),
     expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
@@ -97,7 +102,12 @@ export const pendingRegistrations = pgTable("pending_registration", {
 });
 
 // Creature Functionality
-export const creatureGenderEnum = pgEnum("gender", ["male", "female", "genderless", "unknown"]);
+export const creatureGenderEnum = pgEnum("gender", [
+    "male",
+    "female",
+    "genderless",
+    "unknown",
+]);
 
 export const creatures = pgTable(
     "creature",
@@ -142,6 +152,7 @@ export const researchGoals = pgTable("research_goal", {
     species: text("species").notNull(),
     imageUrl: text("image_url"),
     genes: jsonb("genes").notNull(),
+    assignedPairIds: jsonb("assigned_pair_ids").$type<string[]>(),
     isPinned: boolean("is_pinned").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -197,6 +208,11 @@ export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
         fields: [breedingPairs.femaleParentId],
         references: [creatures.id],
     }),
+}));
+
+export const researchGoalsRelations = relations(researchGoals, ({ many }) => ({
+    // This is a placeholder for a true many-to-many relationship.
+    // For now, we'll rely on the jsonb column.
 }));
 
 export const achievedGoals = pgTable("achieved_goal", {

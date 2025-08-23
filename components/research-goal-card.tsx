@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Pin, PinOff, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
 
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
 
-    console.log(goal.genes)
+    console.log(goal.genes);
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -132,18 +133,17 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                     </div>
                 </ScrollArea>
 
-                {/* Action Buttons (placeholders for now) */}
+                {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
-                    <Button
-                        disabled
-                        className="bg-dusk-purple text-pompaca-purple h-15 w-30"
-                    >
-                        <span className="text-wrap wrap-normal">
-                            Goal Tracker
-                        </span>
-                    </Button>
+                    <Link href={`/research-goals/${goal.id}`} passHref>
+                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-30">
+                            <span className="text-wrap wrap-normal">
+                                Goal Tracker
+                            </span>
+                        </Button>
+                    </Link>
                     <EditGoalDialog goalMode={goalMode} goal={goal}>
-                        <Button className="bg-dusk-purple text-pompaca-purple h-15 w-30">
+                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-30">
                             <span className="text-wrap wrap-normal">
                                 Edit or Delete Goal
                             </span>

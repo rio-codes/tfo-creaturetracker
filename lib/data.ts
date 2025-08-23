@@ -420,9 +420,56 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         ]);
 
         if (!user) throw new Error("User not found.");
-        if (!goal) throw new Error("Research goal not found.");
+        if (!goal) return { goal: null, predictions: [] };
 
         const goalMode = user.goalMode;
+
+        const enrichedGenes: { [key: string]: any } = {};
+        const speciesGeneData = structuredGeneData[goal.species];
+
+        if (speciesGeneData && goal.genes && typeof goal.genes === "object") {
+            for (const [category, selection] of Object.entries(goal.genes)) {
+                let finalGenotype: string;
+                let finalPhenotype: string;
+
+                if (
+                    typeof selection === "object" &&
+                    selection.phenotype &&
+                    selection.genotype
+                ) {
+                    finalGenotype = selection.genotype;
+                    finalPhenotype = selection.phenotype;
+                } else if (typeof selection === "string") {
+                    finalGenotype = selection;
+                    const categoryData = speciesGeneData[category] as {
+                        genotype: string;
+                        phenotype: string;
+                    }[];
+                    const matchedGene = categoryData?.find(
+                        (g) => g.genotype === finalGenotype
+                    );
+                    finalPhenotype = matchedGene?.phenotype || "Unknown";
+                } else {
+                    continue;
+                }
+
+                let isMulti = false;
+                if (goalMode === "phenotype") {
+                    const categoryData = speciesGeneData[category];
+                    const genotypesForPhenotype = categoryData?.filter(
+                        (g) => g.phenotype === finalPhenotype
+                    );
+                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                }
+
+                enrichedGenes[category] = {
+                    genotype: finalGenotype,
+                    phenotype: finalPhenotype,
+                    isMultiGenotype: isMulti,
+                };
+            }
+        }
+        const enrichedGoal = { ...goal, genes: enrichedGenes };
 
         const relevantPairs = await db.query.breedingPairs.findMany({
             where: and(
@@ -437,21 +484,26 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
             let geneCount = 0;
             const chancesByCategory: { [key: string]: number } = {};
 
-            for (const [category, targetGene] of Object.entries(goal.genes)) {
-                const chance = calculateGeneProbability(
-                    pair.maleParent,
-                    pair.femaleParent,
-                    category,
-                    targetGene as any,
-                    goalMode
-                );
-                chancesByCategory[category] = chance;
-                totalChance += chance;
-                geneCount++;
+            for (const [category, targetGene] of Object.entries(
+                enrichedGoal.genes
+            )) {
+                if (category !== "Gender") {
+                    const chance = calculateGeneProbability(
+                        pair.maleParent,
+                        pair.femaleParent,
+                        category,
+                        targetGene as any, 
+                        goalMode
+                    );
+
+                    chancesByCategory[category] = chance;
+                    totalChance += chance;
+                    geneCount++;
+                }
             }
 
             const averageChance = geneCount > 0 ? totalChance / geneCount : 0;
-            const isPossible = Object.values(chancesByCategory).some(
+            const isPossible = Object.values(chancesByCategory).every(
                 (chance) => chance > 0
             );
 
@@ -466,7 +518,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
             };
         });
 
-        return { goal, predictions };
+        return { goal: enrichedGoal, predictions };
     } catch (error) {
         console.error("Database Error: Failed to fetch goal details.", error);
         return { goal: null, predictions: [] };

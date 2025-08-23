@@ -107,7 +107,7 @@ export function CreatureCard({
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
-                <div className="text-smspace-y-1 ">
+                <div className="text-smspace-y-1 h-30">
                     <div>
                         <strong>Name:</strong> {creature.creatureName}
                     </div>
@@ -121,7 +121,7 @@ export function CreatureCard({
                         <strong>Gender:</strong> {creature.gender}
                     </div>
                 </div>
-                <div>
+                <div className="h-5">
                     <strong>Genotype:</strong>
                 </div>
                 <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">

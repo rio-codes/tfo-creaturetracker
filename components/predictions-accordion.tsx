@@ -49,35 +49,47 @@ export function PredictionsAccordion({
                     value={`item-${index}`}
                     className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender overflow-hidden"
                 >
-                    {/* This is the collapsed, "at-a-glance" view */}
-                    <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple">
-                        <div className="flex items-center justify-between w-full gap-4">
-                            <div className="flex-1 text-left font-bold truncate">
-                                {p.pairName}{" "}
-                                <span className="font-normal text-sm">
-                                    - {p.maleParent.creatureName} (
-                                    {p.maleParent.code}) x{" "}
-                                    {p.femaleParent.creatureName} (
-                                    {p.femaleParent.code})
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-6 text-sm">
-                                <div className="text-center">
-                                    <div className="font-mono text-lg">
-                                        {(p.averageChance * 100).toFixed(2)}%
-                                    </div>
-                                    <div className="text-xs text-dusk-purple">
-                                        Avg. Chance
-                                    </div>
+                    <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple text-left">
+                        {/* Main container for the trigger content */}
+                        {/* It's a column on mobile, and a row on medium screens and up */}
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
+                            {/* Left side: Pair Name and Parents */}
+                            <div className="flex-1 space-y-1">
+                                <div className="font-bold text-lg truncate">
+                                    {p.pairName}
                                 </div>
-                                <div
-                                    className={`text-center font-bold ${
-                                        p.isPossible
-                                            ? "text-green-600"
-                                            : "text-red-500"
-                                    }`}
-                                >
-                                    {p.isPossible ? "POSSIBLE" : "IMPOSSIBLE"}
+                                <div className="font-normal text-sm text-dusk-purple truncate">
+                                    {p.maleParent.creatureName}
+                                    {" ("}{p.maleParent.code})
+                                    {" x "}{p.femaleParent.creatureName}
+                                    {" ("}{p.femaleParent.code})
+                                </div>
+                            </div>
+
+                            {/* Right side: Stats and Button */}
+                            {/* Stacks vertically on mobile with space between, row on desktop */}
+                            <div className="flex flex-col items-stretch gap-y-3 md:flex-row md:items-center md:gap-x-6">
+                                <div className="flex justify-between md:justify-center">
+                                    <div className="text-center">
+                                        <div className="font-mono text-lg">
+                                            {(p.averageChance * 100).toFixed(2)}
+                                            %
+                                        </div>
+                                        <div className="text-xs text-dusk-purple">
+                                            Avg. Chance
+                                        </div>
+                                    </div>
+                                    <div
+                                        className={`text-center font-black text-md ${
+                                            p.isPossible
+                                                ? "text-green-600"
+                                                : "text-red-500"
+                                        }`}
+                                    >
+                                        {p.isPossible
+                                            ? "POSSIBLE"
+                                            : "IMPOSSIBLE"}
+                                    </div>
                                 </div>
                                 <Button
                                     size="sm"
@@ -92,8 +104,8 @@ export function PredictionsAccordion({
                         </div>
                     </AccordionTrigger>
 
-                    {/* This is the expanded, "deep-dive" view */}
-                    <AccordionContent className="p-6 bg-barely-lilac border-2 border-pompaca-purple/30">
+                    {/* Expanded, "deep-dive" view - remains the same */}
+                    <AccordionContent className="p-6 bg-barely-lilac border-t border-pompaca-purple/30">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
                             {Object.entries(p.chancesByCategory).map(
                                 ([category, chance]) => (

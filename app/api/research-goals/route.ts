@@ -16,7 +16,13 @@ interface GenesObject {
 const goalSchema = z.object({
     name: z.string().min(3),
     species: z.string().min(1),
-    genes: z.record(z.string(), z.string()),
+    genes: z.record(
+        z.string(),
+        z.object({
+            genotype: z.string(),
+            phenotype: z.string(),
+        })
+    ),
 });
 
 export function validateGoalData(species: string, genes: GenesObject) {
@@ -25,7 +31,8 @@ export function validateGoalData(species: string, genes: GenesObject) {
         throw new Error(`Invalid species provided: ${species}`);
     }
 
-    for (const [category, selectedGenotype] of Object.entries(genes)) {
+    for (const [category, selectedGene] of Object.entries(genes)) {
+        const selectedGenotype = selectedGene["genotype"] 
         const categoryData = speciesData[category];
         if (!categoryData) {
             throw new Error(
@@ -75,7 +82,14 @@ export async function POST(req: Request) {
         if (!speciesCode)
             throw new Error(`Invalid species provided: ${species}`);
 
-        const tfoImageUrl = constructTfoImageUrl(species, genes);
+        const genotypesForUrl = Object.fromEntries(
+            Object.entries(genes).map(([category, selection]) => [
+                category,
+                selection.genotype,
+            ])
+        );
+
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
 
         let finalImageUrl = "";
 

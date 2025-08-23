@@ -136,19 +136,24 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                 {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
                     <Link href={`/research-goals/${goal.id}`} passHref>
-                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-30">
+                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
                             <span className="text-wrap wrap-normal">
                                 Goal Tracker
                             </span>
                         </Button>
                     </Link>
                     <EditGoalDialog goalMode={goalMode} goal={goal}>
-                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-30">
+                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
                             <span className="text-wrap wrap-normal">
                                 Edit or Delete Goal
                             </span>
                         </Button>
                     </EditGoalDialog>
+                    <Button disabled className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
+                        <span className="text-wrap wrap-normal">
+                            Assign Breeding Pairs
+                        </span>
+                    </Button>
                 </div>
                 <div className="flex w-full justify-center">
                     <span className="text-s text-dusk-purple text-center py-5">

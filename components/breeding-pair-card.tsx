@@ -148,7 +148,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                     <div className="flex w-full gap-2 justify-center text-xs">
                         <Button
                             disabled
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15 "
+                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 "
                         >
                             <span className="text-wrap wrap-normal">
                                 Log Breeding
@@ -159,12 +159,20 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                             allCreatures={allCreatures}
                             allGoals={allGoals}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-15">
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15">
                                 <span className="text-wrap wrap-normal">
                                     Edit or Delete Pair
                                 </span>
                             </Button>
                         </EditBreedingPairDialog>
+                        <Button
+                            disabled
+                            className="bg-emoji-eggplant text-barely-lilac h-15 w-25"
+                        >
+                            <span className="text-wrap wrap-normal">
+                                Assign Research Goals
+                            </span>
+                        </Button>
                     </div>
                     <div className="flex w-full justify-center">
                         <span className="text-xs text-dusk-purple text-center">

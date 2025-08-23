@@ -42,12 +42,16 @@ export function PredictionsAccordion({
     }
 
     return (
-        <Accordion type="single" collapsible className="w-full space-y-2">
+        <Accordion
+            type="single"
+            collapsible
+            className="w-full space-y-2 overflow-y-auto"
+        >
             {predictions.map((p, index) => (
                 <AccordionItem
                     key={p.pairId}
                     value={`item-${index}`}
-                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender overflow-hidden"
+                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender"
                 >
                     <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple text-left">
                         {/* Main container for the trigger content */}
@@ -60,9 +64,11 @@ export function PredictionsAccordion({
                                 </div>
                                 <div className="font-normal text-sm text-dusk-purple wrap-anywhere">
                                     {p.maleParent.creatureName}
-                                    {" ("}{p.maleParent.code})
-                                    {" x "}{p.femaleParent.creatureName}
-                                    {" ("}{p.femaleParent.code})
+                                    {" ("}
+                                    {p.maleParent.code}){" x "}
+                                    {p.femaleParent.creatureName}
+                                    {" ("}
+                                    {p.femaleParent.code})
                                 </div>
                             </div>
 

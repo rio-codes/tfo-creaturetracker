@@ -44,7 +44,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
     };
 
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 h-full">
+        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
                 <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
@@ -115,7 +115,7 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                         {/* Goals Section */}
                         <div>
                             {/* Goal Met? */}
-                            <div className="text-red-500">
+                            <div className="text-red-500 mb-2">
                                 <strong>Goal not met</strong>
                             </div>
                             {/*Assigned Goals */}
@@ -123,8 +123,8 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                 <h4 className="font-bold text-sm">
                                     Assigned Goals:
                                 </h4>
-                                <ScrollArea className="h-15 relative rounded-md border p-4">
-                                    <ul className="list-disc list-inside text-xs py-2 text-pompaca-purple space-y-1 mt-1">
+                                <ScrollArea className="h-15 relative rounded-md border p-1">
+                                    <ul className="list-disc list-inside text-xs py-1 text-pompaca-purple space-y-1 mt-0.5 ml-0.5">
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (
                                                 <div key={goal.id}>
@@ -165,14 +165,6 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                 </span>
                             </Button>
                         </EditBreedingPairDialog>
-                        <Button
-                            disabled
-                            className="bg-emoji-eggplant text-barely-lilac h-15 w-25"
-                        >
-                            <span className="text-wrap wrap-normal">
-                                Assign Research Goals
-                            </span>
-                        </Button>
                     </div>
                     <div className="flex w-full justify-center">
                         <span className="text-xs text-dusk-purple text-center">

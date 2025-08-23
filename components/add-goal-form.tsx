@@ -120,7 +120,7 @@ export default function CreateGoalForm({ goalMode, onClose }: CreateGoalFormProp
             }
             setPreviewImageUrl(data.imageUrl);
         } catch (err: any) {
-            setPreviewError(err.message);
+            setPreviewError(err.error);
         } finally {
             setIsPreviewLoading(false);
         }

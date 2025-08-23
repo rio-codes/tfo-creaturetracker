@@ -193,17 +193,19 @@ export function CollectionClient({
                     </Select>
                 </div>
                 {/* Creature Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {initialCreatures.map((creature) => (
-                        <CreatureCard
-                            key={creature.id}
-                            creature={creature}
-                            allCreatures={allCreatures}
-                            allPairs={allPairs}
-                            allGoals={allGoals}
-                        />
-                    ))}
-                    ) : (
+                {initialCreatures.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        {initialCreatures.map((creature) => (
+                            <CreatureCard
+                                key={creature.id}
+                                creature={creature}
+                                allCreatures={allCreatures}
+                                allPairs={allPairs}
+                                allGoals={allGoals}
+                            />
+                        ))}
+                    </div>
+                ) : (
                     <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
                         <h2 className="text-2xl font-semibold text-pompaca-purple">
                             No Creatures Found
@@ -213,8 +215,8 @@ export function CollectionClient({
                             to sync your collection.
                         </p>
                     </div>
-                </div>
-                ){/* Pagination */}
+                )}
+                {/* Pagination */}
                 <div className="flex justify-center">
                     <Pagination totalPages={totalPages} />
                 </div>

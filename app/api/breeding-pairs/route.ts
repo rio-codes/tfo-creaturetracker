@@ -4,7 +4,7 @@ import { db } from "@/src/db";
 import { breedingPairs, creatures } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { validatePairing } from "@/lib/breeding-rules"; 
+import { validatePairing } from "@/lib/breeding-rules";
 import { and, eq } from "drizzle-orm";
 
 const createPairSchema = z.object({
@@ -26,8 +26,8 @@ export async function POST(req: Request) {
             { status: 401 }
         );
     }
-    
-    const userId = session.user.id
+
+    const userId = session.user.id;
 
     try {
         const body = await req.json();
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
                 { status: 404 }
             );
         }
-        
+
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
             return NextResponse.json(

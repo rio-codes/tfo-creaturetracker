@@ -8,8 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/species-avatar";
-import { Pin, PinOff, X } from "lucide-react"
-import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog"
+import { Pin, PinOff, X } from "lucide-react";
+import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog";
+import { getHybridOffspring } from "@/lib/breeding-rules";
 
 type BreedingPairCardProps = {
     pair: BreedingPairWithDetails;
@@ -17,7 +18,11 @@ type BreedingPairCardProps = {
     allGoals: ResearchGoal[];
 };
 
-export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairCardProps) {
+export function BreedingPairCard({
+    pair,
+    allCreatures,
+    allGoals,
+}: BreedingPairCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair.isPinned);
     const [isPinning, setIsPinning] = useState(false);
@@ -44,12 +49,21 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
         }
     };
 
+    const hybridSpecies = getHybridOffspring(
+        pair.maleParent.species,
+        pair.femaleParent.species
+    );
+
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
                 <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
-                    <SpeciesAvatar species={pair.species} />
+                    {hybridSpecies ? (
+                        <SpeciesAvatar species={hybridSpecies} />
+                    ) : (
+                        <SpeciesAvatar species={pair.species} />
+                    )}
                 </div>
             </div>
 
@@ -129,7 +143,9 @@ export function BreedingPairCard({ pair, allCreatures, allGoals }: BreedingPairC
                                         {pair.assignedGoals.length > 0 ? (
                                             pair.assignedGoals.map((goal) => (
                                                 <div key={goal.id}>
-                                                    <Link href={`/research-goals/${goal.id}`}>
+                                                    <Link
+                                                        href={`/research-goals/${goal.id}`}
+                                                    >
                                                         <span className="font-bold underline wrap-normal">
                                                             {goal.name}
                                                         </span>

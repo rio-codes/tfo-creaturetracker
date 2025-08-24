@@ -53,6 +53,16 @@ export function validatePairing(
     };
 }
 
+export function getHybridOffspring(
+    speciesA: string,
+    speciesB: string
+): string | null {
+    if (speciesA === speciesB) return null;
+    const sortedPairString = [speciesA, speciesB].sort().join("|");
+    return HYBRID_PAIRS.get(sortedPairString) || null;
+}
+
+
 export function findSuitableMates(
     baseCreature: Creature,
     allCreatures: Creature[],

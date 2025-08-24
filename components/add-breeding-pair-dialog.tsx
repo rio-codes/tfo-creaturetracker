@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AddPairForm } from "@/components/add-breeding-pair-form"
-import type { Creature, ResearchGoal } from "@/types";
+import type { SerializedCreature, Creature, ResearchGoal } from "@/types";
 
 type AddBreedingPairDialogProps = {
     isOpen: boolean;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
     baseCreature?: Creature | null;
     initialGoal?: ResearchGoal | null;

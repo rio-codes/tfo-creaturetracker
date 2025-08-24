@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { Creature, ResearchGoal, BreedingPairWithDetails } from "@/types";
+import type { SerializedCreature, ResearchGoal, BreedingPairWithDetails } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { LogBreedingDialog } from "@/components/log-breeding-dialog"
 
 type BreedingPairCardProps = {
     pair: BreedingPairWithDetails;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
 };
 

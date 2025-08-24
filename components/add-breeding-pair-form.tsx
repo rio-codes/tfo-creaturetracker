@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Creature, ResearchGoal } from "@/types";
+import type { SerializedCreature, Creature, ResearchGoal } from "@/types";
 
 type AddPairFormProps = {
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
     baseCreature?: Creature | null;
     initialGoal?: ResearchGoal | null;
@@ -51,6 +51,7 @@ export function AddPairForm({
         goalId: string;
         goalName: string;
         averageChance: number;
+        isPossible: boolean;
     };
 
     const handleSpeciesChange = (newSpecies: string) => {

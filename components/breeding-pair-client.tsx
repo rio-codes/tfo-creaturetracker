@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Creature, ResearchGoal } from "@/types";;
+import type { SerializedCreature, ResearchGoal } from "@/types";;
 import { BreedingPairCard } from "@/components/breeding-pair-card";
 import { Pagination } from "@/components/pagination";
 import { AddBreedingPairDialog } from "@/components/add-breeding-pair-dialog"
@@ -10,7 +10,7 @@ import { BreedingPairWithDetails } from "@/types"
 type BreedingPairsClientProps = {
     initialPairs: BreedingPairWithDetails[];
     totalPages: number;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
 };
 

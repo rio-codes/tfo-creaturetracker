@@ -9,12 +9,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditBreedingPairForm } from "@/components/edit-breeding-pair-form"
-import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types";
+import type { BreedingPairWithDetails, SerializedCreature, ResearchGoal } from "@/types";
 
 
 type EditBreedingPairDialogProps = {
     pair: BreedingPairWithDetails;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
     children: React.ReactNode; 
 };

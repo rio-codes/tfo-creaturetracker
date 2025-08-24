@@ -7,7 +7,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import type { SerializedCreature } from "@/types";
+import type { Creature, SerializedCreature } from "@/types";
 import { LogBreedingDialog } from "@/components/log-breeding-dialog"
 
 // Define the shape of the prediction data
@@ -52,10 +52,9 @@ export function PredictionsAccordion({
             className="w-full space-y-2 overflow-y-auto"
         >
         {predictions.map((p, index) => {
-            // Construct the `pair` object the dialog expects
             const pairForDialog = {
                 id: p.pairId,
-                species: p.maleParent.species, // Species will be the same for both
+                species: p.maleParent.species!,
             };
             return (
                 <AccordionItem

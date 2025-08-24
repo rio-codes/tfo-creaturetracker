@@ -39,9 +39,7 @@ export function LogBreedingForm({
 
     // Filter for potential offspring: same species, growth level 1 (capsule)
     const potentialProgeny = useMemo(() => {
-        return allCreatures.filter(
-            (c) => c.species === pair.species
-        );
+        return allCreatures.filter((c) => c.species === pair.species);
     }, [allCreatures, pair.species]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -77,16 +75,22 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 1 (Optional)</Label>
                 <Select value={progeny1Id} onValueChange={setProgeny1Id}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-barely-lilac">
                         <SelectValue placeholder="Select first offspring..." />
                     </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
+                    <SelectContent className="bg-barely-lilac">
+                        <SelectItem value="none" className="bg-barely-lilac">
+                            None
+                        </SelectItem>
                         {potentialProgeny
                             .filter((p) => p.id !== progeny2Id)
                             .map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                    {c.creatureName || c.code}
+                                <SelectItem
+                                    key={c.id}
+                                    value={c.id}
+                                    className="bg-barely-lilac"
+                                >
+                                    {c.creatureName} ({c.code})
                                 </SelectItem>
                             ))}
                     </SelectContent>
@@ -96,16 +100,18 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 2 (Optional)</Label>
                 <Select value={progeny2Id} onValueChange={setProgeny2Id}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-barely-lilac">
                         <SelectValue placeholder="Select second offspring..." />
                     </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
+                    <SelectContent className="bg-barely-lilac">
+                        <SelectItem value="none" className="bg-barely-lilac">
+                            None
+                        </SelectItem>
                         {potentialProgeny
                             .filter((p) => p.id !== progeny1Id)
                             .map((c) => (
                                 <SelectItem key={c.id} value={c.id}>
-                                    {c.creatureName || c.code}
+                                    {c.creatureName} ({c.code})
                                 </SelectItem>
                             ))}
                     </SelectContent>

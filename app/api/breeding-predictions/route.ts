@@ -103,6 +103,7 @@ export async function POST(req: Request) {
         const predictions = enrichedGoals.map((goal) => {
             let totalChance = 0;
             let geneCount = 0;
+            var isPossible = true;
             for (const [category, targetGene] of Object.entries(goal.genes)) {
                 const chance = calculateGeneProbability(
                     maleParent,
@@ -111,6 +112,9 @@ export async function POST(req: Request) {
                     targetGene as any,
                     user.goalMode
                 );
+                if (chance == 0) {
+                    isPossible = false;
+                }
                 totalChance += chance;
                 geneCount++;
             }
@@ -119,6 +123,7 @@ export async function POST(req: Request) {
                 goalId: goal.id,
                 goalName: goal.name,
                 averageChance,
+                isPossible
             };
         });
 

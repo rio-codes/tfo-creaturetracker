@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Trash2 } from "lucide-react";
-import type { Creature, ResearchGoal } from "@/types";
+import type { SerializedCreature, ResearchGoal } from "@/types";
 
 type BreedingPairWithDetails = {
     id: string;
@@ -27,7 +27,7 @@ type BreedingPairWithDetails = {
 
 type EditBreedingPairFormProps = {
     pair: BreedingPairWithDetails;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     allGoals: ResearchGoal[];
     onSuccess: () => void;
 };

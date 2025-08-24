@@ -31,10 +31,10 @@ export function PredictionsAccordion({
         return (
             <div className="text-center py-10 px-4 bg-ebena-lavender/50 rounded-lg">
                 <h3 className="text-xl font-semibold text-pompaca-purple">
-                    No Relevant Pairs Found
+                    No Assigned Pairs Found
                 </h3>
                 <p className="text-dusk-purple mt-2">
-                    No breeding pairs of this species were found in your
+                    No assigned breeding pairs of this species were found in your
                     collection.
                 </p>
             </div>
@@ -82,7 +82,7 @@ export function PredictionsAccordion({
                                             %
                                         </div>
                                         <div className="text-xs text-dusk-purple">
-                                            Avg. Chance
+                                            Match Score
                                         </div>
                                     </div>
                                     <div

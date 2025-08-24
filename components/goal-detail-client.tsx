@@ -69,9 +69,7 @@ export function GoalDetailClient({
                                     .map(([category, gene]) => (
                                         <div key={category}>
                                             <strong>{category}:</strong>{" "}
-                                            <span className="font-mono">
                                                 {gene.genotype}
-                                            </span>
                                         </div>
                                     ))}
                             </div>

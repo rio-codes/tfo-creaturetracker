@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Trash2, Loader2 } from "lucide-react";
 import type { Creature, ResearchGoal } from "@/types";
+import { findSuitableMates } from "@/lib/breeding-rules"; // Import the new helper
+
 
 type BreedingPairWithDetails = {
     id: string;
@@ -68,18 +70,8 @@ export function ManageBreedingPairsForm({
 
     // Filter suitable mates and goals
     const suitableMates = useMemo(() => {
-        const pairedCreatureIds = new Set(
-            allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
-        );
-        return allCreatures.filter(
-            (c) =>
-                c.id !== baseCreature.id &&
-                c.species === baseCreature.species &&
-                c.gender !== baseCreature.gender &&
-                c.growthLevel === 3 &&
-                !pairedCreatureIds.has(c.id)
-        );
-    }, [allCreatures, allPairs, baseCreature]);
+        return findSuitableMates(baseCreature, allCreatures, allPairs);
+    }, [baseCreature, allCreatures, allPairs]);
 
     const relevantGoals = useMemo(
         () => allGoals.filter((g) => g.species === baseCreature.species),

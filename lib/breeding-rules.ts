@@ -53,6 +53,7 @@ export function validatePairing(
     };
 }
 
+<<<<<<< HEAD
 export function getHybridOffspring(
     speciesA: string,
     speciesB: string
@@ -63,6 +64,8 @@ export function getHybridOffspring(
 }
 
 
+=======
+>>>>>>> ec9c501 (adding breeding rule validation for #29)
 export function findSuitableMates(
     baseCreature: Creature,
     allCreatures: Creature[],

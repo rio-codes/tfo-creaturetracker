@@ -11,6 +11,7 @@ import { SpeciesAvatar } from "@/components/species-avatar";
 import { Pin, PinOff, X } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
+import { LogBreedingDialog } from "@/components/log-breeding-dialog"
 
 type BreedingPairCardProps = {
     pair: BreedingPairWithDetails;
@@ -165,14 +166,15 @@ export function BreedingPairCard({
                 {/*Buttons*/}
                 <div className="object-bottom h-20">
                     <div className="flex w-full gap-2 justify-center text-xs">
+                    <LogBreedingDialog pair={pair} allCreatures={allCreatures}>
                         <Button
-                            disabled
                             className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 "
                         >
                             <span className="text-wrap wrap-normal">
                                 Log Breeding
                             </span>
                         </Button>
+                        </LogBreedingDialog>
                         <EditBreedingPairDialog
                             pair={pair}
                             allCreatures={allCreatures}

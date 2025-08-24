@@ -3,17 +3,16 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { LogBreedingForm } from '@/components/log-breeding-form';
-import type { Creature } from '@/types';
+import type { SerializedCreature } from '@/types';
 
 type BreedingPair = {
     id: string;
     species: string;
-    // Add other necessary pair properties
 };
 
 type LogBreedingDialogProps = {
   pair: BreedingPair;
-  allCreatures: Creature[];
+  allCreatures: SerializedCreature[];
   children: React.ReactNode; // The trigger button
 };
 

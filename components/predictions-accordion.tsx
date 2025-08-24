@@ -7,7 +7,8 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import type { Creature } from "@/types";
+import type { SerializedCreature } from "@/types";
+import { LogBreedingDialog } from "@/components/log-breeding-dialog"
 
 // Define the shape of the prediction data
 type Prediction = {
@@ -22,10 +23,13 @@ type Prediction = {
 
 type PredictionsAccordionProps = {
     predictions: Prediction[];
+    allCreatures: SerializedCreature[];
 };
+
 
 export function PredictionsAccordion({
     predictions,
+    allCreatures
 }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
@@ -47,15 +51,19 @@ export function PredictionsAccordion({
             collapsible
             className="w-full space-y-2 overflow-y-auto"
         >
-            {predictions.map((p, index) => (
+        {predictions.map((p, index) => {
+            // Construct the `pair` object the dialog expects
+            const pairForDialog = {
+                id: p.pairId,
+                species: p.maleParent.species, // Species will be the same for both
+            };
+            return (
                 <AccordionItem
                     key={p.pairId}
                     value={`item-${index}`}
                     className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender"
                 >
                     <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple text-left">
-                        {/* Main container for the trigger content */}
-                        {/* It's a column on mobile, and a row on medium screens and up */}
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
                             {/* Left side: Pair Name and Parents */}
                             <div className="flex-1 space-y-1">
@@ -73,7 +81,6 @@ export function PredictionsAccordion({
                             </div>
 
                             {/* Right side: Stats and Button */}
-                            {/* Stacks vertically on mobile with space between, row on desktop */}
                             <div className="flex flex-col items-stretch gap-y-3 md:flex-row md:items-center md:gap-x-6">
                                 <div className="flex justify-between md:justify-center">
                                     <div className="text-center">
@@ -97,15 +104,17 @@ export function PredictionsAccordion({
                                             : "IMPOSSIBLE"}
                                     </div>
                                 </div>
-                                <Button
-                                    size="sm"
-                                    className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac"
-                                    onClick={(e) => {
-                                        e.stopPropagation(); /* Add log breeding logic here */
-                                    }}
+                                <LogBreedingDialog
+                                    pair={pairForDialog}
+                                    allCreatures={allCreatures}
                                 >
-                                    Log Breeding
-                                </Button>
+                                    <Button
+                                        size="sm"
+                                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac"
+                                    >
+                                        Log Breeding
+                                    </Button>
+                                </LogBreedingDialog>
                             </div>
                         </div>
                     </AccordionTrigger>
@@ -126,9 +135,10 @@ export function PredictionsAccordion({
                                 )
                             )}
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-            ))}
+                        </AccordionContent>
+                    </AccordionItem>
+                );
+            })}
         </Accordion>
     );
 }

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import type { Creature } from "@/types";
+import type { SerializedCreature } from "@/types";
 
 type BreedingPair = {
     id: string;
@@ -22,7 +22,7 @@ type BreedingPair = {
 
 type LogBreedingFormProps = {
     pair: BreedingPair;
-    allCreatures: Creature[];
+    allCreatures: SerializedCreature[];
     onSuccess: () => void;
 };
 export function LogBreedingForm({
@@ -40,7 +40,7 @@ export function LogBreedingForm({
     // Filter for potential offspring: same species, growth level 1 (capsule)
     const potentialProgeny = useMemo(() => {
         return allCreatures.filter(
-            (c) => c.species === pair.species && c.growthLevel === 1
+            (c) => c.species === pair.species
         );
     }, [allCreatures, pair.species]);
 

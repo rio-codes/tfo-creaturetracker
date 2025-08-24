@@ -7,7 +7,7 @@ import {
     breedingPairs,
 } from "@/src/db/schema";
 import { auth } from "@/auth";
-import { and, ilike, or, eq, desc, count, sql } from "drizzle-orm";
+import { and, ilike, or, eq, desc, count } from "drizzle-orm";
 import type { Creature, ResearchGoal } from "@/types";
 import { calculateGeneProbability } from "./genetics";
 import { structuredGeneData } from "@/lib/creature-data";
@@ -43,9 +43,9 @@ export async function getCreaturesForUser(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
@@ -279,9 +279,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,

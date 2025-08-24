@@ -1,10 +1,10 @@
 "use client";
 import { useMemo } from "react";
-import type { DetailedSerializedGoal, Creature } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DetailedSerializedGoal, Creature, SerializedCreature } from "@/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PredictionsAccordion } from "@/components/predictions-accordion";
-import { AssignPairDialog } from "@/components/assign-breeding-pair-dialog"
+import { AssignPairDialog } from "@/components/assign-breeding-pair-dialog";
 
 // Define the shape of the prediction data
 type Prediction = {
@@ -20,11 +20,18 @@ type Prediction = {
 type GoalDetailClientProps = {
     goal: DetailedSerializedGoal;
     initialPredictions: Prediction[];
+    allCreatures: SerializedCreature[];
+};
+
+type PredictionsAccordionProps = {
+    predictions: Prediction[];
+    allCreatures: SerializedCreature[];
 };
 
 export function GoalDetailClient({
     goal,
     initialPredictions,
+    allCreatures,
 }: GoalDetailClientProps) {
     const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
     const gender = goal.genes["Gender"].phenotype;
@@ -69,7 +76,7 @@ export function GoalDetailClient({
                                     .map(([category, gene]) => (
                                         <div key={category}>
                                             <strong>{category}:</strong>{" "}
-                                                {gene.genotype}
+                                            {gene.genotype}
                                         </div>
                                     ))}
                             </div>
@@ -112,14 +119,15 @@ export function GoalDetailClient({
                         goal={goal}
                         predictions={initialPredictions}
                     >
-                        <Button
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac"
-                        >
+                        <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac">
                             Manage Breeding Pairs
                         </Button>
                     </AssignPairDialog>
                 </div>
-                <PredictionsAccordion predictions={assignedPredictions} />
+                <PredictionsAccordion
+                    predictions={assignedPredictions}
+                    allCreatures={allCreatures}
+                />
             </div>
 
             <div className="flex w-full justify-center">

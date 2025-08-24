@@ -32,6 +32,23 @@ export type BreedingPairWithDetails = {
     assignedGoals: ResearchGoal[];
 };
 
+export type SerializedCreature = {
+    createdAt: string;
+    updatedAt: string;
+    gottenAt: string | null;
+    id: string;
+    userId: string;
+    gender: "male" | "female" | "genderless" | "unknown" | null;
+    code: string;
+    creatureName: string | null;
+    imageUrl: string;
+    growthLevel: number | null;
+    isStunted: boolean | null;
+    species: string | null;
+    genetics: string | null;
+    isPinned: boolean;
+}
+
 export type Prediction = {
     pairId: string;
     pairName: string;

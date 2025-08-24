@@ -30,7 +30,7 @@ export default async function CollectionPage({
         { creatures: paginatedCreatures, totalPages },
         allCreaturesData,
         allPairsData,
-        allGoalsData, // Fetch the goals
+        allGoalsData,
     ] = await Promise.all([
         fetchFilteredCreatures(
             currentPage,
@@ -41,7 +41,7 @@ export default async function CollectionPage({
         ),
         getAllCreaturesForUser(),
         getAllBreedingPairsForUser(),
-        getAllResearchGoalsForUser(), // Add the function call here
+        getAllResearchGoalsForUser(),
     ]);
 
     const serializableGoals = allGoalsData.map((goal) => ({

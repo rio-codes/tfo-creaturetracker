@@ -53,19 +53,6 @@ export function validatePairing(
     };
 }
 
-<<<<<<< HEAD
-export function getHybridOffspring(
-    speciesA: string,
-    speciesB: string
-): string | null {
-    if (speciesA === speciesB) return null;
-    const sortedPairString = [speciesA, speciesB].sort().join("|");
-    return HYBRID_PAIRS.get(sortedPairString) || null;
-}
-
-
-=======
->>>>>>> ec9c501 (adding breeding rule validation for #29)
 export function findSuitableMates(
     baseCreature: Creature,
     allCreatures: Creature[],

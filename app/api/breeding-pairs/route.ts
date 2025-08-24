@@ -2,12 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { breedingPairs, creatures } from "@/src/db/schema";
-import { breedingPairs, creatures } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { validatePairing } from "@/lib/breeding-rules"; 
-import { and, eq } from "drizzle-orm";
-import { validatePairing } from "@/lib/breeding-rules";
 import { and, eq } from "drizzle-orm";
 
 const createPairSchema = z.object({
@@ -30,8 +27,6 @@ export async function POST(req: Request) {
         );
     }
     
-    const userId = session.user.id
-
     const userId = session.user.id;
 
     try {
@@ -56,36 +51,6 @@ export async function POST(req: Request) {
             femaleParentId,
             assignedGoalIds,
         } = validated.data;
-
-        const [maleParent, femaleParent] = await Promise.all([
-            db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, maleParentId),
-                    eq(creatures.userId, userId)
-                ),
-            }),
-            db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, femaleParentId),
-                    eq(creatures.userId, userId)
-                ),
-            }),
-        ]);
-
-        if (!maleParent || !femaleParent) {
-            return NextResponse.json(
-                { error: "One or both parents not found." },
-                { status: 404 }
-            );
-        }
-        
-        const pairingValidation = validatePairing(maleParent, femaleParent);
-        if (!pairingValidation.isValid) {
-            return NextResponse.json(
-                { error: pairingValidation.error },
-                { status: 400 }
-            );
-        }
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({

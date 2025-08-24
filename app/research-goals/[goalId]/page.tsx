@@ -2,6 +2,7 @@ import { fetchGoalDetailsAndPredictions } from "@/lib/data";
 import { GoalDetailClient } from "@/components/goal-detail-client";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import type { DetailedSerializedGoal, Prediction } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,11 @@ type PageProps = {
     params: {
         goalId: string;
     };
+};
+
+type GoalDetailClientProps = {
+    goal: DetailedSerializedGoal;
+    initialPredictions: Prediction[];
 };
 
 export default async function GoalDetailPage({ params }: PageProps) {
@@ -30,7 +36,7 @@ export default async function GoalDetailPage({ params }: PageProps) {
                     }
                 >
                     <GoalDetailClient
-                        goal={goal}
+                        goal={goal!}
                         initialPredictions={predictions}
                     />
                 </Suspense>

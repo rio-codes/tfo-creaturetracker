@@ -9,9 +9,6 @@ import { put as vercelBlobPut } from "@vercel/blob";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { structuredGeneData } from "@/lib/creature-data";
 
-interface GenesObject {
-    [key: string]: string;
-}
 
 const goalSchema = z.object({
     name: z
@@ -27,6 +24,8 @@ const goalSchema = z.object({
         })
     ),
 });
+
+type GenesObject = z.infer<typeof goalSchema._zod.output.genes>
 
 export function validateGoalData(species: string, genes: GenesObject) {
     const speciesData = structuredGeneData[species];

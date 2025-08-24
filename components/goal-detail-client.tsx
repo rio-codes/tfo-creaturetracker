@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import type { ResearchGoal, Creature } from "@/types";
+import type { DetailedSerializedGoal, Creature } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PredictionsAccordion } from "@/components/predictions-accordion";
@@ -18,7 +18,7 @@ type Prediction = {
 };
 
 type GoalDetailClientProps = {
-    goal: ResearchGoal;
+    goal: DetailedSerializedGoal;
     initialPredictions: Prediction[];
 };
 

@@ -24,8 +24,7 @@ export default async function ResearchGoalsPage({
     const session = await auth();
     const userId = session?.user?.id
     const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-    const goalMode = user.goalMode
-    console.log(goalMode)
+    const goalMode = user?.goalMode
 
 
     const { goals, totalPages } = await fetchFilteredResearchGoals(

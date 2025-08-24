@@ -9,11 +9,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import type { ResearchGoal, Creature } from "@/types";
+import type { DetailedSerializedGoal, Creature } from "@/types";
 
 type Prediction = {
     pairId: string;
@@ -25,7 +23,7 @@ type Prediction = {
 };
 
 type AssignPairDialogProps = {
-    goal: ResearchGoal;
+    goal: DetailedSerializedGoal;
     predictions: Prediction[];
     children: React.ReactNode;
 };

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
     ChevronUp,
@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types/index";
 import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
+import { structuredGeneData } from "@/lib/creature-data";
 
 interface CreatureCardProps {
     creature: Creature;
@@ -80,6 +81,35 @@ export function CreatureCard({
         }
     };
 
+    const enrichedGenetics = useMemo(() => {
+        if (!creature.genetics || !creature.species) return [];
+
+        const speciesGeneData = structuredGeneData[creature.species];
+        if (!speciesGeneData) return [];
+
+        return creature.genetics
+            .split(",")
+            .map((genePair) => {
+                const [category, genotype] = genePair.split(":");
+                if (!category || !genotype) return null;
+
+                const categoryData = speciesGeneData[category] as {
+                    genotype: string;
+                    phenotype: string;
+                }[];
+                const matchedGene = categoryData?.find(
+                    (g) => g.genotype === genotype
+                );
+
+                return {
+                    category,
+                    genotype,
+                    phenotype: matchedGene?.phenotype || "Unknown",
+                };
+            })
+            .filter(Boolean); // Filter out any null entries from failed parsing
+    }, [creature.genetics, creature.species]);
+
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
             <div className="absolute top-1 right-1 z-10">
@@ -127,7 +157,21 @@ export function CreatureCard({
                 <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
                     <div className="text-sm text-card-foreground space-y-1 ">
                         <div className="whitespace-pre-line pr-4">
-                            {creature.genetics?.replaceAll(",", "\n")}
+                            {enrichedGenetics.length > 0 ? (
+                                <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
+                                    {enrichedGenetics.map((gene) => (
+                                        <div key={gene!.category}>
+                                            <span className="font-bold text-pompaca-purple">{gene!.category}:</span>
+                                            <div className="pl-2">
+                                                <div>Phenotype: {gene!.phenotype}</div>
+                                                <div>Genotype: {gene!.genotype}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                            ) : (
+                                <p>Unknown</p>
+                            )} 
                         </div>
                     </div>
                     <ScrollBar orientation="vertical" />

@@ -1,16 +1,16 @@
 "use client";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-    ChevronUp,
-    ChevronDown,
-    Pin,
-    PinOff,
-} from "lucide-react";
+import Link from "next/link";
+import { ChevronUp, ChevronDown, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types/index";
+import type {
+    BreedingPairWithDetails,
+    Creature,
+    ResearchGoal,
+} from "@/types/index";
 import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
 import { structuredGeneData } from "@/lib/creature-data";
 
@@ -25,7 +25,7 @@ export function CreatureCard({
     creature,
     allCreatures,
     allPairs,
-    allGoals
+    allGoals,
 }: CreatureCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(creature.isPinned);
@@ -161,17 +161,23 @@ export function CreatureCard({
                                 <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
                                     {enrichedGenetics.map((gene) => (
                                         <div key={gene!.category}>
-                                            <span className="font-bold text-pompaca-purple">{gene!.category}:</span>
+                                            <span className="font-bold text-pompaca-purple">
+                                                {gene!.category}:
+                                            </span>
                                             <div className="pl-2">
-                                                <div>Phenotype: {gene!.phenotype}</div>
-                                                <div>Genotype: {gene!.genotype}</div>
+                                                <div>
+                                                    Phenotype: {gene!.phenotype}
+                                                </div>
+                                                <div>
+                                                    Genotype: {gene!.genotype}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
-                            </div>
+                                </div>
                             ) : (
                                 <p>Unknown</p>
-                            )} 
+                            )}
                         </div>
                     </div>
                     <ScrollBar orientation="vertical" />
@@ -211,10 +217,13 @@ export function CreatureCard({
                     </Button>
                 </div>
                 <div className="flex w-full justify-center">
-                    <span className="text-s text-dusk-purple text-center py-5">
-                        Note: Some features are still under development and not
-                        yet available.
-                    </span>
+                    <Link
+                        href={`https://finaloutpost.net/view/${creature.code}`}
+                    >
+                        <span className="mt-3 text-md font-semibold text-dusk-purple text-center py-5">
+                            View on TFO
+                        </span>
+                    </Link>
                 </div>
             </CardContent>
         </Card>

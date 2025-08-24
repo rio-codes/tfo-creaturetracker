@@ -21,8 +21,8 @@ const HYBRID_PAIRS = new Map<string, string>([
 ]);
 
 export function validatePairing(
-    creatureA: { species: string },
-    creatureB: { species: string }
+    creatureA: Creature,
+    creatureB: Creature
 ): { isValid: boolean; error?: string } {
     const speciesA = creatureA.species;
     const speciesB = creatureB.species;
@@ -61,12 +61,25 @@ export function findSuitableMates(
     const pairedCreatureIds = new Set(
         allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
     );
+    console.log(pairedCreatureIds)
 
     return allCreatures.filter((potentialMate) => {
-        if (potentialMate.id === baseCreature.id) return false;
-        if (potentialMate.gender === baseCreature.gender) return false;
-        if (potentialMate.growthLevel !== 3) return false;
-        if (pairedCreatureIds.has(potentialMate.id)) return false;
+        if (potentialMate.id === baseCreature.id) {
+            console.log("Mate ", potentialMate.creatureName, " has same id as base creature");
+            return false;
+        }
+        if (potentialMate.gender === baseCreature.gender) {
+            console.log("Mate ", potentialMate.creatureName, " is same gender");
+            return false;
+            }
+        if (potentialMate.growthLevel !== 3) {
+            console.log("Mate ", potentialMate.creatureName, " is not an adult");
+            return false;
+        };
+        if (pairedCreatureIds.has(potentialMate.id) && pairedCreatureIds.has(baseCreature.id)) {
+            console.log("Mate ", potentialMate.creatureName, " is already paired with ", baseCreature.creatureName);
+            return false;
+        }
 
         const { isValid } = validatePairing(baseCreature, potentialMate);
         return isValid;

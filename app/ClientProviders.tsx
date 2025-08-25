@@ -19,7 +19,7 @@ export default function ClientProviders({
     return (
         <SessionProvider>
             {showHeader && <Header />}
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 isolation-auto">{children}</main>
             <Footer />
         </SessionProvider>
     )

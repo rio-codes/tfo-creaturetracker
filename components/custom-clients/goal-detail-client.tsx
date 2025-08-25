@@ -35,7 +35,6 @@ export function GoalDetailClient({
             <h1 className="text-4xl font-bold text-pompaca-purple">
                 Goal: {goal?.name}
             </h1>
-
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Card className="md:col-span-2 bg-ebena-lavender text-pompaca-purple border-border">
@@ -97,8 +96,8 @@ export function GoalDetailClient({
                     />
                 </Card>
             </div>
-
-            {/* Bottom Section: Breeding Pairs & Predictions */}
+            
+            {/* Bottom Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-3xl font-bold text-pompaca-purple">
@@ -117,8 +116,9 @@ export function GoalDetailClient({
                     predictions={assignedPredictions}
                     allCreatures={allCreatures}
                 />
-            </div>
+            </div>{" "}
 
+            {/* Note Section */}
             <div className="flex w-full justify-center">
                 <span className="text-s text-dusk-purple text-center py-5">
                     Note: Some features are still under development and not yet

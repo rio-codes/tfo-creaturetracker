@@ -187,17 +187,21 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
     const userId = session?.user?.id;
     if (!userId) throw new Error("Not authenticated.");
 
+    const goal = await db.query.researchGoals.findFirst({
+        where: and(
+            eq(researchGoals.id, goalId),
+            eq(researchGoals.userId, userId)
+        ),
+    });
+
     try {
-        const [user, goal, relevantPairs] = await Promise.all([
+        const [user, allPairsForSpecies] = await Promise.all([
             db.query.users.findFirst({ where: eq(users.id, userId) }),
-            db.query.researchGoals.findFirst({
-                where: and(
-                    eq(researchGoals.id, goalId),
-                    eq(researchGoals.userId, userId)
-                ),
-            }),
             db.query.breedingPairs.findMany({
-                where: eq(breedingPairs.userId, userId),
+                where: and(
+                    eq(breedingPairs.userId, userId),
+                    eq(breedingPairs.species, goal?.species)
+                ),
                 with: { maleParent: true, femaleParent: true },
             }),
         ]);
@@ -208,46 +212,50 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         const goalMode = user.goalMode;
         const enrichedGoal = enrichAndSerializeGoal(goal, goalMode);
 
-        const predictions = relevantPairs
-            .filter((pair) => pair.species === goal.species) // Filter pairs by the goal's species
-            .map((pair) => {
-                let totalChance = 0;
-                let geneCount = 0;
-                const chancesByCategory: { [key: string]: number } = {};
+        const predictions = allPairsForSpecies.map((pair) => {
+            const enrichedMaleParent = enrichAndSerializeCreature(
+                pair.maleParent
+            );
+            const enrichedFemaleParent = enrichAndSerializeCreature(
+                pair.femaleParent
+            );
+            let totalChance = 0;
+            let geneCount = 0;
+            const chancesByCategory: { [key: string]: number } = {};
 
-                for (const [category, targetGene] of Object.entries(
-                    enrichedGoal!.genes
-                )) {
-                    const chance = calculateGeneProbability(
-                        pair.maleParent,
-                        pair.femaleParent,
-                        category,
-                        targetGene as any,
-                        goalMode
-                    );
-                    chancesByCategory[category] = chance;
-                    totalChance += chance;
-                    geneCount++;
+            for (const [category, targetGene] of Object.entries(
+                enrichedGoal.genes
+            )) {
+                if (category === "Gender") {
+                    continue;
                 }
-
-                const averageChance =
-                    geneCount > 0 ? totalChance / geneCount : 0;
-                const isPossible = Object.values(chancesByCategory).every(
-                    (chance) => chance > 0
+                const chance = calculateGeneProbability(
+                    enrichedMaleParent,
+                    enrichedFemaleParent,
+                    category,
+                    targetGene as any,
+                    goalMode
                 );
+                chancesByCategory[category] = chance;
+                totalChance += chance;
+                geneCount++;
+            }
 
-                return {
-                    goalId: enrichedGoal?.id,
-                    goalName: enrichedGoal?.name,
-                    pairId: pair.id,
-                    pairName: pair.pairName,
-                    maleParent: enrichAndSerializeCreature(pair.maleParent),
-                    femaleParent: enrichAndSerializeCreature(pair.femaleParent),
-                    chancesByCategory,
-                    averageChance,
-                    isPossible,
-                };
-            });
+            const averageChance = geneCount > 0 ? totalChance / geneCount : 0;
+            const isPossible = Object.values(chancesByCategory).every(
+                (chance) => chance > 0
+            );
+
+            return {
+                pairId: pair.id,
+                pairName: pair.pairName,
+                maleParent: enrichAndSerializeCreature(pair.maleParent),
+                femaleParent: enrichAndSerializeCreature(pair.femaleParent),
+                chancesByCategory,
+                averageChance,
+                isPossible,
+            };
+        });
 
         return { goal: enrichedGoal, predictions };
     } catch (error) {
@@ -255,7 +263,6 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         return { goal: null, predictions: [] };
     }
 }
-
 
 export async function fetchFilteredCreatures(
     currentPage: number,
@@ -285,9 +292,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
         gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,

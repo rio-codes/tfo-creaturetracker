@@ -1,4 +1,4 @@
-import RegistrationFlow from "@/components/registration-flow";
+import RegistrationFlow from "@/components/custom-forms/registration-flow";
 
 export default function RegisterPage() {
     return (

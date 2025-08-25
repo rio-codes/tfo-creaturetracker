@@ -13,16 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import type { SerializedCreature } from "@/types";
-
-type BreedingPair = {
-    id: string;
-    species: string;
-};
+import type { EnrichedCreature, EnrichedBreedingPair } from "@/types";
 
 type LogBreedingFormProps = {
-    pair: BreedingPair;
-    allCreatures: SerializedCreature[];
+    pair: { id: string; species: string };
+    allCreatures: EnrichedCreature[];
     onSuccess: () => void;
 };
 export function LogBreedingForm({
@@ -39,8 +34,8 @@ export function LogBreedingForm({
 
     // Filter for potential offspring: same species, growth level 1 (capsule)
     const potentialProgeny = useMemo(() => {
-        return allCreatures.filter((c) => c.species === pair.species);
-    }, [allCreatures, pair.species]);
+        return allCreatures.filter((c) => c?.species === pair?.species);
+    }, [allCreatures, pair?.species]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,7 +46,7 @@ export function LogBreedingForm({
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    pairId: pair.id,
+                    pairId: pair!.id,
                     progeny1Id: progeny1Id || null,
                     progeny2Id: progeny2Id || null,
                     notes,
@@ -83,14 +78,14 @@ export function LogBreedingForm({
                             None
                         </SelectItem>
                         {potentialProgeny
-                            .filter((p) => p.id !== progeny2Id)
+                            .filter((p) => p?.id !== progeny2Id)
                             .map((c) => (
                                 <SelectItem
-                                    key={c.id}
-                                    value={c.id}
+                                    key={c?.id}
+                                    value={c!.id}
                                     className="bg-barely-lilac"
                                 >
-                                    {c.creatureName} ({c.code})
+                                    {c?.creatureName} ({c?.code})
                                 </SelectItem>
                             ))}
                     </SelectContent>
@@ -108,10 +103,10 @@ export function LogBreedingForm({
                             None
                         </SelectItem>
                         {potentialProgeny
-                            .filter((p) => p.id !== progeny1Id)
+                            .filter((p) => p?.id !== progeny1Id)
                             .map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                    {c.creatureName} ({c.code})
+                                <SelectItem key={c?.id} value={c!.id}>
+                                    {c?.creatureName} ({c?.code})
                                 </SelectItem>
                             ))}
                     </SelectContent>

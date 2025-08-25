@@ -3,20 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { SerializedCreature, ResearchGoal, BreedingPairWithDetails } from "@/types";
+import type { EnrichedCreature, EnrichedBreedingPair, EnrichedResearchGoal} from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { SpeciesAvatar } from "@/components/species-avatar";
+import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
 import { Pin, PinOff, X } from "lucide-react";
-import { EditBreedingPairDialog } from "@/components/edit-breeding-pair-dialog";
+import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
-import { LogBreedingDialog } from "@/components/log-breeding-dialog"
+import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog"
 
 type BreedingPairCardProps = {
-    pair: BreedingPairWithDetails;
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
+    pair: EnrichedBreedingPair;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
 };
 
 export function BreedingPairCard({
@@ -25,7 +25,7 @@ export function BreedingPairCard({
     allGoals,
 }: BreedingPairCardProps) {
     const router = useRouter();
-    const [isPinned, setIsPinned] = useState(pair.isPinned);
+    const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
 
     // Placeholder data for stats
@@ -35,7 +35,7 @@ export function BreedingPairCard({
     const handlePinToggle = async () => {
         setIsPinning(true);
         try {
-            await fetch(`/api/breeding-pairs/${pair.id}/pin`, {
+            await fetch(`/api/breeding-pairs/${pair!.id}/pin`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ isPinned: !isPinned }),
@@ -50,11 +50,14 @@ export function BreedingPairCard({
         }
     };
 
+    const maleParent = pair!.maleParent;
+    const femaleParent = pair!.femaleParent;
     const hybridSpecies = getHybridOffspring(
-        pair.maleParent.species,
-        pair.femaleParent.species
+        maleParent!.species!,
+        femaleParent!.species!
     );
 
+    const pairForDialog = { id: pair!.id, species: pair!.species }
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/* Capsule icon */}
@@ -63,7 +66,9 @@ export function BreedingPairCard({
                     {hybridSpecies ? (
                         <SpeciesAvatar species={hybridSpecies} />
                     ) : (
-                        <SpeciesAvatar species={pair.species} />
+                        <SpeciesAvatar
+                            species={pair!.maleParent!.species!}
+                        />
                     )}
                 </div>
             </div>
@@ -88,21 +93,21 @@ export function BreedingPairCard({
                 {/* Parent Images */}
                 <div className="flex items-center p-4 mb-4">
                     <img
-                        src={pair.maleParent.imageUrl}
+                        src={pair!.maleParent!.imageUrl}
                         alt={
-                            pair.maleParent.creatureName == "Unnamed"
-                                ? pair.maleParent.code
-                                : pair.maleParent.creatureName
+                            pair!.maleParent!.creatureName == "Unnamed"
+                                ? pair!.maleParent!.code
+                                : pair!.maleParent!.creatureName
                         }
                         className="w-30 h-30 object-contain px-5 bg-blue-100 p-1 border-2 border-pompaca-purple rounded-2xl"
                     />
                     <X />
                     <img
-                        src={pair.femaleParent.imageUrl}
+                        src={pair!.femaleParent!.imageUrl}
                         alt={
-                            pair.femaleParent.creatureName == "Unnamed"
-                                ? pair.femaleParent.code
-                                : pair.femaleParent.creatureName
+                            pair!.femaleParent!.creatureName == "Unnamed"
+                                ? pair!.femaleParent!.code
+                                : pair!.femaleParent!.creatureName
                         }
                         className="w-30 h-30 object-contain px-5 bg-pink-100 p-1 border-2 border-pompaca-purple rounded-2xl"
                     />
@@ -110,15 +115,15 @@ export function BreedingPairCard({
 
                 {/* Pair Details */}
                 <div className="w-full mb-4 align-middle relative">
-                    <h3 className="text-xl font-bold mb-3">{pair.pairName}</h3>
+                    <h3 className="text-xl font-bold mb-3">{pair!.pairName}</h3>
                     {/* Parent Details */}
                     <div className="h-10 text-sm mb-5 wrap-normal">
                         <strong>Male:</strong>{" "}
-                        {pair.maleParent.creatureName || "Unnamed"} (
-                        {pair.maleParent.code})<br></br>
+                        {pair!.maleParent!.creatureName || "Unnamed"} (
+                        {pair!.maleParent!.code})<br></br>
                         <strong>Female:</strong>{" "}
-                        {pair.femaleParent.creatureName || "Unnamed"} (
-                        {pair.femaleParent.code})
+                        {pair!.femaleParent!.creatureName || "Unnamed"} (
+                        {pair!.femaleParent!.code})
                     </div>
 
                     <div className="h-40 text-sm">
@@ -141,14 +146,14 @@ export function BreedingPairCard({
                                 </h4>
                                 <ScrollArea className="h-15 relative rounded-md border p-1">
                                     <ul className="list-disc list-inside text-xs py-1 text-pompaca-purple space-y-1 mt-0.5 ml-0.5">
-                                        {pair.assignedGoals.length > 0 ? (
-                                            pair.assignedGoals.map((goal) => (
-                                                <div key={goal.id}>
+                                        {pair!.assignedGoals.length > 0 ? (
+                                            pair!.assignedGoals.map((goal) => (
+                                                <div key={goal?.id}>
                                                     <Link
-                                                        href={`/research-goals/${goal.id}`}
+                                                        href={`/research-goals/${goal?.id}`}
                                                     >
                                                         <span className="font-bold underline wrap-normal">
-                                                            {goal.name}
+                                                            {goal?.name}
                                                         </span>
                                                     </Link>
                                                 </div>
@@ -166,14 +171,15 @@ export function BreedingPairCard({
                 {/*Buttons*/}
                 <div className="object-bottom h-20">
                     <div className="flex w-full gap-2 justify-center text-xs">
-                    <LogBreedingDialog pair={pair} allCreatures={allCreatures}>
-                        <Button
-                            className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 "
+                        <LogBreedingDialog
+                            pair={pairForDialog}
+                            allCreatures={allCreatures}
                         >
-                            <span className="text-wrap wrap-normal">
-                                Log Breeding
-                            </span>
-                        </Button>
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 ">
+                                <span className="text-wrap wrap-normal">
+                                    Log Breeding
+                                </span>
+                            </Button>
                         </LogBreedingDialog>
                         <EditBreedingPairDialog
                             pair={pair}

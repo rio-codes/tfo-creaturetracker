@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { ResearchGoal } from "@/types/index";
-import { EditGoalDialog } from "./edit-goal-dialog";
-import { SpeciesAvatar } from "@/components/species-avatar";
+import { EditGoalDialog } from "../custom-dialogs/edit-goal-dialog";
+import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
 
 interface ResearchGoalCardProps {
     goalMode: String;

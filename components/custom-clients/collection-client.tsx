@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import type { BreedingPairWithDetails, Creature, ResearchGoal } from "@/types";
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -14,18 +14,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { CreatureCard } from "@/components/creature-card";
-import { Pagination } from "@/components/pagination";
+import { CreatureCard } from "@/components/custom-cards/creature-card";
+import { Pagination } from "@/components/misc-custom-components/pagination";
 import { Button } from "@/components/ui/button";
-import { AddCreaturesDialog } from "@/components/add-creatures-dialog";
+import { AddCreaturesDialog } from "@/components/custom-dialogs/add-creatures-dialog";
 import { speciesList } from "@/lib/creature-data";
 
 type CollectionClientProps = {
-    initialCreatures: Creature[];
+    initialCreatures: EnrichedCreature[];
     totalPages: number;
-    allCreatures: Creature[];
-    allPairs: BreedingPairWithDetails[];
-    allGoals: ResearchGoal[];
+    allCreatures: EnrichedCreature[];
+    allPairs: EnrichedBreedingPair[];
+    allGoals: EnrichedResearchGoal[];
 };
 
 export function CollectionClient({
@@ -197,7 +197,7 @@ export function CollectionClient({
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {initialCreatures.map((creature) => (
                             <CreatureCard
-                                key={creature.id}
+                                key={creature?.id}
                                 creature={creature}
                                 allCreatures={allCreatures}
                                 allPairs={allPairs}

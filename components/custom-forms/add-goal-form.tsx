@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { structuredGeneData } from "@/lib/creature-data";
 import { Loader2 } from "lucide-react";
-import { GoalMode } from "@/types"
 
 type GeneOption = {
     value: string;
@@ -22,7 +21,7 @@ type GeneOption = {
 };
 
 type CreateGoalFormProps = {
-    goalMode: GoalMode;
+    goalMode: string;
     onClose: () => void;
 };
 

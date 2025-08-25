@@ -3,20 +3,20 @@
 import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { GoalMode, ResearchGoal } from '@/types';
+import type { EnrichedResearchGoal } from '@/types';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ResearchGoalCard } from '@/components/research-goal-card';
-import { Pagination } from '@/components/pagination';
-import { AddGoalDialog } from '@/components/add-goal-dialog'
+import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
+import { Pagination } from '@/components/misc-custom-components/pagination';
+import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog'
 import { speciesList } from "@/lib/creature-data"
 
 type ResearchGoalClientProps = {
-    goalMode: GoalMode;
-    goals: ResearchGoal[];
+    goalMode: string;
+    goals: EnrichedResearchGoal[];
     totalPages: number;
 };
 
@@ -32,8 +32,6 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
     const handleCloseDialog = () => {
         setIsGoalDialogOpen(false);
     };
-
-    console.log("client goal mode: ", goalMode)
 
     const handleFilterChange = useDebouncedCallback((filterName: string, value: string) => {
       const params = new URLSearchParams(searchParams);

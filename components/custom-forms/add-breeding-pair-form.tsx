@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { SerializedCreature, Creature, ResearchGoal } from "@/types";
+import type { EnrichedCreature, EnrichedResearchGoal, Prediction } from "@/types";
 
 type AddPairFormProps = {
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
-    baseCreature?: Creature | null;
-    initialGoal?: ResearchGoal | null;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
+    baseCreature?: EnrichedCreature | null;
+    initialGoal?: EnrichedResearchGoal | null;
     onSuccess: () => void;
 };
 
@@ -47,13 +47,6 @@ export function AddPairForm({
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
 
-    type Prediction = {
-        goalId: string;
-        goalName: string;
-        averageChance: number;
-        isPossible: boolean;
-    };
-
     const handleSpeciesChange = (newSpecies: string) => {
         setSelectedSpecies(newSpecies);
         setSelectedMaleId(undefined);
@@ -78,7 +71,7 @@ export function AddPairForm({
 
     // Get a unique list of all available species from the creature data
     const availableSpecies = useMemo(
-        () => [...new Set(allCreatures.map((c) => c.species).filter(Boolean))],
+        () => [...new Set(allCreatures.map((c) => c?.species).filter(Boolean))],
         [allCreatures]
     );
 
@@ -90,17 +83,17 @@ export function AddPairForm({
         return {
             males: allCreatures.filter(
                 (c) =>
-                    c.species === selectedSpecies &&
-                    c.gender === "male" &&
-                    c.growthLevel === 3
+                    c?.species === selectedSpecies &&
+                    c?.gender === "male" &&
+                    c?.growthLevel === 3
             ),
             females: allCreatures.filter(
                 (c) =>
-                    c.species === selectedSpecies &&
-                    c.gender === "female" &&
-                    c.growthLevel === 3
+                    c?.species === selectedSpecies &&
+                    c?.gender === "female" &&
+                    c?.growthLevel === 3
             ),
-            goals: allGoals.filter((g) => g.species === selectedSpecies),
+            goals: allGoals.filter((g) => g?.species === selectedSpecies),
         };
     }, [selectedSpecies, allCreatures, allGoals]);
     
@@ -111,7 +104,7 @@ export function AddPairForm({
         }
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
-            const goalIds = goals.map((g) => g.id);
+            const goalIds = goals.map((g) => g?.id);
             try {
                 const response = await fetch("/api/breeding-predictions", {
                     method: "POST",
@@ -198,7 +191,7 @@ export function AddPairForm({
                     {availableSpecies.map((species) => (
                         <SelectItem
                             key={species}
-                            value={species}
+                            value={species!}
                             className="bg-barely-lilac"
                         >
                             {species}
@@ -220,11 +213,11 @@ export function AddPairForm({
                 <SelectContent className="bg-barely-lilac">
                     {males.map((c) => (
                         <SelectItem
-                            key={c.id}
-                            value={c.id}
+                            key={c?.id}
+                            value={c!.id}
                             className="bg-barely-lilac"
                         >
-                            {c.creatureName} ({c.code})
+                            {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -241,11 +234,11 @@ export function AddPairForm({
                 <SelectContent className="bg-barely-lilac">
                     {females.map((c) => (
                         <SelectItem
-                            key={c.id}
-                            value={c.id}
+                            key={c?.id}
+                            value={c!.id}
                             className="bg-barely-lilac"
                         >
-                            {c.creatureName} ({c.code})
+                            {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -296,32 +289,32 @@ export function AddPairForm({
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2">
                         {goals.map((goal) => (
                             <div
-                                key={goal.id}
+                                key={goal?.id}
                                 className="flex items-center space-x-2"
                             >
                                 <Checkbox
-                                    id={goal.id}
-                                    checked={selectedGoalIds.includes(goal.id)}
+                                    id={goal!.id}
+                                    checked={selectedGoalIds.includes(goal!.id)}
                                     onCheckedChange={(checked) => {
                                         if (checked) {
                                             setSelectedGoalIds((prev) => [
                                                 ...prev,
-                                                goal.id,
+                                                goal!.id,
                                             ]);
                                         } else {
                                             setSelectedGoalIds((prev) =>
                                                 prev.filter(
-                                                    (id) => id !== goal.id
+                                                    (id) => id !== goal!.id
                                                 )
                                             );
                                         }
                                     }}
                                 />
                                 <Label
-                                    htmlFor={goal.id}
+                                    htmlFor={goal!.id}
                                     className="font-normal"
                                 >
-                                    {goal.name}
+                                    {goal!.name}
                                 </Label>
                             </div>
                         ))}

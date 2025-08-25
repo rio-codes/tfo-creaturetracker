@@ -2,8 +2,8 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { usePathname } from 'next/navigation'
-import Header from "@/components/header"
-import { Footer } from "@/components/footer"
+import Header from "@/components/custom-layout-elements/header"
+import { Footer } from "@/components/custom-layout-elements/footer"
 
 export default function ClientProviders({
     children,
@@ -19,7 +19,7 @@ export default function ClientProviders({
     return (
         <SessionProvider>
             {showHeader && <Header />}
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 isolation-auto">{children}</main>
             <Footer />
         </SessionProvider>
     )

@@ -1,31 +1,20 @@
 "use client";
 import { useMemo } from "react";
-import type { DetailedSerializedGoal, Creature, SerializedCreature } from "@/types";
+import type { EnrichedCreature, EnrichedResearchGoal, Prediction } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PredictionsAccordion } from "@/components/predictions-accordion";
-import { AssignPairDialog } from "@/components/assign-breeding-pair-dialog";
-
-// Define the shape of the prediction data
-type Prediction = {
-    pairId: string;
-    pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-    chancesByCategory: { [key: string]: number };
-    averageChance: number;
-    isPossible: boolean;
-};
+import { PredictionsAccordion } from "@/components/misc-custom-components/predictions-accordion";
+import { AssignPairDialog } from "@/components/custom-dialogs/assign-breeding-pair-dialog";
 
 type GoalDetailClientProps = {
-    goal: DetailedSerializedGoal;
+    goal: EnrichedResearchGoal;
     initialPredictions: Prediction[];
-    allCreatures: SerializedCreature[];
+    allCreatures: EnrichedCreature[];
 };
 
 type PredictionsAccordionProps = {
     predictions: Prediction[];
-    allCreatures: SerializedCreature[];
+    allCreatures: EnrichedCreature[];
 };
 
 export function GoalDetailClient({
@@ -33,20 +22,19 @@ export function GoalDetailClient({
     initialPredictions,
     allCreatures,
 }: GoalDetailClientProps) {
-    const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
-    const gender = goal.genes["Gender"].phenotype;
+    const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
+    const gender = goal?.genes["Gender"].phenotype;
 
     const assignedPredictions = useMemo(() => {
-        const assignedIds = new Set(goal.assignedPairIds || []);
+        const assignedIds = new Set(goal?.assignedPairIds || []);
         return initialPredictions.filter((p) => assignedIds.has(p.pairId));
-    }, [initialPredictions, goal.assignedPairIds]);
+    }, [initialPredictions, goal?.assignedPairIds]);
 
     return (
         <div className="space-y-7">
             <h1 className="text-4xl font-bold text-pompaca-purple">
-                Goal: {goal.name}
+                Goal: {goal?.name}
             </h1>
-
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Card className="md:col-span-2 bg-ebena-lavender text-pompaca-purple border-border">
@@ -54,7 +42,7 @@ export function GoalDetailClient({
                         <div className="text-lg font-semibold">
                             <span>Species:</span>{" "}
                             <span className="text-lg font-normal">
-                                {goal.species}
+                                {goal?.species}
                             </span>
                         </div>
                         <div className="text-lg font-semibold">
@@ -102,14 +90,14 @@ export function GoalDetailClient({
                 </Card>
                 <Card className="bg-ebena-lavender text-pompaca-purple border-border flex flex-col items-center justify-center p-4">
                     <img
-                        src={goal.imageUrl}
-                        alt={goal.name}
+                        src={goal?.imageUrl}
+                        alt={goal?.name}
                         className="max-w-full max-h-48 object-contain"
                     />
                 </Card>
             </div>
-
-            {/* Bottom Section: Breeding Pairs & Predictions */}
+            
+            {/* Bottom Section */}
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-3xl font-bold text-pompaca-purple">
@@ -128,8 +116,9 @@ export function GoalDetailClient({
                     predictions={assignedPredictions}
                     allCreatures={allCreatures}
                 />
-            </div>
+            </div>{" "}
 
+            {/* Note Section */}
             <div className="flex w-full justify-center">
                 <span className="text-s text-dusk-purple text-center py-5">
                     Note: Some features are still under development and not yet

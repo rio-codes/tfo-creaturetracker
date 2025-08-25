@@ -7,18 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type {
-    BreedingPairWithDetails,
-    Creature,
-    ResearchGoal,
+    EnrichedBreedingPair,
+    EnrichedResearchGoal,
+    EnrichedCreature
 } from "@/types/index";
-import { ManageBreedingPairsDialog } from "./manage-breeding-pairs-dialog";
+import { ManageBreedingPairsDialog } from "../custom-dialogs/manage-breeding-pairs-dialog";
 import { structuredGeneData } from "@/lib/creature-data";
 
 interface CreatureCardProps {
-    creature: Creature;
-    allCreatures: Creature[];
-    allPairs: BreedingPairWithDetails[];
-    allGoals: ResearchGoal[];
+    creature: EnrichedCreature;
+    allCreatures: EnrichedCreature[];
+    allPairs: EnrichedBreedingPair[];
+    allGoals: EnrichedResearchGoal[];
 }
 
 export function CreatureCard({
@@ -28,7 +28,7 @@ export function CreatureCard({
     allGoals,
 }: CreatureCardProps) {
     const router = useRouter();
-    const [isPinned, setIsPinned] = useState(creature.isPinned);
+    const [isPinned, setIsPinned] = useState(creature!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -36,7 +36,7 @@ export function CreatureCard({
         setIsPinning(true);
         const newPinState = !isPinned;
         try {
-            const response = await fetch(`/api/creatures/${creature.id}/pin`, {
+            const response = await fetch(`/api/creatures/${creature!.id}/pin`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ isPinned: newPinState }),
@@ -58,7 +58,7 @@ export function CreatureCard({
         if (
             !window.confirm(
                 `Are you sure you want to remove "${
-                    creature.creatureName || creature.code
+                    creature!.creatureName || creature!.code
                 }" from your collection? This cannot be undone.`
             )
         ) {
@@ -66,7 +66,7 @@ export function CreatureCard({
         }
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/creatures/${creature.id}`, {
+            const response = await fetch(`/api/creatures/${creature!.id}`, {
                 method: "DELETE",
             });
             if (!response.ok) {
@@ -80,35 +80,6 @@ export function CreatureCard({
             setIsDeleting(false);
         }
     };
-
-    const enrichedGenetics = useMemo(() => {
-        if (!creature.genetics || !creature.species) return [];
-
-        const speciesGeneData = structuredGeneData[creature.species];
-        if (!speciesGeneData) return [];
-
-        return creature.genetics
-            .split(",")
-            .map((genePair) => {
-                const [category, genotype] = genePair.split(":");
-                if (!category || !genotype) return null;
-
-                const categoryData = speciesGeneData[category] as {
-                    genotype: string;
-                    phenotype: string;
-                }[];
-                const matchedGene = categoryData?.find(
-                    (g) => g.genotype === genotype
-                );
-
-                return {
-                    category,
-                    genotype,
-                    phenotype: matchedGene?.phenotype || "Unknown",
-                };
-            })
-            .filter(Boolean); // Filter out any null entries from failed parsing
-    }, [creature.genetics, creature.species]);
 
     return (
         <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
@@ -132,23 +103,23 @@ export function CreatureCard({
                 {/* Creature Image */}
                 <div className="rounded-lg p-4 mb-4 flex justify-center">
                     <img
-                        src={creature.imageUrl || "/placeholder.png"}
-                        alt={creature.code + ", " + creature.species}
+                        src={creature!.imageUrl || "/placeholder.png"}
+                        alt={creature!.code + ", " + creature!.species}
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
                 <div className="text-smspace-y-1 h-30">
                     <div>
-                        <strong>Name:</strong> {creature.creatureName}
+                        <strong>Name:</strong> {creature!.creatureName}
                     </div>
                     <div>
-                        <strong>Code:</strong> {creature.code}
+                        <strong>Code:</strong> {creature!.code}
                     </div>
                     <div>
-                        <strong>Species:</strong> {creature.species}
+                        <strong>Species:</strong> {creature!.species}
                     </div>
                     <div>
-                        <strong>Gender:</strong> {creature.gender}
+                        <strong>Gender:</strong> {creature!.gender}
                     </div>
                 </div>
                 <div className="h-5">
@@ -157,9 +128,9 @@ export function CreatureCard({
                 <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
                     <div className="text-sm text-card-foreground space-y-1 ">
                         <div className="whitespace-pre-line pr-4">
-                            {enrichedGenetics.length > 0 ? (
+                            {creature!.geneData ? (
                                 <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
-                                    {enrichedGenetics.map((gene) => (
+                                    {creature!.geneData.map((gene) => (
                                         <div key={gene!.category}>
                                             <span className="font-bold text-pompaca-purple">
                                                 {gene!.category}:
@@ -218,7 +189,7 @@ export function CreatureCard({
                 </div>
                 <div className="flex w-full justify-center">
                     <Link
-                        href={`https://finaloutpost.net/view/${creature.code}`}
+                        href={`https://finaloutpost.net/view/${creature!.code}`}
                     >
                         <span className="mt-3 text-md font-semibold text-dusk-purple text-center py-5">
                             View on TFO

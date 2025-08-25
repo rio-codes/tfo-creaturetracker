@@ -1,6 +1,6 @@
 import { fetchFilteredResearchGoals } from "@/lib/data";
 import { users } from "@/src/db/schema"
-import { ResearchGoalClient } from "@/components/research-goal-client"
+import { ResearchGoalClient } from "@/components/custom-clients/research-goal-client"
 import { Suspense } from "react";
 import { db } from "@/src/db"
 import { auth } from "@/auth"

@@ -1,9 +1,8 @@
 "use client";
-import AddGoalForm from "@/components/add-goal-form";
-import { GoalMode } from "@/types";
+import AddGoalForm from "@/components/custom-forms/add-goal-form";
 
 type DialogProps = {
-    goalMode: GoalMode;
+    goalMode: string;
     isOpen: boolean;
     onClose: () => void;
 };

@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { users, researchGoals } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
-import { SettingsForm } from "@/components/settings-form";
+import { SettingsForm } from "@/components/custom-forms/settings-form";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";

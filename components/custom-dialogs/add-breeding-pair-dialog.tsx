@@ -9,15 +9,15 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AddPairForm } from "@/components/add-breeding-pair-form"
-import type { SerializedCreature, Creature, ResearchGoal } from "@/types";
+import { AddPairForm } from "@/components/custom-forms/add-breeding-pair-form"
+import type { EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
 type AddBreedingPairDialogProps = {
     isOpen: boolean;
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
-    baseCreature?: Creature | null;
-    initialGoal?: ResearchGoal | null;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
+    baseCreature?: EnrichedCreature | null;
+    initialGoal?: EnrichedResearchGoal | null;
     children?: React.ReactNode;
 };
 

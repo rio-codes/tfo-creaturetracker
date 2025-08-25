@@ -1,59 +1,74 @@
-import type { InferSelectModel } from 'drizzle-orm';
-import type { users, creatures, researchGoals } from '@/src/db/schema';
-import { fetchGoalDetailsAndPredictions } from '@/lib/data';
+import type { creatures, researchGoals, breedingPairs } from "@/src/db/schema";
+import type { InferSelectModel } from "drizzle-orm";
 
-export type Creature = InferSelectModel<typeof creatures>;
-export type ResearchGoal = InferSelectModel<typeof researchGoals>;
-export type User = InferSelectModel<typeof users>
-export type GoalMode = typeof users.$inferSelect.goalMode;
+// ============================================================================
+// === DATABASE TYPES =========================================================
+// ============================================================================
+// These types represent the raw data shape directly from the database schema.
+// They include Date objects and raw genetics strings.
 
-export type DetailedSerializedGoal = {
-    createdAt: string;
-    updatedAt: string;
-    genes: {
-        [key: string]: any;
-    };
-    id: string;
-    name: string;
-    userId: string;
-    imageUrl: string | null;
-    species: string;
-    isPinned: boolean;
-    assignedPairIds: string[] | null;
-};
+export type DbCreature = InferSelectModel<typeof creatures>;
+export type DbResearchGoal = InferSelectModel<typeof researchGoals>;
+export type DbBreedingPair = InferSelectModel<typeof breedingPairs>;
 
-export type BreedingPairWithDetails = {
-    id: string;
-    isPinned: boolean;
-    pairName: string;
-    species: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-    assignedGoals: ResearchGoal[];
-};
+// ============================================================================
+// === ENRICHED & SERIALIZED TYPES ============================================
+// ============================================================================
+// These types represent the final, "client-safe" data shape after it has been
+// processed by your data-fetching functions. Dates are strings, and genetics
+// strings are parsed into structured objects.
 
-export type SerializedCreature = {
-    createdAt: string;
-    updatedAt: string;
-    gottenAt: string | null;
-    id: string;
-    userId: string;
-    gender: "male" | "female" | "genderless" | "unknown" | null;
-    code: string;
-    creatureName: string | null;
-    imageUrl: string;
-    growthLevel: number | null;
-    isStunted: boolean | null;
-    species: string | null;
-    genetics: string | null;
-    isPinned: boolean;
-}
+export type EnrichedCreature =
+    | (Omit<DbCreature, "genetics" | "gottenAt" | "createdAt" | "updatedAt"> & {
+            geneData:
+                | {
+                        category: string;
+                        genotype: string;
+                        phenotype: string;
+                    }[]
+                | null;
+            gottenAt: string | null;
+            createdAt: string;
+            updatedAt: string;
+        })
+    | null;
+
+export type EnrichedResearchGoal =
+    | (Omit<DbResearchGoal, "genes" | "createdAt" | "updatedAt"> & {
+            genes: {
+                [key: string]: {
+                    genotype: string;
+                    phenotype: string;
+                    isMultiGenotype: boolean;
+                };
+            };
+            createdAt: string;
+            updatedAt: string;
+        })
+    | null;
+
+export type EnrichedBreedingPair =
+    | (Omit<
+            DbBreedingPair,
+            "createdAt" | "updatedAt" | "maleParent" | "femaleParent"
+        > & {
+            maleParent: EnrichedCreature;
+            femaleParent: EnrichedCreature;
+            assignedGoals: EnrichedResearchGoal[];
+            timesBred: number;
+            progenyCount: number;
+            createdAt: string;
+            updatedAt: string;
+        })
+    | null;
 
 export type Prediction = {
+    goalId: string;
+    goalName: string;
     pairId: string;
     pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
+    maleParent: EnrichedCreature;
+    femaleParent: EnrichedCreature;
     chancesByCategory: { [key: string]: number };
     averageChance: number;
     isPossible: boolean;

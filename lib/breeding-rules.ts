@@ -1,4 +1,4 @@
-import { Creature } from "@/types"
+import { EnrichedCreature } from "@/types"
 const INCOMPATIBLE_SPECIES = new Set(["Imsanga Afero"]);
 
 const COMPATIBLE_PAIRS = new Set([
@@ -21,24 +21,24 @@ const HYBRID_PAIRS = new Map<string, string>([
 ]);
 
 export function validatePairing(
-    creatureA: Creature,
-    creatureB: Creature
+    creatureA: EnrichedCreature,
+    creatureB: EnrichedCreature
 ): { isValid: boolean; error?: string } {
-    const speciesA = creatureA.species;
-    const speciesB = creatureB.species;
 
     if (
-        INCOMPATIBLE_SPECIES.has(speciesA) ||
-        INCOMPATIBLE_SPECIES.has(speciesB)
+        creatureA?.species === "Imsanga Afero" ||
+        creatureB?.species === "Imsanga Afero"
     ) {
         return { isValid: false, error: "Imsanga Afero cannot breed." };
     }
 
-    if (speciesA === speciesB) {
+    if (creatureA?.species === creatureB?.species) {
         return { isValid: true };
     }
 
-    const sortedPairString = [speciesA, speciesB].sort().join("|");
+    const sortedPairString = [creatureA?.species, creatureB?.species]
+        .sort()
+        .join("|");
 
     if (
         COMPATIBLE_PAIRS.has(sortedPairString) ||
@@ -49,7 +49,7 @@ export function validatePairing(
 
     return {
         isValid: false,
-        error: `${speciesA} and ${speciesB} cannot be paired together.`,
+        error: `${creatureA?.species} and ${creatureB?.species} cannot be paired together.`,
     };
 }
 
@@ -64,30 +64,46 @@ export function getHybridOffspring(
 
 
 export function findSuitableMates(
-    baseCreature: Creature,
-    allCreatures: Creature[],
+    baseCreature: EnrichedCreature,
+    allCreatures: EnrichedCreature[],
     allPairs: any[]
-): Creature[] {
+): EnrichedCreature[] {
     const pairedCreatureIds = new Set(
         allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
     );
-    console.log(pairedCreatureIds)
+    console.log(pairedCreatureIds);
 
     return allCreatures.filter((potentialMate) => {
-        if (potentialMate.id === baseCreature.id) {
-            console.log("Mate ", potentialMate.creatureName, " has same id as base creature");
+        if (potentialMate?.id === baseCreature?.id) {
+            console.log(
+                "Mate ",
+                potentialMate?.creatureName,
+                " has same id as base creature"
+            );
             return false;
         }
-        if (potentialMate.gender === baseCreature.gender) {
-            console.log("Mate ", potentialMate.creatureName, " is same gender");
+        if (potentialMate?.gender === baseCreature?.gender) {
+            console.log("Mate ", potentialMate?.creatureName, " is same gender");
             return false;
-            }
-        if (potentialMate.growthLevel !== 3) {
-            console.log("Mate ", potentialMate.creatureName, " is not an adult");
+        }
+        if (potentialMate?.growthLevel !== 3) {
+            console.log(
+                "Mate ",
+                potentialMate?.creatureName,
+                " is not an adult"
+            );
             return false;
-        };
-        if (pairedCreatureIds.has(potentialMate.id) && pairedCreatureIds.has(baseCreature.id)) {
-            console.log("Mate ", potentialMate.creatureName, " is already paired with ", baseCreature.creatureName);
+        }
+        if (
+            pairedCreatureIds.has(potentialMate?.id) &&
+            pairedCreatureIds.has(baseCreature?.id)
+        ) {
+            console.log(
+                "Mate ",
+                potentialMate?.creatureName,
+                " is already paired with ",
+                baseCreature?.creatureName
+            );
             return false;
         }
 

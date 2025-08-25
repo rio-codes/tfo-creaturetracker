@@ -4,7 +4,7 @@ import {
     getAllBreedingPairsForUser,
     getAllResearchGoalsForUser,
 } from "@/lib/data";
-import { CollectionClient } from "@/components/collection-client";
+import { CollectionClient } from "@/components/custom-clients/collection-client";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
@@ -28,68 +28,30 @@ export default async function CollectionPage({
 
     const [
         { creatures: paginatedCreatures, totalPages },
-        allCreaturesData,
-        allPairsData,
-        allGoalsData,
+        allCreatures,
+        allPairs,
+        allGoals,
     ] = await Promise.all([
-        fetchFilteredCreatures(
-            currentPage,
-            query,
-            gender,
-            stage,
-            species
-        ),
+        fetchFilteredCreatures(currentPage, query, gender, stage, species),
         getAllCreaturesForUser(),
         getAllBreedingPairsForUser(),
         getAllResearchGoalsForUser(),
     ]);
 
-    const serializableGoals = allGoalsData.map((goal) => ({
-        ...goal,
-        createdAt: goal.createdAt.toISOString(),
-        updatedAt: goal.updatedAt.toISOString(),
-    }));
-
-
-    const serializableCreatures = allCreaturesData.map((creature) => ({
-        ...creature,
-        createdAt: creature.createdAt.toISOString(),
-        updatedAt: creature.updatedAt.toISOString(),
-        gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
-    }));
-
-    const serializablePairs = allPairsData.map((pair) => ({
-        ...pair,
-        createdAt: pair.createdAt.toISOString(),
-        updatedAt: pair.updatedAt.toISOString(),
-        maleParent: {
-            ...pair.maleParent,
-            createdAt: pair.maleParent.createdAt.toISOString(),
-            updatedAt: pair.maleParent.updatedAt.toISOString(),
-            gottenAt: pair.maleParent.gottenAt
-                ? pair.maleParent.gottenAt.toISOString()
-                : null,
-        },
-        femaleParent: {
-            ...pair.femaleParent,
-            createdAt: pair.femaleParent.createdAt.toISOString(),
-            updatedAt: pair.femaleParent.updatedAt.toISOString(),
-            gottenAt: pair.femaleParent.gottenAt
-                ? pair.femaleParent.gottenAt.toISOString()
-                : null,
-        },
-    }));
-
     return (
         <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
+                <h1 className="text-4xl font-bold text-pompaca-purple mb-8">
+                    Collection
+                </h1>
                 <Suspense fallback={<div>Loading collection...</div>}>
+                    {/* 3. Pass the data directly to the client component. */}
                     <CollectionClient
                         initialCreatures={paginatedCreatures}
                         totalPages={totalPages}
-                        allCreatures={serializableCreatures}
-                        allPairs={serializablePairs}
-                        allGoals={serializableGoals} 
+                        allCreatures={allCreatures}
+                        allPairs={allPairs}
+                        allGoals={allGoals}
                     />
                 </Suspense>
             </div>

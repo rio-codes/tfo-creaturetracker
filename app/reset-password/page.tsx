@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import ResetPasswordForm from '@/components/reset-password-form';
+import ResetPasswordForm from '@/components/custom-forms/reset-password-form';
 function Loading() {
     return <div className="text-center">Loading...</div>;
 }

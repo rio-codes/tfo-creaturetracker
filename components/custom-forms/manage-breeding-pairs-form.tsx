@@ -12,30 +12,19 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Trash2, Loader2 } from "lucide-react";
-import type { Creature, ResearchGoal } from "@/types";
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    Prediction,
+} from "@/types";
 import { findSuitableMates } from "@/lib/breeding-rules"; // Import the new helper
 
-
-type BreedingPairWithDetails = {
-    id: string;
-    pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-};
-
-type Prediction = {
-    goalId: string;
-    goalName: string;
-    averageChance: number;
-    isPossible: boolean;
-};
-
-
 type ManagePairsFormProps = {
-    baseCreature: Creature;
-    allCreatures: Creature[];
-    allPairs: BreedingPairWithDetails[];
-    allGoals: ResearchGoal[]; // Now needs all goals
+    baseCreature: EnrichedCreature;
+    allCreatures: EnrichedCreature[];
+    allPairs: EnrichedBreedingPair[];
+    allGoals: EnrichedResearchGoal[]; // Now needs all goals
     onActionComplete: () => void;
 };
 
@@ -62,8 +51,8 @@ export function ManageBreedingPairsForm({
         () =>
             allPairs.filter(
                 (p) =>
-                    p.maleParent.id === baseCreature.id ||
-                    p.femaleParent.id === baseCreature.id
+                    p!.maleParent!.id === baseCreature!.id ||
+                    p!.femaleParent!.id === baseCreature!.id
             ),
         [allPairs, baseCreature]
     );
@@ -74,8 +63,8 @@ export function ManageBreedingPairsForm({
     }, [baseCreature, allCreatures, allPairs]);
 
     const relevantGoals = useMemo(
-        () => allGoals.filter((g) => g.species === baseCreature.species),
-        [allGoals, baseCreature.species]
+        () => allGoals.filter((g) => g?.species === baseCreature!.species),
+        [allGoals, baseCreature!.species]
     );
 
     // EFFECT: Fetch predictions whenever a mate is selected
@@ -88,14 +77,14 @@ export function ManageBreedingPairsForm({
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
             const maleParentId =
-                baseCreature.gender === "male"
-                    ? baseCreature.id
+                baseCreature!.gender === "male"
+                    ? baseCreature!.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature.gender === "female"
-                    ? baseCreature.id
+                baseCreature!.gender === "female"
+                    ? baseCreature!.id
                     : selectedMateId;
-            const goalIds = relevantGoals.map((g) => g.id);
+            const goalIds = relevantGoals.map((g) => g?.id);
 
             try {
                 const response = await fetch("/api/breeding-predictions", {
@@ -127,12 +116,12 @@ export function ManageBreedingPairsForm({
         setError("");
         try {
             const maleParentId =
-                baseCreature.gender === "male"
-                    ? baseCreature.id
+                baseCreature!.gender === "male"
+                    ? baseCreature!.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature.gender === "female"
-                    ? baseCreature.id
+                baseCreature!.gender === "female"
+                    ? baseCreature!.id
                     : selectedMateId;
 
             const response = await fetch("/api/breeding-pairs", {
@@ -141,11 +130,11 @@ export function ManageBreedingPairsForm({
                 body: JSON.stringify({
                     pairName:
                         newPairName ||
-                        `${baseCreature.code} & ${
-                            allCreatures.find((c) => c.id === selectedMateId)
+                        `${baseCreature!.code} & ${
+                            allCreatures.find((c) => c?.id === selectedMateId)
                                 ?.code
                         }`,
-                    species: baseCreature.species,
+                    species: baseCreature!.species,
                     maleParentId,
                     femaleParentId,
                 }),
@@ -188,14 +177,14 @@ export function ManageBreedingPairsForm({
                     {existingPairs.length > 0 ? (
                         existingPairs.map((pair) => (
                             <div
-                                key={pair.id}
+                                key={pair!.id}
                                 className="flex items-center justify-between bg-ebena-lavender p-2 rounded-md"
                             >
-                                <span>{pair.pairName}</span>
+                                <span>{pair!.pairName}</span>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => handleRemovePair(pair.id)}
+                                    onClick={() => handleRemovePair(pair!.id)}
                                     disabled={isLoading}
                                 >
                                     <Trash2 className="h-4 w-4 text-red-500" />

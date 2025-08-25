@@ -1,26 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import type { SerializedCreature, ResearchGoal } from "@/types";;
-import { BreedingPairCard } from "@/components/breeding-pair-card";
-import { Pagination } from "@/components/pagination";
-import { AddBreedingPairDialog } from "@/components/add-breeding-pair-dialog"
-import { BreedingPairWithDetails } from "@/types"
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+} from "@/types";
+import { BreedingPairCard } from "@/components/custom-cards/breeding-pair-card";
+import { Pagination } from "@/components/misc-custom-components/pagination";
+import { AddBreedingPairDialog } from "@/components/custom-dialogs/add-breeding-pair-dialog";
 
 type BreedingPairsClientProps = {
-    initialPairs: BreedingPairWithDetails[];
+    initialPairs: EnrichedBreedingPair[];
     totalPages: number;
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
 };
 
 export function BreedingPairsClient({
     initialPairs,
     totalPages,
     allCreatures,
-    allGoals
+    allGoals,
 }: BreedingPairsClientProps) {
-    const [isBreedingPairDialogOpen, setIsBreedingPairDialogOpen] = useState(false)
+    const [isBreedingPairDialogOpen, setIsBreedingPairDialogOpen] =
+        useState(false);
 
     return (
         <div className="bg-barely-lilac min-h-screen">
@@ -39,7 +43,12 @@ export function BreedingPairsClient({
                 {initialPairs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {initialPairs.map((pair) => (
-                            <BreedingPairCard key={pair.id} pair={pair} allCreatures={allCreatures} allGoals={allGoals}/>
+                            <BreedingPairCard
+                                key={pair?.id}
+                                pair={pair}
+                                allCreatures={allCreatures}
+                                allGoals={allGoals}
+                            />
                         ))}
                     </div>
                 ) : (

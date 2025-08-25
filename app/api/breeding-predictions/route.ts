@@ -75,8 +75,8 @@ export async function POST(req: Request) {
                 let finalGenotype: string, finalPhenotype: string;
                 if (
                     typeof selection === "object" &&
-                    selection.phenotype &&
-                    selection.genotype
+                    selection?.phenotype &&
+                    selection?.genotype
                 ) {
                     finalGenotype = selection.genotype;
                     finalPhenotype = selection.phenotype;

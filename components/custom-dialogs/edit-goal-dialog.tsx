@@ -8,12 +8,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditGoalForm } from "@/components/edit-goal-form"
-import type { ResearchGoal } from "@/types";
+import { EditGoalForm } from "@/components/custom-forms/edit-goal-form"
+import type { EnrichedResearchGoal } from "@/types";
 
 type EditGoalDialogProps = {
     goalMode: String;
-    goal: ResearchGoal;
+    goal: EnrichedResearchGoal;
     children: React.ReactNode; // The trigger button
 };
 

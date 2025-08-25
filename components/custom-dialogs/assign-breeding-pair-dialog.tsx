@@ -11,19 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import type { DetailedSerializedGoal, Creature } from "@/types";
-
-type Prediction = {
-    pairId: string;
-    pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-    averageChance: number;
-    isPossible: boolean;
-};
+import type { EnrichedResearchGoal, Prediction } from "@/types";
 
 type AssignPairDialogProps = {
-    goal: DetailedSerializedGoal;
+    goal: EnrichedResearchGoal;
     predictions: Prediction[];
     children: React.ReactNode;
 };
@@ -38,7 +29,7 @@ export function AssignPairDialog({
     const [error, setError] = useState("");
 
     // Get a list of pair IDs that are already assigned to this goal
-    const initiallyAssignedPairIds = new Set(goal.assignedPairIds || []);
+    const initiallyAssignedPairIds = new Set(goal?.assignedPairIds || []);
 
     const handleAssignmentChange = async (pairId: string, assign: boolean) => {
         setIsLoading(true);
@@ -49,7 +40,7 @@ export function AssignPairDialog({
                 {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ goalId: goal.id, assign }),
+                    body: JSON.stringify({ goalId: goal?.id, assign }),
                 }
             );
             const data = await response.json();
@@ -70,7 +61,7 @@ export function AssignPairDialog({
             <DialogContent className="bg-barely-lilac">
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple">
-                        Assign Pairs to Goal: {goal.name}
+                        Assign Pairs to Goal: {goal?.name}
                     </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">

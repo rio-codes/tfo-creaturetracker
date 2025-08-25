@@ -14,21 +14,13 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Trash2 } from "lucide-react";
-import type { SerializedCreature, ResearchGoal } from "@/types";
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
-type BreedingPairWithDetails = {
-    id: string;
-    pairName: string;
-    species: string;
-    maleParentId: string;
-    femaleParentId: string;
-    assignedGoalIds: string[] | null;
-};
 
 type EditBreedingPairFormProps = {
-    pair: BreedingPairWithDetails;
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
+    pair: EnrichedBreedingPair;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
     onSuccess: () => void;
 };
 
@@ -41,13 +33,13 @@ export function EditBreedingPairForm({
     const router = useRouter();
 
     // Initialize state with the existing pair's data
-    const [pairName, setPairName] = useState(pair.pairName);
-    const [selectedMaleId, setSelectedMaleId] = useState(pair.maleParentId);
+    const [pairName, setPairName] = useState(pair?.pairName);
+    const [selectedMaleId, setSelectedMaleId] = useState(pair?.maleParentId);
     const [selectedFemaleId, setSelectedFemaleId] = useState(
-        pair.femaleParentId
+        pair?.femaleParentId
     );
     const [selectedGoalIds, setSelectedGoalIds] = useState(
-        pair.assignedGoalIds || []
+        pair?.assignedGoalIds || []
     );
 
     const [isLoading, setIsLoading] = useState(false);
@@ -58,26 +50,26 @@ export function EditBreedingPairForm({
         return {
             males: allCreatures.filter(
                 (c) =>
-                    c.species === pair.species &&
-                    c.gender === "male" &&
-                    c.growthLevel === 3
+                    c?.species === pair?.species &&
+                    c?.gender === "male" &&
+                    c?.growthLevel === 3
             ),
             females: allCreatures.filter(
                 (c) =>
-                    c.species === pair.species &&
-                    c.gender === "female" &&
-                    c.growthLevel === 3
+                    c?.species === pair?.species &&
+                    c?.gender === "female" &&
+                    c?.growthLevel === 3
             ),
-            goals: allGoals.filter((g) => g.species === pair.species),
+            goals: allGoals.filter((g) => g?.species === pair?.species),
         };
-    }, [allCreatures, allGoals, pair.species]);
+    }, [allCreatures, allGoals, pair?.species]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
         try {
-            const response = await fetch(`/api/breeding-pairs/${pair.id}`, {
+            const response = await fetch(`/api/breeding-pair?s/${pair?.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -102,13 +94,13 @@ export function EditBreedingPairForm({
     const handleDelete = async () => {
         if (
             !window.confirm(
-                `Are you sure you want to delete the pair "${pair.pairName}"?`
+                `Are you sure you want to delete the pair "${pair?.pairName}"?`
             )
         )
             return;
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/breeding-pairs/${pair.id}`, {
+            const response = await fetch(`/api/breeding-pairs/${pair?.id}`, {
                 method: "DELETE",
             });
             if (!response.ok) throw new Error("Failed to delete pair.");
@@ -142,11 +134,11 @@ export function EditBreedingPairForm({
                 <SelectContent className="bg-barely-lilac">
                     {males.map((c) => (
                         <SelectItem
-                            key={c.id}
-                            value={c.id}
+                            key={c?.id}
+                            value={c!.id}
                             className="bg-barely-lilac"
                         >
-                            {c.creatureName || c.code}
+                            {c?.creatureName || c?.code}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -162,11 +154,11 @@ export function EditBreedingPairForm({
                 <SelectContent className="bg-barely-lilac">
                     {females.map((c) => (
                         <SelectItem
-                            key={c.id}
-                            value={c.id}
+                            key={c?.id}
+                            value={c!.id}
                             className="bg-barely-lilac"
                         >
-                            {c.creatureName || c.code}
+                            {c?.creatureName || c?.code}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -178,31 +170,31 @@ export function EditBreedingPairForm({
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2">
                         {goals.map((goal) => (
                             <div
-                                key={goal.id}
+                                key={goal?.id}
                                 className="flex items-center space-x-2"
                             >
                                 <Checkbox
-                                    id={`edit-${goal.id}`}
-                                    checked={selectedGoalIds.includes(goal.id)}
+                                    id={`edit-${goal?.id}`}
+                                    checked={selectedGoalIds.includes(goal!.id)}
                                     onCheckedChange={(checked) => {
                                         if (checked)
                                             setSelectedGoalIds((prev) => [
                                                 ...prev,
-                                                goal.id,
+                                                goal!.id,
                                             ]);
                                         else
                                             setSelectedGoalIds((prev) =>
                                                 prev.filter(
-                                                    (id) => id !== goal.id
+                                                    (id) => id !== goal?.id
                                                 )
                                             );
                                     }}
                                 />
                                 <Label
-                                    htmlFor={`edit-${goal.id}`}
+                                    htmlFor={`edit-${goal?.id}`}
                                     className="font-normal"
                                 >
-                                    {goal.name}
+                                    {goal?.name}
                                 </Label>
                             </div>
                         ))}

@@ -8,21 +8,14 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { ManageBreedingPairsForm } from "@/components/manage-breeding-pairs-form"
-import type { Creature, ResearchGoal } from "@/types";
-
-type BreedingPairWithDetails = {
-    id: string;
-    pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-};
+import { ManageBreedingPairsForm } from "@/components/custom-forms/manage-breeding-pairs-form"
+import type { EnrichedCreature, EnrichedResearchGoal, EnrichedBreedingPair } from "@/types";
 
 type ManageBreedingPairsDialogProps = {
-    baseCreature: Creature;
-    allCreatures: Creature[];
-    allPairs: BreedingPairWithDetails[];
-    allGoals: ResearchGoal[];
+    baseCreature: EnrichedCreature;
+    allCreatures: EnrichedCreature[];
+    allPairs: EnrichedBreedingPair[];
+    allGoals: EnrichedResearchGoal[];
     children: React.ReactNode;
 };
 
@@ -42,7 +35,7 @@ export function ManageBreedingPairsDialog({
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple">
                         Manage Pairs for{" "}
-                        {baseCreature.creatureName || baseCreature.code}
+                        {baseCreature!.creatureName || baseCreature!.code}
                     </DialogTitle>
                 </DialogHeader>
                 <ManageBreedingPairsForm

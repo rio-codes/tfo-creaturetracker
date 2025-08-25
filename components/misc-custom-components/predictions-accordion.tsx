@@ -7,23 +7,13 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import type { Creature, SerializedCreature } from "@/types";
-import { LogBreedingDialog } from "@/components/log-breeding-dialog"
+import type { EnrichedCreature, Prediction } from "@/types";
+import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog"
 
-// Define the shape of the prediction data
-type Prediction = {
-    pairId: string;
-    pairName: string;
-    maleParent: Creature;
-    femaleParent: Creature;
-    chancesByCategory: { [key: string]: number };
-    averageChance: number;
-    isPossible: boolean;
-};
 
 type PredictionsAccordionProps = {
     predictions: Prediction[];
-    allCreatures: SerializedCreature[];
+    allCreatures: EnrichedCreature[];
 };
 
 
@@ -54,7 +44,7 @@ export function PredictionsAccordion({
         {predictions.map((p, index) => {
             const pairForDialog = {
                 id: p.pairId,
-                species: p.maleParent.species!,
+                species: p?.maleParent?.species!,
             };
             return (
                 <AccordionItem
@@ -70,12 +60,12 @@ export function PredictionsAccordion({
                                     {p.pairName}
                                 </div>
                                 <div className="font-normal text-sm text-dusk-purple wrap-anywhere">
-                                    {p.maleParent.creatureName}
+                                    {p?.maleParent?.creatureName}
                                     {" ("}
-                                    {p.maleParent.code}){" x "}
-                                    {p.femaleParent.creatureName}
+                                    {p?.maleParent?.code}){" x "}
+                                    {p?.femaleParent?.creatureName}
                                     {" ("}
-                                    {p.femaleParent.code})
+                                    {p?.femaleParent?.code})
                                 </div>
                             </div>
 

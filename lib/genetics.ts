@@ -1,4 +1,4 @@
-import type { ResearchGoal, Creature } from "@/types";
+import type { EnrichedCreature } from "@/types";
 import { structuredGeneData } from "@/lib/creature-data"; // Your master gene data
 
 function getGametes(genotype: string): string[] {
@@ -38,11 +38,8 @@ function calculatePunnettSquare(
     for (const maleGamete of maleGametes) {
         for (const femaleGamete of femaleGametes) {
             const offspringLoci: string[] = [];
-            // Loop through each gene in the gamete (e.g., for 'aB', loop for 'a' then 'B')
             for (let i = 0; i < maleGamete.length; i++) {
-                // Combine the alleles from the same gene locus
                 const locusAlleles = [maleGamete[i], femaleGamete[i]];
-                // Sort them to enforce standard notation (e.g., 'aA' becomes 'Aa')
                 locusAlleles.sort();
                 offspringLoci.push(locusAlleles.join(""));
             }
@@ -61,27 +58,34 @@ function calculatePunnettSquare(
     return probabilities;
 }
 
-function getGeneFromGeneticsString(
-    fullGenetics: string | null,
+/**
+ * NEW HELPER: Extracts a specific gene's genotype from an EnrichedCreature object.
+ * @param creature The enriched creature object with a `geneData` array.
+ * @param category The category to find, e.g., "Body".
+ * @returns The genotype string for that category, e.g., "AABBcc", or null if not found.
+ */
+function getGeneFromEnrichedCreature(
+    creature: EnrichedCreature,
     category: string
 ): string | null {
-    if (!fullGenetics) return null;
-    const match = fullGenetics.match(new RegExp(`${category}:([a-zA-Z]+)`));
-    return match ? match[1] : null;
+    if (!creature?.geneData) return null;
+    const gene = creature.geneData.find((g) => g.category === category);
+    return gene?.genotype || null;
 }
 
+/**
+ * The main exported function. Calculates the probability of achieving a target gene.
+ */
 export function calculateGeneProbability(
-    maleParent: Creature,
-    femaleParent: Creature,
+    maleParent: EnrichedCreature,
+    femaleParent: EnrichedCreature,
     category: string,
     target: { genotype: string; phenotype: string },
     goalMode: "genotype" | "phenotype"
 ): number {
-    const maleGene = getGeneFromGeneticsString(maleParent.genetics, category);
-    const femaleGene = getGeneFromGeneticsString(
-        femaleParent.genetics,
-        category
-    );
+    // Use the new helper function to get the genes from the enriched data
+    const maleGene = getGeneFromEnrichedCreature(maleParent, category);
+    const femaleGene = getGeneFromEnrichedCreature(femaleParent, category);
 
     if (!maleGene || !femaleGene) return 0;
 
@@ -92,7 +96,7 @@ export function calculateGeneProbability(
         return offspringProbabilities.get(target.genotype) || 0;
     } else {
         // In phenotype mode, we need to find all genotypes that produce the target phenotype.
-        const speciesData = structuredGeneData[maleParent.species || ""];
+        const speciesData = structuredGeneData[maleParent?.species || ""];
         if (!speciesData) return 0;
 
         const categoryData = speciesData[category] as {

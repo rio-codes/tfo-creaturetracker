@@ -8,15 +8,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditBreedingPairForm } from "@/components/edit-breeding-pair-form"
-import type { BreedingPairWithDetails, SerializedCreature, ResearchGoal } from "@/types";
+import { EditBreedingPairForm } from "@/components/custom-forms/edit-breeding-pair-form"
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
 
 type EditBreedingPairDialogProps = {
-    pair: BreedingPairWithDetails;
-    allCreatures: SerializedCreature[];
-    allGoals: ResearchGoal[];
-    children: React.ReactNode; 
+    pair: EnrichedBreedingPair;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
+    children: React.ReactNode;
 };
 
 export function EditBreedingPairDialog({

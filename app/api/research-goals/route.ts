@@ -35,7 +35,7 @@ export function validateGoalData(species: string, genes: GenesObject) {
 
     // ensure each category is valid for species
     for (const [category, selectedGene] of Object.entries(genes)) {
-        const selectedGenotype = selectedGene?["genotype"];
+        const selectedGenotype = selectedGene["genotype"];
         const categoryData = speciesData[category];
         if (!categoryData) {
             throw new Error(

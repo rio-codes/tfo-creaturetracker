@@ -19,11 +19,13 @@ import type {
 } from "@/types";
 import { structuredGeneData } from "@/lib/creature-data";
 import { calculateGeneProbability } from "./genetics";
+import { put as vercelBlobPut } from "@vercel/blob";
 
 // ============================================================================
 // === HELPER FUNCTIONS (ENRICHMENT & SERIALIZATION) ==========================
 // ============================================================================
 
+// serialize dates and add rich gene data to creature object
 const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
     if (!creature) return null;
     const speciesGeneData = structuredGeneData[creature.species || ""];
@@ -51,10 +53,19 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
                         phenotype: matchedGene?.phenotype || "Unknown",
                     };
                 })
-                .filter(Boolean) || [],
+                .filter(
+                    (
+                        gene
+                    ): gene is {
+                        category: string;
+                        genotype: string;
+                        phenotype: string;
+                    } => gene !== null
+                ) || [],
     };
 };
 
+// serialize dates and add enriched gene data to research goal object
 const enrichAndSerializeGoal = (
     goal: DbResearchGoal,
     goalMode: "genotype" | "phenotype"
@@ -106,6 +117,7 @@ const enrichAndSerializeGoal = (
     };
 };
 
+// serialize dates, enrich parent creatures, and add breeding log entries to breeding pair object
 const enrichAndSerializeBreedingPair = (
     pair: DbBreedingPair & { maleParent: DbCreature; femaleParent: DbCreature },
     allEnrichedGoals: EnrichedResearchGoal[],
@@ -139,6 +151,7 @@ const enrichAndSerializeBreedingPair = (
 // === PUBLIC DATA-FETCHING FUNCTIONS =========================================
 // ============================================================================
 
+// fetch all enriched breeding pairs for logged-in user
 export async function getAllBreedingPairsForUser(): Promise<
     EnrichedBreedingPair[]
 > {
@@ -166,7 +179,7 @@ export async function getAllBreedingPairsForUser(): Promise<
         ]);
 
         const enrichedGoals = allGoals.map((goal) =>
-            enrichAndSerializeGoal(goal, user.goalMode)
+            enrichAndSerializeGoal(goal, goal.goalMode)
         );
         const enrichedPairs = allPairs.map((pair) =>
             enrichAndSerializeBreedingPair(pair, enrichedGoals, logEntries)
@@ -182,37 +195,35 @@ export async function getAllBreedingPairsForUser(): Promise<
     }
 }
 
+// fetch assigned breeding pairs with enriched parents and genetic predictions for a research goal 
 export async function fetchGoalDetailsAndPredictions(goalId: string) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error("Not authenticated.");
 
-    const goal = await db.query.researchGoals.findFirst({
-        where: and(
-            eq(researchGoals.id, goalId),
-            eq(researchGoals.userId, userId)
-        ),
-    });
-
     try {
-        const [user, allPairsForSpecies] = await Promise.all([
-            db.query.users.findFirst({ where: eq(users.id, userId) }),
-            db.query.breedingPairs.findMany({
-                where: and(
-                    eq(breedingPairs.userId, userId),
-                    eq(breedingPairs.species, goal?.species)
-                ),
-                with: { maleParent: true, femaleParent: true },
-            }),
-        ]);
-
-        if (!user) throw new Error("User not found.");
+        // fetch and enrich goal
+        const goal = await db.query.researchGoals.findFirst({
+            where: and(
+                eq(researchGoals.id, goalId),
+                eq(researchGoals.userId, userId)
+            ),
+        });
         if (!goal) return { goal: null, predictions: [] };
-
-        const goalMode = user.goalMode;
+        const goalMode = goal.goalMode;
         const enrichedGoal = enrichAndSerializeGoal(goal, goalMode);
 
-        const predictions = allPairsForSpecies.map((pair) => {
+        // fetch breeding pairs for goal
+        const relevantPairs = await db.query.breedingPairs.findMany({
+            where: and(
+                eq(breedingPairs.userId, userId),
+                eq(breedingPairs.species, goal.species)
+            ),
+            with: { maleParent: true, femaleParent: true },
+        });
+
+        // perform genetic predictions for pairs
+        const predictions = relevantPairs.map((pair) => {
             const enrichedMaleParent = enrichAndSerializeCreature(
                 pair.maleParent
             );
@@ -224,7 +235,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
             const chancesByCategory: { [key: string]: number } = {};
 
             for (const [category, targetGene] of Object.entries(
-                enrichedGoal.genes
+                enrichedGoal!.genes
             )) {
                 if (category === "Gender") {
                     continue;
@@ -249,8 +260,8 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
             return {
                 pairId: pair.id,
                 pairName: pair.pairName,
-                maleParent: enrichAndSerializeCreature(pair.maleParent),
-                femaleParent: enrichAndSerializeCreature(pair.femaleParent),
+                maleParent: enrichedMaleParent,
+                femaleParent: enrichedFemaleParent,
                 chancesByCategory,
                 averageChance,
                 isPossible,
@@ -264,6 +275,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
     }
 }
 
+// fetch creatures filtered by specified criteria and paginated for UI
 export async function fetchFilteredCreatures(
     currentPage: number,
     query?: string,
@@ -275,12 +287,14 @@ export async function fetchFilteredCreatures(
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
 
+    // get logged-in user from db, determine setting for creatures per page and offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
     const itemsPerPage = user?.collectionItemsPerPage || 12;
     const offset = (currentPage - 1) * itemsPerPage;
 
+    // filter by growth level if specified
     const stageToGrowthLevel: { [key: string]: number } = {
         capsule: 1,
         juvenile: 2,
@@ -288,15 +302,16 @@ export async function fetchFilteredCreatures(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
+    // filter by search query, gender, growth level, or species if specified
     const conditions = [
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
-        gender && gender !== "all" ? eq(creatures.gender, gender) : undefined,
+        gender && gender !== "all" ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)
@@ -304,13 +319,20 @@ export async function fetchFilteredCreatures(
     ].filter(Boolean);
 
     try {
+        // fetch filtered and paginated creatures for current page
         const paginatedCreatures = await db
             .select()
             .from(creatures)
             .where(and(...conditions))
-            .orderBy(desc(creatures.isPinned), desc(creatures.createdAt))
+            // possible fix to duplicated creatures bug (#19)
+            .orderBy(
+                desc(creatures.isPinned),
+                desc(creatures.createdAt),
+                desc(creatures.id)
+            )
             .limit(itemsPerPage)
             .offset(offset);
+        // fetch total count of filtered creatures and calculate total pages
         const totalCountResult = await db
             .select({ count: count() })
             .from(creatures)
@@ -318,11 +340,11 @@ export async function fetchFilteredCreatures(
         const totalPages = Math.ceil(
             (totalCountResult[0]?.count ?? 0) / itemsPerPage
         );
-
+        // enrich returned creatures
         const enrichedCreatures = paginatedCreatures.map(
             enrichAndSerializeCreature
         );
-
+        // returned enriched, paginated, and filtered creatures for current page with total pages
         return { creatures: enrichedCreatures, totalPages };
     } catch (error) {
         console.error("Database Error: Failed to fetch creatures.", error);
@@ -330,6 +352,7 @@ export async function fetchFilteredCreatures(
     }
 }
 
+// fetch research goals, paginated and filtered
 export async function fetchFilteredResearchGoals(
     currentPage: number,
     query?: string,
@@ -339,12 +362,14 @@ export async function fetchFilteredResearchGoals(
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
 
+    // fetch items per page for logged in user and determine offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
     const goalsPerPage = user?.goalsItemsPerPage || 12;
     const offset = (currentPage - 1) * goalsPerPage;
 
+    // filter research goals by search query or species if specified
     const conditions = [
         eq(researchGoals.userId, userId),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
@@ -354,16 +379,19 @@ export async function fetchFilteredResearchGoals(
     ].filter(Boolean);
 
     try {
+        // fetch filtered and paginated goals for current page
         const paginatedGoals = await db
             .select()
             .from(researchGoals)
             .where(and(...conditions))
             .orderBy(
                 desc(researchGoals.isPinned),
-                desc(researchGoals.createdAt)
+                desc(researchGoals.createdAt),
+                desc(researchGoals.id)
             )
             .limit(goalsPerPage)
             .offset(offset);
+        // fetch total count of creatures and calculate total pages
         const totalCountResult = await db
             .select({ count: count() })
             .from(researchGoals)
@@ -371,8 +399,9 @@ export async function fetchFilteredResearchGoals(
         const totalGoals = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalGoals / goalsPerPage);
 
+        // enrich returned and paginated goals
         const enrichedGoals = paginatedGoals.map((goal) =>
-            enrichAndSerializeGoal(goal, user!.goalMode)
+            enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
         return { goals: enrichedGoals, totalPages };
@@ -382,11 +411,13 @@ export async function fetchFilteredResearchGoals(
     }
 }
 
+// fetch paginated breeding pairs with statistics from breeding logs
 export async function fetchBreedingPairsWithStats(currentPage: number) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
 
+    // fetch logged in user and determine pairs per page and offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
@@ -394,6 +425,7 @@ export async function fetchBreedingPairsWithStats(currentPage: number) {
     const offset = (currentPage - 1) * pairsPerPage;
 
     try {
+        // fetch all pairs for current page, all research goals and breeding log entries for user
         const [paginatedPairs, allGoals, logEntries] = await Promise.all([
             db.query.breedingPairs.findMany({
                 where: eq(breedingPairs.userId, userId),
@@ -413,17 +445,20 @@ export async function fetchBreedingPairsWithStats(currentPage: number) {
             }),
         ]);
 
+        // if no pairs are returned, return empty array
         if (paginatedPairs.length === 0) {
             return { pairs: [], totalPages: 0 };
         }
 
+        // enrich and return goals and pairs
         const enrichedGoals = allGoals.map((goal) =>
-            enrichAndSerializeGoal(goal, user!.goalMode)
+            enrichAndSerializeGoal(goal, goal.goalMode)
         );
         const enrichedPairs = paginatedPairs.map((pair) =>
             enrichAndSerializeBreedingPair(pair, enrichedGoals, logEntries)
         );
 
+        // determine total page count
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
@@ -440,7 +475,7 @@ export async function fetchBreedingPairsWithStats(currentPage: number) {
     }
 }
 
-// These functions fetch ALL items and are used for populating dropdowns
+// fetch all creatures for logged in user to populate dropdowns
 export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
     const session = await auth();
     const userId = session?.user?.id;
@@ -456,6 +491,7 @@ export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
     }
 }
 
+// fetch all research goals for user to populate dropdowns
 export async function getAllResearchGoalsForUser(): Promise<
     EnrichedResearchGoal[]
 > {
@@ -463,14 +499,11 @@ export async function getAllResearchGoalsForUser(): Promise<
     const userId = session?.user?.id;
     if (!userId) return [];
     try {
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, userId),
-        });
         const allUserGoals = await db.query.researchGoals.findMany({
             where: eq(researchGoals.userId, userId),
         });
         return allUserGoals.map((goal) =>
-            enrichAndSerializeGoal(goal, user!.goalMode)
+            enrichAndSerializeGoal(goal, goal.goalMode)
         );
     } catch (error) {
         console.error(
@@ -479,4 +512,56 @@ export async function getAllResearchGoalsForUser(): Promise<
         );
         return [];
     }
+}
+
+// helper function to fetch TFO images and upload to Vercel blob with retries on failure
+export async function fetchAndUploadWithRetry(
+    imageUrl: string,
+    creatureCode: string | null,
+    retries = 3
+): Promise<string> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            // fetch the image from the external URL
+            const imageResponse = await fetch(imageUrl);
+            if (!imageResponse.ok) {
+                throw new Error(
+                    `Failed to download image. Status: ${imageResponse.status}`
+                );
+            }
+            const imageBlob = await imageResponse.blob();
+
+            // upload the image to Vercel Blob
+            var filename = ""
+            // if a creature code is provided, we are syncing
+            if (creatureCode) {
+                filename = `creatures/${creatureCode}.png`;
+            }
+            // if there is no creature code this is a research goal
+            else {
+                filename = `goals/${crypto.randomUUID()}.png`;
+            }
+            const blob = await vercelBlobPut(filename, imageBlob, {
+                access: "public",
+                contentType: imageBlob.type || "image/png",
+                allowOverwrite: true,
+            });
+
+            // if successful, return the new URL immediately
+            return blob.url;
+        } catch (error) {
+            console.warn(
+                `Attempt ${attempt} failed for creature ${creatureCode}: ${error?.toString()}`
+            );
+            if (attempt === retries) {
+                // if this was the last attempt, re-throw the error to be caught by the main logic
+                throw new Error(
+                    `All ${retries} attempts failed for ${creatureCode}.`
+                );
+            }
+            // wait 1 second before the next retry
+            await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+    throw new Error("Upload failed after all retries.");
 }

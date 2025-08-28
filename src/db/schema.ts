@@ -22,7 +22,6 @@ export const users = pgTable("user", {
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
     password: text("password"),
-    goalMode: goalModeEnum("goal_mode").default("phenotype").notNull(),
     collectionItemsPerPage: integer("collection_items_per_page")
         .default(12)
         .notNull(),
@@ -154,6 +153,7 @@ export const researchGoals = pgTable("research_goal", {
     genes: jsonb("genes").notNull(),
     assignedPairIds: jsonb("assigned_pair_ids").$type<string[]>(),
     isPinned: boolean("is_pinned").default(false).notNull(),
+    goalMode: goalModeEnum("goal_mode").default("phenotype").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

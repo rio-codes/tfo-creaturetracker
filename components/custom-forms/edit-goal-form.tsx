@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/select";
 import { structuredGeneData } from "@/lib/creature-data";
 import { Loader2, Trash2 } from "lucide-react";
-import type { User, GoalMode, ResearchGoal } from "@/types";
+import type { EnrichedResearchGoal, } from "@/types";
 
 type EditGoalFormProps = {
-    goal: ResearchGoal;
-    goalMode: GoalMode;
+    goal: EnrichedResearchGoal;
+    goalMode: string;
     onSuccess: () => void;
 };
 
@@ -26,10 +26,10 @@ export function EditGoalForm({ goal, goalMode, onSuccess }: EditGoalFormProps) {
     const router = useRouter();
 
     // Initialize state with the existing goal's data
-    const [name, setName] = useState(goal.name);
-    const [species, setSpecies] = useState(goal.species);
+    const [name, setName] = useState(goal?.name);
+    const [species, setSpecies] = useState(goal?.species);
     const [selectedGenes, setSelectedGenes] = useState(
-        goal.genes as { [key: string]: { genotype: string; phenotype: string } }
+        goal?.genes as { [key: string]: { genotype: string; phenotype: string } }
     );
 
     const [isLoading, setIsLoading] = useState(false);

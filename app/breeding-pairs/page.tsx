@@ -20,7 +20,6 @@ export default async function BreedingPairsPage({
 
     const allCreatures = await getAllCreaturesForUser();
     const allGoals = await getAllResearchGoalsForUser();
-
     
     return (
         <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">

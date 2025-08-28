@@ -32,6 +32,10 @@ export function BreedingPairCard({
     const timesBred = 0; // You'll fetch this from breedingLogEntries later
     const progenyCount = 0; // You'll also fetch this
 
+    if (!pair?.maleParent || !pair.femaleParent) {
+        return null;
+    }
+
     const handlePinToggle = async () => {
         setIsPinning(true);
         try {
@@ -66,9 +70,7 @@ export function BreedingPairCard({
                     {hybridSpecies ? (
                         <SpeciesAvatar species={hybridSpecies} />
                     ) : (
-                        <SpeciesAvatar
-                            species={pair!.maleParent!.species!}
-                        />
+                        <SpeciesAvatar species={pair!.maleParent!.species!} />
                     )}
                 </div>
             </div>
@@ -95,9 +97,10 @@ export function BreedingPairCard({
                     <img
                         src={pair!.maleParent!.imageUrl}
                         alt={
-                            pair!.maleParent!.creatureName == "Unnamed"
-                                ? pair!.maleParent!.code
-                                : pair!.maleParent!.creatureName
+                            pair.maleParent.creatureName &&
+                            pair.maleParent.creatureName !== "Unnamed"
+                                ? pair.maleParent.creatureName
+                                : pair.maleParent.code
                         }
                         className="w-30 h-30 object-contain px-5 bg-blue-100 p-1 border-2 border-pompaca-purple rounded-2xl"
                     />
@@ -105,9 +108,10 @@ export function BreedingPairCard({
                     <img
                         src={pair!.femaleParent!.imageUrl}
                         alt={
-                            pair!.femaleParent!.creatureName == "Unnamed"
-                                ? pair!.femaleParent!.code
-                                : pair!.femaleParent!.creatureName
+                            pair.femaleParent.creatureName &&
+                            pair.femaleParent.creatureName !== "Unnamed"
+                                ? pair.femaleParent.creatureName
+                                : pair.femaleParent.code
                         }
                         className="w-30 h-30 object-contain px-5 bg-pink-100 p-1 border-2 border-pompaca-purple rounded-2xl"
                     />
@@ -175,8 +179,8 @@ export function BreedingPairCard({
                             pair={pairForDialog}
                             allCreatures={allCreatures}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 ">
-                                <span className="text-wrap wrap-normal">
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16 ">
+                                <span className="text-wrap wrap-normal text-sm/tight">
                                     Log Breeding
                                 </span>
                             </Button>
@@ -186,18 +190,12 @@ export function BreedingPairCard({
                             allCreatures={allCreatures}
                             allGoals={allGoals}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15">
-                                <span className="text-wrap wrap-normal">
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16">
+                                <span className="text-wrap wrap-normal text-sm/tight">
                                     Edit or Delete Pair
                                 </span>
                             </Button>
                         </EditBreedingPairDialog>
-                    </div>
-                    <div className="flex w-full justify-center">
-                        <span className="text-xs text-dusk-purple text-center">
-                            Note: Some features are still under development and
-                            not yet available.
-                        </span>
                     </div>
                 </div>
             </CardContent>

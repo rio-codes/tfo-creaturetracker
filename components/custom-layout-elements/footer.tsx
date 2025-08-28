@@ -15,7 +15,8 @@ export function Footer() {
                             AGPL-3.0
                         </a>
                         .
-                    </span><br></br>
+                    </span>
+                    <br></br>
                     <span>
                         All art is the copyright of respective artists on{" "}
                         <a
@@ -40,6 +41,13 @@ export function Footer() {
                         className="hover:underline"
                     >
                         Github
+                    </a>
+                    <span>|</span>
+                    <a
+                        href="https://finaloutpost.net/lab/lyricism"
+                        className="hover:underline"
+                    >
+                        My Lab
                     </a>
                     <span>|</span>
                     <a

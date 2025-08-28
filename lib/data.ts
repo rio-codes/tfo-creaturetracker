@@ -66,7 +66,7 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
 };
 
 // serialize dates and add enriched gene data to research goal object
-const enrichAndSerializeGoal = (
+export const enrichAndSerializeGoal = (
     goal: DbResearchGoal,
     goalMode: "genotype" | "phenotype"
 ): EnrichedResearchGoal => {
@@ -209,7 +209,11 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                 eq(researchGoals.userId, userId)
             ),
         });
+
+        // if goal does not exist return null and empty predictions array
         if (!goal) return { goal: null, predictions: [] };
+
+        // get goal mode from goal and enrich/serialize goal
         const goalMode = goal.goalMode;
         const enrichedGoal = enrichAndSerializeGoal(goal, goalMode);
 

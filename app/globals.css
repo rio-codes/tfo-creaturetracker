@@ -11,6 +11,8 @@
   --color-ebena-lavender: #D0BCFF;
   --color-emoji-eggplant: #381E72;
   --color-dusk-purple: #7C6BA7;
+  --color-dna-teal: #00BFA5;
+  --color-dna-magenta: #EE8CFF;
 }
 
 .h1 {
@@ -32,16 +34,4 @@
 
 .bg-medium-button {
   --bg-medium-button: var(--color-before-dusk-purple);
-}
-
-.bg-table-header {
-  --bg-table-header: var(--color-emoji-eggplant)
-}
-
-.bg-table-row-1 {
-  --bg-table-row-1: var(--color-dusk-purple)
-}
-
-.bg-table-row-2 {
-  --bg-table-row-2: var(--color-ebena-lavender)
 }

@@ -1,10 +1,16 @@
 "use client";
 import { useMemo } from "react";
-import type { EnrichedCreature, EnrichedResearchGoal, Prediction } from "@/types";
+import { useMounted } from "@/hooks/use-mounted";
+import type {
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    Prediction,
+} from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PredictionsAccordion } from "@/components/misc-custom-components/predictions-accordion";
 import { AssignPairDialog } from "@/components/custom-dialogs/assign-breeding-pair-dialog";
+import { GoalModeSwitcher } from "@/components/custom-dialogs/goal-mode-switcher-dialog";
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -22,6 +28,8 @@ export function GoalDetailClient({
     initialPredictions,
     allCreatures,
 }: GoalDetailClientProps) {
+    const hasMounted = useMounted();
+
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
     const gender = goal?.genes["Gender"].phenotype;
 
@@ -31,10 +39,15 @@ export function GoalDetailClient({
     }, [initialPredictions, goal?.assignedPairIds]);
 
     return (
-        <div className="space-y-7">
-            <h1 className="text-4xl font-bold text-pompaca-purple">
-                Goal: {goal?.name}
-            </h1>
+        <div className="space-y-8">
+            <div className="flex-col gap-4">
+                <h1 className="text-4xl font-bold text-pompaca-purple">
+                    Goal: {goal?.name}
+                </h1>
+                <div className="mt-5">
+                    <GoalModeSwitcher goal={goal} />
+                </div>
+            </div>
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Card className="md:col-span-2 bg-ebena-lavender text-pompaca-purple border-border">
@@ -90,15 +103,14 @@ export function GoalDetailClient({
                 </Card>
                 <Card className="bg-ebena-lavender text-pompaca-purple border-border flex flex-col items-center justify-center p-4">
                     <img
-                        src={goal?.imageUrl}
+                        src={goal?.imageUrl ?? ""}
                         alt={goal?.name}
                         className="max-w-full max-h-48 object-contain"
                     />
                 </Card>
             </div>
-            
             {/* Bottom Section */}
-            <div>
+            <div className="mt-10">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-3xl font-bold text-pompaca-purple">
                         Breeding Pairs
@@ -112,11 +124,20 @@ export function GoalDetailClient({
                         </Button>
                     </AssignPairDialog>
                 </div>
-                <PredictionsAccordion
-                    predictions={assignedPredictions}
-                    allCreatures={allCreatures}
-                />
-            </div>{" "}
+                {hasMounted ? (
+                    <PredictionsAccordion
+                        predictions={assignedPredictions}
+                        allCreatures={allCreatures}
+                    />
+                ) : (
+                    // If it hasn't (i.e., during the server render), we render a simple placeholder.
+                    // This placeholder MUST have a similar structure to the real component's container.
+                    <div className="w-full space-y-2">
+                        <div className="h-16 bg-ebena-lavender rounded-lg animate-pulse"></div>
+                        <div className="h-16 bg-ebena-lavender rounded-lg animate-pulse"></div>
+                    </div>
+                )}
+            </div>
 
             {/* Note Section */}
             <div className="flex w-full justify-center">

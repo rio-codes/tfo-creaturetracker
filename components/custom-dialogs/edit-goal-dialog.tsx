@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
     Dialog,
@@ -8,33 +6,30 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditGoalForm } from "@/components/custom-forms/edit-goal-form"
+import { Button } from "@/components/ui/button";
+import { GoalForm } from "@/components/custom-forms/goal-form";
 import type { EnrichedResearchGoal } from "@/types";
 
 type EditGoalDialogProps = {
-    goalMode: String;
     goal: EnrichedResearchGoal;
-    children: React.ReactNode; // The trigger button
 };
 
-export function EditGoalDialog({ goalMode, goal, children }: EditGoalDialogProps) {
+export function EditGoalDialog({ goal }: EditGoalDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
-
-    console.log("edit goal mode on dialog", goalMode)
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac rounded-lg shadow-xl flex-col overflow-y-auto p-6 space-y-4 w-full max-h-3/4 max-w-md z-50">
+            <DialogTrigger asChild>
+                <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
+                    <span className="text-wrap wrap-normal">
+                        Edit or Delete Goal
+                    </span>
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-barely-lilac max-h-3/4 overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple">
-                        Edit Research Goal
-                    </DialogTitle>
+                    <DialogTitle>Edit Research Goal</DialogTitle>
                 </DialogHeader>
-                <EditGoalForm
-                    goalMode={goalMode}
-                    goal={goal}
-                    onSuccess={() => setIsOpen(false)}
-                />
+                <GoalForm goal={goal} onSuccess={() => setIsOpen(false)} />
             </DialogContent>
         </Dialog>
     );

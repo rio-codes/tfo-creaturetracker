@@ -108,7 +108,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                                 0
                             </code>
                             .
-                        </span><br></br>
+                        </span>
+                        <br></br>
                         <span className="font-semibold py-1 mt-1">
                             NOTE: The tab must be set to "Public" in TFO to
                             fetch your creatures.

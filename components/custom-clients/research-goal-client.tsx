@@ -7,7 +7,6 @@ import type { EnrichedResearchGoal } from '@/types';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
@@ -15,12 +14,11 @@ import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog'
 import { speciesList } from "@/lib/creature-data"
 
 type ResearchGoalClientProps = {
-    goalMode: string;
     goals: EnrichedResearchGoal[];
     totalPages: number;
 };
 
-export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
+export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -50,17 +48,7 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
                 <h1 className="text-5xl font-bold text-pompaca-purple mb-8">
                     Research Goals
                 </h1>
-                <Button
-                    onClick={handleOpenGoalDialog}
-                    className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac drop-shadow-md drop-shadow-gray-500"
-                >
-                    + Add New Research Goal
-                </Button>
-                <AddGoalDialog
-                    goalMode={goalMode}
-                    isOpen={isGoalDialogOpen}
-                    onClose={handleCloseDialog}
-                />
+                <AddGoalDialog />
 
               {/* Search and Filters */}
               <div className="flex flex-col md:flex-row gap-4 mb-8">

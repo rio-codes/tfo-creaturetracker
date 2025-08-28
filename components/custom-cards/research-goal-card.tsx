@@ -6,30 +6,29 @@ import { Pin, PinOff, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import type { ResearchGoal } from "@/types/index";
+import type { EnrichedResearchGoal } from "@/types/index";
 import { EditGoalDialog } from "../custom-dialogs/edit-goal-dialog";
 import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
 
 interface ResearchGoalCardProps {
-    goalMode: String;
-    goal: ResearchGoal;
+    goalMode: string;
+    goal: EnrichedResearchGoal;
 }
 
-export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
+export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
+    const goalMode = goal?.goalMode
     const router = useRouter();
-    const [isPinned, setIsPinned] = useState(goal.isPinned);
+    const [isPinned, setIsPinned] = useState(goal?.isPinned);
     const [isPinning, setIsPinning] = useState(false);
 
-    const geneEntries = goal.genes ? Object.entries(goal.genes) : [];
-
-    console.log(goal.genes);
+    const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 
     const handlePinToggle = async () => {
         setIsPinning(true);
         const newPinState = !isPinned;
 
         try {
-            const response = await fetch(`/api/research-goals/${goal.id}/pin`, {
+            const response = await fetch(`/api/research-goals/${goal?.id}/pin`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ isPinned: newPinState }),
@@ -54,7 +53,7 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
             {/* Capsule icon */}
             <div className="absolute top-3 left-3 z-10">
                 <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
-                    <SpeciesAvatar species={goal.species} />
+                    <SpeciesAvatar species={goal?.species} />
                 </div>
             </div>
             <div className="absolute top-1 right-1 z-10">
@@ -77,16 +76,18 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                 {/* Goal Image */}
                 <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
                     <img
-                        src={goal.imageUrl || "/placeholder.png"}
-                        alt={goal.name}
+                        src={goal?.imageUrl || "/placeholder.png"}
+                        alt={goal?.name}
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
-                <div>
-                    <strong>Name:</strong> {goal.name}
-                </div>
-                <div>
-                    <strong>Species:</strong> {goal.species}
+                <div className="h-20">
+                    <div>
+                        <strong>Name:</strong> {goal?.name}
+                    </div>
+                    <div>
+                        <strong>Species:</strong> {goal?.species}
+                    </div>
                 </div>
                 {/* Goal Details in Scrollable Area */}
                 <strong>Target Genes:</strong>
@@ -107,7 +108,8 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                                                 </div>
                                                 <div>
                                                     Genotype:{" "}
-                                                    {goalMode == "phenotype" &&
+                                                    {goal?.goalMode ==
+                                                        "phenotype" &&
                                                     geneData.isMultiGenotype ? (
                                                         <span>multiple</span>
                                                     ) : (
@@ -142,19 +144,7 @@ export function ResearchGoalCard({ goalMode, goal }: ResearchGoalCardProps) {
                             </span>
                         </Button>
                     </Link>
-                    <EditGoalDialog goalMode={goalMode} goal={goal}>
-                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
-                            <span className="text-wrap wrap-normal">
-                                Edit or Delete Goal
-                            </span>
-                        </Button>
-                    </EditGoalDialog>
-                </div>
-                <div className="flex w-full justify-center">
-                    <span className="text-s text-dusk-purple text-center py-5">
-                        Note: Some features are still under development and not
-                        yet available.
-                    </span>
+                    <EditGoalDialog goal={goal} />
                 </div>
             </CardContent>
         </Card>

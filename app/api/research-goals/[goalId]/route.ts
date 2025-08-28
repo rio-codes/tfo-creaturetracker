@@ -10,7 +10,10 @@ import { and, eq } from "drizzle-orm";
 import { structuredGeneData } from "@/lib/creature-data";
 import { fetchAndUploadWithRetry } from "@/lib/data";
 
-const goalSchema = z.object({
+
+
+
+const editGoalSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters."),
     species: z.string().min(1, "Species is required."),
     genes: z.record(
@@ -18,10 +21,11 @@ const goalSchema = z.object({
         z.object({
             genotype: z.string(),
             phenotype: z.string(),
+            isMultiGenotype: z.boolean(),
         })
     ),
     goalMode: z.enum(["genotype", "phenotype"]),
-});  
+});
 
 interface GenesObject {
     [key: string]: string;
@@ -29,27 +33,28 @@ interface GenesObject {
 
 
 // function to make sure species, categories, and genotypes are valid
-export function validateGoalData(species: string, genes: GenesObject) {
+export function validateGoalData(
+    species: string,
+    genes: { [key: string]: { genotype: string; phenotype: string } }
+) {
     const speciesData = structuredGeneData[species];
     if (!speciesData) {
         throw new Error(`Invalid species provided: ${species}`);
     }
 
-    for (const [category, selectedGenotype] of Object.entries(genes)) {
-        const categoryData = speciesData[category];
+    for (const [category, selection] of Object.entries(genes)) {
+        const categoryData = speciesData[category] as { genotype: string }[];
         if (!categoryData) {
             throw new Error(
                 `Invalid gene category "${category}" for species "${species}".`
             );
         }
-
-        const isValidGenotype = (categoryData as { genotype: string }[]).some(
-            (gene) => gene.genotype === selectedGenotype
+        const isValidGenotype = categoryData.some(
+            (gene) => gene.genotype === selection.genotype
         );
-
         if (!isValidGenotype) {
             throw new Error(
-                `Invalid genotype "${selectedGenotype}" for category "${category}".`
+                `Invalid genotype "${selection.genotype}" for category "${category}".`
             );
         }
     }
@@ -71,7 +76,7 @@ export async function PATCH(
     try {
         const body = await req.json();
         // check received data against zod schema
-        const validatedFields = goalSchema.safeParse(body);
+        const validatedFields = editGoalSchema.safeParse(body);
         if (!validatedFields.success) {
             return NextResponse.json(
                 {
@@ -81,13 +86,20 @@ export async function PATCH(
                 { status: 400 }
             );
         }
-        const { name, species, genes } = validatedFields.data;
+        const { name, species, genes, goalMode } = validatedFields.data;
+    
         // use validation function to check species, category, and genotype
         validateGoalData(species, genes);
 
         // fetch new image from tfo and store it in vercel blob
-        const tfoImageUrl = constructTfoImageUrl(species, genes);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3)
+        const genotypesForUrl = Object.fromEntries(
+            Object.entries(genes).map(([category, selection]) => [
+                category,
+                selection.genotype,
+            ])
+        );
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
+        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
 
         // insert new research goal into db
         const result = await db
@@ -96,6 +108,7 @@ export async function PATCH(
                 name,
                 species,
                 genes,
+                goalMode,
                 imageUrl: blobUrl,
                 updatedAt: new Date(),
             })

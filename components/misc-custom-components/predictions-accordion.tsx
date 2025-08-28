@@ -39,7 +39,7 @@ export function PredictionsAccordion({
         <Accordion
             type="single"
             collapsible
-            className="w-full space-y-2 overflow-y-auto"
+            className="w-full space-y-2"
         >
         {predictions.map((p, index) => {
             const pairForDialog = {

@@ -66,7 +66,7 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
 };
 
 // serialize dates and add enriched gene data to research goal object
-const enrichAndSerializeGoal = (
+export const enrichAndSerializeGoal = (
     goal: DbResearchGoal,
     goalMode: "genotype" | "phenotype"
 ): EnrichedResearchGoal => {

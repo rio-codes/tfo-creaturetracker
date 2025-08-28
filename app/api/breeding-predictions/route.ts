@@ -6,7 +6,7 @@ import { z } from "zod";
 import { and, eq, inArray } from "drizzle-orm";
 import { calculateGeneProbability } from "@/lib/genetics";
 import { structuredGeneData } from "@/lib/creature-data";
-import type { Creature as DbCreature, EnrichedCreature } from "@/types";
+import type { DbCreature, EnrichedCreature } from "@/types";
 
 // Helper function to enrich and serialize a single creature.
 // For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.

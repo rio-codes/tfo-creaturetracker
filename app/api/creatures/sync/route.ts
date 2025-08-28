@@ -18,6 +18,49 @@ const tfoErrorMap: { [key: number]: string } = {
     7: "Tab does not exist.",
     8: "Tab is hidden.",
 };
+async function fetchAndUploadWithRetry(
+    imageUrl: string,
+    creatureCode: string,
+    retries = 3
+): Promise<string> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            // Step 1: Fetch the image from the external URL
+            const imageResponse = await fetch(imageUrl);
+            if (!imageResponse.ok) {
+                throw new Error(
+                    `Failed to download image. Status: ${imageResponse.status}`
+                );
+            }
+            const imageBlob = await imageResponse.blob();
+
+            // Step 2: Upload the image to Vercel Blob
+            const filename = `creatures/${creatureCode}.png`;
+            const blob = await put(filename, imageBlob, {
+                access: "public",
+                contentType: imageBlob.type || "image/png",
+                allowOverwrite: true, // Add this line
+            });
+
+            // If successful, return the new URL immediately
+            return blob.url;
+        } catch (error) {
+            console.warn(
+                `Attempt ${attempt} failed for creature ${creatureCode}: ${error.message}`
+            );
+            if (attempt === retries) {
+                // If this was the last attempt, re-throw the error to be caught by the main logic
+                throw new Error(
+                    `All ${retries} attempts failed for ${creatureCode}.`
+                );
+            }
+            // Wait before the next retry (e.g., 1 second)
+            await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+    // This part should not be reachable, but is a fallback
+    throw new Error("Upload failed after all retries.");
+}
 
 export async function POST(req: Request) {
     const session = await auth();
@@ -68,25 +111,22 @@ export async function POST(req: Request) {
             let newImageUrl = c.imgsrc; // Default to original URL
 
             try {
-            // Fetch the image from the external URL
-            const imageResponse = await fetch(c.imgsrc);
-            if (imageResponse.ok) {
-                const imageBlob = await imageResponse.blob();
-                const blob = await put(`${c.code}.png`, imageBlob, {
-                    access: 'public',
-                });
-                newImageUrl = blob.url;
-            }
+                // Call our new function with retry logic
+                newImageUrl = await fetchAndUploadWithRetry(c.imgsrc, c.code);
             } catch (uploadError) {
-                console.error(`Failed to upload image for creature ${c.code}:`, uploadError);
-                // If upload fails, we'll just use the original URL as a fallback
+                console.error(
+                    `Failed to upload image for creature ${c.code} after all retries:`,
+                    uploadError.message
+                );
+                // If all retries fail, we fall back to the original URL
+                newImageUrl = c.imgsrc;
             }
 
             return {
                 userId: userId,
                 code: c.code,
                 creatureName: c.name,
-                imageUrl: newImageUrl, // 3. Use the new (or fallback) URL
+                imageUrl: newImageUrl,
                 gottenAt: c.gotten ? new Date(c.gotten * 1000) : null,
                 growthLevel: c.growthLevel,
                 isStunted: c.isStunted,

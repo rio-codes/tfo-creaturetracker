@@ -1,66 +1,136 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+"use client";
 
-import { cn } from "@/lib/utils"
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import {
+    alertService,
+    Alert as AlertTypeFromService,
+    AlertType,
+} from "@/services/alert.service";
 
-const alertVariants = cva(
-  "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
-
-function Alert({
-  className,
-  variant,
-  ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
-  return (
-    <div
-      data-slot="alert"
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
-  )
+interface AlertProps {
+    id?: string;
+    fade?: boolean;
 }
 
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
-      className={cn(
-        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  )
+interface AlertWithState extends AlertTypeFromService {
+    itemId?: number;
+    fade?: boolean;
+    keepAfterRouteChange?: boolean;
 }
 
-function AlertDescription({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={cn(
-        "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+export function Alert({ id = "default-alert", fade = true }: AlertProps) {
+    const mounted = useRef(false);
+    const pathname = usePathname();
+    const [alerts, setAlerts] = useState<AlertWithState[]>([]);
 
-export { Alert, AlertTitle, AlertDescription }
+    useEffect(() => {
+        mounted.current = true;
+
+        // subscribe to new alert notifications from the service
+        const subscription = alertService
+            .onAlert(id)
+            .subscribe((alert: AlertWithState) => {
+                // clear alerts when an empty alert is received
+                if (!alert.message) {
+                    setAlerts((currentAlerts) => {
+                        const filteredAlerts = currentAlerts.filter(
+                            (x) => x.keepAfterRouteChange
+                        );
+                        // remove 'keepAfterRouteChange' flag from the rest
+                        return filteredAlerts.map(
+                            ({ keepAfterRouteChange, ...rest }) => rest
+                        );
+                    });
+                } else {
+                    // add a unique ID for the React key and removal logic
+                    alert.itemId = Math.random();
+                    setAlerts((currentAlerts) => [...currentAlerts, alert]);
+
+                    // auto close alert if required
+                    if (alert.autoClose) {
+                        setTimeout(() => removeAlert(alert), 3000);
+                    }
+                }
+            });
+
+        // clean up function that runs when the component unmounts
+        return () => {
+            mounted.current = false;
+            subscription.unsubscribe();
+        };
+    }, [id]); // rerun effect if the id property changes
+
+    // separate effect to handle clearing alerts on route change
+    useEffect(() => {
+        // clear alerts on location change
+        alertService.clear(id);
+    }, [pathname, id]); // rerun whenever the path changes
+
+    function removeAlert(alertToRemove: AlertWithState) {
+        if (!mounted.current) return;
+
+        if (fade) {
+            // fade out alert
+            setAlerts((currentAlerts) =>
+                currentAlerts.map((x) =>
+                    x.itemId === alertToRemove.itemId ? { ...x, fade: true } : x
+                )
+            );
+
+            // remove alert after the fade-out animation completes
+            setTimeout(() => {
+                setAlerts((currentAlerts) =>
+                    currentAlerts.filter(
+                        (x) => x.itemId !== alertToRemove.itemId
+                    )
+                );
+            }, 250);
+        } else {
+            // remove alert immediately
+            setAlerts((currentAlerts) =>
+                currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
+            );
+        }
+    }
+
+    function cssClasses(alertItem: AlertWithState): string {
+        const baseClasses = "relative p-4 rounded-lg shadow-md"; // Base styles for all alerts
+
+        const alertTypeClasses = {
+            [AlertType.Success]: "bg-green-200 text-green-800",
+            [AlertType.Error]: "bg-red-200 text-red-800",
+            [AlertType.Info]: "bg-blue-200 text-blue-800",
+            [AlertType.Warning]: "bg-yellow-200 text-yellow-800",
+        };
+
+        // Add a fade-out transition class if the alert is fading
+        const fadeClass = alertItem.fade
+            ? "opacity-0 transition-opacity duration-200"
+            : "opacity-100";
+
+        return `${baseClasses} ${alertTypeClasses[alertItem.type]} ${fadeClass}`;
+    }
+
+    if (!alerts.length) return null;
+    return (
+        <div className="fixed top-5 right-5 z-50 w-full max-w-sm space-y-2">
+            {alerts.map((alertItem) => (
+                <div key={alertItem.itemId} className={cssClasses(alertItem)}>
+                    <div className="flex items-start">
+                        <div
+                            className="flex-1"
+                            dangerouslySetInnerHTML={{ __html: alertItem.message }}
+                        ></div>
+                        <button
+                            className="ml-4 -mt-1 -mr-1 p-1 rounded-full hover:bg-black/10"
+                            onClick={() => removeAlert(alertItem)}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}

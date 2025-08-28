@@ -6,9 +6,8 @@ import { constructTfoImageUrl } from "@/lib/tfo-utils";
 const previewSchema = z.object({
     species: z.string().min(1),
     genes: z.record(
-        z.string(), // The key is the category (string)
+        z.string(),
         z.object({
-            // The value is an object with this shape
             genotype: z.string(),
             phenotype: z.string(),
         })
@@ -25,11 +24,13 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        console.log("Received ", body)
+        console.log("Received ", body);
         const validatedFields = previewSchema.safeParse(body);
-        
+
         if (!validatedFields.success) {
-            const fieldErrors = z.flattenError(validatedFields.error).fieldErrors;
+            const fieldErrors = z.flattenError(
+                validatedFields.error
+            ).fieldErrors;
             const allErrorArrays = Object.values(fieldErrors);
             const allErrors = allErrorArrays.flat();
             const errorString = allErrors.join("\n");
@@ -41,11 +42,12 @@ export async function POST(req: Request) {
         }
         const { species, genes } = validatedFields.data;
 
+        // get genotype to construct image url
         const genotypesForUrl = Object.fromEntries(
-            Object.entries(genes).map(([category, selection]) => [
-                category,
-                selection.genotype,
-            ])
+            Object.entries(genes).map(([category, selection]) => {
+                const geneSelection = selection as { genotype: string };
+                return [category, geneSelection.genotype];
+            })
         );
 
         const imageUrl = constructTfoImageUrl(species, genotypesForUrl);

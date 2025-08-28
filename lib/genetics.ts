@@ -3,7 +3,7 @@ import { structuredGeneData } from "@/lib/creature-data";
 
 function getGametes(genotype: string): string[] {
     if (!genotype || genotype.length % 2 !== 0) return [];
-    const loci = [];
+    const loci: string[][] = [];
     for (let i = 0; i < genotype.length; i += 2) {
         loci.push([genotype[i], genotype[i + 1]]);
     }
@@ -84,7 +84,7 @@ export function calculateGeneProbability(
         const probability = offspringProbabilities.get(target.genotype) || 0;
         return probability;
     } else {
-        const speciesData = structuredGeneData[maleParent.species || ""];
+        const speciesData = structuredGeneData[maleParent?.species || ""];
         if (!speciesData) {
             return 0;
         }

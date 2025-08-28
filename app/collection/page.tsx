@@ -42,7 +42,6 @@ export default async function CollectionPage({
         <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading collection...</div>}>
-                    {/* 3. Pass the data directly to the client component. */}
                     <CollectionClient
                         initialCreatures={paginatedCreatures}
                         totalPages={totalPages}

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Page() {
     return (
         <div className="flex h-screen bg-slate-800">
@@ -23,14 +25,45 @@ export default function Page() {
                         </ul>
                     </div>
                     <p className="text-slate-400 font-bold text-l mt-5">
-                        Want to be a beta tester? Message me on{" "}
+                        Want to be a beta tester? Join us on{" "}
                         <a
-                            href="https://discordapp.com/users/lyricism__"
-                            className="text-barely-lilac"
+                            href="https://discord.gg/2avcnP83v9"
+                            className="text-dusk-purple"
                         >
                             Discord
                         </a>
                         !
+                    </p>
+                    <p className="text-slate-400 font-semibold text-md mt-5">
+                        Current beta testers:{" "}
+                        <a
+                            className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/DraconisVenenum"
+                        >
+                            Joltflare
+                        </a>
+                        ,{" "}
+                        <a
+                            className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/koda_curvata"
+                        >
+                            Koda
+                        </a>
+                        ,{" "}
+                        <a
+                            className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/Notherox"
+                        >
+                            Notherox
+                        </a>
+                        , and{" "}
+                        <a
+                            className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/Viscera_McVoid"
+                        >
+                            Viscera
+                        </a>
+                        .
                     </p>
                 </div>
             </div>

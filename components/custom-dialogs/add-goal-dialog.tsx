@@ -1,5 +1,5 @@
 "use client";
-import AddGoalForm from "@/components/custom-forms/add-goal-form";
+import { GoalForm } from "@/components/custom-forms/goal-form"
 
 type DialogProps = {
     goalMode: string;
@@ -28,7 +28,7 @@ export function AddGoalDialog({ goalMode, isOpen, onClose }: DialogProps) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-2xl font-bold text-pompaca-purple mb-4">New Research Goal</h2>
-                <AddGoalForm goalMode={goalMode} onClose={onClose}/>
+                <GoalForm onSuccess={handleClose}/>
             </div>
         </div>
     );

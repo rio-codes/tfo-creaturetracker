@@ -8,20 +8,27 @@ import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { and, eq } from "drizzle-orm";
 import { structuredGeneData } from "@/lib/creature-data";
+import { fetchAndUploadWithRetry } from "@/lib/data";
 
-const editGoalSchema = z.object({
-    name: z
-        .string()
-        .min(3, "Name must be at least 3 characters.")
-        .max(32, "Pair name can not be more than 32 characters."),
+const goalSchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters."),
     species: z.string().min(1, "Species is required."),
-    genes: z.record(z.string(), z.string()),
-});
+    genes: z.record(
+        z.string(),
+        z.object({
+            genotype: z.string(),
+            phenotype: z.string(),
+        })
+    ),
+    goalMode: z.enum(["genotype", "phenotype"]),
+});  
 
 interface GenesObject {
     [key: string]: string;
 }
 
+
+// function to make sure species, categories, and genotypes are valid
 export function validateGoalData(species: string, genes: GenesObject) {
     const speciesData = structuredGeneData[species];
     if (!speciesData) {
@@ -48,6 +55,7 @@ export function validateGoalData(species: string, genes: GenesObject) {
     }
 }
 
+// edit exisiting research goal
 export async function PATCH(
     req: Request,
     { params }: { params: { goalId: string } }
@@ -62,7 +70,8 @@ export async function PATCH(
 
     try {
         const body = await req.json();
-        const validatedFields = editGoalSchema.safeParse(body);
+        // check received data against zod schema
+        const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
             return NextResponse.json(
                 {
@@ -73,28 +82,21 @@ export async function PATCH(
             );
         }
         const { name, species, genes } = validatedFields.data;
+        // use validation function to check species, category, and genotype
         validateGoalData(species, genes);
 
-        // --- Fetch-and-Store new image ---
+        // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genes);
-        const imageResponse = await fetch(tfoImageUrl);
-        if (!imageResponse.ok)
-            throw new Error("Failed to fetch generated image from TFO.");
-        const imageBlob = await imageResponse.blob();
-        const filename = `goals/${crypto.randomUUID()}.png`;
-        const blob = await vercelBlobPut(filename, imageBlob, {
-            access: "public",
-            contentType: "image/png",
-        });
+        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3)
 
-        // Securely update the goal only if it belongs to the logged-in user
+        // insert new research goal into db
         const result = await db
             .update(researchGoals)
             .set({
                 name,
                 species,
                 genes,
-                imageUrl: blob.url,
+                imageUrl: blobUrl,
                 updatedAt: new Date(),
             })
             .where(
@@ -125,7 +127,7 @@ export async function PATCH(
     }
 }
 
-// --- DELETE A GOAL ---
+// delete research goal
 export async function DELETE(
     req: Request,
     { params }: { params: { goalId: string } }

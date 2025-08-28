@@ -5,17 +5,13 @@ import { researchGoals } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { TFO_SPECIES_CODES } from "@/lib/creature-data";
-import { put as vercelBlobPut } from "@vercel/blob";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { structuredGeneData } from "@/lib/creature-data";
-
+import { fetchAndUploadWithRetry } from "@/lib/data";
 
 const goalSchema = z.object({
-    name: z
-        .string()
-        .min(3)
-        .max(32, "Pair name can not be more than 32 characters."),
-    species: z.string().min(1),
+    name: z.string().min(3, "Name must be at least 3 characters."),
+    species: z.string().min(1, "Species is required."),
     genes: z.record(
         z.string(),
         z.object({
@@ -23,16 +19,21 @@ const goalSchema = z.object({
             phenotype: z.string(),
         })
     ),
-});
+    goalMode: z.enum(["genotype", "phenotype"]),
+});  
 
-type GenesObject = z.infer<typeof goalSchema._zod.output.genes>
+interface GenesObject {
+    [key: string]: string;
+}
 
+// function to make sure species, categories, and genotypes are valid
 export function validateGoalData(species: string, genes: GenesObject) {
     const speciesData = structuredGeneData[species];
     if (!speciesData) {
         throw new Error(`Invalid species provided: ${species}`);
     }
 
+    // ensure each category is valid for species
     for (const [category, selectedGene] of Object.entries(genes)) {
         const selectedGenotype = selectedGene["genotype"];
         const categoryData = speciesData[category];
@@ -41,11 +42,11 @@ export function validateGoalData(species: string, genes: GenesObject) {
                 `Invalid gene category "${category}" for species "${species}".`
             );
         }
-
+        // ensure genotype exists for category
         const isValidGenotype = (categoryData as { genotype: string }[]).some(
             (gene) => gene.genotype === selectedGenotype
         );
-
+        // error if genotype is not valid
         if (!isValidGenotype) {
             throw new Error(
                 `Invalid genotype "${selectedGenotype}" for category "${category}".`
@@ -54,6 +55,7 @@ export function validateGoalData(species: string, genes: GenesObject) {
     }
 }
 
+// add new research goal
 export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
@@ -65,8 +67,8 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
+        // validate received data with zod schema
         const validatedFields = goalSchema.safeParse(body);
-
         if (!validatedFields.success) {
             console.error(
                 "Zod Validation Failed:",
@@ -81,49 +83,32 @@ export async function POST(req: Request) {
             );
         }
         const { name, species, genes } = validatedFields.data;
+        // validate received data with custom function
         validateGoalData(species, genes);
 
+        // ensure species is valid
         const speciesCode = TFO_SPECIES_CODES[species];
         if (!speciesCode)
             throw new Error(`Invalid species provided: ${species}`);
 
+        // get genotype to construct image url
         const genotypesForUrl = Object.fromEntries(
-            Object.entries(genes).map(([category, selection]) => [
-                category,
-                selection.genotype,
-            ])
+            Object.entries(genes).map(([category, selection]) => {
+                const geneSelection = selection as { genotype: string };
+                return [category, geneSelection.genotype];
+            })
         );
 
+        // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-
-        let finalImageUrl = "";
-
-        console.log(`Fetching dynamic image from: ${tfoImageUrl.toString()}`);
-        const imageResponse = await fetch(tfoImageUrl.toString());
-
-        if (!imageResponse.ok) {
-            throw new Error(
-                `Failed to fetch the generated image from TFO. Status: ${imageResponse.status}`
-            );
-        }
-        const imageBlob = await imageResponse.blob();
-
-        const filename = `goals/${crypto.randomUUID()}.png`;
-        const blob = await vercelBlobPut(filename, imageBlob, {
-            access: "public",
-            contentType: "image/png",
-        });
-
-        finalImageUrl = blob.url;
-        console.log(
-            `Successfully uploaded image to Vercel Blob: ${finalImageUrl}`
-        );
-
+        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3)
+        
+        // insert new research goal into db
         await db.insert(researchGoals).values({
             userId: session.user.id,
             name: name,
             species: species,
-            imageUrl: finalImageUrl,
+            imageUrl: blobUrl,
             genes: genes,
             updatedAt: new Date(),
         });

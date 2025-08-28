@@ -1,35 +1,31 @@
 "use client";
-import { GoalForm } from "@/components/custom-forms/goal-form"
+import { useState } from "react";
+import { GoalForm } from "@/components/custom-forms/goal-form";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
-type DialogProps = {
-    goalMode: string;
-    isOpen: boolean;
-    onClose: () => void;
-};
-
-type SyncStatus = "idle" | "loading" | "success" | "error";
-
-export function AddGoalDialog({ goalMode, isOpen, onClose }: DialogProps) {
-    if (!isOpen) {
-        return null;
-    }
-
-    const handleClose = () => {
-        onClose();
-    }
+export function AddGoalDialog() {
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div
-            className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center"
-            onClick={handleClose}
-        >
-            <div
-                className="bg-barely-lilac rounded-lg shadow-xl overflow-y-auto p-6 space-y-4 w-full max-h-3/4 max-w-md z-50"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <h2 className="text-2xl font-bold text-pompaca-purple mb-4">New Research Goal</h2>
-                <GoalForm onSuccess={handleClose}/>
-            </div>
-        </div>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-emoji-eggplant text-barely-lilac mb-5">
+                    + New Goal
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-barely-lilac max-h-3/4 overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Create New Research Goal</DialogTitle>
+                </DialogHeader>
+                <GoalForm onSuccess={() => setIsOpen(false)} />
+            </DialogContent>
+        </Dialog>
     );
 }

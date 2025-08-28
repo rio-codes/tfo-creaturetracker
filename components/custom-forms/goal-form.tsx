@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
     Select,
     SelectContent,
@@ -17,6 +18,7 @@ import { structuredGeneData } from "@/lib/creature-data";
 import { Loader2, Trash2 } from "lucide-react";
 import type { EnrichedResearchGoal } from "@/types";
 
+// Define the shape for our state and options
 type GeneSelection = {
     genotype: string;
     phenotype: string;
@@ -25,13 +27,14 @@ type GeneSelection = {
 type GeneOption = {
     value: string;
     display: string;
-    phenotype: string;
-    isMultiGenotype: boolean;
+    // We need the full selection object to be available in the option
+    selection: GeneSelection;
 };
 
 type GoalFormProps = {
+    // If a `goal` is provided, we're in "edit" mode. If not, "create" mode.
     goal?: EnrichedResearchGoal;
-    onSuccess: () => void;
+    onSuccess: () => void; // To close the parent dialog
 };
 
 export function GoalForm({ goal, onSuccess }: GoalFormProps) {
@@ -56,27 +59,24 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
 
     // generate gene options for selected species depending on goal moad
     const geneOptions = useMemo(() => {
-        // reset options if species is blank
         if (!species || !structuredGeneData[species]) return {};
         const optionsByCat: { [key: string]: GeneOption[] } = {};
 
         for (const [category, genes] of Object.entries(
             structuredGeneData[species]
         )) {
-            // group all genotypes by their phenotype to calculate isMultiGenotype
-            const phenotypeMap = new Map<string, string[]>();
-            (genes as { genotype: string; phenotype: string }[]).forEach(
-                (gene) => {
-                    const existing = phenotypeMap.get(gene.phenotype) || [];
-                    phenotypeMap.set(gene.phenotype, [
-                        ...existing,
-                        gene.genotype,
-                    ]);
-                }
-            );
-
             if (goalMode === "genotype") {
-                // GENOTYPE MODE: show every single genotype as a distinct option
+                const phenotypeMap = new Map<string, string[]>();
+                (genes as { genotype: string; phenotype: string }[]).forEach(
+                    (gene) => {
+                        const existing = phenotypeMap.get(gene.phenotype) || [];
+                        phenotypeMap.set(gene.phenotype, [
+                            ...existing,
+                            gene.genotype,
+                        ]);
+                    }
+                );
+
                 optionsByCat[category] = (
                     genes as { genotype: string; phenotype: string }[]
                 ).map((gene) => {
@@ -85,25 +85,42 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     return {
                         value: gene.genotype,
                         display:
-                            gene.phenotype === "None" || category === "Gender"
+                            category === "Gender"
                                 ? gene.genotype
                                 : `${gene.genotype} (${gene.phenotype})`,
-                        phenotype: gene.phenotype,
-                        isMultiGenotype: genotypesForPhenotype.length > 1,
+                        selection: {
+                            phenotype: gene.phenotype,
+                            genotype: gene.genotype,
+                            isMultiGenotype: genotypesForPhenotype.length > 1,
+                        },
                     };
                 });
             } else {
-                // PHENOTYPE MODE: de-duplicate by phenotype
+                // PHENOTYPE MODE
+                const phenotypeMap = new Map<string, string[]>();
+                (genes as { genotype: string; phenotype: string }[]).forEach(
+                    (gene) => {
+                        const existing = phenotypeMap.get(gene.phenotype) || [];
+                        phenotypeMap.set(gene.phenotype, [
+                            ...existing,
+                            gene.genotype,
+                        ]);
+                    }
+                );
+
                 optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
                     ([phenotype, genotypes]) => {
                         const isMulti = genotypes.length > 1;
                         return {
-                            value: genotypes[0], // Sample genotype
-                            display: isMulti
+                            value: phenotype, // The value is now the PHENOTYPE
+                            display: isMulti || category == "Gender"
                                 ? phenotype
                                 : `${phenotype} (${genotypes[0]})`,
-                            phenotype: phenotype,
-                            isMultiGenotype: isMulti,
+                            selection: {
+                                phenotype: phenotype,
+                                genotype: genotypes[0], // Use the first as the representative
+                                isMultiGenotype: isMulti,
+                            },
                         };
                     }
                 );
@@ -117,8 +134,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
         [geneOptions]
     );
 
-
-    // if creating new research goal set default selections to first option in list or female for gender
+    // --- EFFECT FOR DEFAULT VALUES IN CREATE MODE ---
     useEffect(() => {
         if (!isEditMode && species && geneCategories.length > 0) {
             const defaultSelections: { [key: string]: GeneSelection } = {};
@@ -128,28 +144,23 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     let defaultOption = options[0];
                     if (category === "Gender") {
                         defaultOption =
-                            options.find((opt) => opt.value === "Female") ||
-                            options[0];
+                            options.find(
+                                (opt) => opt.selection.genotype === "Female"
+                            ) || options[0];
                     }
-                    defaultSelections[category] = {
-                        genotype: defaultOption.value,
-                        phenotype: defaultOption.phenotype,
-                        isMultiGenotype: defaultOption.isMultiGenotype,
-                    };
+                    defaultSelections[category] = defaultOption.selection;
                 }
             }
             setSelectedGenes(defaultSelections);
         }
-    }, [species, geneCategories, isEditMode, geneOptions]); // re-run when species changes
+    }, [species, geneCategories, isEditMode, geneOptions]);
 
-    // reset genes when species changes and clear preview image
     const handleSpeciesChange = (newSpecies: string) => {
         setSpecies(newSpecies);
         setSelectedGenes({});
         setPreviewImageUrl(null);
     };
 
-    // set genes to selection
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
         const selectedOption = options?.find(
@@ -158,11 +169,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
         if (selectedOption) {
             setSelectedGenes((prev) => ({
                 ...prev,
-                [category]: {
-                    genotype: selectedOption.value,
-                    phenotype: selectedOption.phenotype,
-                    isMultiGenotype: selectedOption.isMultiGenotype,
-                },
+                [category]: selectedOption.selection,
             }));
         }
         setPreviewImageUrl(null);
@@ -246,7 +253,36 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 flex-col">
+            {/* Goal Mode Selector */}
+            <div className="space-y-2">
+                <Label>Goal Mode</Label>
+                <RadioGroup
+                    value={goalMode}
+                    onValueChange={(value) =>
+                        setGoalMode(value as "genotype" | "phenotype")
+                    }
+                    className="flex space-x-4"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="phenotype" id="phenotype" />
+                        <Label htmlFor="phenotype" className="font-normal">
+                            Phenotype
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="genotype" id="genotype" />
+                        <Label htmlFor="genotype" className="font-normal">
+                            Genotype
+                        </Label>
+                    </div>
+                </RadioGroup>
+                <p className="text-xs text-dusk-purple pt-1">
+                    {goalMode === "phenotype"
+                        ? "Phenotype mode finds any genotype that produces the desired look."
+                        : "Genotype mode requires an exact genetic match."}
+                </p>
+            </div>
             <div className="space-y-2 mb-3">
                 <Label htmlFor="goal-name">Goal Name</Label>
                 <Input
@@ -286,13 +322,16 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 </Select>
             </div>
             {species && (
-                <div className="space-y-4 border p-4 rounded-md bg-ebena-lavender mb-5">
+                <div className="space-y-4 border p-4 rounded-md bg-ebena-lavender">
                     <h3 className="font-bold text-pompaca-purple">
                         Target Genes
                     </h3>
                     {geneCategories.map((category) => {
                         const selectedValue =
-                            selectedGenes[category]?.genotype || "";
+                            goalMode === "phenotype"
+                                ? selectedGenes[category]?.phenotype || ""
+                                : selectedGenes[category]?.genotype || "";
+
                         const options = geneOptions[category] || [];
                         return (
                             <div key={category}>
@@ -305,7 +344,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                                         handleGeneChange(category, value)
                                     }
                                 >
-                                    <SelectTrigger className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple">
+                                    <SelectTrigger className="w-full bg-barely-lilac ...">
                                         <SelectValue
                                             placeholder={`Select ${category}...`}
                                         />
@@ -328,7 +367,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 </div>
             )}
 
-            {/* preview section and submit buttons */}
+            {/* preview section */}
             <div className="space-y-2">
                 <Button
                     type="button"
@@ -349,7 +388,9 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     />
                 )}
             </div>
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
+            {/* submit buttons */}
             <div className="flex justify-between items-center pt-4">
                 {isEditMode && (
                     <Button

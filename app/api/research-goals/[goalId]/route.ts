@@ -5,13 +5,9 @@ import { researchGoals } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
-import { put as vercelBlobPut } from "@vercel/blob";
 import { and, eq } from "drizzle-orm";
 import { structuredGeneData } from "@/lib/creature-data";
 import { fetchAndUploadWithRetry } from "@/lib/data";
-
-
-
 
 const editGoalSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters."),

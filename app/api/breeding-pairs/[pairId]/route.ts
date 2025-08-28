@@ -31,6 +31,7 @@ export async function PATCH(
 
     try {
         const body = await req.json();
+        console.log(body)
         const validatedFields = editPairSchema.safeParse(body);
         if (!validatedFields.success) {
             return NextResponse.json(

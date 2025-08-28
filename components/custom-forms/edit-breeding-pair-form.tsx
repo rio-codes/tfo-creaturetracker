@@ -68,12 +68,15 @@ export function EditBreedingPairForm({
         e.preventDefault();
         setIsLoading(true);
         setError("");
+        const pairName = pair?.pairName
+        const species = pair?.species
         try {
-            const response = await fetch(`/api/breeding-pair?s/${pair?.id}`, {
+            const response = await fetch(`/api/breeding-pairs/${pair?.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     pairName,
+                    species,
                     maleParentId: selectedMaleId,
                     femaleParentId: selectedFemaleId,
                     assignedGoalIds: selectedGoalIds,

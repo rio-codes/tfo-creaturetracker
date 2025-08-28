@@ -179,8 +179,8 @@ export function BreedingPairCard({
                             pair={pairForDialog}
                             allCreatures={allCreatures}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15 ">
-                                <span className="text-wrap wrap-normal">
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16 ">
+                                <span className="text-wrap wrap-normal text-sm/tight">
                                     Log Breeding
                                 </span>
                             </Button>
@@ -190,8 +190,8 @@ export function BreedingPairCard({
                             allCreatures={allCreatures}
                             allGoals={allGoals}
                         >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-15">
-                                <span className="text-wrap wrap-normal">
+                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16">
+                                <span className="text-wrap wrap-normal text-sm/tight">
                                     Edit or Delete Pair
                                 </span>
                             </Button>

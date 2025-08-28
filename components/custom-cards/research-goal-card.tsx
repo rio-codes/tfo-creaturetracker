@@ -137,9 +137,9 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
 
                 {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
-                    <Link href={`/research-goals/${goal.id}`} passHref>
-                        <Button className="bg-emoji-eggplant text-barely-lilac h-15 w-25">
-                            <span className="text-wrap wrap-normal">
+                    <Link href={`/research-goals/${goal?.id}`} passHref>
+                        <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-25 text-sm/tight">
+                            <span className="text-wrap wrap-normal text-sm/tight">
                                 Goal Tracker
                             </span>
                         </Button>

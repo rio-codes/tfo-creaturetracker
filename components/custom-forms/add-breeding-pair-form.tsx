@@ -150,19 +150,18 @@ export function AddPairForm({
                 }),
             });
             const data = await response.json();
+
             if (!response.ok) {
-                console.log(data.error)
-                setError("Failed to create pair. " + data.error);
-            }
-            else {
-                console.log(data.message)
-                setMessage(data.message)
+                setError(data.error || "An unknown error occurred while creating the pair.");
+                return;
             }
 
+            // on success, show message, refresh data, and close the dialog
+            setMessage(data.message);
             router.refresh();
             onSuccess();
         } catch (err: any) {
-            setError(err.message);
+            setError(err.message || "A network error occurred. Please try again.");
         } finally {
             setIsLoading(false);
         }

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
-import { breedingPairs, creatures } from "@/src/db/schema";
+import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { validatePairing } from "@/lib/breeding-rules"; 
-import { and, eq } from "drizzle-orm";
+import { validatePairing } from "@/lib/breeding-rules";
+import { and, eq, inArray } from "drizzle-orm";
 
 const createPairSchema = z.object({
     pairName: z
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
             { status: 401 }
         );
     }
-    
+
     const userId = session.user.id;
 
     try {
@@ -74,6 +74,22 @@ export async function POST(req: Request) {
             );
         }
 
+        // Check if a pair with these exact parents already exists for this user
+        const existingPair = await db.query.breedingPairs.findFirst({
+            where: and(
+                eq(breedingPairs.userId, userId),
+                eq(breedingPairs.maleParentId, maleParentId),
+                eq(breedingPairs.femaleParentId, femaleParentId)
+            ),
+        });
+
+        if (existingPair) {
+            return NextResponse.json(
+                { error: "A breeding pair with these parents already exists." },
+                { status: 409 }
+            );
+        }
+
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
             return NextResponse.json(
@@ -82,18 +98,45 @@ export async function POST(req: Request) {
             );
         }
 
-        await db.insert(breedingPairs).values({
-            userId: session.user.id,
-            pairName,
-            species,
-            maleParentId,
-            femaleParentId,
-            assignedGoalIds: assignedGoalIds || [], // Default to an empty array if none are provided
-            updatedAt: new Date(),
-        });
+        const [newPair] = await db
+            .insert(breedingPairs)
+            .values({
+                userId: session.user.id,
+                pairName,
+                species,
+                maleParentId,
+                femaleParentId,
+                assignedGoalIds: assignedGoalIds || [], // Default to an empty array if none are provided
+                updatedAt: new Date(),
+            })
+            .returning({ id: breedingPairs.id });
+
+        // if goals were assigned during creation, update them to include this new pair
+        if (assignedGoalIds && assignedGoalIds.length > 0 && newPair) {
+            console.log("updating goals");
+            const goalsToUpdate = await db.query.researchGoals.findMany({
+                where: and(
+                    inArray(researchGoals.id, assignedGoalIds),
+                    eq(researchGoals.userId, userId)
+                ),
+            });
+
+            // update associated research goals with assigned pair ids
+            for (const goal of goalsToUpdate) {
+                const currentPairIds = new Set(goal.assignedPairIds || []);
+                console.log("updating pair ", currentPairIds)
+                currentPairIds.add(newPair.id);
+                await db
+                    .update(researchGoals)
+                    .set({ assignedPairIds: Array.from(currentPairIds) })
+                    .where(eq(researchGoals.id, goal.id));
+                revalidatePath(`/research-goals/${goal.id}`);
+            }
+        }
 
         // Revalidate the path so the new pair shows up immediately
         revalidatePath("/breeding-pairs");
+        revalidatePath("/research-goals");
 
         return NextResponse.json(
             { message: "Breeding pair created successfully!" },

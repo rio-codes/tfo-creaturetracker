@@ -38,6 +38,12 @@ export default function Page() {
                         Current beta testers:{" "}
                         <a
                             className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/FlipACoin/"
+                        >
+                            Ancient Tree Sap
+                        </a>
+                        <a
+                            className="text-dusk-purple"
                             href="https://finaloutpost.net/lab/DraconisVenenum"
                         >
                             Joltflare

@@ -28,7 +28,7 @@ export default function Page() {
                         Want to be a beta tester? Join us on{" "}
                         <a
                             href="https://discord.gg/2avcnP83v9"
-                            className="text-barely-lilac"
+                            className="text-dusk-purple"
                         >
                             Discord
                         </a>
@@ -37,28 +37,35 @@ export default function Page() {
                     <p className="text-slate-400 font-semibold text-md mt-5">
                         Current beta testers:{" "}
                         <a
-                            className="underline"
+                            className="text-dusk-purple"
+                            href="https://finaloutpost.net/lab/FlipACoin/"
+                        >
+                            Ancient Tree Sap
+                        </a>
+                        ,{" "}
+                        <a
+                            className="text-dusk-purple"
                             href="https://finaloutpost.net/lab/DraconisVenenum"
                         >
                             Joltflare
                         </a>
                         ,{" "}
                         <a
-                            className="underline"
+                            className="text-dusk-purple"
                             href="https://finaloutpost.net/lab/koda_curvata"
                         >
                             Koda
                         </a>
                         ,{" "}
                         <a
-                            className="underline"
+                            className="text-dusk-purple"
                             href="https://finaloutpost.net/lab/Notherox"
                         >
                             Notherox
                         </a>
                         , and{" "}
                         <a
-                            className="underline"
+                            className="text-dusk-purple"
                             href="https://finaloutpost.net/lab/Viscera_McVoid"
                         >
                             Viscera

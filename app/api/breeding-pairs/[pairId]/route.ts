@@ -5,6 +5,7 @@ import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
+import { validatePairing } from "@/lib/breeding-rules";
 
 const editPairSchema = z.object({
     pairName: z
@@ -45,6 +46,18 @@ export async function PATCH(
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
+        // Fetch the existing pair to compare assigned goals
+        const existingPair = await db.query.breedingPairs.findFirst({
+            where: and(
+                eq(breedingPairs.id, params.pairId),
+                eq(breedingPairs.userId, session.user.id)
+            ),
+        });
+
+        if (!existingPair) {
+            return NextResponse.json({ error: "Breeding pair not found." }, { status: 404 });
+        }
+
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
                 where: and(
@@ -68,23 +81,10 @@ export async function PATCH(
                 { status: 404 }
             );
         }
-        if (maleParent.gender !== "male" || femaleParent.gender !== "female") {
-            return NextResponse.json(
-                { error: "Parents must be one male and one female." },
-                { status: 400 }
-            );
-        }
-        if (maleParent.growthLevel !== 3 || femaleParent.growthLevel !== 3) {
-            return NextResponse.json(
-                { error: "Only adult creatures can be paired." },
-                { status: 400 }
-            );
-        }
-        if (maleParent.species !== femaleParent.species) {
-            return NextResponse.json(
-                { error: "Parents must be of the same species." },
-                { status: 400 }
-            );
+
+        const pairingValidation = validatePairing(maleParent, femaleParent);
+        if (!pairingValidation.isValid) {
+            return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
         if (assignedGoalIds && assignedGoalIds.length > 0) {
@@ -146,7 +146,42 @@ export async function PATCH(
             );
         }
 
+        // --- Synchronize Goal Assignments ---
+        const oldGoalIds = new Set(existingPair.assignedGoalIds || []);
+        const newGoalIds = new Set(assignedGoalIds || []);
+
+        const goalsAdded = [...newGoalIds].filter(id => !oldGoalIds.has(id));
+        const goalsRemoved = [...oldGoalIds].filter(id => !newGoalIds.has(id));
+
+        // Update goals that had this pair added
+        if (goalsAdded.length > 0) {
+            const goalsToUpdate = await db.query.researchGoals.findMany({
+                where: and(inArray(researchGoals.id, goalsAdded), eq(researchGoals.userId, session.user.id))
+            });
+            for (const goal of goalsToUpdate) {
+                const currentPairIds = new Set(goal.assignedPairIds || []);
+                currentPairIds.add(params.pairId);
+                await db.update(researchGoals).set({ assignedPairIds: Array.from(currentPairIds) }).where(eq(researchGoals.id, goal.id));
+                revalidatePath(`/research-goals/${goal.id}`);
+            }
+        }
+
+        // Update goals that had this pair removed
+        if (goalsRemoved.length > 0) {
+            const goalsToUpdate = await db.query.researchGoals.findMany({
+                where: and(inArray(researchGoals.id, goalsRemoved), eq(researchGoals.userId, session.user.id))
+            });
+            for (const goal of goalsToUpdate) {
+                const currentPairIds = new Set(goal.assignedPairIds || []);
+                currentPairIds.delete(params.pairId);
+                await db.update(researchGoals).set({ assignedPairIds: Array.from(currentPairIds) }).where(eq(researchGoals.id, goal.id));
+                revalidatePath(`/research-goals/${goal.id}`);
+            }
+        }
+
         revalidatePath("/breeding-pairs");
+        revalidatePath("/research-goals");
+
         return NextResponse.json({
             message: "Breeding pair updated successfully!",
         });

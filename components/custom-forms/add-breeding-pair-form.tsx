@@ -323,7 +323,7 @@ export function AddPairForm({
 
             {error && <p className="text-sm text-red-500">{error}</p>}
             {message && <p className="text-sm text-green-600">{error}</p>}
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full bg-pompaca-purple text-barely-lilac">
                 {isLoading ? "Saving..." : "Create Pair"}
             </Button>
         </form>

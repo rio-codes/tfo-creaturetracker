@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Trash2 } from "lucide-react";
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
@@ -45,6 +46,9 @@ export function EditBreedingPairForm({
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
+    const [editingWhichParent, setEditingWhichParent] = useState<
+        "male" | "female" | "none"
+    >("none");
 
     const { males, females, goals } = useMemo(() => {
         return {
@@ -68,14 +72,13 @@ export function EditBreedingPairForm({
         e.preventDefault();
         setIsLoading(true);
         setError("");
-        const pairName = pair?.pairName
         const species = pair?.species
         try {
             const response = await fetch(`/api/breeding-pairs/${pair?.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    pairName,
+                    pairName: pairName,
                     species,
                     maleParentId: selectedMaleId,
                     femaleParentId: selectedFemaleId,
@@ -125,10 +128,40 @@ export function EditBreedingPairForm({
                 required
             />
 
+            <div className="space-y-2">
+                <Label>Change Parent</Label>
+                <RadioGroup
+                    value={editingWhichParent}
+                    onValueChange={(value) =>
+                        setEditingWhichParent(value as "male" | "female" | "none")
+                    }
+                    className="flex space-x-4"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="none" id="edit-none" />
+                        <Label htmlFor="edit-none" className="font-normal">
+                            None
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="male" id="edit-male" />
+                        <Label htmlFor="edit-male" className="font-normal">
+                            Male
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="female" id="edit-female" />
+                        <Label htmlFor="edit-female" className="font-normal">
+                            Female
+                        </Label>
+                    </div>
+                </RadioGroup>
+            </div>
+
             <Select
                 value={selectedMaleId}
                 onValueChange={setSelectedMaleId}
-                disabled={!!selectedMaleId || !!selectedFemaleId}
+                disabled={editingWhichParent !== "male"}
                 required
             >
                 <SelectTrigger className="bg-barely-lilac">
@@ -149,6 +182,7 @@ export function EditBreedingPairForm({
             <Select
                 value={selectedFemaleId}
                 onValueChange={setSelectedFemaleId}
+                disabled={editingWhichParent !== "female"}
                 required
             >
                 <SelectTrigger className="bg-barely-lilac">
@@ -209,7 +243,7 @@ export function EditBreedingPairForm({
             <div className="flex justify-between items-center pt-4">
                 <Button
                     type="button"
-                    className="text-red-600"
+                    className="text-red-600 border-red-600 bg-barely-lilac border-1"
                     onClick={handleDelete}
                     disabled={isDeleting}
                 >
@@ -221,10 +255,10 @@ export function EditBreedingPairForm({
                     Delete
                 </Button>
                 <div className="flex gap-2">
-                    <Button type="button" variant="ghost" onClick={onSuccess}>
+                    <Button type="button" className="bg-pompaca-purple text-barely-lilac" onClick={onSuccess}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" className="bg-pompaca-purple text-barely-lilac" disabled={isLoading}>
                         {isLoading ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>

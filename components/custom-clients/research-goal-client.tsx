@@ -54,10 +54,10 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
               <div className="flex flex-col md:flex-row gap-4 mb-8">
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dusk-purple h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
                   <Input
                     placeholder="search for a goal by name..."
-                    className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                    className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
                     defaultValue={searchParams.get('query') || ''}
                     onChange={(e) => handleFilterChange('query', e.target.value)}
                   />
@@ -68,7 +68,7 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
                   defaultValue={searchParams.get('species') || 'all'}
                   onValueChange={(value) => handleFilterChange('species', value)}
                 >
-                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple">
+                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-barely-lilac">

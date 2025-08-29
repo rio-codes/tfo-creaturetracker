@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+} from "@/types";
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -91,10 +95,10 @@ export function CollectionClient({
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 z-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
                         <Input
                             placeholder="search for a creature..."
-                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-md drop-shadow-gray-500"
+                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) =>
                                 handleFilterChange("query", e.target.value)
@@ -109,7 +113,7 @@ export function CollectionClient({
                             handleFilterChange("gender", value)
                         }
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500">
+                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by gender..." />
                         </SelectTrigger>
                         <SelectContent className="bg-barely-lilac">
@@ -136,7 +140,7 @@ export function CollectionClient({
                         value={currentStage}
                         onValueChange={(e) => handleFilterChange("stage", e)}
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500 focus-visible:ring-0">
+                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
                         <SelectContent className="bg-barely-lilac">
@@ -171,7 +175,7 @@ export function CollectionClient({
                             handleFilterChange("species", value)
                         }
                     >
-                        <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-md drop-shadow-gray-500 focus-visible:ring-0">
+                        <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
                         </SelectTrigger>
                         <SelectContent className="bg-barely-lilac">

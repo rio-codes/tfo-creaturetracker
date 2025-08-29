@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import type {
@@ -19,6 +18,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { speciesList } from "@/lib/creature-data";
+import { Search } from "lucide-react";
 
 type BreedingPairsClientProps = {
     initialPairs: EnrichedBreedingPair[];
@@ -41,11 +42,6 @@ export function BreedingPairsClient({
 }: BreedingPairsClientProps) {
     const router = useRouter();
     const pathname = usePathname();
-
-    const availableSpecies = useMemo(
-        () => [...new Set(allCreatures.map((c) => c?.species).filter(Boolean))],
-        [allCreatures]
-    );
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
@@ -83,22 +79,25 @@ export function BreedingPairsClient({
                 </div>
                 {/* Search and Filter Controls */}
                 <div className="flex gap-4 mb-8">
-                    <Input
-                        placeholder="Search by pair name, parent name, or code..."
-                        defaultValue={searchParams?.query || ""}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        className="flex-grow bg-ebena-lavender"
-                    />
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
+                        <Input
+                            placeholder="Search by pair name, parent name, or code..."
+                            defaultValue={searchParams?.query || ""}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
+                        />
+                    </div>
                     <Select
                         onValueChange={handleSpeciesFilter}
                         defaultValue={searchParams?.species || "all"}
                     >
-                        <SelectTrigger className="w-[200px] bg-ebena-lavender">
+                        <SelectTrigger className="w-[200px] bg-ebena-lavender drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by species" />
                         </SelectTrigger>
                         <SelectContent className="bg-barely-lilac">
                             <SelectItem value="all">All Species</SelectItem>
-                            {availableSpecies.map((species) => (
+                            {speciesList.map((species) => (
                                 <SelectItem key={species} value={species!}>
                                     {species}
                                 </SelectItem>

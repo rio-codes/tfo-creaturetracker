@@ -13,7 +13,6 @@ import { AddPairForm } from "@/components/custom-forms/add-breeding-pair-form"
 import type { EnrichedCreature, EnrichedResearchGoal } from "@/types";
 
 type AddBreedingPairDialogProps = {
-    isOpen: boolean;
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
     baseCreature?: EnrichedCreature | null;
@@ -30,11 +29,6 @@ export function AddBreedingPairDialog({
 }: AddBreedingPairDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
     const renderId = Math.random().toString(36).substring(7);
-
-    console.log(
-        `[DIALOG - Render ID: ${renderId}] Prop 'allCreatures' is an array:`,
-        Array.isArray(allCreatures)
-    );
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

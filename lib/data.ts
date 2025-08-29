@@ -1,10 +1,10 @@
 import "server-only";
 import { db } from "@/src/db";
 import {
-    users,
     creatures,
-    researchGoals,
     breedingPairs,
+    researchGoals,
+    users,
     breedingLogEntries,
 } from "@/src/db/schema";
 import { auth } from "@/auth";
@@ -20,6 +20,7 @@ import type {
 import { structuredGeneData } from "@/lib/creature-data";
 import { calculateGeneProbability } from "./genetics";
 import { put as vercelBlobPut } from "@vercel/blob";
+import { alias } from "drizzle-orm/pg-core";
 
 // ============================================================================
 // === HELPER FUNCTIONS (ENRICHMENT & SERIALIZATION) ==========================
@@ -416,31 +417,72 @@ export async function fetchFilteredResearchGoals(
 }
 
 // fetch paginated breeding pairs with statistics from breeding logs
-export async function fetchBreedingPairsWithStats(currentPage: number) {
+export async function fetchBreedingPairsWithStats(
+    currentPage: number,
+    query?: string,
+    species?: string
+) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
 
-    // fetch logged in user and determine pairs per page and offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
     const pairsPerPage = user?.pairsItemsPerPage || 10;
     const offset = (currentPage - 1) * pairsPerPage;
 
+    // Aliases for joining creatures table twice
+    const maleCreatures = alias(creatures, "male_creatures");
+    const femaleCreatures = alias(creatures, "female_creatures");
+
+    // Build conditions for filtering
+    const conditions = [
+        eq(breedingPairs.userId, userId),
+        species && species !== "all"
+            ? eq(breedingPairs.species, species)
+            : undefined,
+        query
+            ? or(
+                  ilike(breedingPairs.pairName, `%${query}%`),
+                  ilike(maleCreatures.creatureName, `%${query}%`),
+                  ilike(maleCreatures.code, `%${query}%`), // Corrected this line
+                  ilike(femaleCreatures.creatureName, `%${query}%`),
+                  ilike(femaleCreatures.code, `%${query}%`) // Corrected this line
+              )
+            : undefined,
+    ].filter((c): c is NonNullable<typeof c> => c !== undefined);
+
     try {
-        // fetch all pairs for current page, all research goals and breeding log entries for user
-        const [paginatedPairs, allGoals, logEntries] = await Promise.all([
-            db.query.breedingPairs.findMany({
-                where: eq(breedingPairs.userId, userId),
-                with: { maleParent: true, femaleParent: true },
-                orderBy: [
-                    desc(breedingPairs.isPinned),
-                    desc(breedingPairs.createdAt),
-                ],
-                limit: pairsPerPage,
-                offset: offset,
-            }),
+        // Fetch paginated pairs with their parents
+        const paginatedResults = await db
+            .select({
+                pair: breedingPairs,
+                maleParent: maleCreatures,
+                femaleParent: femaleCreatures,
+            })
+            .from(breedingPairs)
+            .leftJoin(
+                maleCreatures,
+                eq(breedingPairs.maleParentId, maleCreatures.id)
+            )
+            .leftJoin(
+                femaleCreatures,
+                eq(breedingPairs.femaleParentId, femaleCreatures.id)
+            )
+            .where(and(...conditions))
+            .orderBy(desc(breedingPairs.isPinned), desc(breedingPairs.createdAt))
+            .limit(pairsPerPage)
+            .offset(offset);
+
+        const pairsWithParents = paginatedResults.map((result) => ({
+            ...result.pair,
+            maleParent: result.maleParent,
+            femaleParent: result.femaleParent,
+        }));
+
+        // Fetch all goals and log entries for enrichment
+        const [allGoals, logEntries] = await Promise.all([
             db.query.researchGoals.findMany({
                 where: eq(researchGoals.userId, userId),
             }),
@@ -449,24 +491,31 @@ export async function fetchBreedingPairsWithStats(currentPage: number) {
             }),
         ]);
 
-        // if no pairs are returned, return empty array
-        if (paginatedPairs.length === 0) {
+        if (pairsWithParents.length === 0) {
             return { pairs: [], totalPages: 0 };
         }
 
-        // enrich and return goals and pairs
         const enrichedGoals = allGoals.map((goal) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
-        const enrichedPairs = paginatedPairs.map((pair) =>
-            enrichAndSerializeBreedingPair(pair, enrichedGoals, logEntries)
+        const enrichedPairs = pairsWithParents.map((pair) =>
+            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries)
         );
 
-        // determine total page count
+        // fetch total count for pagination
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
-            .where(eq(breedingPairs.userId, userId));
+            .leftJoin(
+                maleCreatures,
+                eq(breedingPairs.maleParentId, maleCreatures.id)
+            )
+            .leftJoin(
+                femaleCreatures,
+                eq(breedingPairs.femaleParentId, femaleCreatures.id)
+            )
+            .where(and(...conditions));
+
         const totalPages = Math.ceil(totalCountResult[0].value / pairsPerPage);
 
         return { pairs: enrichedPairs, totalPages };

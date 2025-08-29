@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { EnrichedCreature, EnrichedBreedingPair, EnrichedResearchGoal} from "@/types";
+import type {
+    EnrichedCreature,
+    EnrichedBreedingPair,
+    EnrichedResearchGoal,
+} from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
-import { Pin, PinOff, X } from "lucide-react";
+import { Pin, PinOff, X, Target, Award } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
-import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog"
+import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -27,11 +31,6 @@ export function BreedingPairCard({
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
-
-    // Placeholder data for stats
-    const timesBred = 0; // You'll fetch this from breedingLogEntries later
-    const progenyCount = 0; // You'll also fetch this
-
     if (!pair?.maleParent || !pair.femaleParent) {
         return null;
     }
@@ -61,144 +60,160 @@ export function BreedingPairCard({
         femaleParent!.species!
     );
 
-    const pairForDialog = { id: pair!.id, species: pair!.species }
+    const pairForDialog = { id: pair!.id, species: pair!.species };
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden overscroll-y-contain border-border drop-shadow-md drop-shadow-gray-500 h-full">
-            {/* Capsule icon */}
-            <div className="absolute top-3 left-3 z-10">
-                <div className="relative flex-shrink-0 w-14 h-14 flex items-center justify-center bg-pompaca-purple/60 rounded-full border-2 border-pompaca-purple">
-                    {hybridSpecies ? (
-                        <SpeciesAvatar species={hybridSpecies} />
-                    ) : (
-                        <SpeciesAvatar species={pair!.maleParent!.species!} />
-                    )}
-                </div>
-            </div>
-
-            {/* Pin icon */}
+        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
+            {/* Pin Icon */}
             <div className="absolute top-1 right-1 z-10">
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={handlePinToggle}
                     disabled={isPinning}
-                    className="h-8 w-8 rounded-full"
+                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
                     {isPinned ? (
-                        <Pin className="h-5 w-5 fill-pompaca-purple" />
+                        <Pin className="h-5 w-5 text-pompaca-purple fill-pompaca-purple" />
                     ) : (
-                        <PinOff className="h-5 w-5" />
+                        <PinOff className="h-5 w-5 text-dusk-purple" />
                     )}
                 </Button>
             </div>
-            <CardContent className="flex-col p-4 px-10 h-full justify-items-center content-between">
+            {/* Header Section */}
+            <div className="relative p-4">
+                {/* Title */}
+                <h3
+                    className="text-xl font-bold text-center truncate"
+                    title={pair.pairName}
+                >
+                    {pair.pairName}
+                </h3>
                 {/* Parent Images */}
-                <div className="flex items-center p-4 mb-4">
+                <div className="flex justify-center items-center gap-2 mt-2">
                     <img
-                        src={pair!.maleParent!.imageUrl}
-                        alt={
-                            pair.maleParent.creatureName &&
-                            pair.maleParent.creatureName !== "Unnamed"
-                                ? pair.maleParent.creatureName
-                                : pair.maleParent.code
-                        }
-                        className="w-30 h-30 object-contain px-5 bg-blue-100 p-1 border-2 border-pompaca-purple rounded-2xl"
+                        src={maleParent.imageUrl}
+                        alt={maleParent.code}
+                        className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                     />
-                    <X />
+                    <X className="text-dusk-purple" />
                     <img
-                        src={pair!.femaleParent!.imageUrl}
-                        alt={
-                            pair.femaleParent.creatureName &&
-                            pair.femaleParent.creatureName !== "Unnamed"
-                                ? pair.femaleParent.creatureName
-                                : pair.femaleParent.code
-                        }
-                        className="w-30 h-30 object-contain px-5 bg-pink-100 p-1 border-2 border-pompaca-purple rounded-2xl"
+                        src={femaleParent.imageUrl}
+                        alt={femaleParent.code}
+                        className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
                     />
                 </div>
+            </div>
 
-                {/* Pair Details */}
-                <div className="w-full mb-4 align-middle relative">
-                    <h3 className="text-xl font-bold mb-3">{pair!.pairName}</h3>
-                    {/* Parent Details */}
-                    <div className="h-10 text-sm mb-5 wrap-normal">
-                        <strong>Male:</strong>{" "}
-                        {pair!.maleParent!.creatureName || "Unnamed"} (
-                        {pair!.maleParent!.code})<br></br>
-                        <strong>Female:</strong>{" "}
-                        {pair!.femaleParent!.creatureName || "Unnamed"} (
-                        {pair!.femaleParent!.code})
-                    </div>
-
-                    <div className="h-40 text-sm">
-                        {/* Breeding Stats */}
-                        <div className="h-10 mb-5">
-                            <strong>Times Bred:</strong> {timesBred}
-                            <br></br>
-                            <strong>Total Progeny:</strong> {progenyCount}
-                        </div>
-                        {/* Goals Section */}
-                        <div>
-                            {/* Goal Met? */}
-                            <div className="text-red-500 mb-2">
-                                <strong>Goal not met</strong>
-                            </div>
-                            {/*Assigned Goals */}
-                            <div>
-                                <h4 className="font-bold text-sm">
-                                    Assigned Goals:
-                                </h4>
-                                <ScrollArea className="h-15 relative rounded-md border p-1">
-                                    <ul className="list-disc list-inside text-xs py-1 text-pompaca-purple space-y-1 mt-0.5 ml-0.5">
-                                        {pair!.assignedGoals.length > 0 ? (
-                                            pair!.assignedGoals.map((goal) => (
-                                                <div key={goal?.id}>
-                                                    <Link
-                                                        href={`/research-goals/${goal?.id}`}
-                                                    >
-                                                        <span className="font-bold underline wrap-normal">
-                                                            {goal?.name}
-                                                        </span>
-                                                    </Link>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <li>No goals assigned.</li>
-                                        )}
-                                    </ul>
-                                </ScrollArea>
-                            </div>
-                        </div>
-                    </div>
+            {/* Content Section */}
+            <CardContent className="p-4 pt-0 flex-grow items-center flex flex-col gap-4">
+                {/* Parent Details */}
+                <div className="text-md text-center text-pompaca-purple">
+                    <p className="truncate">
+                        <span className="font-semibold text-pompaca-purple">
+                            M:
+                        </span>{" "}
+                        {maleParent.creatureName || "Unnamed"} (
+                        {maleParent.code})
+                    </p>
+                    <p className="truncate">
+                        <span className="font-semibold text-pompaca-purple">
+                            F:
+                        </span>{" "}
+                        {femaleParent.creatureName || "Unnamed"} (
+                        {femaleParent.code})
+                    </p>
                 </div>
+                <div className="text-center text-sm text-pompaca-purple">
+                    Bred {pair.timesBred} times
+                </div>
+                {/* Main Info Grid */}
+                <div className="gap-4 w-4/5">
+                    {/* Left Column: Progeny */}
+                    <div className="flex flex-col w-full">
+                        <h4 className="font-bold text-sm mb-1">
+                            Progeny ({pair.progenyCount})
+                        </h4>
+                        <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
+                            {pair.progeny && pair.progeny.length > 0 ? (
+                                <ul className="text-xs space-y-1">
+                                    {pair.progeny.map((p) => (
+                                        <li
+                                            key={p.id}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <SpeciesAvatar
+                                                species={p.species!}
+                                                size="sm"
+                                            />
+                                            <span className="wrap-anywhere">
+                                                {p.creatureName} ({p.code})
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-xs text-dusk-purple italic">
+                                    No progeny logged.
+                                </p>
+                            )}
+                        </ScrollArea>
 
-                {/*Buttons*/}
-                <div className="object-bottom h-20">
-                    <div className="flex w-full gap-2 justify-center text-xs">
-                        <LogBreedingDialog
-                            pair={pairForDialog}
-                            allCreatures={allCreatures}
-                        >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16 ">
-                                <span className="text-wrap wrap-normal text-sm/tight">
-                                    Log Breeding
-                                </span>
-                            </Button>
-                        </LogBreedingDialog>
-                        <EditBreedingPairDialog
-                            pair={pair}
-                            allCreatures={allCreatures}
-                            allGoals={allGoals}
-                        >
-                            <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-25 h-16">
-                                <span className="text-wrap wrap-normal text-sm/tight">
-                                    Edit or Delete Pair
-                                </span>
-                            </Button>
-                        </EditBreedingPairDialog>
+                        <h4 className="font-bold text-sm mb-1">
+                            Assigned Goals
+                        </h4>
+                        <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
+                            {pair.assignedGoals &&
+                            pair.assignedGoals.length > 0 ? (
+                                <ul className="text-xs space-y-1">
+                                    {pair.assignedGoals.map((g) => (
+                                        <li
+                                            key={g.id}
+                                            className="flex items-center gap-1"
+                                        >
+                                            {g.isAchieved ? (
+                                                <Award className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                                            ) : (
+                                                <Target className="h-3 w-3 text-dusk-purple flex-shrink-0" />
+                                            )}
+                                            <Link
+                                                href={`/research-goals/${g.id}`}
+                                                className="truncate hover:underline wrap-anywhere"
+                                            >
+                                                {g.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-xs text-dusk-purple italic">
+                                    No goals assigned.
+                                </p>
+                            )}
+                        </ScrollArea>
                     </div>
                 </div>
             </CardContent>
+
+            {/* Footer Buttons */}
+            <div className="flex w-full gap-x-2 justify-center">
+                <LogBreedingDialog
+                    pair={pairForDialog}
+                    allCreatures={allCreatures}
+                >
+                    <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-25 text-sm/tight">
+                        Log Breeding
+                    </Button>
+                </LogBreedingDialog>
+                <EditBreedingPairDialog
+                    pair={pair}
+                    allCreatures={allCreatures}
+                    allGoals={allGoals}
+                >
+                    <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-25 text-sm/tight">
+                        Edit / Delete
+                    </Button>
+                </EditBreedingPairDialog>
+            </div>
         </Card>
     );
 }

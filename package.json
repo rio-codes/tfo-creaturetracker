@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm i",
+        "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm i && pnpm dev",
         "build": "next build",
         "dev": "next dev",
         "lint": "next lint",

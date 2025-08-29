@@ -5,6 +5,7 @@ import {
     breedingPairs,
     researchGoals,
     users,
+    achievedGoals,
     breedingLogEntries,
 } from "@/src/db/schema";
 import { auth } from "@/auth";
@@ -122,24 +123,43 @@ export const enrichAndSerializeGoal = (
 const enrichAndSerializeBreedingPair = (
     pair: DbBreedingPair & { maleParent: DbCreature; femaleParent: DbCreature },
     allEnrichedGoals: EnrichedResearchGoal[],
-    allLogEntries: any[]
+    allLogEntries: any[],
+    allCreatures: EnrichedCreature[],
+    allUserAchievedGoals: any[]
 ): EnrichedBreedingPair => {
     const relevantLogs = allLogEntries.filter((log) => log.pairId === pair.id);
     const timesBred = relevantLogs.length;
-    const progenyCount = relevantLogs.reduce((acc, log) => {
-        if (log.progeny1Id) acc++;
-        if (log.progeny2Id) acc++;
-        return acc;
-    }, 0);
 
-    const assignedGoals = allEnrichedGoals.filter((goal) =>
+    const progenyIds = new Set<string>();
+    relevantLogs.forEach(log => {
+        if (log.progeny1Id) progenyIds.add(log.progeny1Id);
+        if (log.progeny2Id) progenyIds.add(log.progeny2Id);
+    });
+
+    const progeny = allCreatures.filter(c => c && progenyIds.has(c.id));
+    const progenyCount = progeny.length;
+
+    const assignedGoalsFromPair = allEnrichedGoals.filter((goal) =>
         pair.assignedGoalIds?.includes(goal!.id)
     );
+
+    // Check which assigned goals have been achieved by this pair's progeny
+    const achievedGoalIdsForPair = new Set(
+        allUserAchievedGoals
+            .filter(ag => progenyIds.has(ag.matchingProgenyId))
+            .map(ag => ag.goalId)
+    );
+
+    const assignedGoals = assignedGoalsFromPair.map(goal => ({
+        ...goal,
+        isAchieved: achievedGoalIdsForPair.has(goal.id)
+    }));
 
     return {
         ...pair,
         timesBred,
         progenyCount,
+        progeny,
         createdAt: pair.createdAt.toISOString(),
         updatedAt: pair.updatedAt.toISOString(),
         maleParent: enrichAndSerializeCreature(pair.maleParent),
@@ -166,7 +186,7 @@ export async function getAllBreedingPairsForUser(): Promise<
         });
         if (!user) return [];
 
-        const [allPairs, allGoals, logEntries] = await Promise.all([
+        const [allPairs, allGoals, logEntries, allUserCreatures, allUserAchievedGoals] = await Promise.all([
             db.query.breedingPairs.findMany({
                 where: eq(breedingPairs.userId, userId),
                 with: { maleParent: true, femaleParent: true },
@@ -177,13 +197,26 @@ export async function getAllBreedingPairsForUser(): Promise<
             db.query.breedingLogEntries.findMany({
                 where: eq(breedingLogEntries.userId, userId),
             }),
+            db.query.creatures.findMany({
+                where: eq(creatures.userId, userId),
+            }),
+            db.query.achievedGoals.findMany({
+                where: eq(achievedGoals.userId, userId),
+            }),
         ]);
 
         const enrichedGoals = allGoals.map((goal) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
+        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
         const enrichedPairs = allPairs.map((pair) =>
-            enrichAndSerializeBreedingPair(pair, enrichedGoals, logEntries)
+            enrichAndSerializeBreedingPair(
+                pair,
+                enrichedGoals,
+                logEntries,
+                enrichedCreatures,
+                allUserAchievedGoals
+            )
         );
 
         return enrichedPairs;
@@ -482,12 +515,18 @@ export async function fetchBreedingPairsWithStats(
         }));
 
         // Fetch all goals and log entries for enrichment
-        const [allGoals, logEntries] = await Promise.all([
+        const [allGoals, logEntries, allUserCreatures, allUserAchievedGoals] = await Promise.all([
             db.query.researchGoals.findMany({
                 where: eq(researchGoals.userId, userId),
             }),
             db.query.breedingLogEntries.findMany({
                 where: eq(breedingLogEntries.userId, userId),
+            }),
+            db.query.creatures.findMany({
+                where: eq(creatures.userId, userId),
+            }),
+            db.query.achievedGoals.findMany({
+                where: eq(achievedGoals.userId, userId),
             }),
         ]);
 
@@ -498,8 +537,9 @@ export async function fetchBreedingPairsWithStats(
         const enrichedGoals = allGoals.map((goal) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
+        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
         const enrichedPairs = pairsWithParents.map((pair) =>
-            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries)
+            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries, enrichedCreatures, allUserAchievedGoals)
         );
 
         // fetch total count for pagination

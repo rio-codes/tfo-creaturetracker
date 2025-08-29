@@ -7,12 +7,14 @@ import type {
     EnrichedCreature,
     EnrichedBreedingPair,
     EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
 } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
-import { Pin, PinOff, X, Target, Award } from "lucide-react";
+import { Pin, PinOff, X, Target, Award, Recycle } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
@@ -21,17 +23,21 @@ type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
 };
 
 export function BreedingPairCard({
     pair,
     allCreatures,
     allGoals,
+    allPairs,
+    allLogs,
 }: BreedingPairCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
-    if (!pair?.maleParent || !pair.femaleParent) {
+    if (!pair?.maleParent || !pair.femaleParent || !allPairs || !allLogs) {
         return null;
     }
 

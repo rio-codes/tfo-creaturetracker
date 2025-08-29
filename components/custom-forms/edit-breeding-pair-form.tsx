@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +14,23 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, Trash2 } from "lucide-react";
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
+import { Loader2, Trash2, Network } from "lucide-react";
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from "@/types";
+import { checkForInbreeding } from "@/lib/breeding-rules";
 
 
 type EditBreedingPairFormProps = {
     pair: EnrichedBreedingPair;
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     onSuccess: () => void;
 };
 
@@ -29,6 +38,8 @@ export function EditBreedingPairForm({
     pair,
     allCreatures,
     allGoals,
+    allPairs,
+    allLogs,
     onSuccess,
 }: EditBreedingPairFormProps) {
     const router = useRouter();
@@ -42,6 +53,7 @@ export function EditBreedingPairForm({
     const [selectedGoalIds, setSelectedGoalIds] = useState(
         pair?.assignedGoalIds || []
     );
+    const [isInbred, setIsInbred] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -67,6 +79,15 @@ export function EditBreedingPairForm({
             goals: allGoals.filter((g) => g?.species === pair?.species),
         };
     }, [allCreatures, allGoals, pair?.species]);
+
+    useEffect(() => {
+        if (selectedMaleId && selectedFemaleId) {
+            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
+            setIsInbred(inbred);
+        } else {
+            setIsInbred(false);
+        }
+    }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -128,6 +149,14 @@ export function EditBreedingPairForm({
                 required
             />
 
+            {isInbred && (
+                <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-dusk-purple">
+                    <Network className="h-4 w-4 flex-shrink-0" />
+                    <span>
+                        This pairing is inbred. This is just an indicator and does not affect gameplay.
+                    </span>
+                </div>
+            )}
             <div className="space-y-2">
                 <Label>Change Parent</Label>
                 <RadioGroup

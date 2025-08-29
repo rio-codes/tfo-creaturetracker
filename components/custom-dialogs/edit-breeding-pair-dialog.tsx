@@ -9,13 +9,20 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditBreedingPairForm } from "@/components/custom-forms/edit-breeding-pair-form"
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from "@/types";
-
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from "@/types";
 
 type EditBreedingPairDialogProps = {
     pair: EnrichedBreedingPair;
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     children: React.ReactNode;
 };
 
@@ -23,6 +30,8 @@ export function EditBreedingPairDialog({
     pair,
     allCreatures,
     allGoals,
+    allPairs,
+    allLogs,
     children,
 }: EditBreedingPairDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -40,6 +49,8 @@ export function EditBreedingPairDialog({
                     pair={pair}
                     allCreatures={allCreatures}
                     allGoals={allGoals}
+                    allPairs={allPairs}
+                    allLogs={allLogs}
                     onSuccess={() => setIsOpen(false)}
                 />
             </DialogContent>

@@ -3,123 +3,30 @@ import { db } from "@/src/db";
 import {
     creatures,
     breedingPairs,
+    breedingLogEntries,
     researchGoals,
     users,
     achievedGoals,
-    breedingLogEntries,
 } from "@/src/db/schema";
 import { auth } from "@/auth";
 import { and, ilike, or, eq, desc, count } from "drizzle-orm";
 import type {
     DbCreature,
-    DbResearchGoal,
+    DbBreedingLogEntry,
     DbBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
-    EnrichedBreedingPair,
+    EnrichedBreedingPair
 } from "@/types";
-import { structuredGeneData } from "@/lib/creature-data";
+import { enrichAndSerializeCreature, enrichAndSerializeGoal } from "@/lib/serialization";
 import { calculateGeneProbability } from "./genetics";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { alias } from "drizzle-orm/pg-core";
 
 // ============================================================================
-// === HELPER FUNCTIONS (ENRICHMENT & SERIALIZATION) ==========================
+// === HELPER FUNCTIONS =======================================================
 // ============================================================================
 
-// serialize dates and add rich gene data to creature object
-const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
-    if (!creature) return null;
-    const speciesGeneData = structuredGeneData[creature.species || ""];
-    return {
-        ...creature,
-        createdAt: creature.createdAt.toISOString(),
-        updatedAt: creature.updatedAt.toISOString(),
-        gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
-        geneData:
-            creature.genetics
-                ?.split(",")
-                .map((genePair) => {
-                    const [category, genotype] = genePair.split(":");
-                    if (!category || !genotype || !speciesGeneData) return null;
-                    const categoryData = speciesGeneData[category] as {
-                        genotype: string;
-                        phenotype: string;
-                    }[];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === genotype
-                    );
-                    return {
-                        category,
-                        genotype,
-                        phenotype: matchedGene?.phenotype || "Unknown",
-                    };
-                })
-                .filter(
-                    (
-                        gene
-                    ): gene is {
-                        category: string;
-                        genotype: string;
-                        phenotype: string;
-                    } => gene !== null
-                ) || [],
-    };
-};
-
-// serialize dates and add enriched gene data to research goal object
-export const enrichAndSerializeGoal = (
-    goal: DbResearchGoal,
-    goalMode: "genotype" | "phenotype"
-): EnrichedResearchGoal => {
-    const enrichedGenes: { [key: string]: any } = {};
-    const speciesGeneData = structuredGeneData[goal.species];
-    if (speciesGeneData && goal.genes && typeof goal.genes === "object") {
-        for (const [category, selection] of Object.entries(goal.genes)) {
-            let finalGenotype: string, finalPhenotype: string;
-            if (
-                typeof selection === "object" &&
-                selection.phenotype &&
-                selection.genotype
-            ) {
-                finalGenotype = selection.genotype;
-                finalPhenotype = selection.phenotype;
-            } else if (typeof selection === "string") {
-                finalGenotype = selection;
-                const categoryData = speciesGeneData[category] as {
-                    genotype: string;
-                    phenotype: string;
-                }[];
-                const matchedGene = categoryData?.find(
-                    (g) => g.genotype === finalGenotype
-                );
-                finalPhenotype = matchedGene?.phenotype || "Unknown";
-            } else continue;
-
-            let isMulti = false;
-            if (goalMode === "phenotype") {
-                const categoryData = speciesGeneData[category];
-                const genotypesForPhenotype = categoryData?.filter(
-                    (g) => g.phenotype === finalPhenotype
-                );
-                isMulti = (genotypesForPhenotype?.length || 0) > 1;
-            }
-            enrichedGenes[category] = {
-                genotype: finalGenotype,
-                phenotype: finalPhenotype,
-                isMultiGenotype: isMulti,
-            };
-        }
-    }
-    return {
-        ...goal,
-        genes: enrichedGenes,
-        createdAt: goal.createdAt.toISOString(),
-        updatedAt: goal.updatedAt.toISOString(),
-    };
-};
-
-// serialize dates, enrich parent creatures, and add breeding log entries to breeding pair object
 const enrichAndSerializeBreedingPair = (
     pair: DbBreedingPair & { maleParent: DbCreature; femaleParent: DbCreature },
     allEnrichedGoals: EnrichedResearchGoal[],
@@ -139,8 +46,9 @@ const enrichAndSerializeBreedingPair = (
     const progeny = allCreatures.filter(c => c && progenyIds.has(c.id));
     const progenyCount = progeny.length;
 
-    const assignedGoalsFromPair = allEnrichedGoals.filter((goal) =>
-        pair.assignedGoalIds?.includes(goal!.id)
+    const assignedGoalsFromPair = allEnrichedGoals.filter(
+        (goal): goal is NonNullable<EnrichedResearchGoal> =>
+            goal !== null && (pair.assignedGoalIds?.includes(goal.id) ?? false)
     );
 
     // Check which assigned goals have been achieved by this pair's progeny
@@ -601,6 +509,41 @@ export async function getAllResearchGoalsForUser(): Promise<
     } catch (error) {
         console.error(
             "Database Error: Failed to fetch all research goals.",
+            error
+        );
+        return [];
+    }
+}
+
+// fetch all raw breeding pairs for user to populate dropdowns and for inbreeding checks
+export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]> {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+    try {
+        const pairs = await db.query.breedingPairs.findMany({
+            where: eq(breedingPairs.userId, userId),
+        });
+        return pairs;
+    } catch (error) {
+        console.error("Database Error: Failed to fetch all raw breeding pairs.", error);
+        return [];
+    }
+}
+
+// fetch all breeding log entries for user for inbreeding checks
+export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEntry[]> {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+    try {
+        const logEntries = await db.query.breedingLogEntries.findMany({
+            where: eq(breedingLogEntries.userId, userId),
+        });
+        return logEntries;
+    } catch (error) {
+        console.error(
+            "Database Error: Failed to fetch all breeding log entries.",
             error
         );
         return [];

@@ -1,4 +1,4 @@
-import type { creatures, researchGoals, breedingPairs } from "@/src/db/schema";
+import type { creatures, researchGoals, breedingPairs, breedingLogEntries } from "@/src/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
 
 // ============================================================================
@@ -10,6 +10,8 @@ import type { InferSelectModel } from "drizzle-orm";
 export type DbCreature = InferSelectModel<typeof creatures>;
 export type DbResearchGoal = InferSelectModel<typeof researchGoals>;
 export type DbBreedingPair = InferSelectModel<typeof breedingPairs>;
+export type DbBreedingLogEntry = InferSelectModel<typeof breedingLogEntries>;
+
 
 // ============================================================================
 // === ENRICHED & SERIALIZED TYPES ============================================
@@ -44,6 +46,7 @@ export type EnrichedResearchGoal =
             };
             createdAt: string;
             updatedAt: string;
+            isAchieved?: boolean;
         })
     | null;
 
@@ -57,6 +60,7 @@ export type EnrichedBreedingPair =
             assignedGoals: EnrichedResearchGoal[];
             timesBred: number;
             progenyCount: number;
+            progeny: EnrichedCreature[];
             createdAt: string;
             updatedAt: string;
         })

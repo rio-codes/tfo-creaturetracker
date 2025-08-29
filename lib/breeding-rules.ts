@@ -1,4 +1,11 @@
-import { EnrichedCreature } from "@/types"
+import type {
+    EnrichedCreature,
+    DbCreature,
+    DbResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from "@/types";
+import { enrichAndSerializeCreature, enrichAndSerializeGoal } from "@/lib/serialization";
 const INCOMPATIBLE_SPECIES = new Set(["Imsanga Afero"]);
 
 const COMPATIBLE_PAIRS = new Set([
@@ -62,6 +69,75 @@ export function getHybridOffspring(
     return HYBRID_PAIRS.get(sortedPairString) || null;
 }
 
+export function checkGoalAchieved(
+    progeny: DbCreature,
+    goal: DbResearchGoal
+): boolean {
+    if (progeny.species !== goal.species) {
+        return false;
+    }
+
+    const enrichedProgeny = enrichAndSerializeCreature(progeny);
+    const enrichedGoal = enrichAndSerializeGoal(goal, goal.goalMode);
+
+    if (!enrichedProgeny || !enrichedGoal) return false;
+
+    const progenyGenes = new Map(enrichedProgeny.geneData.map(g => [g.category, g]));
+
+    for (const [category, targetGene] of Object.entries(enrichedGoal.genes)) {
+        if (category === "Gender") continue;
+
+        const progenyGene = progenyGenes.get(category);
+        if (!progenyGene) {
+            return false; // Progeny is missing a required gene category
+        }
+
+        if (enrichedGoal.goalMode === 'genotype') {
+            if (progenyGene.genotype !== targetGene.genotype) {
+                return false;
+            }
+        } else { // phenotype mode
+            if (progenyGene.phenotype !== targetGene.phenotype) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// Recursive function to get ancestors up to a certain depth
+function getAncestorsRecursive(
+    creatureId: string,
+    allLogs: DbBreedingLogEntry[],
+    allPairs: DbBreedingPair[],
+    depth: number,
+    ancestors: Set<string>
+) {
+    if (depth <= 0 || !creatureId) {
+        return;
+    }
+
+    const logEntry = allLogs.find(
+        (log) => log.progeny1Id === creatureId || log.progeny2Id === creatureId
+    );
+
+    if (!logEntry) {
+        return;
+    }
+
+    const pair = allPairs.find((p) => p.id === logEntry.pairId);
+    if (!pair) {
+        return;
+    }
+
+    const { maleParentId, femaleParentId } = pair;
+    if (maleParentId) ancestors.add(maleParentId);
+    if (femaleParentId) ancestors.add(femaleParentId);
+
+    getAncestorsRecursive(maleParentId, allLogs, allPairs, depth - 1, ancestors);
+    getAncestorsRecursive(femaleParentId, allLogs, allPairs, depth - 1, ancestors);
+}
 
 export function findSuitableMates(
     baseCreature: EnrichedCreature,
@@ -110,4 +186,31 @@ export function findSuitableMates(
         const { isValid } = validatePairing(baseCreature, potentialMate);
         return isValid;
     });
+}
+
+export function checkForInbreeding(
+    maleId: string,
+    femaleId: string,
+    allLogs: DbBreedingLogEntry[],
+    allPairs: DbBreedingPair[]
+): boolean {
+    if (!maleId || !femaleId) {
+        return false;
+    }
+
+    // Check for direct parent/child or other ancestor relationship
+    const maleAncestors = new Set<string>();
+    getAncestorsRecursive(maleId, allLogs, allPairs, 5, maleAncestors);
+    if (maleAncestors.has(femaleId)) return true;
+
+    const femaleAncestors = new Set<string>();
+    getAncestorsRecursive(femaleId, allLogs, allPairs, 5, femaleAncestors);
+    if (femaleAncestors.has(maleId)) return true;
+
+    // Check for shared ancestors (siblings, cousins, etc.)
+    for (const ancestor of maleAncestors) {
+        if (femaleAncestors.has(ancestor)) return true;
+    }
+
+    return false;
 }

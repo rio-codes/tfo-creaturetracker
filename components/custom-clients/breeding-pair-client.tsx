@@ -6,6 +6,8 @@ import type {
     EnrichedBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
 } from "@/types";
 import { BreedingPairCard } from "@/components/custom-cards/breeding-pair-card";
 import { Pagination } from "@/components/misc-custom-components/pagination";
@@ -26,6 +28,8 @@ type BreedingPairsClientProps = {
     totalPages: number;
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     searchParams?: {
         page?: string;
         query?: string;
@@ -38,6 +42,8 @@ export function BreedingPairsClient({
     totalPages,
     allCreatures,
     allGoals,
+    allPairs,
+    allLogs,
     searchParams,
 }: BreedingPairsClientProps) {
     const router = useRouter();
@@ -75,6 +81,8 @@ export function BreedingPairsClient({
                     <AddBreedingPairDialog
                         allCreatures={allCreatures}
                         allGoals={allGoals}
+                        allPairs={allPairs}
+                        allLogs={allLogs}
                     />
                 </div>
                 {/* Search and Filter Controls */}
@@ -114,6 +122,8 @@ export function BreedingPairsClient({
                                 pair={pair}
                                 allCreatures={allCreatures}
                                 allGoals={allGoals}
+                                allPairs={allPairs}
+                                allLogs={allLogs}
                             />
                         ))}
                     </div>

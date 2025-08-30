@@ -148,13 +148,10 @@ export function BreedingPairCard({
                             {pair.isInbred && (
                                 <Tooltip delayDuration={100}>
                                     <TooltipTrigger>
-                                        <Network className="h-4 w-4 text-pink-600" />
+                                        <Network className="h-4 w-4 text-yellow-600" />
                                     </TooltipTrigger>
-                                    <TooltipContent className="bg-barely-lilac text-pink-600 border-2 border-pink-600">
-                                        <p>
-                                            This pair is inbred. Progeny will
-                                            inherit this status.
-                                        </p>
+                                    <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple">
+                                        <p>This pair is inbred. Progeny may inherit this status.</p>
                                     </TooltipContent>
                                 </Tooltip>
                             )}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
+import { Filter } from "bad-words";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
@@ -17,6 +18,8 @@ const editPairSchema = z.object({
     femaleParentId: z.string().uuid("Invalid female parent ID."),
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
+
+const filter = new Filter();
 
 export async function PATCH(
     req: Request,
@@ -45,6 +48,13 @@ export async function PATCH(
         }
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
+
+        if (filter.isProfane(pairName)) {
+            return NextResponse.json(
+                { error: "The provided name contains inappropriate language." },
+                { status: 400 }
+            );
+        }
 
         // Fetch the existing pair to compare assigned goals
         const existingPair = await db.query.breedingPairs.findFirst({

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
-import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
+import { breedingPairs, creatures, researchGoals, breedingLogEntries } from "@/src/db/schema";
 import {
     RegExpMatcher,
     TextCensor,
@@ -10,7 +10,7 @@ import {
 } from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { validatePairing } from "@/lib/breeding-rules";
 
 const editPairSchema = z.object({
@@ -243,33 +243,94 @@ export async function DELETE(
             { status: 401 }
         );
     }
+    const userId = session.user.id;
+    const { searchParams } = new URL(req.url);
+    const progenyIdToRemove = searchParams.get("progenyId");
 
     try {
-        const result = await db
-            .delete(breedingPairs)
-            .where(
-                and(
-                    eq(breedingPairs.id, params.pairId),
-                    eq(breedingPairs.userId, session.user.id)
+        if (progenyIdToRemove) {
+            // Logic to remove a single progeny from a log entry
+            const logEntriesToUpdate = await db
+                .select()
+                .from(breedingLogEntries)
+                .where(
+                    and(
+                        eq(breedingLogEntries.userId, userId),
+                        eq(breedingLogEntries.pairId, params.pairId),
+                        or(
+                            eq(
+                                breedingLogEntries.progeny1Id,
+                                progenyIdToRemove
+                            ),
+                            eq(
+                                breedingLogEntries.progeny2Id,
+                                progenyIdToRemove
+                            )
+                        )
+                    )
+                );
+
+            if (logEntriesToUpdate.length === 0) {
+                return NextResponse.json(
+                    { error: "Progeny log entry not found." },
+                    { status: 404 }
+                );
+            }
+
+            for (const logEntry of logEntriesToUpdate) {
+                const updateData: {
+                    progeny1Id?: string | null;
+                    progeny2Id?: string | null;
+                } = {};
+                if (logEntry.progeny1Id === progenyIdToRemove) {
+                    updateData.progeny1Id = null;
+                }
+                if (logEntry.progeny2Id === progenyIdToRemove) {
+                    updateData.progeny2Id = null;
+                }
+
+                if (Object.keys(updateData).length > 0) {
+                    await db
+                        .update(breedingLogEntries)
+                        .set(updateData)
+                        .where(eq(breedingLogEntries.id, logEntry.id));
+                }
+            }
+
+            revalidatePath("/breeding-pairs");
+            revalidatePath("/research-goals", "layout");
+
+            return NextResponse.json({
+                message: "Progeny removed successfully.",
+            });
+        } else {
+            // Original logic to delete the entire pair
+            const result = await db
+                .delete(breedingPairs)
+                .where(
+                    and(
+                        eq(breedingPairs.id, params.pairId),
+                        eq(breedingPairs.userId, userId)
+                    )
                 )
-            )
-            .returning();
+                .returning();
 
-        if (result.length === 0) {
-            return NextResponse.json(
-                {
-                    error: "Pair not found or you do not have permission to delete it.",
-                },
-                { status: 404 }
-            );
+            if (result.length === 0) {
+                return NextResponse.json(
+                    {
+                        error: "Pair not found or you do not have permission to delete it.",
+                    },
+                    { status: 404 }
+                );
+            }
+
+            revalidatePath("/breeding-pairs");
+            return NextResponse.json({
+                message: "Breeding pair deleted successfully.",
+            });
         }
-
-        revalidatePath("/breeding-pairs");
-        return NextResponse.json({
-            message: "Breeding pair deleted successfully.",
-        });
     } catch (error: any) {
-        console.error("Failed to delete breeding pair:", error);
+        console.error("Failed to process DELETE request:", error);
         return NextResponse.json(
             { error: error.message || "An internal error occurred." },
             { status: 500 }

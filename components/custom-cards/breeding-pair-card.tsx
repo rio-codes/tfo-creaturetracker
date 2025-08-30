@@ -17,9 +17,20 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
-import { Pin, PinOff, X, Target, Award, Network } from "lucide-react";
+import { Pin, PinOff, X, Target, Award, Network, Trash2, Loader2 } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
@@ -42,6 +53,7 @@ export function BreedingPairCard({
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
+    const [isRemovingProgeny, setIsRemovingProgeny] = useState<string | null>(null);
     if (!pair?.maleParent || !pair.femaleParent || !allPairs || !allLogs) {
         return null;
     }
@@ -61,6 +73,28 @@ export function BreedingPairCard({
             alert("Could not update pin status.");
         } finally {
             setIsPinning(false);
+        }
+    };
+
+    const handleRemoveProgeny = async (progenyId: string) => {
+        setIsRemovingProgeny(progenyId);
+        try {
+            const response = await fetch(
+                `/api/breeding-pairs/${pair.id}?progenyId=${progenyId}`,
+                {
+                    method: "DELETE",
+                }
+            );
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to remove progeny.");
+            }
+            router.refresh();
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setIsRemovingProgeny(null);
         }
     };
 
@@ -160,62 +194,90 @@ export function BreedingPairCard({
                             {pair.progeny && pair.progeny.length > 0 ? (
                                 <ul className="text-xs space-y-1">
                                     {pair.progeny.map((p) => (
-                                        <Tooltip key={p.id} delayDuration={100}>
-                                            <TooltipTrigger asChild>
-                                                <li className="flex items-center gap-2 cursor-default p-1 rounded hover:bg-pompaca-purple/10">
-                                                    <SpeciesAvatar
-                                                        species={p.species!}
-                                                        size="sm"
-                                                    />
-                                                    <Link
-                                                        href={`https://finaloutpost.net/view/${p.code}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="truncate hover:underline wrap-anywhere"
-                                                        onClick={(e) =>
-                                                            e.stopPropagation()
-                                                        }
-                                                    >
-                                                        {p.creatureName ||
-                                                            "Unnamed"}{" "}
-                                                        ({p.code})
-                                                    </Link>
-                                                </li>
-                                            </TooltipTrigger>
-                                            <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <img
-                                                        src={p.imageUrl}
-                                                        alt={p.code}
-                                                        className="w-28 h-28 object-contain bg-ebena-lavender p-1 border-2 border-dusk-purple rounded-lg"
-                                                    />
-                                                    <div className="w-full text-xs space-y-1 mt-1 text-left">
-                                                        {p.geneData?.map(
-                                                            (gene) => (
-                                                                <div
-                                                                    key={
-                                                                        gene.category
-                                                                    }
-                                                                    className="flex justify-between items-baseline"
-                                                                >
-                                                                    <span className="font-semibold mr-2">
-                                                                        {
+                                        <li key={p?.id} className="flex items-center justify-between gap-2 p-1 rounded hover:bg-pompaca-purple/10">
+                                            <Tooltip delayDuration={100}>
+                                                <TooltipTrigger asChild>
+                                                    <div className="flex items-center gap-2 cursor-default truncate">
+                                                        <SpeciesAvatar
+                                                            species={p?.species!}
+                                                            className="h-4 w-4"
+                                                        />
+                                                        <Link
+                                                            href={`https://finaloutpost.net/view/${p?.code}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="truncate hover:underline wrap-anywhere"
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        >
+                                                            {p?.creatureName ||
+                                                                "Unnamed"}{" "}
+                                                            ({p?.code})
+                                                        </Link>
+                                                    </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <img
+                                                            src={p?.imageUrl}
+                                                            alt={p?.code}
+                                                            className="w-28 h-28 object-contain bg-ebena-lavender p-1 border-2 border-dusk-purple rounded-lg"
+                                                        />
+                                                        <div className="w-full text-xs space-y-1 mt-1 text-left">
+                                                            {p?.geneData?.map(
+                                                                (gene) => (
+                                                                    <div
+                                                                        key={
                                                                             gene.category
                                                                         }
-                                                                        :
-                                                                    </span>
-                                                                    <span className="text-right truncate">
-                                                                        {
-                                                                            gene.phenotype
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            )
-                                                        )}
+                                                                        className="flex justify-between items-baseline"
+                                                                    >
+                                                                        <span className="font-semibold mr-2">
+                                                                            {
+                                                                                gene.category
+                                                                            }
+                                                                            :
+                                                                        </span>
+                                                                        <span className="text-right truncate">
+                                                                            {
+                                                                                gene.phenotype
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                )
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </TooltipContent>
-                                        </Tooltip>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-6 w-6 flex-shrink-0 text-red-500 hover:bg-red-100 hover:text-red-600">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-barely-lilac">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This will remove "{p?.creatureName} ({p?.code})" from this pair's progeny log. This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleRemoveProgeny(p!.id)}
+                                                            disabled={isRemovingProgeny === p?.id}
+                                                            className="bg-red-600 hover:bg-red-700"
+                                                        >
+                                                            {isRemovingProgeny === p?.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                                            Remove
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </li>
                                     ))}
                                 </ul>
                             ) : (
@@ -234,19 +296,19 @@ export function BreedingPairCard({
                                 <ul className="text-xs space-y-1">
                                     {pair.assignedGoals.map((g) => (
                                         <li
-                                            key={g.id}
+                                            key={g?.id}
                                             className="flex items-center gap-1"
                                         >
-                                            {g.isAchieved ? (
+                                            {g?.isAchieved ? (
                                                 <Award className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                                             ) : (
                                                 <Target className="h-3 w-3 text-dusk-purple flex-shrink-0" />
                                             )}
                                             <Link
-                                                href={`/research-goals/${g.id}`}
+                                                href={`/research-goals/${g?.id}`}
                                                 className="truncate hover:underline wrap-anywhere"
                                             >
-                                                {g.name}
+                                                {g?.name}
                                             </Link>
                                         </li>
                                     ))}

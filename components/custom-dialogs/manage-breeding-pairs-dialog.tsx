@@ -31,7 +31,7 @@ export function ManageBreedingPairsDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac">
+            <DialogContent className="bg-barely-lilac max-h-2/3 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple">
                         Manage Pairs for{" "}

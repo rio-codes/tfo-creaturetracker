@@ -395,7 +395,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 {isEditMode && (
                     <Button
                         type="button"
-                        variant="destructive"
+                        className="bg-barely-lilac text-red-600 border-2 border-red-600"
                         onClick={handleDelete}
                         disabled={isDeleting}
                     >

@@ -14,21 +14,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { structuredGeneData } from "@/lib/creature-data";
-import { Loader2, Trash2 } from "lucide-react";
-import type { EnrichedResearchGoal } from "@/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { structuredGeneData, speciesList } from "@/lib/creature-data";
+import { Loader2, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import type { EnrichedResearchGoal, GoalGene } from "@/types";
 
-// Define the shape for our state and options
-type GeneSelection = {
-    genotype: string;
-    phenotype: string;
-    isMultiGenotype: boolean;
-};
 type GeneOption = {
     value: string;
     display: string;
     // We need the full selection object to be available in the option
-    selection: GeneSelection;
+    selection: Omit<GoalGene, "isOptional">;
 };
 
 type GoalFormProps = {
@@ -45,7 +40,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
     const [species, setSpecies] = useState(goal?.species || "");
     const [goalMode, setGoalMode] = useState(goal?.goalMode || "phenotype");
     const [selectedGenes, setSelectedGenes] = useState<{
-        [key: string]: GeneSelection;
+        [key: string]: GoalGene;
     }>(goal?.genes || {});
 
     const [isLoading, setIsLoading] = useState(false);
@@ -135,25 +130,35 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
     );
 
     // --- EFFECT FOR DEFAULT VALUES IN CREATE MODE ---
+    // This effect handles initializing the gene selections for both create and edit modes.
     useEffect(() => {
-        if (!isEditMode && species && geneCategories.length > 0) {
-            const defaultSelections: { [key: string]: GeneSelection } = {};
+        // For EDIT mode, normalize existing goal data to ensure `isOptional` exists.
+        if (isEditMode && goal?.genes) {
+            const normalizedGenes: { [key: string]: GoalGene } = {};
+            for (const [category, geneData] of Object.entries(goal.genes)) {
+                normalizedGenes[category] = {
+                    ...(geneData as GoalGene), // Cast to handle old data
+                    isOptional: geneData.isOptional ?? false,
+                };
+            }
+            setSelectedGenes(normalizedGenes);
+        // For CREATE mode, set default genes when species changes.
+        } else if (!isEditMode && species && geneCategories.length > 0) {
+            const defaultSelections: { [key: string]: GoalGene } = {};
             for (const category of geneCategories) {
                 const options = geneOptions[category];
                 if (options && options.length > 0) {
                     let defaultOption = options[0];
                     if (category === "Gender") {
-                        defaultOption =
-                            options.find(
-                                (opt) => opt.selection.genotype === "Female"
-                            ) || options[0];
+                        defaultOption = options.find((opt) => opt.selection.genotype === "Female") || options[0];
                     }
-                    defaultSelections[category] = defaultOption.selection;
+                    // Add the missing isOptional flag
+                    defaultSelections[category] = { ...defaultOption.selection, isOptional: false };
                 }
             }
             setSelectedGenes(defaultSelections);
         }
-    }, [species, geneCategories, isEditMode, geneOptions]);
+    }, [species, geneCategories, isEditMode, geneOptions, goal?.genes]);
 
     const handleSpeciesChange = (newSpecies: string) => {
         setSpecies(newSpecies);
@@ -169,12 +174,25 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
         if (selectedOption) {
             setSelectedGenes((prev) => ({
                 ...prev,
-                [category]: selectedOption.selection,
+                [category]: { ...selectedOption.selection, isOptional: prev[category]?.isOptional ?? false },
             }));
         }
         setPreviewImageUrl(null);
     };
 
+    const handleOptionalToggle = (category: string) => {
+        setSelectedGenes((prev) => {
+            if (!prev[category]) return prev;
+            return {
+                ...prev,
+                [category]: {
+                    ...prev[category],
+                    isOptional: !prev[category].isOptional,
+                },
+            };
+        });
+        setPreviewImageUrl(null); // Invalidate preview
+    };
     // send form contents to api route based on create or update mode
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -252,8 +270,32 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
         }
     };
 
+    const handleRandomizeOptional = () => {
+        const newSelectedGenes = { ...selectedGenes };
+        let changed = false;
+        for (const category in newSelectedGenes) {
+            // Only randomize genes that are marked as optional
+            if (newSelectedGenes[category].isOptional) {
+                const options = geneOptions[category];
+                if (options && options.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * options.length);
+                    const randomOption = options[randomIndex];
+                    newSelectedGenes[category] = {
+                        ...randomOption.selection,
+                        isOptional: true, // Ensure it remains optional
+                    };
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            setSelectedGenes(newSelectedGenes);
+            setPreviewImageUrl(null); // Invalidate preview since genes changed
+        }
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
             {/* Goal Mode Selector */}
             <div className="space-y-2">
                 <Label>Goal Mode</Label>
@@ -309,7 +351,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                         <SelectValue placeholder="Species Name" />
                     </SelectTrigger>
                     <SelectContent className="bg-barely-lilac">
-                        {Object.keys(structuredGeneData).map((s) => (
+                        {speciesList.map((s) => (
                             <SelectItem
                                 key={s}
                                 value={s}
@@ -322,64 +364,90 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 </Select>
             </div>
             {species && (
-                <div className="space-y-4 border p-4 rounded-md bg-ebena-lavender">
-                    <h3 className="font-bold text-pompaca-purple">
-                        Target Genes
-                    </h3>
-                    {geneCategories.map((category) => {
-                        const selectedValue =
-                            goalMode === "phenotype"
-                                ? selectedGenes[category]?.phenotype || ""
-                                : selectedGenes[category]?.genotype || "";
+                <div className="flex min-h-0 flex-col space-y-4 rounded-md border bg-ebena-lavender p-4">
+                    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1">
+                        <Label className="font-bold text-pompaca-purple col-span-2">Target Genes</Label>
+                        <Label className="font-bold text-pompaca-purple text-xs justify-self-center">Optional</Label>
+                    </div>
+                    <ScrollArea className="max-h-60 pr-4 relative">
+                        <div className="space-y-4">
+                            {geneCategories.map((category) => {
+                                const selectedValue =
+                                    goalMode === "phenotype"
+                                        ? selectedGenes[category]?.phenotype || ""
+                                        : selectedGenes[category]?.genotype || "";
 
-                        const options = geneOptions[category] || [];
-                        return (
-                            <div key={category}>
-                                <Label className="font-medium text-pompaca-purple">
-                                    {category}
-                                </Label>
-                                <Select
-                                    value={selectedValue}
-                                    onValueChange={(value) =>
-                                        handleGeneChange(category, value)
-                                    }
-                                >
-                                    <SelectTrigger className="w-full bg-barely-lilac ...">
-                                        <SelectValue
-                                            placeholder={`Select ${category}...`}
+                                const options = geneOptions[category] || [];
+                                return (
+                                    <div key={category} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4">
+                                        <Label className="font-medium text-pompaca-purple">
+                                            {category}
+                                        </Label>
+                                        <Select
+                                            value={selectedValue}
+                                            onValueChange={(value) =>
+                                                handleGeneChange(category, value)
+                                            }
+                                        >
+                                            <SelectTrigger className="w-full bg-barely-lilac">
+                                                <SelectValue
+                                                    placeholder={`Select ${category}...`}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-barely-lilac">
+                                                {options.map((option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                        className="hover:bg-pompaca-purple/20"
+                                                    >
+                                                        {option.display}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <Checkbox
+                                            checked={selectedGenes[category]?.isOptional || false}
+                                            onCheckedChange={() => handleOptionalToggle(category)}
+                                            className="mr-2"
                                         />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-barely-lilac">
-                                        {options.map((option) => (
-                                            <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                                className="hover:bg-pompaca-purple/20"
-                                            >
-                                                {option.display}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        );
-                    })}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <ScrollBar orientation="vertical" />
+                        {/* Fake Scrollbar Hint for UI consistency */}
+                        <div className="absolute top-0 right-0 h-full w-3 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
+                            <ChevronUp className="h-4 w-3 text-barely-lilac" />
+                            <ChevronDown className="h-4 w-3 text-barely-lilac" />
+                        </div>
+                    </ScrollArea>
                 </div>
             )}
 
             {/* preview section */}
-            <div className="space-y-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePreview}
-                    disabled={isPreviewLoading}
-                >
-                    {isPreviewLoading ? (
-                        <Loader2 className="animate-spin mr-2" />
-                    ) : null}
-                    Preview Image
-                </Button>
+            <div className="space-y-2 pt-2">
+                <div className="flex items-center gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handlePreview}
+                        disabled={isPreviewLoading || !species}
+                    >
+                        {isPreviewLoading ? (
+                            <Loader2 className="animate-spin mr-2" />
+                        ) : null}
+                        Preview Image
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleRandomizeOptional}
+                        disabled={!species}
+                    >
+                        Randomize Optional
+                    </Button>
+                </div>
                 {previewImageUrl && (
                     <img
                         src={previewImageUrl}

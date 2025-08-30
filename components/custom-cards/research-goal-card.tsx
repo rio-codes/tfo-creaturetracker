@@ -89,14 +89,17 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                                 {goal?.goalMode === "genotype" ? (
                                     <p>
                                         Calculates odds for achieving an exact
-                                        genetic code. For advanced users aiming
-                                        for specific breeding outcomes.
+                                        genetic code. Match scores will be much
+                                        lower. For advanced users aiming for
+                                        specific breeding outcomes.
                                     </p>
                                 ) : (
                                     <p>
                                         Calculates odds based on achieving a
                                         desired look (e.g., "Steppes"),
                                         accepting any genotype that produces it.
+                                        Match scores will be higher and
+                                        "possible" goals more common.
                                         Recommended for most users.
                                     </p>
                                 )}

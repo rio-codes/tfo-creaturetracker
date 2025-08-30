@@ -4,7 +4,7 @@ import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
 import {
     RegExpMatcher,
-    TextCensor,
+
     englishDataset,
     englishRecommendedTransformers,
 } from "obscenity";
@@ -24,6 +24,7 @@ const editGoalSchema = z.object({
             genotype: z.string(),
             phenotype: z.string(),
             isMultiGenotype: z.boolean(),
+            isOptional: z.boolean(),
         })
     ),
     goalMode: z.enum(["genotype", "phenotype"]),
@@ -113,7 +114,8 @@ export async function PATCH(
             ])
         );
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
+        const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, `goal-${params.goalId}`, 3);
 
         // insert new research goal into db
         const result = await db

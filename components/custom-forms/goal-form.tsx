@@ -395,7 +395,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 {isEditMode && (
                     <Button
                         type="button"
-                        className="bg-barely-lilac text-red-600 border-2 border-red-600"
+                        className="bg-barely-lilac text-red-600 border-2 border-red-600 flex items-center gap-2"
                         onClick={handleDelete}
                         disabled={isDeleting}
                     >
@@ -404,6 +404,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                         ) : (
                             <Trash2 className="h-4 w-4" />
                         )}
+                        Delete
                     </Button>
                 )}
                 <div className="flex-grow flex justify-end gap-2">

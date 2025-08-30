@@ -114,7 +114,8 @@ export async function PATCH(
             ])
         );
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
+        const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, `goal-${params.goalId}`, 3);
 
         // insert new research goal into db
         const result = await db

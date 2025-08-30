@@ -120,7 +120,8 @@ export async function POST(req: Request) {
 
         // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
+        const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
         // insert new research goal into db
         await db.insert(researchGoals).values({

@@ -17,11 +17,15 @@ import type {
     DbResearchGoal,
     EnrichedCreature,
     EnrichedResearchGoal,
-    EnrichedBreedingPair
+    EnrichedBreedingPair,
 } from "@/types";
-import { checkForInbreeding } from "@/lib/breeding-rules";
-import { enrichAndSerializeCreature, enrichAndSerializeGoal } from "@/lib/serialization";
-import { calculateGeneProbability } from "./genetics";
+import { checkForInbreeding, validatePairing } from "@/lib/breeding-rules";
+import {
+    enrichAndSerializeCreature,
+    enrichAndSerializeGoal,
+} from "@/lib/serialization";
+import { calculateGeneProbability } from "@/lib/genetics";
+import { TFO_PLACEHOLDER_IMAGE_BASE64 } from "@/lib/constants";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { alias } from "drizzle-orm/pg-core";
 
@@ -30,7 +34,10 @@ import { alias } from "drizzle-orm/pg-core";
 // ============================================================================
 
 const enrichAndSerializeBreedingPair = (
-    pair: DbBreedingPair & { maleParent: DbCreature | null; femaleParent: DbCreature | null },
+    pair: DbBreedingPair & {
+        maleParent: DbCreature | null;
+        femaleParent: DbCreature | null;
+    },
     allEnrichedGoals: EnrichedResearchGoal[],
     allLogEntries: DbBreedingLogEntry[],
     allCreatures: EnrichedCreature[],
@@ -46,12 +53,12 @@ const enrichAndSerializeBreedingPair = (
     const timesBred = relevantLogs.length;
 
     const progenyIds = new Set<string>();
-    relevantLogs.forEach(log => {
+    relevantLogs.forEach((log) => {
         if (log.progeny1Id) progenyIds.add(log.progeny1Id);
         if (log.progeny2Id) progenyIds.add(log.progeny2Id);
     });
 
-    const progeny = allCreatures.filter(c => c && progenyIds.has(c.id));
+    const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
     const progenyCount = progeny.length;
 
     const assignedGoalsFromPair = allEnrichedGoals.filter(
@@ -62,15 +69,43 @@ const enrichAndSerializeBreedingPair = (
     // Check which assigned goals have been achieved by this pair's progeny
     const achievedGoalIdsForPair = new Set(
         allUserAchievedGoals
-            .filter(ag => progenyIds.has(ag.matchingProgenyId))
-            .map(ag => ag.goalId)
+            .filter((ag) => progenyIds.has(ag.matchingProgenyId))
+            .map((ag) => ag.goalId)
     );
 
-    // Now that `assignedGoalsFromPair` is guaranteed to not have nulls, we can map it safely.
-    const assignedGoals = assignedGoalsFromPair.map(goal => ({
-        ...goal,
-        isAchieved: achievedGoalIdsForPair.has(goal.id)
-    }));
+    const assignedGoals = assignedGoalsFromPair.map((goal) => {
+        const isAchieved = achievedGoalIdsForPair.has(goal.id);
+
+        // Calculate prediction for this goal
+        let totalChance = 0;
+        let geneCount = 0;
+        let isPossible = true;
+        const goalMode = goal.goalMode;
+
+        for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
+            const targetGene = targetGeneInfo as any;
+            const chance = calculateGeneProbability(
+                enrichAndSerializeCreature(pair.maleParent),
+                enrichAndSerializeCreature(pair.femaleParent),
+                category,
+                targetGene,
+                goalMode
+            );
+            if (!targetGene.isOptional) {
+                if (chance === 0) isPossible = false;
+                totalChance += chance;
+                geneCount++;
+            }
+        }
+        const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
+
+        return {
+            ...goal,
+            isAchieved,
+            isPossible,
+            averageChance,
+        };
+    });
 
     const isInbred = checkForInbreeding(
         pair.maleParentId,
@@ -111,7 +146,13 @@ export async function getAllBreedingPairsForUser(): Promise<
         });
         if (!user) return [];
 
-        const [allPairs, allGoals, logEntries, allUserCreatures, allUserAchievedGoals] = await Promise.all([
+        const [
+            allPairs,
+            allGoals,
+            logEntries,
+            allUserCreatures,
+            allUserAchievedGoals,
+        ] = await Promise.all([
             db.query.breedingPairs.findMany({
                 where: eq(breedingPairs.userId, userId),
                 with: { maleParent: true, femaleParent: true },
@@ -133,7 +174,9 @@ export async function getAllBreedingPairsForUser(): Promise<
         const enrichedGoals = allGoals.map((goal) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
-        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
+        const enrichedCreatures = allUserCreatures.map(
+            enrichAndSerializeCreature
+        );
         const enrichedPairs = allPairs
             .map((pair) =>
                 enrichAndSerializeBreedingPair(
@@ -157,7 +200,7 @@ export async function getAllBreedingPairsForUser(): Promise<
     }
 }
 
-// fetch assigned breeding pairs with enriched parents and genetic predictions for a research goal 
+// fetch assigned breeding pairs with enriched parents and genetic predictions for a research goal
 export async function fetchGoalDetailsAndPredictions(goalId: string) {
     const session = await auth();
     const userId = session?.user?.id;
@@ -190,7 +233,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
         // perform genetic predictions for pairs
         const predictions = relevantPairs
-            .filter(p => p.maleParent && p.femaleParent)
+            .filter((p) => p.maleParent && p.femaleParent)
             .map((pair) => {
                 const enrichedMaleParent = enrichAndSerializeCreature(
                     pair.maleParent
@@ -205,15 +248,12 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                 for (const [category, targetGeneInfo] of Object.entries(
                     enrichedGoal!.genes
                 )) {
-                    if (category === "Gender") {
-                        continue;
-                    }
                     const targetGene = targetGeneInfo as any;
                     const chance = calculateGeneProbability(
                         enrichedMaleParent,
                         enrichedFemaleParent,
                         category,
-                        targetGene,
+                        targetGene as any,
                         goalMode
                     );
                     chancesByCategory[category] = chance;
@@ -225,11 +265,14 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                     }
                 }
 
-                const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
-                const isPossible = Object.entries(chancesByCategory).every(([category, chance]) => {
-                    const targetGene = enrichedGoal!.genes[category] as any;
-                    return targetGene.isOptional || chance > 0;
-                });
+                const averageChance =
+                    geneCount > 0 ? totalChance / geneCount : 1;
+                const isPossible = Object.entries(chancesByCategory).every(
+                    ([category, chance]) => {
+                        const targetGene = enrichedGoal!.genes[category] as any;
+                        return targetGene.isOptional || chance > 0;
+                    }
+                );
 
                 return {
                     pairId: pair.id,
@@ -281,11 +324,13 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
-        gender && gender !== "all" ? eq(creatures.gender, gender as any) : undefined,
+        gender && gender !== "all"
+            ? eq(creatures.gender, gender as any)
+            : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== "all"
             ? ilike(creatures.species, species)
@@ -440,7 +485,10 @@ export async function fetchBreedingPairsWithStats(
                 eq(breedingPairs.femaleParentId, femaleCreatures.id)
             )
             .where(and(...conditions))
-            .orderBy(desc(breedingPairs.isPinned), desc(breedingPairs.createdAt))
+            .orderBy(
+                desc(breedingPairs.isPinned),
+                desc(breedingPairs.createdAt)
+            )
             .limit(pairsPerPage)
             .offset(offset);
 
@@ -451,7 +499,13 @@ export async function fetchBreedingPairsWithStats(
         }));
 
         // Fetch all goals and log entries for enrichment
-        const [allGoals, logEntries, allUserCreatures, allUserAchievedGoals, allRawPairs] = await Promise.all([
+        const [
+            allGoals,
+            logEntries,
+            allUserCreatures,
+            allUserAchievedGoals,
+            allRawPairs,
+        ] = await Promise.all([
             db.query.researchGoals.findMany({
                 where: eq(researchGoals.userId, userId),
             }),
@@ -464,7 +518,8 @@ export async function fetchBreedingPairsWithStats(
             db.query.achievedGoals.findMany({
                 where: eq(achievedGoals.userId, userId),
             }),
-            db.query.breedingPairs.findMany({ // Fetch all pairs for inbreeding check
+            db.query.breedingPairs.findMany({
+                // Fetch all pairs for inbreeding check
                 where: eq(breedingPairs.userId, userId),
             }),
         ]);
@@ -476,7 +531,9 @@ export async function fetchBreedingPairsWithStats(
         const enrichedGoals = allGoals.map((goal) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
-        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
+        const enrichedCreatures = allUserCreatures.map(
+            enrichAndSerializeCreature
+        );
         const enrichedPairs = pairsWithParents
             .map((pair) =>
                 enrichAndSerializeBreedingPair(
@@ -556,7 +613,9 @@ export async function getAllResearchGoalsForUser(): Promise<
 }
 
 // fetch all raw breeding pairs for user to populate dropdowns and for inbreeding checks
-export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]> {
+export async function getAllRawBreedingPairsForUser(): Promise<
+    DbBreedingPair[]
+> {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return [];
@@ -566,13 +625,18 @@ export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]>
         });
         return pairs;
     } catch (error) {
-        console.error("Database Error: Failed to fetch all raw breeding pairs.", error);
+        console.error(
+            "Database Error: Failed to fetch all raw breeding pairs.",
+            error
+        );
         return [];
     }
 }
 
 // fetch all breeding log entries for user for inbreeding checks
-export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEntry[]> {
+export async function getAllBreedingLogEntriesForUser(): Promise<
+    DbBreedingLogEntry[]
+> {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return [];
@@ -593,7 +657,7 @@ export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEn
 // helper function to fetch TFO images and upload to Vercel blob with retries on failure
 export async function fetchAndUploadWithRetry(
     imageUrl: string,
-    creatureCode: string | null,
+    referenceId: string | null, // Can be creature code, goal ID, or a special preview ID
     retries = 3
 ): Promise<string> {
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -607,32 +671,49 @@ export async function fetchAndUploadWithRetry(
             }
             const imageBlob = await imageResponse.blob();
 
-            // upload the image to Vercel Blob
-            var filename = ""
-            // if a creature code is provided, we are syncing
-            if (creatureCode) {
-                filename = `creatures/${creatureCode}.png`;
+            // Read the image blob as a buffer to compare against the placeholder
+            const imageBuffer = Buffer.from(await imageBlob.arrayBuffer());
+
+            // Compare the image data (converted to base64) against the placeholder
+            const imageBase64 = imageBuffer.toString("base64");
+            if (imageBase64 === TFO_PLACEHOLDER_IMAGE_BASE64) {
+                throw new Error("TFO returned a placeholder image.");
             }
-            // if there is no creature code this is a research goal
-            else {
+
+            // upload the image to Vercel Blob
+            let filename = "";
+            if (referenceId?.startsWith("pair-preview-")) {
+                filename = `pair-previews/${referenceId.replace(
+                    "pair-preview-",
+                    ""
+                )}.png`;
+            } else if (referenceId?.startsWith("goal-")) {
+                filename = `goals/${referenceId.replace("goal-", "")}.png`;
+            } else if (referenceId) {
+                // Assumes creature code for sync
+                filename = `creatures/${referenceId}.png`;
+            } else {
+                // Assumes new goal
                 filename = `goals/${crypto.randomUUID()}.png`;
             }
+
             const blob = await vercelBlobPut(filename, imageBlob, {
                 access: "public",
                 contentType: imageBlob.type || "image/png",
                 allowOverwrite: true,
             });
 
+            console.log("blob url: ", blob.url)
             // if successful, return the new URL immediately
             return blob.url;
         } catch (error) {
             console.warn(
-                `Attempt ${attempt} failed for creature ${creatureCode}: ${error?.toString()}`
+                `Attempt ${attempt} failed for reference ${referenceId}: ${error?.toString()}`
             );
             if (attempt === retries) {
                 // if this was the last attempt, re-throw the error to be caught by the main logic
                 throw new Error(
-                    `All ${retries} attempts failed for ${creatureCode}.`
+                    `All ${retries} attempts failed for ${referenceId}.`
                 );
             }
             // wait 1 second before the next retry

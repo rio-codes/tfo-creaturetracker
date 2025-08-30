@@ -109,6 +109,7 @@ export type DbBreedingPair = {
     femaleParentId: string;
     isPinned: boolean;
     assignedGoalIds: string[] | null;
+    outcomesPreviewUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -128,7 +129,9 @@ export type EnrichedBreedingPair = Omit<
     isInbred: boolean;
     maleParent: EnrichedCreature;
     femaleParent: EnrichedCreature;
-    assignedGoals: (EnrichedResearchGoal & { isAchieved: boolean })[];
+    assignedGoals: (EnrichedResearchGoal & {
+        isAchieved: boolean; isPossible: boolean; averageChance: number 
+    })[];
 };
 
 /**

@@ -14,6 +14,7 @@ import type {
     DbCreature,
     DbBreedingLogEntry,
     DbBreedingPair,
+    DbResearchGoal,
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair
@@ -29,13 +30,18 @@ import { alias } from "drizzle-orm/pg-core";
 // ============================================================================
 
 const enrichAndSerializeBreedingPair = (
-    pair: DbBreedingPair & { maleParent: DbCreature; femaleParent: DbCreature },
+    pair: DbBreedingPair & { maleParent: DbCreature | null; femaleParent: DbCreature | null },
     allEnrichedGoals: EnrichedResearchGoal[],
     allLogEntries: DbBreedingLogEntry[],
     allCreatures: EnrichedCreature[],
     allUserAchievedGoals: any[],
     allRawPairs: DbBreedingPair[]
-): EnrichedBreedingPair => {
+): EnrichedBreedingPair | null => {
+    if (!pair.maleParent || !pair.femaleParent) {
+        console.warn(`Skipping pair ${pair.id} due to missing parent data.`);
+        return null;
+    }
+
     const relevantLogs = allLogEntries.filter((log) => log.pairId === pair.id);
     const timesBred = relevantLogs.length;
 
@@ -128,16 +134,18 @@ export async function getAllBreedingPairsForUser(): Promise<
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
-        const enrichedPairs = allPairs.map((pair) =>
-            enrichAndSerializeBreedingPair(
-                pair,
-                enrichedGoals,
-                logEntries,
-                enrichedCreatures,
-                allUserAchievedGoals,
-                allPairs,
+        const enrichedPairs = allPairs
+            .map((pair) =>
+                enrichAndSerializeBreedingPair(
+                    pair,
+                    enrichedGoals,
+                    logEntries,
+                    enrichedCreatures,
+                    allUserAchievedGoals,
+                    allPairs
+                )
             )
-        );
+            .filter((p): p is EnrichedBreedingPair => p !== null);
 
         return enrichedPairs;
     } catch (error) {
@@ -181,50 +189,58 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         });
 
         // perform genetic predictions for pairs
-        const predictions = relevantPairs.map((pair) => {
-            const enrichedMaleParent = enrichAndSerializeCreature(
-                pair.maleParent
-            );
-            const enrichedFemaleParent = enrichAndSerializeCreature(
-                pair.femaleParent
-            );
-            let totalChance = 0;
-            let geneCount = 0;
-            const chancesByCategory: { [key: string]: number } = {};
-
-            for (const [category, targetGene] of Object.entries(
-                enrichedGoal!.genes
-            )) {
-                if (category === "Gender") {
-                    continue;
-                }
-                const chance = calculateGeneProbability(
-                    enrichedMaleParent,
-                    enrichedFemaleParent,
-                    category,
-                    targetGene as any,
-                    goalMode
+        const predictions = relevantPairs
+            .filter(p => p.maleParent && p.femaleParent)
+            .map((pair) => {
+                const enrichedMaleParent = enrichAndSerializeCreature(
+                    pair.maleParent
                 );
-                chancesByCategory[category] = chance;
-                totalChance += chance;
-                geneCount++;
-            }
+                const enrichedFemaleParent = enrichAndSerializeCreature(
+                    pair.femaleParent
+                );
+                let totalChance = 0;
+                let geneCount = 0;
+                const chancesByCategory: { [key: string]: number } = {};
 
-            const averageChance = geneCount > 0 ? totalChance / geneCount : 0;
-            const isPossible = Object.values(chancesByCategory).every(
-                (chance) => chance > 0
-            );
+                for (const [category, targetGeneInfo] of Object.entries(
+                    enrichedGoal!.genes
+                )) {
+                    if (category === "Gender") {
+                        continue;
+                    }
+                    const targetGene = targetGeneInfo as any;
+                    const chance = calculateGeneProbability(
+                        enrichedMaleParent,
+                        enrichedFemaleParent,
+                        category,
+                        targetGene,
+                        goalMode
+                    );
+                    chancesByCategory[category] = chance;
 
-            return {
-                pairId: pair.id,
-                pairName: pair.pairName,
-                maleParent: enrichedMaleParent,
-                femaleParent: enrichedFemaleParent,
-                chancesByCategory,
-                averageChance,
-                isPossible,
-            };
-        });
+                    // Only factor in non-optional genes for the average
+                    if (!targetGene.isOptional) {
+                        totalChance += chance;
+                        geneCount++;
+                    }
+                }
+
+                const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
+                const isPossible = Object.entries(chancesByCategory).every(([category, chance]) => {
+                    const targetGene = enrichedGoal!.genes[category] as any;
+                    return targetGene.isOptional || chance > 0;
+                });
+
+                return {
+                    pairId: pair.id,
+                    pairName: pair.pairName,
+                    maleParent: enrichedMaleParent,
+                    femaleParent: enrichedFemaleParent,
+                    chancesByCategory,
+                    averageChance,
+                    isPossible,
+                };
+            });
 
         return { goal: enrichedGoal, predictions };
     } catch (error) {
@@ -461,9 +477,18 @@ export async function fetchBreedingPairsWithStats(
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
-        const enrichedPairs = pairsWithParents.map((pair) =>
-            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries, enrichedCreatures, allUserAchievedGoals, allRawPairs)
-        );
+        const enrichedPairs = pairsWithParents
+            .map((pair) =>
+                enrichAndSerializeBreedingPair(
+                    pair,
+                    enrichedGoals,
+                    logEntries,
+                    enrichedCreatures,
+                    allUserAchievedGoals,
+                    allRawPairs
+                )
+            )
+            .filter((p): p is EnrichedBreedingPair => p !== null);
 
         // fetch total count for pagination
         const totalCountResult = await db

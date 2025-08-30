@@ -98,6 +98,21 @@ export function BreedingPairCard({
         }
     };
 
+    const getCacheBustedImageUrl = (
+        creature: EnrichedCreature | null | undefined
+    ) => {
+        if (!creature?.imageUrl) {
+            return "";
+        }
+
+        if (creature.updatedAt) {
+            return `${creature.imageUrl}?v=${new Date(
+                creature.updatedAt
+            ).getTime()}`;
+        }
+        return creature.imageUrl;
+    };
+
     const maleParent = pair!.maleParent;
     const femaleParent = pair!.femaleParent;
     const hybridSpecies = getHybridOffspring(
@@ -136,13 +151,13 @@ export function BreedingPairCard({
                 {/* Parent Images */}
                 <div className="flex justify-center items-center gap-2 mt-2">
                     <img
-                        src={maleParent.imageUrl}
+                        src={getCacheBustedImageUrl(maleParent)}
                         alt={maleParent.code}
                         className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                     />
                     <X className="text-dusk-purple" />
                     <img
-                        src={femaleParent.imageUrl}
+                        src={getCacheBustedImageUrl(femaleParent)}
                         alt={femaleParent.code}
                         className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
                     />
@@ -220,7 +235,7 @@ export function BreedingPairCard({
                                                 <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
                                                     <div className="flex flex-col items-center gap-2">
                                                         <img
-                                                            src={p?.imageUrl}
+                                                            src={getCacheBustedImageUrl(p)}
                                                             alt={p?.code}
                                                             className="w-28 h-28 object-contain bg-ebena-lavender p-1 border-2 border-dusk-purple rounded-lg"
                                                         />

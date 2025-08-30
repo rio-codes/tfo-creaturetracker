@@ -7,13 +7,14 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import type { EnrichedCreature, Prediction } from "@/types";
+import type { EnrichedCreature, Prediction, EnrichedResearchGoal } from "@/types";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog"
 
 
 type PredictionsAccordionProps = {
     predictions: Prediction[];
     allCreatures: EnrichedCreature[];
+    goal?: EnrichedResearchGoal;
 };
 
 
@@ -111,7 +112,7 @@ export function PredictionsAccordion({
                     {/* Expanded, "deep-dive" view - remains the same */}
                     <AccordionContent className="p-6 bg-barely-lilac border-t border-pompaca-purple/30">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
-                            {Object.entries(p.chancesByCategory).map(
+                            {Object.entries(p.chancesByCategory || {}).map(
                                 ([category, chance]) => (
                                     <div key={category}>
                                         <div className="font-bold text-pompaca-purple">

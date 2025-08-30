@@ -21,7 +21,8 @@ type GoalDetailClientProps = {
 type PredictionsAccordionProps = {
     predictions: Prediction[];
     allCreatures: EnrichedCreature[];
-};
+    goal?: EnrichedResearchGoal;
+}
 
 export function GoalDetailClient({
     goal,
@@ -35,7 +36,7 @@ export function GoalDetailClient({
 
     const assignedPredictions = useMemo(() => {
         const assignedIds = new Set(goal?.assignedPairIds || []);
-        return initialPredictions.filter((p) => assignedIds.has(p.pairId));
+        return initialPredictions.filter((p) => assignedIds.has(p.pairId!));
     }, [initialPredictions, goal?.assignedPairIds]);
 
     return (
@@ -128,6 +129,7 @@ export function GoalDetailClient({
                     <PredictionsAccordion
                         predictions={assignedPredictions}
                         allCreatures={allCreatures}
+                        goal={goal}
                     />
                 ) : (
                     // If it hasn't (i.e., during the server render), we render a simple placeholder.

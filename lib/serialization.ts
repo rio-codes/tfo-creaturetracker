@@ -2,7 +2,7 @@ import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal
 import { structuredGeneData } from "@/lib/creature-data";
 
 // serialize dates and add rich gene data to creature object
-export const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
+export const enrichAndSerializeCreature = (creature: DbCreature | null): EnrichedCreature => {
     if (!creature) return null;
     const speciesGeneData = structuredGeneData[creature.species || ""];
     return {
@@ -82,6 +82,7 @@ export const enrichAndSerializeGoal = (
                 genotype: finalGenotype,
                 phenotype: finalPhenotype,
                 isMultiGenotype: isMulti,
+                isOptional: selection.isOptional ?? false,
             };
         }
     }
@@ -92,4 +93,3 @@ export const enrichAndSerializeGoal = (
         updatedAt: goal.updatedAt.toISOString(),
     };
 };
-

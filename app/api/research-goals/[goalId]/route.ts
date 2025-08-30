@@ -4,7 +4,7 @@ import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
 import {
     RegExpMatcher,
-    TextCensor,
+
     englishDataset,
     englishRecommendedTransformers,
 } from "obscenity";
@@ -24,6 +24,7 @@ const editGoalSchema = z.object({
             genotype: z.string(),
             phenotype: z.string(),
             isMultiGenotype: z.boolean(),
+            isOptional: z.boolean(),
         })
     ),
     goalMode: z.enum(["genotype", "phenotype"]),

@@ -12,7 +12,7 @@ import { LogBreedingForm } from "@/components/custom-forms/log-breeding-form";
 import type { EnrichedCreature, EnrichedBreedingPair } from "@/types";
 
 type LogBreedingDialogProps = {
-    pair: { id: string; species: string };
+    pair: { id: string | undefined; species: string };
     allCreatures: EnrichedCreature[];
     children: React.ReactNode; // The trigger button
 };

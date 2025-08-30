@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Network } from "lucide-react";
+import { Loader2, Network, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type {
     EnrichedCreature,
@@ -86,6 +86,12 @@ export function AddPairForm({
         () => [...new Set(allCreatures.map((c) => c?.species).filter(Boolean))],
         [allCreatures]
     );
+
+    const { selectedMale, selectedFemale } = useMemo(() => {
+        const male = allCreatures.find((c) => c?.id === selectedMaleId);
+        const female = allCreatures.find((c) => c?.id === selectedFemaleId);
+        return { selectedMale: male, selectedFemale: female };
+    }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     // Memoize filtered lists for dropdowns based on the selected species
     const { males, females, goals } = useMemo(() => {
@@ -210,6 +216,22 @@ export function AddPairForm({
                     </span>
                 </div>
             )}
+
+            {/* Pair Preview */}
+            {(selectedMale || selectedFemale) && (
+                <div className="flex justify-center items-center gap-2 mt-4 p-4 bg-ebena-lavender/50 rounded-lg border">
+                    {selectedMale && (
+                        <img src={selectedMale.imageUrl} alt={selectedMale.code} className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg" />
+                    )}
+                    {selectedMale && selectedFemale && (
+                        <X className="text-dusk-purple" />
+                    )}
+                    {selectedFemale && (
+                        <img src={selectedFemale.imageUrl} alt={selectedFemale.code} className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg" />
+                    )}
+                </div>
+            )}
+
 
             {/* Species Selector */}
             <Select

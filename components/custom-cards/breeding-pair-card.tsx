@@ -146,13 +146,11 @@ export function BreedingPairCard({
                                 Progeny ({pair.progenyCount})
                             </h4>
                             {pair.isInbred && (
-                                <Tooltip>
+                                <Tooltip delayDuration={100}>
                                     <TooltipTrigger>
-                                        <div className="flex items-center gap-1 text-lg font-bold text-pink-600">
-                                            <Network className="h-4 w-4" />!
-                                        </div>
+                                        <Network className="h-4 w-4 text-pink-600" />
                                     </TooltipTrigger>
-                                    <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple">
+                                    <TooltipContent className="bg-barely-lilac text-pink-600 border-2 border-pink-600">
                                         <p>
                                             This pair is inbred. Progeny will
                                             inherit this status.
@@ -165,18 +163,62 @@ export function BreedingPairCard({
                             {pair.progeny && pair.progeny.length > 0 ? (
                                 <ul className="text-xs space-y-1">
                                     {pair.progeny.map((p) => (
-                                        <li
-                                            key={p.id}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <SpeciesAvatar
-                                                species={p.species!}
-                                                size="sm"
-                                            />
-                                            <span className="wrap-anywhere">
-                                                {p.creatureName} ({p.code})
-                                            </span>
-                                        </li>
+                                        <Tooltip key={p.id} delayDuration={100}>
+                                            <TooltipTrigger asChild>
+                                                <li className="flex items-center gap-2 cursor-default p-1 rounded hover:bg-pompaca-purple/10">
+                                                    <SpeciesAvatar
+                                                        species={p.species!}
+                                                        size="sm"
+                                                    />
+                                                    <Link
+                                                        href={`https://finaloutpost.net/view/${p.code}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="truncate hover:underline wrap-anywhere"
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                    >
+                                                        {p.creatureName ||
+                                                            "Unnamed"}{" "}
+                                                        ({p.code})
+                                                    </Link>
+                                                </li>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <img
+                                                        src={p.imageUrl}
+                                                        alt={p.code}
+                                                        className="w-28 h-28 object-contain bg-ebena-lavender p-1 border-2 border-dusk-purple rounded-lg"
+                                                    />
+                                                    <div className="w-full text-xs space-y-1 mt-1 text-left">
+                                                        {p.geneData?.map(
+                                                            (gene) => (
+                                                                <div
+                                                                    key={
+                                                                        gene.category
+                                                                    }
+                                                                    className="flex justify-between items-baseline"
+                                                                >
+                                                                    <span className="font-semibold mr-2">
+                                                                        {
+                                                                            gene.category
+                                                                        }
+                                                                        :
+                                                                    </span>
+                                                                    <span className="text-right truncate">
+                                                                        {
+                                                                            gene.phenotype
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     ))}
                                 </ul>
                             ) : (
@@ -236,6 +278,8 @@ export function BreedingPairCard({
                     pair={pair}
                     allCreatures={allCreatures}
                     allGoals={allGoals}
+                    allPairs={allPairs}
+                    allLogs={allLogs}
                 >
                     <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-25 text-sm/tight">
                         Edit / Delete

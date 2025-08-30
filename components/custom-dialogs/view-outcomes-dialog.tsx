@@ -14,11 +14,24 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { EnrichedBreedingPair } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 type Outcome = {
     genotype: string;
@@ -55,6 +68,7 @@ export function ViewOutcomesDialog({
     children: React.ReactNode;
     pair: EnrichedBreedingPair;
 }) {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [outcomes, setOutcomes] = useState<OutcomesByCategory | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +77,9 @@ export function ViewOutcomesDialog({
     // Holds the currently displayed URL, which can change based on selection. Starts null.
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [selectedGenotypes, setSelectedGenotypes] = useState<{ [key: string]: string }>({});
+    const [showSaveDialog, setShowSaveDialog] = useState(false);
+    const [newGoalName, setNewGoalName] = useState("");
+    const [isSavingGoal, setIsSavingGoal] = useState(false);
 
     // Helper function to fetch and set a new preview image.
     const updatePreviewImage = async (genotypes: { [key: string]: string }) => {
@@ -76,7 +93,6 @@ export function ViewOutcomesDialog({
             if (response.ok) {
                 const data = await response.json();
                 const newUrl = `${data.imageUrl}?v=${new Date().getTime()}`;
-                console.log("New preview URL:", newUrl)
                 setPreviewUrl(newUrl);
                 return newUrl; // Return for setting the default URL
             }
@@ -86,6 +102,38 @@ export function ViewOutcomesDialog({
             setIsLoading(false);
         }
         return null;
+    };
+
+    const handleSaveAsGoal = async () => {
+        if (!newGoalName.trim()) {
+            // Optionally show a toast error
+            return;
+        }
+        setIsSavingGoal(true);
+        try {
+            const response = await fetch('/api/research-goals/from-outcomes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pairId: pair.id,
+                    goalName: newGoalName,
+                    species: pair.species,
+                    selectedGenotypes: selectedGenotypes,
+                }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to save goal.');
+            }
+            router.refresh();
+            setIsOpen(false); // Close the main outcomes dialog
+        } catch (error: any) {
+            console.error(error);
+            alert(error.message); // Replace with a toast notification for better UX
+        } finally {
+            setIsSavingGoal(false);
+            setShowSaveDialog(false);
+        }
     };
 
     const mostLikelyGenotypes = useMemo(() => {
@@ -202,6 +250,37 @@ export function ViewOutcomesDialog({
                         {!previewUrl && !isLoading && <p>No preview available.</p>}
                     </div>
                 </div>
+                <div className="flex justify-end pt-4">
+                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading}>
+                        Save as Goal
+                    </Button>
+                </div>
+                <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+                    <AlertDialogContent className="bg-barely-lilac">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Save as New Research Goal</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Enter a name for this new goal. It will be created with the currently selected genes and assigned to this breeding pair.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="py-2">
+                            <Label htmlFor="goal-name" className="text-pompaca-purple">Goal Name</Label>
+                            <Input 
+                                id="goal-name" 
+                                value={newGoalName} 
+                                onChange={(e) => setNewGoalName(e.target.value)}
+                                placeholder="e.g., Perfect Cielarka"
+                                className="bg-ebena-lavender mt-1"
+                            />
+                        </div>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleSaveAsGoal} disabled={isSavingGoal || !newGoalName.trim()}>
+                                {isSavingGoal ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Goal"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </DialogContent>
         </Dialog>
     );

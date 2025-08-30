@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
+import {
+    RegExpMatcher,
+    TextCensor,
+    englishDataset,
+    englishRecommendedTransformers,
+} from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { validatePairing } from "@/lib/breeding-rules";
@@ -51,6 +57,18 @@ export async function POST(req: Request) {
             femaleParentId,
             assignedGoalIds,
         } = validated.data;
+
+        const matcher = new RegExpMatcher({
+            ...englishDataset.build(),
+            ...englishRecommendedTransformers,
+        });
+
+        if (matcher.hasMatch(pairName)) {
+            return NextResponse.json(
+                { error: "The provided name contains inappropriate language." },
+                { status: 400 }
+            );
+        }
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
@@ -124,7 +142,7 @@ export async function POST(req: Request) {
             // update associated research goals with assigned pair ids
             for (const goal of goalsToUpdate) {
                 const currentPairIds = new Set(goal.assignedPairIds || []);
-                console.log("updating pair ", currentPairIds)
+                console.log("updating pair ", currentPairIds);
                 currentPairIds.add(newPair.id);
                 await db
                     .update(researchGoals)

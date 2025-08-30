@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
-import { obscenity } from "obscenity";
+import {
+    RegExpMatcher,
+    TextCensor,
+    englishDataset,
+    englishRecommendedTransformers,
+} from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
@@ -33,7 +38,7 @@ export async function PATCH(
 
     try {
         const body = await req.json();
-        console.log(body)
+        console.log(body);
         const validatedFields = editPairSchema.safeParse(body);
         if (!validatedFields.success) {
             return NextResponse.json(
@@ -47,7 +52,12 @@ export async function PATCH(
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-        if (obscenity.isProfane(pairName)) {
+        const matcher = new RegExpMatcher({
+            ...englishDataset.build(),
+            ...englishRecommendedTransformers,
+        });
+
+        if (matcher.hasMatch(pairName)) {
             return NextResponse.json(
                 { error: "The provided name contains inappropriate language." },
                 { status: 400 }
@@ -63,7 +73,10 @@ export async function PATCH(
         });
 
         if (!existingPair) {
-            return NextResponse.json({ error: "Breeding pair not found." }, { status: 404 });
+            return NextResponse.json(
+                { error: "Breeding pair not found." },
+                { status: 404 }
+            );
         }
 
         const [maleParent, femaleParent] = await Promise.all([
@@ -92,7 +105,10 @@ export async function PATCH(
 
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
-            return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
+            return NextResponse.json(
+                { error: pairingValidation.error },
+                { status: 400 }
+            );
         }
 
         if (assignedGoalIds && assignedGoalIds.length > 0) {
@@ -158,18 +174,26 @@ export async function PATCH(
         const oldGoalIds = new Set(existingPair.assignedGoalIds || []);
         const newGoalIds = new Set(assignedGoalIds || []);
 
-        const goalsAdded = [...newGoalIds].filter(id => !oldGoalIds.has(id));
-        const goalsRemoved = [...oldGoalIds].filter(id => !newGoalIds.has(id));
+        const goalsAdded = [...newGoalIds].filter((id) => !oldGoalIds.has(id));
+        const goalsRemoved = [...oldGoalIds].filter(
+            (id) => !newGoalIds.has(id)
+        );
 
         // Update goals that had this pair added
         if (goalsAdded.length > 0) {
             const goalsToUpdate = await db.query.researchGoals.findMany({
-                where: and(inArray(researchGoals.id, goalsAdded), eq(researchGoals.userId, session.user.id))
+                where: and(
+                    inArray(researchGoals.id, goalsAdded),
+                    eq(researchGoals.userId, session.user.id)
+                ),
             });
             for (const goal of goalsToUpdate) {
                 const currentPairIds = new Set(goal.assignedPairIds || []);
                 currentPairIds.add(params.pairId);
-                await db.update(researchGoals).set({ assignedPairIds: Array.from(currentPairIds) }).where(eq(researchGoals.id, goal.id));
+                await db
+                    .update(researchGoals)
+                    .set({ assignedPairIds: Array.from(currentPairIds) })
+                    .where(eq(researchGoals.id, goal.id));
                 revalidatePath(`/research-goals/${goal.id}`);
             }
         }
@@ -177,12 +201,18 @@ export async function PATCH(
         // Update goals that had this pair removed
         if (goalsRemoved.length > 0) {
             const goalsToUpdate = await db.query.researchGoals.findMany({
-                where: and(inArray(researchGoals.id, goalsRemoved), eq(researchGoals.userId, session.user.id))
+                where: and(
+                    inArray(researchGoals.id, goalsRemoved),
+                    eq(researchGoals.userId, session.user.id)
+                ),
             });
             for (const goal of goalsToUpdate) {
                 const currentPairIds = new Set(goal.assignedPairIds || []);
                 currentPairIds.delete(params.pairId);
-                await db.update(researchGoals).set({ assignedPairIds: Array.from(currentPairIds) }).where(eq(researchGoals.id, goal.id));
+                await db
+                    .update(researchGoals)
+                    .set({ assignedPairIds: Array.from(currentPairIds) })
+                    .where(eq(researchGoals.id, goal.id));
                 revalidatePath(`/research-goals/${goal.id}`);
             }
         }

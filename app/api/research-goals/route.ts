@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
+import {
+    RegExpMatcher,
+    TextCensor,
+    englishDataset,
+    englishRecommendedTransformers,
+} from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { TFO_SPECIES_CODES } from "@/lib/creature-data";
@@ -20,7 +26,7 @@ const goalSchema = z.object({
         })
     ),
     goalMode: z.enum(["genotype", "phenotype"]),
-});  
+});
 
 interface GenesObject {
     [key: string]: string;
@@ -83,6 +89,19 @@ export async function POST(req: Request) {
             );
         }
         const { name, species, genes } = validatedFields.data;
+
+        const matcher = new RegExpMatcher({
+            ...englishDataset.build(),
+            ...englishRecommendedTransformers,
+        });
+
+        if (matcher.hasMatch(name)) {
+            return NextResponse.json(
+                { error: "The provided name contains inappropriate language." },
+                { status: 400 }
+            );
+        }
+
         // validate received data with custom function
         validateGoalData(species, genes);
 
@@ -101,8 +120,8 @@ export async function POST(req: Request) {
 
         // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3)
-        
+        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
+
         // insert new research goal into db
         await db.insert(researchGoals).values({
             userId: session.user.id,

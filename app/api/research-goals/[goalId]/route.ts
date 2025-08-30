@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
-import { obscenity } from "obscenity";
+import {
+    RegExpMatcher,
+    TextCensor,
+    englishDataset,
+    englishRecommendedTransformers,
+} from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
@@ -85,7 +90,12 @@ export async function PATCH(
         }
         const { name, species, genes, goalMode } = validatedFields.data;
     
-        if (obscenity.isProfane(name)) {
+        const matcher = new RegExpMatcher({
+                    ...englishDataset.build(),
+                    ...englishRecommendedTransformers,
+                });
+
+        if (matcher.hasMatch(name)) {
             return NextResponse.json(
                 { error: "The provided name contains inappropriate language." },
                 { status: 400 }

@@ -700,7 +700,8 @@ export async function fetchAndUploadWithRetry(
             const blob = await vercelBlobPut(filename, imageBlob, {
                 access: "public",
                 contentType: imageBlob.type || "image/png",
-                allowOverwrite: true,
+                allowOverwrite: false,
+                addRandomSuffix: true,
             });
 
             console.log("blob url: ", blob.url)

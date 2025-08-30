@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
-import { Filter } from "bad-words";
+import { obscenity } from "obscenity";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
@@ -23,8 +23,6 @@ const editGoalSchema = z.object({
     ),
     goalMode: z.enum(["genotype", "phenotype"]),
 });
-
-const filter = new Filter();
 
 interface GenesObject {
     [key: string]: string;
@@ -87,7 +85,7 @@ export async function PATCH(
         }
         const { name, species, genes, goalMode } = validatedFields.data;
     
-        if (filter.isProfane(name)) {
+        if (obscenity.isProfane(name)) {
             return NextResponse.json(
                 { error: "The provided name contains inappropriate language." },
                 { status: 400 }

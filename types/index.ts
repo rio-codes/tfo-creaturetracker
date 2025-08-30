@@ -60,6 +60,7 @@ export type EnrichedBreedingPair =
             assignedGoals: EnrichedResearchGoal[];
             timesBred: number;
             progenyCount: number;
+            isInbred: boolean;
             progeny: EnrichedCreature[];
             createdAt: string;
             updatedAt: string;

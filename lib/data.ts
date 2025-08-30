@@ -18,6 +18,7 @@ import type {
     EnrichedResearchGoal,
     EnrichedBreedingPair
 } from "@/types";
+import { checkForInbreeding } from "@/lib/breeding-rules";
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from "@/lib/serialization";
 import { calculateGeneProbability } from "./genetics";
 import { put as vercelBlobPut } from "@vercel/blob";
@@ -30,9 +31,10 @@ import { alias } from "drizzle-orm/pg-core";
 const enrichAndSerializeBreedingPair = (
     pair: DbBreedingPair & { maleParent: DbCreature; femaleParent: DbCreature },
     allEnrichedGoals: EnrichedResearchGoal[],
-    allLogEntries: any[],
+    allLogEntries: DbBreedingLogEntry[],
     allCreatures: EnrichedCreature[],
-    allUserAchievedGoals: any[]
+    allUserAchievedGoals: any[],
+    allRawPairs: DbBreedingPair[]
 ): EnrichedBreedingPair => {
     const relevantLogs = allLogEntries.filter((log) => log.pairId === pair.id);
     const timesBred = relevantLogs.length;
@@ -58,16 +60,25 @@ const enrichAndSerializeBreedingPair = (
             .map(ag => ag.goalId)
     );
 
+    // Now that `assignedGoalsFromPair` is guaranteed to not have nulls, we can map it safely.
     const assignedGoals = assignedGoalsFromPair.map(goal => ({
         ...goal,
         isAchieved: achievedGoalIdsForPair.has(goal.id)
     }));
+
+    const isInbred = checkForInbreeding(
+        pair.maleParentId,
+        pair.femaleParentId,
+        allLogEntries,
+        allRawPairs
+    );
 
     return {
         ...pair,
         timesBred,
         progenyCount,
         progeny,
+        isInbred,
         createdAt: pair.createdAt.toISOString(),
         updatedAt: pair.updatedAt.toISOString(),
         maleParent: enrichAndSerializeCreature(pair.maleParent),
@@ -123,7 +134,8 @@ export async function getAllBreedingPairsForUser(): Promise<
                 enrichedGoals,
                 logEntries,
                 enrichedCreatures,
-                allUserAchievedGoals
+                allUserAchievedGoals,
+                allPairs,
             )
         );
 
@@ -423,7 +435,7 @@ export async function fetchBreedingPairsWithStats(
         }));
 
         // Fetch all goals and log entries for enrichment
-        const [allGoals, logEntries, allUserCreatures, allUserAchievedGoals] = await Promise.all([
+        const [allGoals, logEntries, allUserCreatures, allUserAchievedGoals, allRawPairs] = await Promise.all([
             db.query.researchGoals.findMany({
                 where: eq(researchGoals.userId, userId),
             }),
@@ -436,6 +448,9 @@ export async function fetchBreedingPairsWithStats(
             db.query.achievedGoals.findMany({
                 where: eq(achievedGoals.userId, userId),
             }),
+            db.query.breedingPairs.findMany({ // Fetch all pairs for inbreeding check
+                where: eq(breedingPairs.userId, userId),
+            }),
         ]);
 
         if (pairsWithParents.length === 0) {
@@ -447,7 +462,7 @@ export async function fetchBreedingPairsWithStats(
         );
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
         const enrichedPairs = pairsWithParents.map((pair) =>
-            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries, enrichedCreatures, allUserAchievedGoals)
+            enrichAndSerializeBreedingPair(pair as any, enrichedGoals, logEntries, enrichedCreatures, allUserAchievedGoals, allRawPairs)
         );
 
         // fetch total count for pagination

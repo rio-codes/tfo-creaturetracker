@@ -12,9 +12,14 @@ import type {
 } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
-import { Pin, PinOff, X, Target, Award, Recycle } from "lucide-react";
+import { Pin, PinOff, X, Target, Award, Network } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { getHybridOffspring } from "@/lib/breeding-rules";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
@@ -136,9 +141,26 @@ export function BreedingPairCard({
                 <div className="gap-4 w-4/5">
                     {/* Left Column: Progeny */}
                     <div className="flex flex-col w-full">
-                        <h4 className="font-bold text-sm mb-1">
-                            Progeny ({pair.progenyCount})
-                        </h4>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-bold text-sm">
+                                Progeny ({pair.progenyCount})
+                            </h4>
+                            {pair.isInbred && (
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <div className="flex items-center gap-1 text-lg font-bold text-pink-600">
+                                            <Network className="h-4 w-4" />!
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple">
+                                        <p>
+                                            This pair is inbred. Progeny will
+                                            inherit this status.
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )}
+                        </div>
                         <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
                             {pair.progeny && pair.progeny.length > 0 ? (
                                 <ul className="text-xs space-y-1">

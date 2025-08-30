@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { speciesList } from "@/lib/creature-data";
 import { Search } from "lucide-react";
 
@@ -72,7 +73,8 @@ export function BreedingPairsClient({
     };
 
     return (
-        <div className="bg-barely-lilac min-h-screen">
+        <TooltipProvider>
+            <div className="bg-barely-lilac min-h-screen">
             <div className="container mx-auto px-4 py-5">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-5xl font-bold text-pompaca-purple">
@@ -143,5 +145,6 @@ export function BreedingPairsClient({
                 </div>
             </div>
         </div>
+        </TooltipProvider>
     );
 }

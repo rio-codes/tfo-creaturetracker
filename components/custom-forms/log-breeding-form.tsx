@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import type { EnrichedCreature, EnrichedBreedingPair } from "@/types";
 
 type LogBreedingFormProps = {
-    pair: { id: string; species: string };
+    pair: { id: string | undefined; species: string };
     allCreatures: EnrichedCreature[];
     onSuccess: () => void;
 };

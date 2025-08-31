@@ -1,6 +1,7 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useMounted } from "@/hooks/use-mounted";
+import { useRouter } from "next/navigation";
 import type {
     EnrichedCreature,
     EnrichedResearchGoal,
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PredictionsAccordion } from "@/components/misc-custom-components/predictions-accordion";
 import { AssignPairDialog } from "@/components/custom-dialogs/assign-breeding-pair-dialog";
 import { GoalModeSwitcher } from "@/components/custom-dialogs/goal-mode-switcher-dialog";
+import { RefreshCw, Loader2 } from "lucide-react";
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -21,6 +23,7 @@ type GoalDetailClientProps = {
 type PredictionsAccordionProps = {
     predictions: Prediction[];
     allCreatures: EnrichedCreature[];
+    goal?: EnrichedResearchGoal;
 };
 
 export function GoalDetailClient({
@@ -29,14 +32,40 @@ export function GoalDetailClient({
     allCreatures,
 }: GoalDetailClientProps) {
     const hasMounted = useMounted();
+    const router = useRouter();
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [imageUrl, setImageUrl] = useState(goal?.imageUrl ?? "");
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
     const gender = goal?.genes["Gender"].phenotype;
 
     const assignedPredictions = useMemo(() => {
         const assignedIds = new Set(goal?.assignedPairIds || []);
-        return initialPredictions.filter((p) => assignedIds.has(p.pairId));
+        return initialPredictions.filter((p) => assignedIds.has(p.pairId!));
     }, [initialPredictions, goal?.assignedPairIds]);
+
+    const handleRefreshImage = async () => {
+        setIsRefreshing(true);
+        try {
+            const response = await fetch(
+                `/api/research-goals/${goal.id}/refresh-image`,
+                {
+                    method: "POST",
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to refresh image.");
+            }
+            const data = await response.json();
+            setImageUrl(data.imageUrl); // Update local state to show new image immediately
+            router.refresh(); // Re-fetch server components
+        } catch (error) {
+            console.error(error);
+            // Optionally show a toast notification on error
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -102,11 +131,28 @@ export function GoalDetailClient({
                     </CardContent>
                 </Card>
                 <Card className="bg-ebena-lavender text-pompaca-purple border-border flex flex-col items-center justify-center p-4">
-                    <img
-                        src={goal?.imageUrl ?? ""}
-                        alt={goal?.name}
-                        className="max-w-full max-h-48 object-contain"
-                    />
+                    <div className="relative group">
+                        <img
+                            key={imageUrl}
+                            src={imageUrl}
+                            alt={goal?.name}
+                            className="max-w-full max-h-48 object-contain"
+                            onError={() => setImageUrl("")} // Hide if broken
+                        />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-1 right-1 h-8 w-8 rounded-full bg-black/20 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={handleRefreshImage}
+                            disabled={isRefreshing}
+                        >
+                            {isRefreshing ? (
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                                <RefreshCw className="h-5 w-5" />
+                            )}
+                        </Button>
+                    </div>
                 </Card>
             </div>
             {/* Bottom Section */}
@@ -128,6 +174,7 @@ export function GoalDetailClient({
                     <PredictionsAccordion
                         predictions={assignedPredictions}
                         allCreatures={allCreatures}
+                        goal={goal}
                     />
                 ) : (
                     // If it hasn't (i.e., during the server render), we render a simple placeholder.

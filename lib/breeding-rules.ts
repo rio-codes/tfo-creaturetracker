@@ -5,7 +5,8 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from "@/types";
-import { enrichAndSerializeCreature, enrichAndSerializeGoal } from "@/lib/serialization";
+import { enrichAndSerializeCreature } from "@/lib/serialization";
+import { enrichAndSerializeGoal } from "./enrichAndSerializeGoal";
 const INCOMPATIBLE_SPECIES = new Set(["Imsanga Afero"]);
 
 const COMPATIBLE_PAIRS = new Set([

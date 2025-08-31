@@ -142,21 +142,25 @@ export async function POST(req: Request) {
             let totalChance = 0;
             let geneCount = 0;
             let isPossible = true;
-            for (const [category, targetGene] of Object.entries(goal.genes)) {
+            for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
+                const targetGene = targetGeneInfo as any;
                 const chance = calculateGeneProbability(
                     maleParent,
                     femaleParent,
                     category,
-                    targetGene as any,
-                    user.goalMode
+                    targetGene,
+                    goal.goalMode
                 );
-                if (chance === 0) {
-                    isPossible = false;
+                // Only factor in non-optional genes for possibility and average
+                if (!targetGene.isOptional) {
+                    if (chance === 0) {
+                        isPossible = false;
+                    }
+                    totalChance += chance;
+                    geneCount++;
                 }
-                totalChance += chance;
-                geneCount++;
             }
-            const averageChance = geneCount > 0 ? totalChance / geneCount : 0;
+            const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
             return {
                 goalId: goal.id,
                 goalName: goal.name,

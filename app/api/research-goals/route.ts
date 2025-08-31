@@ -4,7 +4,6 @@ import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
 import {
     RegExpMatcher,
-    TextCensor,
     englishDataset,
     englishRecommendedTransformers,
 } from "obscenity";
@@ -23,17 +22,18 @@ const goalSchema = z.object({
         z.object({
             genotype: z.string(),
             phenotype: z.string(),
+            isMultiGenotype: z.boolean(),
+            isOptional: z.boolean(),
         })
     ),
     goalMode: z.enum(["genotype", "phenotype"]),
 });
 
-interface GenesObject {
-    [key: string]: string;
-}
-
 // function to make sure species, categories, and genotypes are valid
-export function validateGoalData(species: string, genes: GenesObject) {
+export function validateGoalData(
+    species: string,
+    genes: { [key: string]: { genotype: string } }
+) {
     const speciesData = structuredGeneData[species];
     if (!speciesData) {
         throw new Error(`Invalid species provided: ${species}`);
@@ -41,7 +41,7 @@ export function validateGoalData(species: string, genes: GenesObject) {
 
     // ensure each category is valid for species
     for (const [category, selectedGene] of Object.entries(genes)) {
-        const selectedGenotype = selectedGene["genotype"];
+        const selectedGenotype = selectedGene.genotype;
         const categoryData = speciesData[category];
         if (!categoryData) {
             throw new Error(
@@ -49,9 +49,9 @@ export function validateGoalData(species: string, genes: GenesObject) {
             );
         }
         // ensure genotype exists for category
-        const isValidGenotype = (categoryData as { genotype: string }[]).some(
-            (gene) => gene.genotype === selectedGenotype
-        );
+        const isValidGenotype = (
+            categoryData as { genotype: string }[]
+        ).some((gene) => gene.genotype === selectedGenotype);
         // error if genotype is not valid
         if (!isValidGenotype) {
             throw new Error(
@@ -120,7 +120,8 @@ export async function POST(req: Request) {
 
         // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
-        const blobUrl = await fetchAndUploadWithRetry(tfoImageUrl, null, 3);
+        const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
         // insert new research goal into db
         await db.insert(researchGoals).values({

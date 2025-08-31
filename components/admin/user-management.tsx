@@ -118,20 +118,14 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                                     }
                                     disabled={loadingStates[user.id]}
                                 >
-                                    <SelectTrigger className="w-[120px] bg-barely-lilac text-pompaca-purple">
+                                    <SelectTrigger className="w-[120px] bg-ebena-lavender">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-barely-lilac text-pompaca-purple">
-                                        <SelectItem
-                                            value="user"
-                                            className="bg-barely-lilac text-pompaca-purple"
-                                        >
+                                    <SelectContent className="bg-ebena-lavender">
+                                        <SelectItem value="user">
                                             User
                                         </SelectItem>
-                                        <SelectItem
-                                            value="admin"
-                                            className="bg-barely-lilac text-pompaca-purple"
-                                        >
+                                        <SelectItem value="admin">
                                             Admin
                                         </SelectItem>
                                     </SelectContent>
@@ -150,7 +144,7 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                         </TableCell>
                         <TableCell>
                             <Button
-                                variant="outline"
+                                className="bg-pompaca-purple text-barely-lilac"
                                 size="sm"
                                 onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')}
                                 disabled={loadingStates[user.id]}

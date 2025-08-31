@@ -350,12 +350,11 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     >
                         <SelectValue placeholder="Species Name" />
                     </SelectTrigger>
-                    <SelectContent className="bg-barely-lilac">
+                    <SelectContent className="bg-ebena-lavender">
                         {speciesList.map((s) => (
                             <SelectItem
                                 key={s}
                                 value={s}
-                                className="hover:bg-pompaca-purple/20"
                             >
                                 {s}
                             </SelectItem>
@@ -394,12 +393,11 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                                                     placeholder={`Select ${category}...`}
                                                 />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-barely-lilac">
+                                            <SelectContent className="bg-ebena-lavender">
                                                 {options.map((option) => (
                                                     <SelectItem
                                                         key={option.value}
                                                         value={option.value}
-                                                        className="hover:bg-pompaca-purple/20"
                                                     >
                                                         {option.display}
                                                     </SelectItem>
@@ -430,7 +428,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 <div className="flex items-center gap-2">
                     <Button
                         type="button"
-                        variant="outline"
+                        className="bg-pompaca-purple text-barely-lilac"
                         onClick={handlePreview}
                         disabled={isPreviewLoading || !species}
                     >
@@ -441,7 +439,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     </Button>
                     <Button
                         type="button"
-                        variant="outline"
+                        className="bg-pompaca-purple text-barely-lilac"
                         onClick={handleRandomizeOptional}
                         disabled={!species}
                     >
@@ -479,7 +477,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     <Button type="button" variant="ghost" onClick={onSuccess}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" disabled={isLoading} className="bg-pompaca-purple text-barely-lilac">
                         {isLoading
                             ? "Saving..."
                             : isEditMode

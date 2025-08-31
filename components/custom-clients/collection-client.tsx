@@ -82,8 +82,8 @@ export function CollectionClient({
                     Collection
                 </h1>
                 <Button
-                    onClick={handleOpenSyncDialog}
-                    className="text-xl mb-8 bg-emoji-eggplant text-barely-lilac drop-shadow-md drop-shadow-gray-500"
+                    onClick={() => handleOpenSyncDialog(null)}
+                    className="text-xl mb-8 bg-pompaca-purple text-barely-lilac drop-shadow-md drop-shadow-gray-500"
                 >
                     + Add or Update Creatures
                 </Button>
@@ -116,20 +116,14 @@ export function CollectionClient({
                         <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by gender..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac">
-                            <SelectItem value="all" className="bg-barely-lilac">
+                        <SelectContent className="bg-ebena-lavender">
+                            <SelectItem value="all">
                                 All Genders
                             </SelectItem>
-                            <SelectItem
-                                value="female"
-                                className="bg-barely-lilac"
-                            >
+                            <SelectItem value="female">
                                 Female
                             </SelectItem>
-                            <SelectItem
-                                value="male"
-                                className="bg-barely-lilac"
-                            >
+                            <SelectItem value="male">
                                 Male
                             </SelectItem>
                         </SelectContent>
@@ -143,26 +137,17 @@ export function CollectionClient({
                         <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac">
-                            <SelectItem value="all" className="bg-barely-lilac">
+                        <SelectContent className="bg-ebena-lavender">
+                            <SelectItem value="all">
                                 All Stages
                             </SelectItem>
-                            <SelectItem
-                                value="capsule"
-                                className="bg-barely-lilac"
-                            >
+                            <SelectItem value="capsule">
                                 Capsule
                             </SelectItem>
-                            <SelectItem
-                                value="juvenile"
-                                className="bg-barely-lilac"
-                            >
+                            <SelectItem value="juvenile">
                                 Juvenile
                             </SelectItem>
-                            <SelectItem
-                                value="adult"
-                                className="bg-barely-lilac"
-                            >
+                            <SelectItem value="adult">
                                 Adult
                             </SelectItem>
                         </SelectContent>
@@ -178,8 +163,8 @@ export function CollectionClient({
                         <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac">
-                            <SelectItem value="all" className="bg-barely-lilac">
+                        <SelectContent className="bg-ebena-lavender">
+                            <SelectItem value="all">
                                 All Species
                             </SelectItem>
                             {speciesList.map((species) => {
@@ -187,7 +172,6 @@ export function CollectionClient({
                                     <SelectItem
                                         key={species}
                                         value={species}
-                                        className="bg-barely-lilac"
                                     >
                                         {species}
                                     </SelectItem>

@@ -164,7 +164,7 @@ export function CreateCreatureForm() {
                     <Label htmlFor="creature-name">Creature Name</Label>
                     <Input
                         id="creature-name"
-                        className="bg-barely-lilac"
+                        className="bg-ebena-lavender"
                         placeholder="e.g., Test Hybrid"
                         value={creatureName}
                         onChange={(e) => setCreatureName(e.target.value)}
@@ -175,7 +175,7 @@ export function CreateCreatureForm() {
                     <Label htmlFor="creature-code">Creature Code</Label>
                     <Input
                         id="creature-code"
-                        className="bg-barely-lilac"
+                        className="bg-ebena-lavender"
                         placeholder="e.g., ABC-XYZ"
                         value={creatureCode}
                         onChange={(e) => setCreatureCode(e.target.value)}
@@ -218,16 +218,15 @@ export function CreateCreatureForm() {
                                         handleGeneChange(category, value)
                                     }
                                 >
-                                    <SelectTrigger className="bg-barely-lilac">
+                                    <SelectTrigger className="bg-ebena-lavender">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-barely-lilac">
+                                    <SelectContent className="bg-ebena-lavender">
                                         {(geneOptions[category] || []).map(
                                             (option) => (
                                                 <SelectItem
                                                     key={option.value}
                                                     value={option.value}
-                                                    className="bg-barely-lilac"
                                                 >
                                                     {option.display}
                                                 </SelectItem>
@@ -245,7 +244,7 @@ export function CreateCreatureForm() {
                 <div className="flex items-center gap-2">
                     <Button
                         type="button"
-                        variant="outline"
+                        className="bg-pompaca-purple text-barely-lilac"
                         onClick={handlePreview}
                         disabled={isPreviewLoading || !species}
                     >
@@ -268,7 +267,7 @@ export function CreateCreatureForm() {
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <div className="flex justify-end pt-4">
-                <Button
+                <Button className="bg-pompaca-purple text-barely-lilac"
                     type="submit"
                     disabled={
                         isLoading || !species || !creatureCode || !creatureName

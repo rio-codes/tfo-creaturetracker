@@ -69,7 +69,7 @@ export default function RegisterForm() {
                 <Input
                 id="email" type="email" placeholder="you@example.com"
                 value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
                 />
             </div>
             <div className="space-y-2">
@@ -77,7 +77,7 @@ export default function RegisterForm() {
                 <Input
                 id="username" type="text" placeholder="your TFO username"
                 value={username} onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
                 />
             </div>
             <div className="space-y-2">
@@ -85,7 +85,7 @@ export default function RegisterForm() {
                 <Input
                 id="password" type="password" placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
                 />
             </div>
             <div className="flex items-center space-x-2">

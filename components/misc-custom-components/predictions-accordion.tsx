@@ -100,7 +100,7 @@ export function PredictionsAccordion({
                                 >
                                     <Button
                                         size="sm"
-                                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac"
+                                        className="bg-pompaca-purple text-barely-lilac"
                                     >
                                         Log Breeding
                                     </Button>

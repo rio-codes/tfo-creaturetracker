@@ -19,7 +19,7 @@ export function EditGoalDialog({ goal }: EditGoalDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-25">
+                <Button className="bg-pompaca-purple text-barely-lilac h-16 w-25">
                     <span className="text-wrap wrap-normal text-sm/tight">
                         Edit or Delete Goal
                     </span>

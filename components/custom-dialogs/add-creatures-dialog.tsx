@@ -140,7 +140,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     </Button>
                     <Button
                         onClick={handleSync}
-                        className="w-32 bg-emoji-eggplant text-barely-lilac"
+                        className="w-32 bg-pompaca-purple text-barely-lilac"
                         disabled={status === "loading" || !tabId}
                     >
                         {status === "loading" ? (

@@ -507,14 +507,14 @@ export function BreedingPairCard({
                     pair={pairForDialog}
                     allCreatures={allCreatures}
                 >
-                    <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-24 text-sm/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac h-16 w-24 text-sm/tight">
                         Log
                         <br />
                         Breeding
                     </Button>
                 </LogBreedingDialog>
                 <ViewOutcomesDialog pair={pair}>
-                    <Button className="h-16 text-sm/tight bg-emoji-eggplant text-barely-lilac w-24">
+                    <Button className="h-16 text-sm/tight bg-pompaca-purple text-barely-lilac w-24">
                         Possible
                         <br />
                         Outcomes
@@ -527,7 +527,7 @@ export function BreedingPairCard({
                     allPairs={allPairs}
                     allLogs={allLogs}
                 >
-                    <Button className="bg-emoji-eggplant text-barely-lilac h-16 w-24 text-sm/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac h-16 w-24 text-sm/tight">
                         Edit /
                         <br />
                         Delete

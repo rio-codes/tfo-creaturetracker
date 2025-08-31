@@ -217,16 +217,15 @@ export function ManageBreedingPairsForm({
                         onValueChange={setSelectedMateId}
                         required
                     >
-                        <SelectTrigger className="bg-barely-lilac">
+                        <SelectTrigger className="bg-ebena-lavender">
                             <SelectValue placeholder="Select a mate..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac">
+                        <SelectContent className="bg-ebena-lavender">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
                                     <SelectItem
                                         key={mate.id}
                                         value={mate.id}
-                                        className="bg-barely-lilac"
                                     >
                                         {mate.creatureName} ({mate.code})
                                     </SelectItem>

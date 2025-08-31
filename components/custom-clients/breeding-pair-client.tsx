@@ -105,8 +105,8 @@ export function BreedingPairsClient({
                         <SelectTrigger className="w-[200px] bg-ebena-lavender drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by species" />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac">
-                            <SelectItem value="all">All Species</SelectItem>
+                        <SelectContent className="bg-ebena-lavender">
+                            <SelectItem value="all" className="bg-ebena-lavender">All Species</SelectItem>
                             {speciesList.map((species) => (
                                 <SelectItem key={species} value={species!}>
                                     {species}

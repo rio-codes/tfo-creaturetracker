@@ -111,7 +111,7 @@ export async function POST(req: Request) {
             if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
 
             for (const [category, selection] of Object.entries(goal.genes)) {
-                let finalGenotype: string, finalPhenotype: string;
+                let finalGenotype: string, finalPhenotype: string, isMulti = false;
                 if (
                     typeof selection === "object" &&
                     selection?.phenotype &&

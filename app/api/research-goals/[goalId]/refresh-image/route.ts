@@ -6,6 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { fetchAndUploadWithRetry } from "@/lib/data";
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(
     req: Request,
@@ -52,7 +53,7 @@ export async function POST(
 
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
-        console.error("Failed to refresh goal image:", error);
+        Sentry.captureException(error);
         return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
     }
 }

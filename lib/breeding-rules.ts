@@ -148,39 +148,21 @@ export function findSuitableMates(
     const pairedCreatureIds = new Set(
         allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
     );
-    console.log(pairedCreatureIds);
 
     return allCreatures.filter((potentialMate) => {
         if (potentialMate?.id === baseCreature?.id) {
-            console.log(
-                "Mate ",
-                potentialMate?.creatureName,
-                " has same id as base creature"
-            );
             return false;
         }
         if (potentialMate?.gender === baseCreature?.gender) {
-            console.log("Mate ", potentialMate?.creatureName, " is same gender");
             return false;
         }
         if (potentialMate?.growthLevel !== 3) {
-            console.log(
-                "Mate ",
-                potentialMate?.creatureName,
-                " is not an adult"
-            );
             return false;
         }
         if (
             pairedCreatureIds.has(potentialMate?.id) &&
             pairedCreatureIds.has(baseCreature?.id)
         ) {
-            console.log(
-                "Mate ",
-                potentialMate?.creatureName,
-                " is already paired with ",
-                baseCreature?.creatureName
-            );
             return false;
         }
 

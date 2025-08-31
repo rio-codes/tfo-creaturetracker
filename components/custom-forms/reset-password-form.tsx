@@ -34,8 +34,6 @@ export default function ResetPasswordForm() {
         
         setIsLoading(true);
     
-        console.log("Submitting to API with:", { token, password });
-
         try {
             const response = await fetch('/api/password-reset/confirm', {
                 method: 'POST',

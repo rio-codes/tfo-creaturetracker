@@ -6,6 +6,7 @@ import { z } from "zod";
 import { and, eq, inArray } from "drizzle-orm";
 import { calculateGeneProbability } from "@/lib/genetics";
 import { structuredGeneData } from "@/lib/creature-data";
+import * as Sentry from "@sentry/nextjs";
 import type { DbCreature, EnrichedCreature } from "@/types";
 
 // Helper function to enrich and serialize a single creature.
@@ -180,7 +181,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ predictions });
     } catch (error) {
-        console.error("Prediction calculation failed:", error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: "An internal error occurred." },
             { status: 500 }

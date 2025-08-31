@@ -32,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 
 type Outcome = {
     genotype: string;
@@ -97,7 +98,7 @@ export function ViewOutcomesDialog({
                 return newUrl; // Return for setting the default URL
             }
         } catch (error) {
-            console.error("Failed to update preview image:", error);
+            Sentry.captureException(error);
         } finally {
             setIsLoading(false);
         }
@@ -128,7 +129,7 @@ export function ViewOutcomesDialog({
             router.refresh();
             setIsOpen(false); // Close the main outcomes dialog
         } catch (error: any) {
-            console.error(error);
+            Sentry.captureException(error);
             alert(error.message); // Replace with a toast notification for better UX
         } finally {
             setIsSavingGoal(false);
@@ -175,7 +176,7 @@ export function ViewOutcomesDialog({
                         setDefaultPreviewUrl(initialUrl);
                     }
                 } catch (error) {
-                    console.error("Failed to fetch initial data:", error);
+                    Sentry.captureException(error);
                 } finally {
                     setIsLoading(false);
                 }

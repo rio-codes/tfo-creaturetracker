@@ -13,6 +13,7 @@ import { PredictionsAccordion } from "@/components/misc-custom-components/predic
 import { AssignPairDialog } from "@/components/custom-dialogs/assign-breeding-pair-dialog";
 import { GoalModeSwitcher } from "@/components/custom-dialogs/goal-mode-switcher-dialog";
 import { RefreshCw, Loader2 } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -60,7 +61,7 @@ export function GoalDetailClient({
             setImageUrl(data.imageUrl); // Update local state to show new image immediately
             router.refresh(); // Re-fetch server components
         } catch (error) {
-            console.error(error);
+            Sentry.captureException(error);
             // Optionally show a toast notification on error
         } finally {
             setIsRefreshing(false);

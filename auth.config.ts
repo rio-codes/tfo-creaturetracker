@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { eq } from "drizzle-orm";
 import { compare } from "bcryptjs";
+import * as Sentry from "@sentry/nextjs";
 
 export const authConfig = {
     providers: [
@@ -11,7 +12,6 @@ export const authConfig = {
             credentials: {},
             async authorize(credentials) {
                 if (!credentials?.username || !credentials.password) {
-                    console.log("[Authorize] Missing username or password.");
                     return null;
                 }
                 
@@ -31,12 +31,11 @@ export const authConfig = {
                     );
                     if (isPasswordValid) {
                         return user;
-                    } else {
-                        console.log("[Authorize] Password comparison failed.");
+                    } else {;
                         return null;
                     }
                 } catch (error) {
-                    console.error("[Authorize] An unexpected error occurred:", error);
+                    Sentry.captureException(error);
                     return null;
                 }
             }

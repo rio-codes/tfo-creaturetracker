@@ -13,6 +13,7 @@ import {
     CardDescription,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 
 type Step =
     | "details"
@@ -64,7 +65,7 @@ export default function RegistrationFlow() {
                     if (!response.ok) throw new Error(data.error);
                     setCreatureImageUrl(data.imageUrl);
                 } catch (err: any) {
-                    console.error("Error fetching creature details:", err);
+                    Sentry.captureException(err);
                     setError("Failed to load creature image.");
                 } finally {
                     setIsImageLoading(false);
@@ -90,7 +91,6 @@ export default function RegistrationFlow() {
                     tabId: Number(tabId) || 0,
                 }),
             });
-            console.log("Submitting ", res);
 
             const data = await res.json();
 
@@ -108,15 +108,12 @@ export default function RegistrationFlow() {
                     alert("No TFO account was located with that username");
                 }
 
-                console.log("setting error");
-                console.log(data.error);
                 setError(data.error);
             } else {
                 setChallenge(data);
                 setCreatureImageUrl(null);
                 setStep("challenge");
             }
-            console.log("Received:", data);
         } catch (err: any) {
             setError(err);
         } finally {

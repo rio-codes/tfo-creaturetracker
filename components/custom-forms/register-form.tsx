@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import * as Sentry from "@sentry/nextjs";
 
 export default function RegisterForm() {
     const [email, setEmail] = useState('');
@@ -47,7 +48,7 @@ export default function RegisterForm() {
         }
         } catch (err) {
         setError('An unexpected error occurred. Please try again.');
-        console.error(err);
+        Sentry.captureException(err);
         }
     };
 

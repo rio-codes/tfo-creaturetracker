@@ -7,6 +7,7 @@ import { z } from "zod";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { fetchAndUploadWithRetry } from "@/lib/data";
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 
 const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
@@ -60,7 +61,7 @@ export async function POST(
 
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
-        console.error("Failed to generate outcomes preview:", error);
+        Sentry.captureException(error);
         return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
     }
 }

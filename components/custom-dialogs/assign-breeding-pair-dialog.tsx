@@ -70,7 +70,6 @@ export function AssignPairDialog({
                         const isAssigned = initiallyAssignedPairIds.has(
                             p.pairId
                         );
-                        console.log(isAssigned, " is assigned")
                         return (
                             <div
                                 key={p.pairId}

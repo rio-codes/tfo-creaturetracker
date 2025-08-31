@@ -14,6 +14,7 @@ import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { and, eq } from "drizzle-orm";
 import { structuredGeneData } from "@/lib/creature-data";
 import { fetchAndUploadWithRetry } from "@/lib/data";
+import * as Sentry from "@sentry/nextjs";
 
 const editGoalSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters."),
@@ -148,7 +149,7 @@ export async function PATCH(
         revalidatePath("/research-goals");
         return NextResponse.json({ message: "Goal updated successfully!" });
     } catch (error: any) {
-        console.error("Failed to update research goal:", error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || "An internal error occurred." },
             { status: 500 }
@@ -192,7 +193,7 @@ export async function DELETE(
         revalidatePath("/research-goals");
         return NextResponse.json({ message: "Goal deleted successfully." });
     } catch (error: any) {
-        console.error("Failed to delete research goal:", error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || "An internal error occurred." },
             { status: 500 }

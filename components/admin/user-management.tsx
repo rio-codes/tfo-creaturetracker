@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 
 type User = {
     id: string;
@@ -56,7 +57,7 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
             );
             router.refresh(); // Re-fetch server data in the background
         } catch (error) {
-            console.error(error);
+            Sentry.captureException(error);
             alert((error as Error).message);
         } finally {
             setLoadingStates((prev) => ({ ...prev, [userId]: false }));

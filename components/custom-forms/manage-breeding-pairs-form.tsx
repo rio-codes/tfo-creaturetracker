@@ -19,6 +19,7 @@ import type {
     Prediction,
 } from "@/types";
 import { findSuitableMates } from "@/lib/breeding-rules"; // Import the new helper
+import * as Sentry from "@sentry/nextjs";
 
 type ManagePairsFormProps = {
     baseCreature: EnrichedCreature;
@@ -100,7 +101,7 @@ export function ManageBreedingPairsForm({
                 if (!response.ok) throw new Error(data.error);
                 setPredictions(data.predictions);
             } catch (err) {
-                console.error(err);
+                Sentry.captureException(err);
             } finally {
                 setIsPredictionLoading(false);
             }

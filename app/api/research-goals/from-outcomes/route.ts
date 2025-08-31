@@ -8,6 +8,7 @@ import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { fetchAndUploadWithRetry } from "@/lib/data";
 import { structuredGeneData } from "@/lib/creature-data";
 import { and, eq } from "drizzle-orm";
+import * as Sentry from "@sentry/nextjs";
 
 const createGoalSchema = z.object({
     pairId: z.string().uuid(),
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Goal created and assigned successfully!", goalId: newGoalId }, { status: 201 });
 
     } catch (error: any) {
-        console.error("Failed to create goal from outcomes:", error);
+        Sentry.captureException(error);
         return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
     }
 }

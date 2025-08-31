@@ -62,27 +62,11 @@ export function SettingsForm({
         setSuccessMessage("");
 
         if (user.goalMode === "phenotype" && goalMode === "genotype") {
-            console.group("--- Goal Conversion Check ---");
-            console.log(
-                `Switching from '${user.goalMode}' to '${goalMode}'. Checking for ambiguous goals...`
-            );
-            console.log("Total goals to check:", goals);
 
             const ambiguousGoals = [];
             for (const goal of goals) {
-                console.log(
-                    `%cChecking goal: "${goal.name}" (Species: ${goal.species})`,
-                    "font-weight: bold;"
-                );
                 const ambiguousCategories = [];
                 const speciesGeneData = structuredGeneData[goal.species];
-
-                if (!speciesGeneData) {
-                    console.warn(
-                        `  - No master gene data found for species: ${goal.species}. Skipping.`
-                    );
-                    continue;
-                }
 
                 for (const [category, geneSelection] of Object.entries(
                     goal.genes

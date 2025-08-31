@@ -13,6 +13,7 @@ import { TFO_SPECIES_CODES } from "@/lib/creature-data";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { structuredGeneData } from "@/lib/creature-data";
 import { fetchAndUploadWithRetry } from "@/lib/data";
+import * as Sentry from "@sentry/nextjs";
 
 const goalSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters."),
@@ -76,10 +77,7 @@ export async function POST(req: Request) {
         // validate received data with zod schema
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
-            console.error(
-                "Zod Validation Failed:",
-                validatedFields.error.flatten()
-            );
+            Sentry.logger.warn("Zod validation failed for new goal", validatedFields.error.flatten());
             return NextResponse.json(
                 {
                     error: "Invalid data provided.",
@@ -140,7 +138,7 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
-        console.error("Failed to create research goal:", error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || "An internal error occurred." },
             { status: 500 }

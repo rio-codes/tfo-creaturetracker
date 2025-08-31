@@ -52,7 +52,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             setStatus("success");
             setMessage(data.message);
             handleClose();
-            console.log("trying alert service with ", data.message)
             alertService.success(data.message, options)
             router.push("/collection");
             router.refresh();

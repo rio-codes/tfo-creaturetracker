@@ -25,7 +25,6 @@ import {
     enrichAndSerializeGoal,
 } from "@/lib/serialization";
 import { calculateGeneProbability } from "@/lib/genetics";
-import { TFO_PLACEHOLDER_IMAGE_BASE64 } from "@/lib/constants";
 import { put as vercelBlobPut } from "@vercel/blob";
 import { alias } from "drizzle-orm/pg-core";
 
@@ -670,15 +669,6 @@ export async function fetchAndUploadWithRetry(
                 );
             }
             const imageBlob = await imageResponse.blob();
-
-            // Read the image blob as a buffer to compare against the placeholder
-            const imageBuffer = Buffer.from(await imageBlob.arrayBuffer());
-
-            // Compare the image data (converted to base64) against the placeholder
-            const imageBase64 = imageBuffer.toString("base64");
-            if (imageBase64 === TFO_PLACEHOLDER_IMAGE_BASE64) {
-                throw new Error("TFO returned a placeholder image.");
-            }
 
             // upload the image to Vercel Blob
             let filename = "";

@@ -5,8 +5,6 @@ import { users } from '@/src/db/schema';
 import { eq } from "drizzle-orm";
 import { compare } from "bcryptjs";
 
-console.log("AUTH_SECRET loaded:", !!process.env.AUTH_SECRET);
-
 export const authConfig = {
     providers: [
         Credentials({
@@ -18,16 +16,13 @@ export const authConfig = {
                 }
                 
                 try {
-                    console.log(`[Authorize] Searching for user: ${credentials.username}`);
                     const user = await db.query.users.findFirst({
                         where: eq(users.username, credentials.username as string),
                     });
                     if (!user) {
-                        console.log("[Authorize] User not found in database.");
                         return null;
                     }
                     if (!user.password) {
-                        console.log("[Authorize] User found, but they do not have a password set.");
                         return null;
                     }
                     const isPasswordValid = await compare(
@@ -35,7 +30,6 @@ export const authConfig = {
                         user.password
                     );
                     if (isPasswordValid) {
-                        console.log("[Authorize] Success! Returning user.");
                         return user;
                     } else {
                         console.log("[Authorize] Password comparison failed.");
@@ -54,28 +48,27 @@ export const authConfig = {
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
         async jwt({ token, user }) {
-          // On the initial sign-in, the `user` object is passed in.
-        if (user) {
-        // Add properties from your database user model to the token.
-        token.id = user.id;
-        token.username = (user as any).username;
-        }
-        // This token is then encrypted and stored in the user's cookie.
-        return token;
-    },
-    
-    // The session callback is called whenever a session is checked.
-    session({ session, token }) {
-        // The token object contains the data we stored in the `jwt` callback.
-        // We add this data to the session object, which is then available on the client.
-        // We MUST check if token and session.user exist before modifying.
-        if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.username = token.username as string;
-        }
-        // ALWAYS return the session object.
-        return session;
-    },
+            if (user) {
+                // Add properties from your database user model to the token.
+                token.id = user.id;
+                token.username = (user as any).username;
+                token.role = (user as any).role;
+            }
+            // This token is then encrypted and stored in the user's cookie.
+            return token;
+        },
+
+        // The session callback is called whenever a session is checked.
+        session({ session, token }) {
+            // The token object contains the data we stored in the `jwt` callback.
+            if (token && session.user) {
+                session.user.id = token.id as string;
+                session.user.username = token.username as string;
+                session.user.role = token.role as string;
+            }
+            // ALWAYS return the session object.
+            return session;
+        },
     },
     pages: {
         signIn: '/login',

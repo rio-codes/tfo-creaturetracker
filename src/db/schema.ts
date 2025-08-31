@@ -22,6 +22,7 @@ export const users = pgTable("user", {
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
     password: text("password"),
+    role: text("role").default('user').notNull(),
     collectionItemsPerPage: integer("collection_items_per_page")
         .default(12)
         .notNull(),

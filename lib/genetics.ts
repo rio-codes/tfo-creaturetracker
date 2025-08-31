@@ -1,4 +1,4 @@
-import type { EnrichedCreature } from "@/types";
+import type { EnrichedCreature, GoalGene } from "@/types";
 import { structuredGeneData } from "./creature-data";
 
 // NEW helper to split multi-locus genotypes
@@ -136,9 +136,14 @@ export function calculateGeneProbability(
     maleParent: EnrichedCreature,
     femaleParent: EnrichedCreature,
     category: string,
-    targetGene: { genotype: string; isMultiGenotype: boolean; phenotype: string },
+    targetGene: GoalGene,
     goalMode: "genotype" | "phenotype"
 ): number {
+    // Optional genes are always considered a 100% match for prediction purposes.
+    if (targetGene.isOptional) {
+        return 1;
+    }
+
     if (!maleParent || !femaleParent || !maleParent.geneData || !femaleParent.geneData) return 0;
 
     // Gender is a special case with a fixed 50% probability for either outcome.

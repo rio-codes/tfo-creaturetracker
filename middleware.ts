@@ -1,56 +1,40 @@
-import NextAuth from 'next-auth';
-import { NextResponse, NextRequest } from 'next/server'
-import { authConfig } from "@/auth.config"
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
-const { auth } = NextAuth(authConfig);
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/terms", "/privacy"];
+const PROTECTED_ROUTES = ["/collection", "/breeding-pairs", "/research-goals", "/settings"];
+const ADMIN_ROUTES = ["/admin"];
 
-export default auth((req: NextRequest) => {
-  const reqPath = req.nextUrl.pathname;
-  var isAuthenticated: boolean = false;
+export default auth((req) => {
+    const { nextUrl } = req;
+    const isAuthenticated = !!req.auth;
+    const userRole = req.auth?.user?.role;
 
-  if (req.auth) {
-    isAuthenticated = true;
-    console.log("Logged in")
-  }
-  else {
-    console.log("Logged out")
-  }
+    const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+    const isProtectedRoute =
+        PROTECTED_ROUTES.some((route) => nextUrl.pathname.startsWith(route)) ||
+        ADMIN_ROUTES.some((route) => nextUrl.pathname.startsWith(route));
+    const isAdminRoute = ADMIN_ROUTES.some((route) => nextUrl.pathname.startsWith(route));
 
-  // Public routes
-  const publicRoutes = [
-    "/",
-    "/login",
-    "/register",
-    "/terms",
-    "/privacy"
-  ];
+    // If user is not authenticated and trying to access a protected route, redirect to login
+    if (isProtectedRoute && !isAuthenticated) {
+        return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
 
-  const protectedRoutes = [
-    "/collection", 
-    "/breeding-pairs", 
-    "/research-goals",
-    "/settings"
-  ]; 
+    // If user is not an admin and trying to access an admin route, redirect
+    if (isAdminRoute && userRole !== "admin") {
+        return NextResponse.redirect(new URL("/collection", req.nextUrl));
+    }
 
-  const isProtectedRoute = protectedRoutes.includes(reqPath);
+    // If user is authenticated, redirect them from public-only pages
+    if (isAuthenticated && isPublicRoute) {
+        return NextResponse.redirect(new URL("/collection", req.nextUrl));
+    }
 
-  // if the user is not logged in and trying to access a protected route, redirect them to the login page
-  if (isProtectedRoute && !isAuthenticated) {
-    console.log("User not logged in, accessing protected")
-    return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
-  }
-
-  // if the user is logged in and tries to access login or register, redirect to home
-  if (isAuthenticated && (reqPath.includes('login') || reqPath.includes('register') || reqPath == "/")) {
-    console.log("User logged in, redirecting")
-    return NextResponse.redirect(new URL('/collection', req.nextUrl.origin));
-  }
-
-  // in all other cases, continue to path requested
-  return NextResponse.next();
+    return NextResponse.next();
 });
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login|register).*)',],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

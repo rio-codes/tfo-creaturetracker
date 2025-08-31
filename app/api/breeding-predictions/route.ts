@@ -130,9 +130,18 @@ export async function POST(req: Request) {
                     );
                     finalPhenotype = matchedGene?.phenotype || "Unknown";
                 } else continue;
+
+                if (goal.goalMode === "phenotype") {
+                    const categoryData = speciesGeneData[category] as { phenotype: string }[];
+                    const genotypesForPhenotype = categoryData?.filter(g => g.phenotype === finalPhenotype);
+                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                }
+
                 enrichedGenes[category] = {
                     genotype: finalGenotype,
                     phenotype: finalPhenotype,
+                    isMultiGenotype: isMulti,
+                    isOptional: selection.isOptional ?? false,
                 };
             }
             return { ...goal, genes: enrichedGenes };

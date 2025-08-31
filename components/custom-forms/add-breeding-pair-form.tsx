@@ -205,7 +205,7 @@ export function AddPairForm({
                 placeholder="Pair Name (e.g., Silver Project)"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender"
+                className="bg-ebena-lavender text-pompaca-purple"
                 required
             />
             {isInbred && (
@@ -242,12 +242,12 @@ export function AddPairForm({
                 <SelectTrigger className="bg-ebena-lavender">
                     <SelectValue placeholder="Select Species..." />
                 </SelectTrigger>
-                <SelectContent className="bg-barely-lilac">
+                <SelectContent className="bg-ebena-lavender">
                     {availableSpecies.map((species) => (
                         <SelectItem
                             key={species}
                             value={species!}
-                            className="bg-barely-lilac"
+                            className="bg-ebena-lavender"
                         >
                             {species}
                         </SelectItem>
@@ -265,12 +265,12 @@ export function AddPairForm({
                 <SelectTrigger className="bg-ebena-lavender">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-barely-lilac">
+                <SelectContent className="bg-ebena-lavender">
                     {males.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-barely-lilac"
+                            className="bg-ebena-lavender"
                         >
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
@@ -286,12 +286,12 @@ export function AddPairForm({
                 <SelectTrigger className="bg-ebena-lavender">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-barely-lilac">
+                <SelectContent className="bg-ebena-lavender">
                     {females.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-barely-lilac"
+                            className="bg-ebena-lavender"
                         >
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
@@ -341,7 +341,7 @@ export function AddPairForm({
             {goals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender">
                         {goals.map((goal) => (
                             <div
                                 key={goal?.id}

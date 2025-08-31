@@ -68,13 +68,13 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
                   defaultValue={searchParams.get('species') || 'all'}
                   onValueChange={(value) => handleFilterChange('species', value)}
                 >
-                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500">
+                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-barely-lilac">
-                    <SelectItem value="all" className="bg-barely-lilac">All Species</SelectItem>
+                  <SelectContent className="bg-ebena-lavender">
+                    <SelectItem value="all">All Species</SelectItem>
                     {speciesList.map((species) => (
-                      <SelectItem key={species} value={species} className="bg-barely-lilac">{species}</SelectItem>
+                      <SelectItem key={species} value={species}>{species}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

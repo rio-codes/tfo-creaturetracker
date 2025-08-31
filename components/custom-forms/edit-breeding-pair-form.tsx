@@ -146,6 +146,7 @@ export function EditBreedingPairForm({
                 placeholder="Pair Name"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
+                className="bg-ebena-lavender"
                 required
             />
 
@@ -153,7 +154,7 @@ export function EditBreedingPairForm({
                 <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-dusk-purple">
                     <Network className="h-4 w-4 flex-shrink-0" />
                     <span>
-                        This pairing is inbred. This is just an indicator and does not affect gameplay.
+                        This pairing is inbred. Progeny will be related.
                     </span>
                 </div>
             )}
@@ -193,17 +194,16 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "male"}
                 required
             >
-                <SelectTrigger className="bg-barely-lilac">
+                <SelectTrigger className="bg-ebena-lavender">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-barely-lilac">
+                <SelectContent className="bg-ebena-lavender">
                     {males.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-barely-lilac"
                         >
-                            {c?.creatureName || c?.code}
+                            {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -214,17 +214,16 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "female"}
                 required
             >
-                <SelectTrigger className="bg-barely-lilac">
+                <SelectTrigger className="bg-ebena-lavender">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-barely-lilac">
+                <SelectContent className="bg-ebena-lavender">
                     {females.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-barely-lilac"
                         >
-                            {c?.creatureName || c?.code}
+                            {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -233,7 +232,7 @@ export function EditBreedingPairForm({
             {goals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender">
                         {goals.map((goal) => (
                             <div
                                 key={goal?.id}
@@ -284,10 +283,10 @@ export function EditBreedingPairForm({
                     Delete
                 </Button>
                 <div className="flex gap-2">
-                    <Button type="button" className="bg-pompaca-purple text-barely-lilac" onClick={onSuccess}>
+                    <Button type="button" variant="ghost" onClick={onSuccess}>
                         Cancel
                     </Button>
-                    <Button type="submit" className="bg-pompaca-purple text-barely-lilac" disabled={isLoading}>
+                    <Button type="submit" className="bg-pompaca-purple text-barely-lilac" disabled={isLoading || isDeleting}>
                         {isLoading ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>

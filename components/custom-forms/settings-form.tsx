@@ -187,7 +187,7 @@ export function SettingsForm({
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-barely-lilac"
+                                className="bg-ebena-lavender"
                                 required
                             />
                         </div>
@@ -202,7 +202,7 @@ export function SettingsForm({
                                         setPassword(e.target.value)
                                     }
                                     placeholder="Leave blank to keep current"
-                                    className="bg-barely-lilac"
+                                    className="bg-ebena-lavender"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -216,7 +216,7 @@ export function SettingsForm({
                                     onChange={(e) =>
                                         setConfirmPassword(e.target.value)
                                     }
-                                    className="bg-barely-lilac"
+                                    className="bg-ebena-lavender"
                                 />
                             </div>
                         </div>
@@ -245,6 +245,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
+                                className="bg-ebena-lavender"
                             />
                         </div>
                         <div className="space-y-2">
@@ -263,6 +264,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
+                                className="bg-ebena-lavender"
                             />
                         </div>
                         <div className="space-y-2">
@@ -281,6 +283,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
+                                className="bg-ebena-lavender"
                             />
                         </div>
                     </div>
@@ -341,15 +344,14 @@ export function SettingsForm({
                                                 )
                                             }
                                         >
-                                            <SelectTrigger className="bg-barely-lilac">
+                                            <SelectTrigger className="bg-ebena-lavender">
                                                 <SelectValue placeholder="Select a specific genotype..." />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-barely-lilac">
+                                            <SelectContent className="bg-ebena-lavender">
                                                 {cat.options.map((opt: any) => (
                                                     <SelectItem
                                                         key={opt.genotype}
                                                         value={opt.genotype}
-                                                        className="bg-barely-lilac"
                                                     >
                                                         {opt.genotype}
                                                     </SelectItem>
@@ -363,6 +365,7 @@ export function SettingsForm({
                     </div>
                     <Button
                         onClick={() => saveSettings(conversionSelections)}
+                        className="bg-pompaca-purple text-barely-lilac"
                         disabled={isLoading}
                     >
                         {isLoading

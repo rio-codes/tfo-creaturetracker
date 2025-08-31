@@ -16,7 +16,7 @@ export function AddGoalDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-emoji-eggplant text-barely-lilac mb-5">
+                <Button className="bg-pompaca-purple text-barely-lilac mb-5">
                     + New Goal
                 </Button>
             </DialogTrigger>

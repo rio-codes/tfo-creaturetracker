@@ -172,7 +172,7 @@ export default function RegistrationFlow() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="bg-barely-lilac"
+                                    className="bg-ebena-lavender"
                                 />
                                 <Input
                                     type="text"
@@ -182,7 +182,7 @@ export default function RegistrationFlow() {
                                         setTfoUsername(e.target.value)
                                     }
                                     required
-                                    className="bg-barely-lilac"
+                                    className="bg-ebena-lavender"
                                 />
                                 <Input
                                     type="password"
@@ -192,7 +192,7 @@ export default function RegistrationFlow() {
                                         setPassword(e.target.value)
                                     }
                                     required
-                                    className="bg-barely-lilac"
+                                    className="bg-ebena-lavender"
                                 />
                                 <div className="w-full items-center text-dusk-purple font-light text-sm text-center">
                                     <p>
@@ -211,15 +211,15 @@ export default function RegistrationFlow() {
                                     type="number"
                                     value={tabId}
                                     onChange={(e) => setTabId(e.target.value)}
+                                    className="bg-ebena-lavender"
                                     required
                                 />
                             </div>
                         )}
 
                         <Button
-                            type="submit"
+                            type="submit" className="w-full bg-pompaca-purple text-barely-lilac"
                             disabled={isLoading}
-                            className="w-full"
                         >
                             {isLoading
                                 ? "Checking..."
@@ -279,7 +279,7 @@ export default function RegistrationFlow() {
                                 name back to what it was before or un-name it if
                                 you want.)
                             </p>
-                            <Button onClick={handleComplete} disabled={isLoading}>
+                            <Button onClick={handleComplete} disabled={isLoading} className="bg-pompaca-purple text-barely-lilac">
                                 {isLoading ? (
                                     <Loader2 className="animate-spin mr-2" />
                                 ) : null}

@@ -223,10 +223,10 @@ export function ViewOutcomesDialog({
                                         value={selectedGenotypes[category]}
                                         onValueChange={(value) => setSelectedGenotypes(prev => ({ ...prev, [category]: value }))}
                                     >
-                                        <SelectTrigger className="w-47 bg-barely-lilac px-1 text-xs">
+                                        <SelectTrigger className="w-47 bg-ebena-lavender px-1 text-xs">
                                             <SelectValue placeholder={`Select ${category}...`} />
                                         </SelectTrigger>
-                                        <SelectContent className="w-55 bg-barely-lilac text-xs">
+                                        <SelectContent className="w-55 bg-ebena-lavender text-xs">
                                             {categoryOutcomes.map(o => (
                                                 <SelectItem key={o.genotype} value={o.genotype} className="w-55 text-xs">
                                                     {o.phenotype} ({o.genotype}) - <span className="font-semibold">{Math.round(o.probability * 100)}%</span>
@@ -252,7 +252,7 @@ export function ViewOutcomesDialog({
                     </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading}>
+                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading} className="bg-pompaca-purple text-barely-lilac">
                         Save as Goal
                     </Button>
                 </div>
@@ -276,7 +276,7 @@ export function ViewOutcomesDialog({
                         </div>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleSaveAsGoal} disabled={isSavingGoal || !newGoalName.trim()}>
+                            <AlertDialogAction onClick={handleSaveAsGoal} disabled={isSavingGoal || !newGoalName.trim()} className="bg-pompaca-purple text-barely-lilac">
                                 {isSavingGoal ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Goal"}
                             </AlertDialogAction>
                         </AlertDialogFooter>

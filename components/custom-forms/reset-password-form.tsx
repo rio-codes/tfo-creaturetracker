@@ -86,7 +86,7 @@ export default function ResetPasswordForm() {
                                     placeholder="Enter your new password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    className="bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                                     required
                                 />
                             </div>
@@ -100,7 +100,7 @@ export default function ResetPasswordForm() {
                                     placeholder="Confirm new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    className="bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                                     required
                                 />
                             </div>

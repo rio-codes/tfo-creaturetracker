@@ -70,11 +70,11 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 1 (Optional)</Label>
                 <Select value={progeny1Id} onValueChange={setProgeny1Id}>
-                    <SelectTrigger className="bg-barely-lilac">
+                    <SelectTrigger className="bg-ebena-lavender">
                         <SelectValue placeholder="Select first offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-barely-lilac">
-                        <SelectItem value="none" className="bg-barely-lilac">
+                    <SelectContent className="bg-ebena-lavender">
+                        <SelectItem value="none">
                             None
                         </SelectItem>
                         {potentialProgeny
@@ -83,7 +83,6 @@ export function LogBreedingForm({
                                 <SelectItem
                                     key={c?.id}
                                     value={c!.id}
-                                    className="bg-barely-lilac"
                                 >
                                     {c?.creatureName} ({c?.code})
                                 </SelectItem>
@@ -95,11 +94,11 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 2 (Optional)</Label>
                 <Select value={progeny2Id} onValueChange={setProgeny2Id}>
-                    <SelectTrigger className="bg-barely-lilac">
+                    <SelectTrigger className="bg-ebena-lavender">
                         <SelectValue placeholder="Select second offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-barely-lilac">
-                        <SelectItem value="none" className="bg-barely-lilac">
+                    <SelectContent className="bg-ebena-lavender">
+                        <SelectItem value="none">
                             None
                         </SelectItem>
                         {potentialProgeny
@@ -118,6 +117,7 @@ export function LogBreedingForm({
                 <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
+                    className="bg-ebena-lavender"
                     placeholder="Add any notes about this breeding event..."
                 />
             </div>
@@ -127,7 +127,7 @@ export function LogBreedingForm({
                 <Button type="button" variant="ghost" onClick={onSuccess}>
                     Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="bg-pompaca-purple text-barely-lilac">
                     {isLoading ? (
                         <Loader2 className="animate-spin" />
                     ) : (

@@ -166,7 +166,7 @@ export function CreatureCard({
                         allPairs={allPairs}
                         allGoals={allGoals}
                     >
-                        <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-16">
+                        <Button className="bg-pompaca-purple text-barely-lilac w-30 h-16">
                             <span className="text-wrap wrap-normal text-sm/tight">
                                 Manage Breeding Pairs
                             </span>
@@ -174,7 +174,7 @@ export function CreatureCard({
                     </ManageBreedingPairsDialog>
                     <Button
                         onClick={handleRemoveFromCollection}
-                        className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac w-30 h-16"
+                        className="bg-pompaca-purple text-barely-lilac w-30 h-16"
                     >
                         {isDeleting ? (
                             <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">

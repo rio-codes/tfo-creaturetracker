@@ -166,7 +166,7 @@ export function GoalDetailClient({
                         goal={goal}
                         predictions={initialPredictions}
                     >
-                        <Button className="bg-emoji-eggplant hover:bg-dusk-purple text-barely-lilac">
+                        <Button className="bg-pompaca-purple text-barely-lilac">
                             Manage Breeding Pairs
                         </Button>
                     </AssignPairDialog>

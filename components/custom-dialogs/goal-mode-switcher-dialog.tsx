@@ -15,12 +15,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -38,6 +32,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { InfoDisplay } from "../misc-custom-components/info-display";
 
 type AmbiguousCategory = {
     category: string;
@@ -141,56 +136,37 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
     };
 
     return (
-        <TooltipProvider>
-            {/* Confirmation Dialog */}
+        <>
             <AlertDialog>
-                <Tooltip>
-                    <TooltipTrigger asChild>
+                <InfoDisplay
+                    trigger={
                         <AlertDialogTrigger asChild>
-                            <Badge
-                                className={
-                                    goal?.goalMode === "genotype"
-                                        ? "h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-fit mb-5"
-                                        : "h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit mb-5"
-                                }
-                            >
-                                <span>
-                                    {goal?.goalMode === "genotype"
-                                        ? "🧬 Genotype Mode"
-                                        : "🪶 Phenotype Mode"}
-                                </span>
+                            <Badge className={
+                                goal?.goalMode === "genotype"
+                                    ? "h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-fit mb-5"
+                                    : "h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit mb-5"
+                            }>
+                                <span>{goal?.goalMode === "genotype" ? "🧬 Genotype Mode" : "🪶 Phenotype Mode"}</span>
                             </Badge>
                         </AlertDialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-barely-lilac/80 text-pompaca-purple">
-                        <div className="max-w-xs p-2">
+                    }
+                    content={
+                        <>
                             <h4 className="font-bold mb-1">
-                                {goal?.goalMode === "genotype"
-                                    ? "Genotype Mode"
-                                    : "Phenotype Mode"}
+                                {goal?.goalMode === "genotype" ? "Genotype Mode" : "Phenotype Mode"}
                             </h4>
                             {goal?.goalMode === "genotype" ? (
                                 <p>
-                                    <b>Click to switch mode</b> Genotype mode
-                                    calculates odds for achieving an exact
-                                    genetic code. Match scores will be much
-                                    lower. For advanced users aiming for
-                                    specific breeding outcomes.
+                                    <b>Click to switch mode.</b> Genotype mode calculates odds for achieving an exact genetic code. Match scores will be much lower. For advanced users aiming for specific breeding outcomes.
                                 </p>
                             ) : (
                                 <p>
-                                    <b>Click to switch mode</b> Phenotype mode
-                                    calculates odds based on achieving a desired
-                                    look (e.g., "Steppes"), accepting any
-                                    genotype that produces it. Recommended for
-                                    most users. Match scores will be higher and
-                                    "possible" goals more common. Recommended
-                                    for most users.
+                                    <b>Click to switch mode.</b> Phenotype mode calculates odds based on achieving a desired look (e.g., "Steppes"), accepting any genotype that produces it. Recommended for most users. Match scores will be higher and "possible" goals more common.
                                 </p>
                             )}
-                        </div>
-                    </TooltipContent>
-                </Tooltip>
+                        </>
+                    }
+                />
                 <AlertDialogContent className="bg-barely-lilac">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
@@ -273,6 +249,6 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                     </Button>
                 </DialogContent>
             </Dialog>
-        </TooltipProvider>
+        </>
     );
 }

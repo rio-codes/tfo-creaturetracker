@@ -50,6 +50,14 @@ export default function Header() {
                   🔧 Settings
                 </Link>
               </DropdownMenuItem>
+              {session?.user?.role === "admin" && (
+                <DropdownMenuItem
+                  className="bg-barely-lilac hover:bg-dusk-purple h-10"
+                  asChild
+                >
+                  <Link href="/admin" className="text-lg w-full h-full">🧑🏾‍💻 Admin</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

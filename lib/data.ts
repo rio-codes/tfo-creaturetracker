@@ -683,6 +683,9 @@ export async function fetchAndUploadWithRetry(
                 )}.png`;
             } else if (referenceId?.startsWith("goal-")) {
                 filename = `goals/${referenceId.replace("goal-", "")}.png`;
+            } else if (referenceId?.startsWith("admin-preview-")) {
+                filename = `admin-previews/${referenceId.replace("admin-preview-", "")
+                }.png`;
             } else if (referenceId) {
                 // Assumes creature code for sync
                 filename = `creatures/${referenceId}.png`;

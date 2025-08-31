@@ -6,6 +6,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { constructTfoImageUrl } from "@/lib/tfo-utils";
 import { fetchAndUploadWithRetry } from "@/lib/data";
+import * as Sentry from "@sentry/nextjs";
 
 const createCreatureSchema = z.object({
     creatureName: z.string().min(1),
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
             species,
             genetics: geneticsString,
             imageUrl: blobUrl,
-            gender: gender as 'male' | 'female' | 'unknown',
+            gender: gender.toLowerCase() as 'male' | 'female' | 'unknown',
             growthLevel: 3, // Default to adult
             isPinned: false,
             updatedAt: new Date(),
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Creature created successfully!" }, { status: 201 });
 
     } catch (error: any) {
-        console.error("Failed to create creature:", error);
+        Sentry.captureException(error);
         return NextResponse.json({ error: error.message || "An internal error occurred." }, { status: 500 });
     }
 }

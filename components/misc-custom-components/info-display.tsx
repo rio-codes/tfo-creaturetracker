@@ -1,0 +1,48 @@
+"use client";
+
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+
+type InfoDisplayProps = {
+    trigger: React.ReactNode;
+    content: React.ReactNode;
+    tooltipClassName?: string;
+    dialogClassName?: string;
+};
+
+export function InfoDisplay({ trigger, content, tooltipClassName, dialogClassName }: InfoDisplayProps) {
+    return (
+        <>
+            {/* Desktop Tooltip: Shows on hover */}
+            <div className="hidden md:inline-flex">
+                <TooltipProvider>
+                    <Tooltip delayDuration={100}>
+                        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+                        <TooltipContent className={`bg-pompaca-purple text-barely-lilac border-dusk-purple max-w-xs ${tooltipClassName}`}>
+                            {content}
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
+            {/* Mobile Dialog: Shows on tap */}
+            <div className="md:hidden inline-flex">
+                <Dialog>
+                    <DialogTrigger asChild>{trigger}</DialogTrigger>
+                    <DialogContent className={`bg-barely-lilac ${dialogClassName}`}>
+                        <div className="p-4 text-pompaca-purple">{content}</div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </>
+    );
+}

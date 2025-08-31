@@ -16,6 +16,7 @@ import {
 import { structuredGeneData, speciesList } from "@/lib/creature-data";
 import { Loader2 } from "lucide-react";
 import type { GoalGene } from "@/types";
+import * as Sentry from "@sentry/nextjs";
 
 type GeneOption = {
     value: string;
@@ -33,6 +34,9 @@ export function CreateCreatureForm() {
     }>({});
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+    const [previewError, setPreviewError] = useState("");
 
     const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
@@ -97,6 +101,30 @@ export function CreateCreatureForm() {
                 ...prev,
                 [category]: { ...selectedOption.selection, isOptional: false },
             }));
+        }
+        setPreviewImageUrl(null);
+    };
+
+    const handlePreview = async () => {
+        setIsPreviewLoading(true);
+        setPreviewError("");
+        setPreviewImageUrl(null);
+        try {
+            const response = await fetch("/api/admin/creature-preview", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ species, genes: selectedGenes }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to create image.");
+            }
+            setPreviewImageUrl(data.imageUrl);
+        } catch (err: any) {
+            setPreviewError(err.message);
+            Sentry.captureException(err);
+        } finally {
+            setIsPreviewLoading(false);
         }
     };
 
@@ -172,7 +200,7 @@ export function CreateCreatureForm() {
             </div>
 
             {species && (
-                <ScrollArea className="max-h-60 pr-4 relative border rounded-md p-4">
+                <ScrollArea className="flex-col pr-4 relative border rounded-md p-4">
                     <div className="space-y-4">
                         {geneCategories.map((category) => (
                             <div
@@ -190,15 +218,16 @@ export function CreateCreatureForm() {
                                         handleGeneChange(category, value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="bg-barely-lilac">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="bg-barely-lilac">
                                         {(geneOptions[category] || []).map(
                                             (option) => (
                                                 <SelectItem
                                                     key={option.value}
                                                     value={option.value}
+                                                    className="bg-barely-lilac"
                                                 >
                                                     {option.display}
                                                 </SelectItem>
@@ -211,6 +240,30 @@ export function CreateCreatureForm() {
                     </div>
                 </ScrollArea>
             )}
+
+            <div className="space-y-2 pt-2">
+                <div className="flex items-center gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handlePreview}
+                        disabled={isPreviewLoading || !species}
+                    >
+                        {isPreviewLoading ? (
+                            <Loader2 className="animate-spin mr-2" />
+                        ) : null}
+                        Preview Image
+                    </Button>
+                </div>
+                {previewError && <p className="text-sm text-red-500">{previewError}</p>}
+                {previewImageUrl && (
+                    <img
+                        src={previewImageUrl}
+                        alt="Creature Preview"
+                        className="w-40 h-40 object-contain mx-auto border rounded-md"
+                    />
+                )}
+            </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 

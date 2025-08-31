@@ -60,6 +60,7 @@ import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breedin
 import { getHybridOffspring } from "@/lib/breeding-rules";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
 import { ViewOutcomesDialog } from "../custom-dialogs/view-outcomes-dialog";
+import { InfoDisplay } from "../misc-custom-components/info-display";
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -226,7 +227,7 @@ export function BreedingPairCard({
             <div className="relative p-4">
                 {/* Title */}
                 <h3
-                    className="text-xl font-bold text-center truncate"
+                    className="text-xl font-bold text-center"
                     title={pair.pairName}
                 >
                     {pair.pairName}
@@ -252,7 +253,7 @@ export function BreedingPairCard({
                 {/* Parent Details */}
                 <div className="px-2 text-center text-md text-pompaca-purple">
                     <Collapsible>
-                        <CollapsibleTrigger className="flex items-center justify-center w-full text-left">
+                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
                             <p className="truncate">
                                 <span className="font-semibold text-pompaca-purple">
                                     M:
@@ -266,7 +267,7 @@ export function BreedingPairCard({
                         </CollapsibleContent>
                     </Collapsible>
                     <Collapsible>
-                        <CollapsibleTrigger className="flex items-center justify-center w-full text-left">
+                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
                             <p className="truncate">
                                 <span className="font-semibold text-pompaca-purple">
                                     F:
@@ -292,17 +293,12 @@ export function BreedingPairCard({
                                 Progeny ({pair.progenyCount})
                             </h4>
                             {pair.isInbred && (
-                                <Tooltip delayDuration={100}>
-                                    <TooltipTrigger>
-                                        <Network className="h-4 w-4 text-yellow-600" />
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-pompaca-purple text-barely-lilac border-dusk-purple">
-                                        <p>
-                                            This pair is inbred. Progeny may
-                                            inherit this status.
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
+                                <InfoDisplay
+                                    trigger={<Network className="h-4 w-4 text-yellow-600" />}
+                                    content={
+                                        <p>This pair is inbred. Progeny will be related.</p>
+                                    }
+                                />
                             )}
                         </div>
                         <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
@@ -471,11 +467,12 @@ export function BreedingPairCard({
                                                 ) : (
                                                     <Target className="h-3 w-3 text-dusk-purple flex-shrink-0" />
                                                 )}
-                                                <Link
+                                                <Link 
+                                                    title={g.name}
                                                     href={`/research-goals/${g.id}`}
                                                     className="truncate hover:underline wrap-anywhere"
                                                 >
-                                                    {g.name}
+                                                    {g.name.length > 15 ? `${g.name.substring(0, 15)}...` : g.name}
                                                 </Link>
                                             </div>
                                             <div

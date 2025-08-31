@@ -10,6 +10,6 @@ export async function getAllUsers() {
     }
     // Fetch all users without their passwords for security.
     return db.query.users.findMany({
-        columns: { id: true, username: true, email: true, role: true }
+        columns: { id: true, username: true, email: true, role: true, status: true }
     });
 }

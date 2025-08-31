@@ -8,11 +8,14 @@ import {
     pgEnum,
     uniqueIndex,
     primaryKey,
+    index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { AdapterAccount } from "@auth/core/adapters";
 
 export const goalModeEnum = pgEnum("goal_mode", ["genotype", "phenotype"]);
+export const userStatusEnum = pgEnum("user_status", ["active", "suspended"]);
+
 
 export const users = pgTable("user", {
     id: text("id").notNull().primaryKey(),
@@ -23,6 +26,7 @@ export const users = pgTable("user", {
     image: text("image"),
     password: text("password"),
     role: text("role").default('user').notNull(),
+    status: userStatusEnum("status").default("active").notNull(),
     collectionItemsPerPage: integer("collection_items_per_page")
         .default(12)
         .notNull(),
@@ -52,16 +56,23 @@ export const accounts = pgTable(
         compoundKey: primaryKey({
             columns: [account.provider, account.providerAccountId],
         }),
+        userIdx: index("account_userId_idx").on(account.userId),
     })
 );
 
-export const sessions = pgTable("session", {
-    sessionToken: text("sessionToken").notNull().primaryKey(),
-    userId: text("userId")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
-});
+export const sessions = pgTable(
+    "session",
+    {
+        sessionToken: text("sessionToken").notNull().primaryKey(),
+        userId: text("userId")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        expires: timestamp("expires", { mode: "date" }).notNull(),
+    },
+    (session) => ({
+        userIdx: index("session_userId_idx").on(session.userId),
+    })
+);
 
 export const verificationTokens = pgTable(
     "verificationToken",
@@ -137,69 +148,103 @@ export const creatures = pgTable(
                 table.userId,
                 table.code
             ),
+            userIdx: index("creature_userId_idx").on(table.userId),
+            speciesIdx: index("creature_species_idx").on(table.species),
+            genderIdx: index("creature_gender_idx").on(table.gender),
+            pinnedIdx: index("creature_pinned_idx").on(table.isPinned),
+            createdIdx: index("creature_created_at_idx").on(table.createdAt),
         };
     }
 );
 
-export const researchGoals = pgTable("research_goal", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    species: text("species").notNull(),
-    imageUrl: text("image_url"),
-    genes: jsonb("genes").notNull(),
-    assignedPairIds: jsonb("assigned_pair_ids").$type<string[]>(),
-    isPinned: boolean("is_pinned").default(false).notNull(),
-    goalMode: goalModeEnum("goal_mode").default("phenotype").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const researchGoals = pgTable(
+    "research_goal",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        name: text("name").notNull(),
+        species: text("species").notNull(),
+        imageUrl: text("image_url"),
+        genes: jsonb("genes").notNull(),
+        assignedPairIds: jsonb("assigned_pair_ids").$type<string[]>(),
+        isPinned: boolean("is_pinned").default(false).notNull(),
+        goalMode: goalModeEnum("goal_mode").default("phenotype").notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        userIdx: index("goal_userId_idx").on(table.userId),
+        speciesIdx: index("goal_species_idx").on(table.species),
+        pinnedIdx: index("goal_pinned_idx").on(table.isPinned),
+        createdIdx: index("goal_created_at_idx").on(table.createdAt),
+    })
+);
 
-export const breedingPairs = pgTable("breeding_pair", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    pairName: text("pair_name").notNull(),
-    species: text("species").notNull(),
-    maleParentId: text("male_parent_id")
-        .notNull()
-        .references(() => creatures.id, { onDelete: "cascade" }),
-    femaleParentId: text("female_parent_id")
-        .notNull()
-        .references(() => creatures.id, { onDelete: "cascade" }),
-    assignedGoalIds: jsonb("assigned_goal_ids").$type<string[]>(),
-    isPinned: boolean("is_pinned").default(false).notNull(),
-    outcomesPreviewUrl: text("outcomes_preview_url"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const breedingPairs = pgTable(
+    "breeding_pair",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        pairName: text("pair_name").notNull(),
+        species: text("species").notNull(),
+        maleParentId: text("male_parent_id")
+            .notNull()
+            .references(() => creatures.id, { onDelete: "cascade" }),
+        femaleParentId: text("female_parent_id")
+            .notNull()
+            .references(() => creatures.id, { onDelete: "cascade" }),
+        assignedGoalIds: jsonb("assigned_goal_ids").$type<string[]>(),
+        isPinned: boolean("is_pinned").default(false).notNull(),
+        outcomesPreviewUrl: text("outcomes_preview_url"),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        userIdx: index("pair_userId_idx").on(table.userId),
+        maleParentIdx: index("pair_maleParentId_idx").on(table.maleParentId),
+        femaleParentIdx: index("pair_femaleParentId_idx").on(
+            table.femaleParentId
+        ),
+        speciesIdx: index("pair_species_idx").on(table.species),
+        pinnedIdx: index("pair_pinned_idx").on(table.isPinned),
+        createdIdx: index("pair_created_at_idx").on(table.createdAt),
+    })
+);
 
-export const breedingLogEntries = pgTable("breeding_log_entry", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    pairId: text("pair_id")
-        .notNull()
-        .references(() => breedingPairs.id, { onDelete: "cascade" }),
-    progeny1Id: text("progeny_1_id").references(() => creatures.id, {
-        onDelete: "set null",
-    }),
-    progeny2Id: text("progeny_2_id").references(() => creatures.id, {
-        onDelete: "set null",
-    }),
-    notes: text("notes"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const breedingLogEntries = pgTable(
+    "breeding_log_entry",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        pairId: text("pair_id")
+            .notNull()
+            .references(() => breedingPairs.id, { onDelete: "cascade" }),
+        progeny1Id: text("progeny_1_id").references(() => creatures.id, {
+            onDelete: "set null",
+        }),
+        progeny2Id: text("progeny_2_id").references(() => creatures.id, {
+            onDelete: "set null",
+        }),
+        notes: text("notes"),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        userIdx: index("log_userId_idx").on(table.userId),
+        pairIdx: index("log_pairId_idx").on(table.pairId),
+    })
+);
 
 export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
     maleParent: one(creatures, {
@@ -217,21 +262,32 @@ export const researchGoalsRelations = relations(researchGoals, ({ many }) => ({
     // For now, we'll rely on the jsonb column.
 }));
 
-export const achievedGoals = pgTable("achieved_goal", {
-    id: text("id")
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    goalId: text("goal_id")
-        .notNull()
-        .references(() => researchGoals.id, { onDelete: "cascade" }),
-    logEntryId: text("log_entry_id")
-        .notNull()
-        .references(() => breedingLogEntries.id, { onDelete: "cascade" }),
-    matchingProgenyId: text("matching_progeny_id")
-        .notNull()
-        .references(() => creatures.id, { onDelete: "cascade" }),
-    achievedAt: timestamp("achieved_at").defaultNow().notNull(),
-});
+export const achievedGoals = pgTable(
+    "achieved_goal",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        goalId: text("goal_id")
+            .notNull()
+            .references(() => researchGoals.id, { onDelete: "cascade" }),
+        logEntryId: text("log_entry_id")
+            .notNull()
+            .references(() => breedingLogEntries.id, { onDelete: "cascade" }),
+        matchingProgenyId: text("matching_progeny_id")
+            .notNull()
+            .references(() => creatures.id, { onDelete: "cascade" }),
+        achievedAt: timestamp("achieved_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        userIdx: index("achieved_goal_userId_idx").on(table.userId),
+        goalIdx: index("achieved_goal_goalId_idx").on(table.goalId),
+        logEntryIdx: index("achieved_goal_logEntryId_idx").on(table.logEntryId),
+        progenyIdx: index("achieved_goal_progenyId_idx").on(
+            table.matchingProgenyId
+        ),
+    })
+);

@@ -22,6 +22,10 @@ export const authConfig = {
                     if (!user) {
                         return null;
                     }
+                    if ((user as any).status === 'suspended') {
+                        // User is suspended, deny login.
+                        return null;
+                    }
                     if (!user.password) {
                         return null;
                     }

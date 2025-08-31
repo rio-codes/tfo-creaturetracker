@@ -26,6 +26,8 @@ type User = {
     username: string | null;
     email: string | null;
     role: string;
+    status: "active" | "suspended";
+    createdAt: Date | null;
 };
 
 export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
@@ -34,6 +36,32 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
     const [loadingStates, setLoadingStates] = useState<{
         [key: string]: boolean;
     }>({});
+
+    const handleStatusChange = async (userId: string, newStatus: string) => {
+        setLoadingStates((prev) => ({ ...prev, [userId]: true }));
+        try {
+            const response = await fetch(`/api/admin/users/${userId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to update status.");
+            }
+
+            setUsers(currentUsers =>
+                currentUsers.map(u => u.id === userId ? { ...u, status: newStatus as any } : u)
+            );
+            router.refresh();
+        } catch (error) {
+            Sentry.captureException(error);
+            alert((error as Error).message);
+        } finally {
+            setLoadingStates((prev) => ({ ...prev, [userId]: false }));
+        }
+    };
 
     const handleRoleChange = async (userId: string, newRole: string) => {
         setLoadingStates((prev) => ({ ...prev, [userId]: true }));
@@ -71,6 +99,8 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                     <TableHead>Username</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                     <TableHead>Joined</TableHead>
                 </TableRow>
             </TableHeader>
@@ -110,6 +140,26 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 )}
                             </div>
+                        </TableCell>
+                        <TableCell>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                                {user.status}
+                            </span>
+                        </TableCell>
+                        <TableCell>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')}
+                                disabled={loadingStates[user.id]}
+                            >
+                                {user.status === 'active' ? 'Suspend' : 'Reinstate'}
+                            </Button>
+                        </TableCell>
+                        <TableCell>
+                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                         </TableCell>
                     </TableRow>
                 ))}

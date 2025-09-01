@@ -17,21 +17,13 @@ export default async function ResearchGoalsPage({
         species?: string;
     };
 }) {
-    const currentPage = Number(searchParams?.page) || 1;
-    const query = searchParams?.query;
-    const species = searchParams?.species;
-
     const session = await auth();
     const userId = session?.user?.id
     const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
     const goalMode = user?.goalMode
 
 
-    const { goals, totalPages } = await fetchFilteredResearchGoals(
-        currentPage,
-        query,
-        species
-    );
+    const { goals, totalPages } = await fetchFilteredResearchGoals(searchParams);
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">

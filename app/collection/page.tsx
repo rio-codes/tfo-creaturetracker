@@ -20,19 +20,13 @@ export default async function CollectionPage({
         species?: string;
     };
 }) {
-    const currentPage = Number(searchParams?.page) || 1;
-    const query = searchParams?.query;
-    const stage = searchParams?.stage;
-    const species = searchParams?.species;
-    const gender = searchParams?.gender;
-
     const [
         { creatures: paginatedCreatures, totalPages },
         allCreatures,
         allPairs,
         allGoals,
     ] = await Promise.all([
-        fetchFilteredCreatures(currentPage, query, gender, stage, species),
+        fetchFilteredCreatures(searchParams),
         getAllCreaturesForUser(),
         getAllBreedingPairsForUser(),
         getAllResearchGoalsForUser(),

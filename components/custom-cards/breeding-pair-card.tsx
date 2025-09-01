@@ -283,6 +283,7 @@ export function BreedingPairCard({
                 </div>
                 {/* Main Info Grid */}
                 <div className="gap-4 w-4/5">
+
                     {/* Left Column: Progeny */}
                     <div className="flex flex-col w-full">
                         <div className="flex items-center gap-2 mb-1">
@@ -476,11 +477,11 @@ export function BreedingPairCard({
                                                     href={`/research-goals/${g.id}`}
                                                     className="truncate hover:underline wrap-anywhere"
                                                 >
-                                                    {g.name.length > 15
+                                                    {g.name.length > 26
                                                         ? `${g.name.substring(
-                                                              0,
-                                                              15
-                                                          )}...`
+                                                                0,
+                                                                26
+                                                            )}...`
                                                         : g.name}
                                                 </Link>
                                             </div>

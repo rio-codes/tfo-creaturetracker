@@ -299,12 +299,16 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
 // fetch creatures filtered by specified criteria and paginated for UI
 export async function fetchFilteredCreatures(
-    currentPage: number,
-    query?: string,
-    gender?: string,
-    stage?: string,
-    species?: string
+    searchParams: {
+        page?: string;
+        query?: string;
+        gender?: string;
+        stage?: string;
+        species?: string;
+    } = {},
 ) {
+    const currentPage = Number(searchParams.page) || 1;
+    const { query, gender, stage, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
@@ -380,10 +384,14 @@ export async function fetchFilteredCreatures(
 
 // fetch research goals, paginated and filtered
 export async function fetchFilteredResearchGoals(
-    currentPage: number,
-    query?: string,
-    species?: string
+    searchParams: {
+        page?: string;
+        query?: string;
+        species?: string;
+    } = {},
 ) {
+    const currentPage = Number(searchParams.page) || 1;
+    const { query, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error("User is not authenticated.");
@@ -441,10 +449,14 @@ export async function fetchFilteredResearchGoals(
 
 // fetch paginated breeding pairs with statistics from breeding logs
 export async function fetchBreedingPairsWithStats(
-    currentPage: number,
-    query?: string,
-    species?: string
+    searchParams: {
+        page?: string;
+        query?: string;
+        species?: string;
+    } = {},
 ) {
+    const currentPage = Number(searchParams.page) || 1;
+    const { query, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };

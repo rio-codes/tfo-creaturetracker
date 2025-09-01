@@ -24,9 +24,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { EnrichedBreedingPair } from "@/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -88,28 +87,31 @@ export function ViewOutcomesDialog({
         return pair.maleParent?.species !== pair.femaleParent?.species;
     }, [pair]);
 
-    // Helper function to fetch and set a new preview image.
-    const updatePreviewImage = async (genotypes: { [key: string]: string }) => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(`/api/breeding-pairs/${pair.id}/outcomes-preview`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selectedGenotypes: genotypes }),
-            });
-            if (response.ok) {
-                const data = await response.json();
-                const newUrl = `${data.imageUrl}?v=${new Date().getTime()}`;
-                setPreviewUrl(newUrl);
-                return newUrl; // Return for setting the default URL
+    // Helper function to fetch and set a new preview image, wrapped in useCallback.
+    const updatePreviewImage = useCallback(
+        async (genotypes: { [key: string]: string }) => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`/api/breeding-pairs/${pair.id}/outcomes-preview`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ selectedGenotypes: genotypes }),
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const newUrl = `${data.imageUrl}?v=${new Date().getTime()}`;
+                    setPreviewUrl(newUrl);
+                    return newUrl; // Return for setting the default URL
+                }
+            } catch (error) {
+                Sentry.captureException(error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            Sentry.captureException(error);
-        } finally {
-            setIsLoading(false);
-        }
-        return null;
-    };
+            return null;
+        },
+        [pair.id]
+    );
 
     const handleSaveAsGoal = async () => {
         if (!newGoalName.trim()) {
@@ -195,7 +197,7 @@ export function ViewOutcomesDialog({
             };
             fetchInitialData();
         } 
-    }, [isOpen, pair.id, outcomes]);
+    }, [isOpen, pair, outcomes, isCrossBreed, updatePreviewImage]);
 
     useEffect(() => {
         // Don't run if genotypes aren't set yet
@@ -210,17 +212,17 @@ export function ViewOutcomesDialog({
         };
 
         // This is the logic that runs every time a select box is changed.
-        const handler = setTimeout(async () => {
+        const handler = setTimeout(() => {
             updatePreviewImage(selectedGenotypes);
         }, 500);
 
         return () => clearTimeout(handler);
-    }, [selectedGenotypes]);
+    }, [selectedGenotypes, mostLikelyGenotypes, defaultPreviewUrl, updatePreviewImage]);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-screen-lg w-2/3 max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         Possible Outcomes for {pair.pairName}
@@ -246,74 +248,71 @@ export function ViewOutcomesDialog({
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
-                        <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
-                            <div className="space-y-4">
-                                {isLoading && !outcomes ? (
-                                    <Loader2 className="animate-spin" />
-                                ) : null}
-                                {outcomes &&
-                                    Object.entries(outcomes).map(
-                                        ([category, categoryOutcomes]) => (
-                                            <div
-                                                key={category}
-                                                className="space-y-1"
+                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
+                            {isLoading && !outcomes ? (
+                                <Loader2 className="animate-spin" />
+                            ) : null}
+                            {outcomes &&
+                                Object.entries(outcomes).map(
+                                    ([category, categoryOutcomes]) => (
+                                        <div
+                                            key={category}
+                                            className="space-y-1"
+                                        >
+                                            <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">
+                                                {category}
+                                            </Label>
+                                            <Select
+                                                value={
+                                                    selectedGenotypes[
+                                                        category
+                                                    ]
+                                                }
+                                                onValueChange={(value) =>
+                                                    setSelectedGenotypes(
+                                                        (prev) => ({
+                                                            ...prev,
+                                                            [category]:
+                                                                value,
+                                                        })
+                                                    )
+                                                }
                                             >
-                                                <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">
-                                                    {category}
-                                                </Label>
-                                                <Select
-                                                    value={
-                                                        selectedGenotypes[
-                                                            category
-                                                        ]
-                                                    }
-                                                    onValueChange={(value) =>
-                                                        setSelectedGenotypes(
-                                                            (prev) => ({
-                                                                ...prev,
-                                                                [category]:
-                                                                    value,
-                                                            })
+                                                <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
+                                                    <SelectValue
+                                                        placeholder={`Select ${category}...`}
+                                                    />
+                                                </SelectTrigger>
+                                                <SelectContent position="item-aligned" className="w-max bg-ebena-lavender dark:bg-midnight-purple text-xs">
+                                                    {categoryOutcomes.map(
+                                                        (o) => (
+                                                            <SelectItem
+                                                                key={
+                                                                    o.genotype
+                                                                }
+                                                                value={
+                                                                    o.genotype
+                                                                }
+                                                                className="text-xs"
+                                                            >
+                                                                {
+                                                                    o.phenotype
+                                                                }{" "}
+                                                                (
+                                                                {o.genotype}
+                                                                ) -{" "}
+                                                                <span className="font-semibold">
+                                                                    {(o.probability * 100).toFixed(2)}%
+                                                                </span>
+                                                            </SelectItem>
                                                         )
-                                                    }
-                                                >
-                                                    <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
-                                                        <SelectValue
-                                                            placeholder={`Select ${category}...`}
-                                                        />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
-                                                        {categoryOutcomes.map(
-                                                            (o) => (
-                                                                <SelectItem
-                                                                    key={
-                                                                        o.genotype
-                                                                    }
-                                                                    value={
-                                                                        o.genotype
-                                                                    }
-                                                                    className="w-55 text-xs"
-                                                                >
-                                                                    {
-                                                                        o.phenotype
-                                                                    }{" "}
-                                                                    (
-                                                                    {o.genotype}
-                                                                    ) -{" "}
-                                                                    <span className="font-semibold">
-                                                                        {(o.probability * 100).toFixed(2)}%
-                                                                    </span>
-                                                                </SelectItem>
-                                                            )
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        )
-                                    )}
-                            </div>
-                            <ScrollBar orientation="vertical" />
-                        </ScrollArea>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )
+                                )}
+                        </div>
                         <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
                             {isLoading && (
                                 <Loader2 className="animate-spin absolute" />

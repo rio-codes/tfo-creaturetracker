@@ -19,9 +19,6 @@ export default async function BreedingPairsPage({
         species?: string;
     };
 }) {
-    const currentPage = Number(searchParams?.page) || 1;
-    const query = searchParams?.query || "";
-    const species = searchParams?.species || "";
     const [
         { pairs, totalPages },
         allCreatures,
@@ -29,7 +26,7 @@ export default async function BreedingPairsPage({
         allPairs,
         allLogs,
     ] = await Promise.all([
-        fetchBreedingPairsWithStats(currentPage, query, species),
+        fetchBreedingPairsWithStats(searchParams),
         getAllCreaturesForUser(),
         getAllResearchGoalsForUser(),
         getAllRawBreedingPairsForUser(),

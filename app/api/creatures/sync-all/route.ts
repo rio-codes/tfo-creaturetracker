@@ -11,11 +11,10 @@ export async function POST(req: Request) {
         );
     }
     const userId = session.user.id;
-    const tfoUsername = session.user.tfoUsername;
+    const tfoUsername = session.user.username;
 
     try {
         const { tabIds } = await req.json();
-
         if (
             !Array.isArray(tabIds) ||
             tabIds.some((id) => typeof id !== "number")

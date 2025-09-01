@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { users, researchGoals } from "@/src/db/schema";
-import type { User } from "@/src/db/schema";
+import type { User } from "@/types";
 import { eq } from "drizzle-orm";
 import { SettingsForm } from "@/components/custom-forms/settings-form";
 import { redirect } from "next/navigation";
@@ -28,7 +28,7 @@ export default async function SettingsPage() {
                 <h1 className="text-4xl font-bold mb-6 text-pompaca-purple dark:text-purple-300">
                     Settings
                 </h1>
-                <SettingsForm user={user} goals={allGoals} />
+                {user && <SettingsForm user={user} goals={allGoals} />}
             </div>
         </div>
     );

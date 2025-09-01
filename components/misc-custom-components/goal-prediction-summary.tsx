@@ -14,7 +14,9 @@ export const GoalPredictionSummary = ({ goal, prediction }: GoalPredictionSummar
         .filter(([category, gene]) => !gene.isOptional && category !== "Gender")
         .map(([category, gene]) => {
             const chance = prediction.chancesByCategory?.[category] ?? 0;
-            return `<strong>${category}:</strong> ${gene.phenotype} - ${Math.round(chance * 100)}%`;
+            return `<strong>${category}:</strong> ${gene.phenotype} - ${(
+                chance * 100
+            ).toFixed(2)}%`;
         })
         .join(", ");
 

@@ -222,75 +222,139 @@ export function ViewOutcomesDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-screen-lg w-2/3 max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300">
                 <DialogHeader>
-                    <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
+                    <DialogTitle>
+                        Possible Outcomes for {pair.pairName}
+                    </DialogTitle>
                 </DialogHeader>
                 {isCrossBreed ? (
                     <div className="p-4 text-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md">
-                        <h3 className="font-bold text-lg">Cross-Species Breeding</h3>
+                        <h3 className="font-bold text-lg">
+                            Cross-Species Breeding
+                        </h3>
                         <p className="mt-2 text-dusk-purple dark:text-purple-400">
                             This pair can produce the following species:
                         </p>
                         <ul className="font-semibold my-2">
-                            {possibleOffspringSpecies.map(species => <li key={species}>{species}</li>)}
+                            {possibleOffspringSpecies.map((species) => (
+                                <li key={species}>{species}</li>
+                            ))}
                         </ul>
                         <p className="text-xs italic text-dusk-purple dark:text-purple-400">
-                            Detailed gene predictions for cross-species and hybrid pairings are not yet supported.
+                            Detailed gene predictions for cross-species and
+                            hybrid pairings are not yet supported.
                         </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
                         <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
                             <div className="space-y-4">
-                                {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
-                                {outcomes && Object.entries(outcomes).map(([category, categoryOutcomes]) => (
-                                    <div key={category} className="space-y-1">
-                                        <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">{category}</Label>
-                                        <Select
-                                            value={selectedGenotypes[category]}
-                                            onValueChange={(value) => setSelectedGenotypes(prev => ({ ...prev, [category]: value }))}
-                                        >
-                                            <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
-                                                <SelectValue placeholder={`Select ${category}...`} />
-                                            </SelectTrigger>
-                                            <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
-                                                {categoryOutcomes.map(o => (
-                                                    <SelectItem key={o.genotype} value={o.genotype} className="w-55 text-xs">
-                                                        {o.phenotype} ({o.genotype}) - <span className="font-semibold">{Math.round(o.probability * 100)}%</span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                ))}
+                                {isLoading && !outcomes ? (
+                                    <Loader2 className="animate-spin" />
+                                ) : null}
+                                {outcomes &&
+                                    Object.entries(outcomes).map(
+                                        ([category, categoryOutcomes]) => (
+                                            <div
+                                                key={category}
+                                                className="space-y-1"
+                                            >
+                                                <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">
+                                                    {category}
+                                                </Label>
+                                                <Select
+                                                    value={
+                                                        selectedGenotypes[
+                                                            category
+                                                        ]
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        setSelectedGenotypes(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                [category]:
+                                                                    value,
+                                                            })
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
+                                                        <SelectValue
+                                                            placeholder={`Select ${category}...`}
+                                                        />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
+                                                        {categoryOutcomes.map(
+                                                            (o) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        o.genotype
+                                                                    }
+                                                                    value={
+                                                                        o.genotype
+                                                                    }
+                                                                    className="w-55 text-xs"
+                                                                >
+                                                                    {
+                                                                        o.phenotype
+                                                                    }{" "}
+                                                                    (
+                                                                    {o.genotype}
+                                                                    ) -{" "}
+                                                                    <span className="font-semibold">
+                                                                        {(o.probability * 100).toFixed(2)}%
+                                                                    </span>
+                                                                </SelectItem>
+                                                            )
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )
+                                    )}
                             </div>
                             <ScrollBar orientation="vertical" />
                         </ScrollArea>
                         <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
-                            {isLoading && <Loader2 className="animate-spin absolute" />}
-                            {previewUrl && <img 
-                                key={previewUrl} // Force re-render on URL change
-                                src={previewUrl} 
-                                alt="Progeny Preview" 
-                                className="max-w-full max-h-full object-contain"
-                                onError={() => setPreviewUrl(null)} // Handle broken image links
-                            />}
-                            {!previewUrl && !isLoading && <p>No preview available.</p>}
+                            {isLoading && (
+                                <Loader2 className="animate-spin absolute" />
+                            )}
+                            {previewUrl && (
+                                <img
+                                    key={previewUrl} // Force re-render on URL change
+                                    src={previewUrl}
+                                    alt="Progeny Preview"
+                                    className="max-w-full max-h-full object-contain"
+                                    onError={() => setPreviewUrl(null)} // Handle broken image links
+                                />
+                            )}
+                            {!previewUrl && !isLoading && (
+                                <p>No preview available.</p>
+                            )}
                         </div>
                     </div>
                 )}
                 <div className="flex justify-end pt-4">
-                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading || isCrossBreed} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                    <Button
+                        onClick={() => setShowSaveDialog(true)}
+                        disabled={!outcomes || isLoading || isCrossBreed}
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                    >
                         Save as Goal
                     </Button>
                 </div>
-                <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} >
+                <AlertDialog
+                    open={showSaveDialog}
+                    onOpenChange={setShowSaveDialog}
+                >
                     <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300">
                                 Save as New Research Goal
                             </AlertDialogTitle>
                             <AlertDialogDescription className="text-dusk-purple dark:text-purple-400">
-                                Enter a name for this new goal. It will be created with the currently selected genes and assigned to this breeding pair.
+                                Enter a name for this new goal. It will be
+                                created with the currently selected genes and
+                                assigned to this breeding pair.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="py-2">
@@ -300,9 +364,9 @@ export function ViewOutcomesDialog({
                             >
                                 Goal Name
                             </Label>
-                            <Input 
-                                id="goal-name" 
-                                value={newGoalName} 
+                            <Input
+                                id="goal-name"
+                                value={newGoalName}
                                 onChange={(e) => setNewGoalName(e.target.value)}
                                 placeholder="e.g., Perfect Cielarka"
                                 className="bg-barely-lilac dark:bg-midnight-purple mt-1"
@@ -310,8 +374,16 @@ export function ViewOutcomesDialog({
                         </div>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleSaveAsGoal} disabled={isSavingGoal || !newGoalName.trim()} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
-                                {isSavingGoal ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Goal"}
+                            <AlertDialogAction
+                                onClick={handleSaveAsGoal}
+                                disabled={isSavingGoal || !newGoalName.trim()}
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                            >
+                                {isSavingGoal ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    "Save Goal"
+                                )}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

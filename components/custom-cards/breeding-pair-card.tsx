@@ -492,9 +492,7 @@ export function BreedingPairCard({
                                                 }`}
                                             >
                                                 {g.isPossible
-                                                    ? `${Math.round(
-                                                          g.averageChance * 100
-                                                      )}%`
+                                                    ? `${(g.averageChance * 100).toFixed(2)}%`
                                                     : "Impossible"}
                                             </div>
                                         </li>

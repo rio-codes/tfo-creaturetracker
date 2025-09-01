@@ -183,10 +183,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     };
 
     return (
-        <div
-            className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center"
-            onClick={handleClose}
-        >
+        <div className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center">
             <div
                 className="bg-barely-lilac dark:bg-pompaca-purple rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}

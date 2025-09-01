@@ -367,7 +367,10 @@ export function BreedingPairCard({
                                                                 <Info className="h-4 w-4" />
                                                             </Button>
                                                         </DialogTrigger>
-                                                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                                                        <DialogContent
+                                                            onPointerDownOutside={(e) => e.preventDefault()}
+                                                            className="bg-barely-lilac dark:bg-pompaca-purple"
+                                                        >
                                                             <DialogHeader>
                                                                 <DialogTitle>
                                                                     {p.creatureName ||

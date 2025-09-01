@@ -38,7 +38,10 @@ export function InfoDisplay({ trigger, content, tooltipClassName, dialogClassNam
             <div className="md:hidden inline-flex">
                 <Dialog>
                     <DialogTrigger asChild>{trigger}</DialogTrigger>
-                    <DialogContent className={`bg-barely-lilac dark:bg-pompaca-purple ${dialogClassName}`}>
+                    <DialogContent
+                        onPointerDownOutside={(e) => e.preventDefault()}
+                        className={`bg-barely-lilac dark:bg-pompaca-purple ${dialogClassName}`}
+                    >
                         <div className="p-4 text-pompaca-purple">{content}</div>
                     </DialogContent>
                 </Dialog>

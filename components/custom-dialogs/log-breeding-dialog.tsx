@@ -27,7 +27,10 @@ export function LogBreedingDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+            <DialogContent
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="bg-barely-lilac dark:bg-pompaca-purple"
+            >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                         Log New Breeding Event

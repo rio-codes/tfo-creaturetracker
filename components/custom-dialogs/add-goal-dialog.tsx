@@ -20,7 +20,10 @@ export function AddGoalDialog() {
                     + New Goal
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto">
+            <DialogContent
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto"
+            >
                 <DialogHeader>
                     <DialogTitle>Create New Research Goal</DialogTitle>
                 </DialogHeader>

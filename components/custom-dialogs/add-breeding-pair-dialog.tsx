@@ -48,7 +48,10 @@ export function AddBreedingPairDialog({
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto">
+            <DialogContent
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto"
+            >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                         Create New Breeding Pair

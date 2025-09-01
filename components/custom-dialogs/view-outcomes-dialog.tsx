@@ -10,6 +10,7 @@ import {
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -49,7 +50,10 @@ type OutcomesByCategory = {
  * Using JSON.stringify() is unreliable because the order of keys is not guaranteed.
  * This function checks for equality regardless of key order.
  */
-function areGenotypesEqual(obj1: { [key: string]: string }, obj2: { [key: string]: string }): boolean {
+function areGenotypesEqual(
+    obj1: { [key: string]: string },
+    obj2: { [key: string]: string }
+): boolean {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
 
@@ -74,14 +78,20 @@ export function ViewOutcomesDialog({
     const [outcomes, setOutcomes] = useState<OutcomesByCategory | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     // Holds the "canonical" URL for the most-likely outcome for this dialog session. Starts null.
-    const [defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(null);
+    const [defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(
+        null
+    );
     // Holds the currently displayed URL, which can change based on selection. Starts null.
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [selectedGenotypes, setSelectedGenotypes] = useState<{ [key: string]: string }>({});
+    const [selectedGenotypes, setSelectedGenotypes] = useState<{
+        [key: string]: string;
+    }>({});
     const [showSaveDialog, setShowSaveDialog] = useState(false);
     const [newGoalName, setNewGoalName] = useState("");
     const [isSavingGoal, setIsSavingGoal] = useState(false);
-    const [possibleOffspringSpecies, setPossibleOffspringSpecies] = useState<string[]>([]);
+    const [possibleOffspringSpecies, setPossibleOffspringSpecies] = useState<
+        string[]
+    >([]);
 
     const isCrossBreed = useMemo(() => {
         return pair.maleParent?.species !== pair.femaleParent?.species;
@@ -92,11 +102,14 @@ export function ViewOutcomesDialog({
         async (genotypes: { [key: string]: string }) => {
             setIsLoading(true);
             try {
-                const response = await fetch(`/api/breeding-pairs/${pair.id}/outcomes-preview`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ selectedGenotypes: genotypes }),
-                });
+                const response = await fetch(
+                    `/api/breeding-pairs/${pair.id}/outcomes-preview`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ selectedGenotypes: genotypes }),
+                    }
+                );
                 if (response.ok) {
                     const data = await response.json();
                     const newUrl = `${data.imageUrl}?v=${new Date().getTime()}`;
@@ -120,9 +133,9 @@ export function ViewOutcomesDialog({
         }
         setIsSavingGoal(true);
         try {
-            const response = await fetch('/api/research-goals/from-outcomes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("/api/research-goals/from-outcomes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     pairId: pair.id,
                     goalName: newGoalName,
@@ -132,7 +145,7 @@ export function ViewOutcomesDialog({
             });
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Failed to save goal.');
+                throw new Error(data.error || "Failed to save goal.");
             }
             router.refresh();
             setIsOpen(false); // Close the main outcomes dialog
@@ -161,7 +174,10 @@ export function ViewOutcomesDialog({
             return;
         }
 
-        const offspringSpecies = getPossibleOffspringSpecies(pair.maleParent!.species!, pair.femaleParent!.species!);
+        const offspringSpecies = getPossibleOffspringSpecies(
+            pair.maleParent!.species!,
+            pair.femaleParent!.species!
+        );
         setPossibleOffspringSpecies(offspringSpecies);
         if (isCrossBreed) {
             return; // For cross-breeds, we don't fetch detailed outcomes yet.
@@ -172,20 +188,26 @@ export function ViewOutcomesDialog({
             const fetchInitialData = async () => {
                 setIsLoading(true);
                 try {
-                    const outcomesResponse = await fetch(`/api/breeding-pairs/${pair.id}/outcomes`);
-                    if (!outcomesResponse.ok) throw new Error("Failed to fetch outcomes.");
-                    
+                    const outcomesResponse = await fetch(
+                        `/api/breeding-pairs/${pair.id}/outcomes`
+                    );
+                    if (!outcomesResponse.ok)
+                        throw new Error("Failed to fetch outcomes.");
+
                     const data = await outcomesResponse.json();
                     setOutcomes(data.outcomes);
 
                     const initialSelections: { [key: string]: string } = {};
                     for (const category in data.outcomes) {
-                        initialSelections[category] = data.outcomes[category][0].genotype;
+                        initialSelections[category] =
+                            data.outcomes[category][0].genotype;
                     }
                     setSelectedGenotypes(initialSelections);
 
                     // Fetch the initial preview for the most likely outcomes
-                    const initialUrl = await updatePreviewImage(initialSelections);
+                    const initialUrl = await updatePreviewImage(
+                        initialSelections
+                    );
                     if (initialUrl) {
                         setDefaultPreviewUrl(initialUrl);
                     }
@@ -196,7 +218,7 @@ export function ViewOutcomesDialog({
                 }
             };
             fetchInitialData();
-        } 
+        }
     }, [isOpen, pair, outcomes, isCrossBreed, updatePreviewImage]);
 
     useEffect(() => {
@@ -209,7 +231,7 @@ export function ViewOutcomesDialog({
         if (areGenotypesEqual(selectedGenotypes, mostLikelyGenotypes)) {
             setPreviewUrl(defaultPreviewUrl);
             return;
-        };
+        }
 
         // This is the logic that runs every time a select box is changed.
         const handler = setTimeout(() => {
@@ -217,12 +239,20 @@ export function ViewOutcomesDialog({
         }, 500);
 
         return () => clearTimeout(handler);
-    }, [selectedGenotypes, mostLikelyGenotypes, defaultPreviewUrl, updatePreviewImage]);
+    }, [
+        selectedGenotypes,
+        mostLikelyGenotypes,
+        defaultPreviewUrl,
+        updatePreviewImage,
+    ]);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto">
+            <DialogContent
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto"
+            >
                 <DialogHeader>
                     <DialogTitle>
                         Possible Outcomes for {pair.pairName}
@@ -264,16 +294,13 @@ export function ViewOutcomesDialog({
                                             </Label>
                                             <Select
                                                 value={
-                                                    selectedGenotypes[
-                                                        category
-                                                    ]
+                                                    selectedGenotypes[category]
                                                 }
                                                 onValueChange={(value) =>
                                                     setSelectedGenotypes(
                                                         (prev) => ({
                                                             ...prev,
-                                                            [category]:
-                                                                value,
+                                                            [category]: value,
                                                         })
                                                     )
                                                 }
@@ -283,26 +310,29 @@ export function ViewOutcomesDialog({
                                                         placeholder={`Select ${category}...`}
                                                     />
                                                 </SelectTrigger>
-                                                <SelectContent position="item-aligned" className="w-max bg-ebena-lavender dark:bg-midnight-purple text-xs">
+                                                <SelectContent
+                                                    position="item-aligned"
+                                                    className="w-max bg-ebena-lavender dark:bg-midnight-purple text-xs"
+                                                >
                                                     {categoryOutcomes.map(
                                                         (o) => (
                                                             <SelectItem
-                                                                key={
-                                                                    o.genotype
-                                                                }
+                                                                key={o.genotype}
                                                                 value={
                                                                     o.genotype
                                                                 }
                                                                 className="text-xs"
                                                             >
-                                                                {
-                                                                    o.phenotype
-                                                                }{" "}
-                                                                (
-                                                                {o.genotype}
-                                                                ) -{" "}
+                                                                {o.phenotype} (
+                                                                {o.genotype}) -{" "}
                                                                 <span className="font-semibold">
-                                                                    {(o.probability * 100).toFixed(2)}%
+                                                                    {(
+                                                                        o.probability *
+                                                                        100
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
                                                                 </span>
                                                             </SelectItem>
                                                         )
@@ -332,7 +362,14 @@ export function ViewOutcomesDialog({
                         </div>
                     </div>
                 )}
-                <div className="flex justify-end pt-4">
+                <DialogFooter className="pt-4 sm:justify-end">
+                    <Button
+                        variant="ghost"
+                        onClick={() => setIsOpen(false)}
+                        className="text-dusk-purple dark:text-purple-400"
+                    >
+                        Close
+                    </Button>
                     <Button
                         onClick={() => setShowSaveDialog(true)}
                         disabled={!outcomes || isLoading || isCrossBreed}
@@ -340,7 +377,7 @@ export function ViewOutcomesDialog({
                     >
                         Save as Goal
                     </Button>
-                </div>
+                </DialogFooter>
                 <AlertDialog
                     open={showSaveDialog}
                     onOpenChange={setShowSaveDialog}

@@ -29,9 +29,13 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         const validated = createCreatureSchema.safeParse(body);
+        const validatedError = "Could not create creature: " + z.flattenError(validated.error).fieldErrors.toString();
+        console.error(validatedError);
+        Sentry.captureException(validatedError);
+
 
         if (!validated.success) {
-            return NextResponse.json({ error: "Invalid input.", details: validated.error.flatten() }, { status: 400 });
+            return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
         const { creatureName, creatureCode, species, genes } = validated.data;

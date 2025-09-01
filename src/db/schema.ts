@@ -1,17 +1,7 @@
-import {
-    pgTable,
-    text,
-    integer,
-    boolean,
-    timestamp,
-    jsonb,
-    pgEnum,
-    uniqueIndex,
-    primaryKey,
-    index,
-} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { AdapterAccount } from "@auth/core/adapters";
+import { timestamp, pgTable, text, primaryKey, integer, boolean, serial, jsonb, uniqueIndex, pgEnum, index } from "drizzle-orm/pg-core";
+
 
 export const goalModeEnum = pgEnum("goal_mode", ["genotype", "phenotype"]);
 export const userStatusEnum = pgEnum("user_status", ["active", "suspended"]);
@@ -292,4 +282,27 @@ export const achievedGoals = pgTable(
             table.matchingProgenyId
         ),
     })
+);
+
+export const userTabs = pgTable(
+    "user_tabs",
+    {
+        id: serial("id").primaryKey(),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        tabId: integer("tab_id").notNull(),
+        tabName: text("tab_name"),
+        isSyncEnabled: boolean("is_sync_enabled").default(true).notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            userTabUnique: uniqueIndex("user_tab_unique_idx").on(
+                table.userId,
+                table.tabId
+            ),
+        };
+    }
 );

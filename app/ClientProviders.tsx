@@ -28,7 +28,7 @@ export default function ClientProviders({
     return (
         <SessionProvider>
             {showHeader && <Header />}
-            <main className="flex-1 isolation-auto">
+            <main className="flex flex-col flex-1 isolation-auto">
                 <div className="z-50 object-center"><Alert /></div>
                 {children}
             </main>

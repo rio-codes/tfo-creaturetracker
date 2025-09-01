@@ -331,7 +331,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                     placeholder="Goal Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-ebena-lavender dark:bg-slate-800"
+                    className="bg-ebena-lavender dark:bg-midnight-purple"
                     required
                 />
             </div>
@@ -346,11 +346,11 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 >
                     <SelectTrigger
                         id="species-select"
-                        className="w-full bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
+                        className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
                     >
                         <SelectValue placeholder="Species Name" />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
+                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                         {speciesList.map((s) => (
                             <SelectItem
                                 key={s}
@@ -363,7 +363,7 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                 </Select>
             </div>
             {species && (
-                <div className="flex min-h-0 flex-col space-y-4 rounded-md border bg-ebena-lavender dark:bg-slate-800 p-4">
+                <div className="flex min-h-0 flex-col space-y-4 rounded-md border bg-ebena-lavender dark:bg-midnight-purple p-4">
                     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1">
                         <Label className="font-bold text-pompaca-purple col-span-2">Target Genes</Label>
                         <Label className="font-bold text-pompaca-purple text-xs justify-self-center">Optional</Label>
@@ -388,12 +388,12 @@ export function GoalForm({ goal, onSuccess }: GoalFormProps) {
                                                 handleGeneChange(category, value)
                                             }
                                         >
-                                            <SelectTrigger className="w-full bg-barely-lilac dark:bg-slate-700">
+                                            <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
                                                 <SelectValue
                                                     placeholder={`Select ${category}...`}
                                                 />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender dark:bg-slate-700">
+                                            <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
                                                 {options.map((option) => (
                                                     <SelectItem
                                                         key={option.value}

@@ -179,7 +179,7 @@ export function SettingsForm({
         <>
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Account Settings Section */}
-                <div className="p-6 bg-ebena-lavender rounded-lg border border-pompaca-purple/50 text-pompaca-purple">
+                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
                     <h2 className="text-2xl font-bold mb-4">Account</h2>
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -189,7 +189,7 @@ export function SettingsForm({
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                                 required
                             />
                         </div>
@@ -204,7 +204,7 @@ export function SettingsForm({
                                         setPassword(e.target.value)
                                     }
                                     placeholder="Leave blank to keep current"
-                                    className="bg-ebena-lavender"
+                                    className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -218,7 +218,7 @@ export function SettingsForm({
                                     onChange={(e) =>
                                         setConfirmPassword(e.target.value)
                                     }
-                                    className="bg-ebena-lavender"
+                                    className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
                         </div>
@@ -226,7 +226,7 @@ export function SettingsForm({
                 </div>
 
                 {/* Preferences Section */}
-                <div className="p-6 bg-ebena-lavender rounded-lg border border-pompaca-purple/50 text-pompaca-purple">
+                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
                     <h2 className="text-2xl font-bold text-pompaca-purple mb-4">
                         Preferences
                     </h2>
@@ -268,7 +268,7 @@ export function SettingsForm({
                                 } 
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
@@ -287,7 +287,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
@@ -306,7 +306,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                     </div>
@@ -335,9 +335,9 @@ export function SettingsForm({
                 open={isConversionDialogOpen}
                 onOpenChange={setIsConversionDialogOpen}
             >
-                <DialogContent className="bg-barely-lilac">
+                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <DialogHeader>
-                        <DialogTitle className="text-pompaca-purple">
+                        <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                             Resolve Ambiguous Goals
                         </DialogTitle>
                     </DialogHeader>
@@ -346,9 +346,9 @@ export function SettingsForm({
                         {goalsToConvert.map((goal) => (
                             <div
                                 key={goal.id}
-                                className="p-4 border rounded-md bg-ebena-lavender"
+                                className="p-4 border rounded-md bg-ebena-lavender dark:bg-midnight-purple"
                             >
-                                <h3 className="font-bold text-pompaca-purple">
+                                <h3 className="font-bold text-pompaca-purple dark:text-purple-300">
                                     {goal.name}
                                 </h3>
                                 {goal.ambiguousCategories.map((cat: any) => (
@@ -367,10 +367,10 @@ export function SettingsForm({
                                                 )
                                             }
                                         >
-                                            <SelectTrigger className="bg-ebena-lavender">
+                                            <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                                                 <SelectValue placeholder="Select a specific genotype..." />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender">
+                                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                                                 {cat.options.map((opt: any) => (
                                                     <SelectItem
                                                         key={opt.genotype}

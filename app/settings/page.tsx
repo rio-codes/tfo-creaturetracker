@@ -18,9 +18,9 @@ export default async function SettingsPage() {
     ]);
 
     return (
-        <div className="bg-barely-lilac min-h-screen">
-            <div className="container mx-auto max-w-3xl px-4 py-8">
-                <h1 className="text-4xl font-bold text-pompaca-purple mb-8">
+        <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
+            <div className="container mx-auto py-10">
+                <h1 className="text-4xl font-bold mb-6 text-pompaca-purple dark:text-purple-300">
                     Settings
                 </h1>
                 <SettingsForm user={user} goals={allGoals} />

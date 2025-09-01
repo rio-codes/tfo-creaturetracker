@@ -18,14 +18,6 @@ const config = {
       },
     },
     extend: {
-      colors: {
-        'pompaca-purple': '#5E4B8A',
-        'dusk-purple': '#8C7DA5',
-        'ebena-lavender': '#E6E1F2',
-        'barely-lilac': '#F2F0F7',
-        'dna-magenta': '#FF00FF',
-        'dna-teal': '#00FFFF',
-      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

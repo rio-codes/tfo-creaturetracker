@@ -82,7 +82,7 @@ export function CreatureCard({
     };
 
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
             <div className="absolute top-1 right-1 z-10">
                 <Button
                     variant="ghost"
@@ -93,9 +93,9 @@ export function CreatureCard({
                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
                     {isPinned ? (
-                        <Pin className="h-5 w-5 text-pompaca-purple fill-pompaca-purple" />
+                        <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
                     ) : (
-                        <PinOff className="h-5 w-5 text-dusk-purple" />
+                        <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
                     )}
                 </Button>
             </div>
@@ -125,14 +125,14 @@ export function CreatureCard({
                 <div className="h-5">
                     <strong>Genotype:</strong>
                 </div>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
-                    <div className="text-sm text-card-foreground space-y-1 ">
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
+                    <div className="text-sm space-y-1 ">
                         <div className="whitespace-pre-line pr-4">
                             {creature!.geneData ? (
-                                <div className="pl-2 text-dusk-purple text-xs font-mono mt-1 space-y-1">
+                                <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
                                     {creature!.geneData.map((gene) => (
                                         <div key={gene!.category}>
-                                            <span className="font-bold text-pompaca-purple">
+                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
                                                 {gene!.category}:
                                             </span>
                                             <div className="pl-2">
@@ -166,7 +166,7 @@ export function CreatureCard({
                         allPairs={allPairs}
                         allGoals={allGoals}
                     >
-                        <Button className="bg-pompaca-purple text-barely-lilac w-30 h-16">
+                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-30 h-16">
                             <span className="text-wrap wrap-normal text-sm/tight">
                                 Manage Breeding Pairs
                             </span>
@@ -174,7 +174,7 @@ export function CreatureCard({
                     </ManageBreedingPairsDialog>
                     <Button
                         onClick={handleRemoveFromCollection}
-                        className="bg-pompaca-purple text-barely-lilac w-30 h-16"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-30 h-16"
                     >
                         {isDeleting ? (
                             <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
@@ -191,7 +191,7 @@ export function CreatureCard({
                     <Link
                         href={`https://finaloutpost.net/view/${creature!.code}`}
                     >
-                        <span className="mt-3 text-md font-semibold text-dusk-purple text-center py-5">
+                        <span className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-5">
                             View on TFO
                         </span>
                     </Link>

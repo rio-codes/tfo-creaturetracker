@@ -54,7 +54,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
             {/* Goal Mode Badge */}
             <div className="absolute top-2 left-2 z-10">
                 <InfoDisplay
@@ -120,7 +120,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                 </div>
                 {/* Goal Details in Scrollable Area */}
                 <strong>Target Genes:</strong>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-slate-800/50">
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
                     <div className="text-sm text-card-foreground space-y-1">
                         <div className="whitespace-pre-line pr-4">
                             {geneEntries.length > 0 ? (

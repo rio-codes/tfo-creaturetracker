@@ -24,7 +24,7 @@ export function PredictionsAccordion({
 }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
-            <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-slate-900/50 rounded-lg">
+            <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
                 <h3 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300">
                     No Assigned Pairs Found
                 </h3>
@@ -51,7 +51,7 @@ export function PredictionsAccordion({
                 <AccordionItem
                     key={p.pairId}
                     value={`item-${index}`}
-                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-slate-900"
+                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple"
                 >
                     <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
@@ -110,7 +110,7 @@ export function PredictionsAccordion({
                     </AccordionTrigger>
 
                     {/* Expanded, "deep-dive" view - remains the same */}
-                    <AccordionContent className="p-6 bg-barely-lilac dark:bg-slate-800 border-t border-pompaca-purple/30">
+                    <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
                             {Object.entries(p.chancesByCategory || {}).map(
                                 ([category, chance]) => (

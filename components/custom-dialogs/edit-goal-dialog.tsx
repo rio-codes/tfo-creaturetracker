@@ -25,7 +25,7 @@ export function EditGoalDialog({ goal }: EditGoalDialogProps) {
                     </span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-slate-900 max-h-3/4 overflow-y-auto">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Edit Research Goal</DialogTitle>
                 </DialogHeader>

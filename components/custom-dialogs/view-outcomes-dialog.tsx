@@ -208,12 +208,12 @@ export function ViewOutcomesDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-slate-900 max-w-screen-lg w-2/3 max-h-[85vh] flex flex-col">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-screen-lg w-2/3 max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300">
                 <DialogHeader>
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
-                    <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-slate-800/50 p-4">
+                    <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
                         <div className="space-y-4">
                             {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
                             {outcomes && Object.entries(outcomes).map(([category, categoryOutcomes]) => (
@@ -223,10 +223,10 @@ export function ViewOutcomesDialog({
                                         value={selectedGenotypes[category]}
                                         onValueChange={(value) => setSelectedGenotypes(prev => ({ ...prev, [category]: value }))}
                                     >
-                                        <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-slate-800 px-1 text-xs">
+                                        <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
                                             <SelectValue placeholder={`Select ${category}...`} />
                                         </SelectTrigger>
-                                        <SelectContent className="w-55 bg-ebena-lavender dark:bg-slate-800 text-xs">
+                                        <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
                                             {categoryOutcomes.map(o => (
                                                 <SelectItem key={o.genotype} value={o.genotype} className="w-55 text-xs">
                                                     {o.phenotype} ({o.genotype}) - <span className="font-semibold">{Math.round(o.probability * 100)}%</span>
@@ -239,7 +239,7 @@ export function ViewOutcomesDialog({
                         </div>
                         <ScrollBar orientation="vertical" />
                     </ScrollArea>
-                    <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-slate-800/50 relative">
+                    <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
                         {isLoading && <Loader2 className="animate-spin absolute" />}
                         {previewUrl && <img 
                             key={previewUrl} // Force re-render on URL change
@@ -257,21 +257,28 @@ export function ViewOutcomesDialog({
                     </Button>
                 </div>
                 <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} >
-                    <AlertDialogContent className="bg-barely-lilac">
+                    <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                         <AlertDialogHeader>
-                            <AlertDialogTitle>Save as New Research Goal</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300">
+                                Save as New Research Goal
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-dusk-purple dark:text-purple-400">
                                 Enter a name for this new goal. It will be created with the currently selected genes and assigned to this breeding pair.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="py-2">
-                            <Label htmlFor="goal-name" className="text-pompaca-purple">Goal Name</Label>
+                            <Label
+                                htmlFor="goal-name"
+                                className="text-pompaca-purple dark:text-purple-300"
+                            >
+                                Goal Name
+                            </Label>
                             <Input 
                                 id="goal-name" 
                                 value={newGoalName} 
                                 onChange={(e) => setNewGoalName(e.target.value)}
                                 placeholder="e.g., Perfect Cielarka"
-                                className="bg-ebena-lavender dark:bg-slate-800 mt-1"
+                                className="bg-barely-lilac dark:bg-midnight-purple mt-1"
                             />
                         </div>
                         <AlertDialogFooter>

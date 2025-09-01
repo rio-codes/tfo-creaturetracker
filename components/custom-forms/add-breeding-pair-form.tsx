@@ -205,7 +205,7 @@ export function AddPairForm({
                 placeholder="Pair Name (e.g., Silver Project)"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender text-pompaca-purple"
+                className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple"
                 required
             />
             {isInbred && (
@@ -219,7 +219,7 @@ export function AddPairForm({
 
             {/* Pair Preview */}
             {(selectedMale || selectedFemale) && (
-                <div className="flex justify-center items-center gap-2 mt-4 p-4 bg-ebena-lavender/50 rounded-lg border">
+                <div className="flex justify-center items-center gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
                     {selectedMale && (
                         <img src={selectedMale.imageUrl} alt={selectedMale.code} className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg" />
                     )}
@@ -239,15 +239,14 @@ export function AddPairForm({
                 onValueChange={handleSpeciesChange}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Species..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender">
+                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {availableSpecies.map((species) => (
                         <SelectItem
                             key={species}
                             value={species!}
-                            className="bg-ebena-lavender"
                         >
                             {species}
                         </SelectItem>
@@ -262,15 +261,14 @@ export function AddPairForm({
                 required
                 disabled={!selectedSpecies}
             >
-                <SelectTrigger className="bg-ebena-lavender">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender">
+                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {males.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-ebena-lavender"
                         >
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
@@ -283,15 +281,14 @@ export function AddPairForm({
                 required
                 disabled={!selectedSpecies}
             >
-                <SelectTrigger className="bg-ebena-lavender">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender">
+                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {females.map((c) => (
                         <SelectItem
                             key={c?.id}
                             value={c!.id}
-                            className="bg-ebena-lavender"
                         >
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
@@ -306,7 +303,7 @@ export function AddPairForm({
                 </div>
             )}
             {predictions.length > 0 && (
-                <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender">
+                <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple">
                     <h5 className="font-bold">
                         Goal Predictions for this Pairing:
                     </h5>
@@ -341,7 +338,7 @@ export function AddPairForm({
             {goals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
                         {goals.map((goal) => (
                             <div
                                 key={goal?.id}

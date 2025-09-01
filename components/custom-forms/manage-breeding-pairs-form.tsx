@@ -179,7 +179,7 @@ export function ManageBreedingPairsForm({
                         existingPairs.map((pair) => (
                             <div
                                 key={pair!.id}
-                                className="flex items-center justify-between bg-ebena-lavender dark:bg-slate-800 p-2 rounded-md"
+                                className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple p-2 rounded-md"
                             >
                                 <span>{pair!.pairName}</span>
                                 <Button
@@ -210,17 +210,17 @@ export function ManageBreedingPairsForm({
                         placeholder="New Pair Name (Optional)"
                         value={newPairName}
                         onChange={(e) => setNewPairName(e.target.value)}
-                        className="bg-ebena-lavender dark:bg-slate-800"
+                        className="bg-ebena-lavender dark:bg-midnight-purple"
                     />
                     <Select
                         value={selectedMateId}
                         onValueChange={setSelectedMateId}
                         required
                     >
-                        <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
+                        <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                             <SelectValue placeholder="Select a mate..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
+                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
                                     <SelectItem
@@ -245,7 +245,7 @@ export function ManageBreedingPairsForm({
                         </div>
                     )}
                     {predictions.length > 0 && (
-                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-slate-800">
+                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple">
                             <h5 className="font-bold">
                                 Goal Predictions for this Pairing:
                             </h5>

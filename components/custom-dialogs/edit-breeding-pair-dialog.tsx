@@ -34,9 +34,9 @@ export function EditBreedingPairDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                         Edit Breeding Pair
                     </DialogTitle>
                 </DialogHeader>

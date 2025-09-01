@@ -58,7 +58,7 @@ export function AssignPairDialog({
     return (
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-slate-900">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                         Assign Pairs to Goal: {goal?.name}
@@ -73,7 +73,7 @@ export function AssignPairDialog({
                         return (
                             <div
                                 key={p.pairId}
-                                className="flex items-center justify-between p-3 rounded-md bg-ebena-lavender dark:bg-slate-800 border border-pompaca-purple/20"
+                                className="flex items-center justify-between p-3 rounded-md bg-ebena-lavender dark:bg-midnight-purple border border-pompaca-purple/20"
                             >
                                 <div className="flex items-center space-x-3">
                                     <Checkbox

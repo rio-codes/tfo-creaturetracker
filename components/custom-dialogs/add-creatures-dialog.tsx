@@ -78,7 +78,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             onClick={handleClose}
         >
             <div
-                className="bg-barely-lilac dark:bg-slate-900 rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
+                className="bg-barely-lilac dark:bg-pompaca-purple rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center">
@@ -126,7 +126,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                         value={tabId}
                         onChange={(e) => setTabId(e.target.value)}
                         placeholder="e.g., 12345"
-                        className="mt-2 bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                        className="mt-2 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                     />
                 </div>
 

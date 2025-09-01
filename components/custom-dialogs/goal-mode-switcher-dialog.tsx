@@ -167,7 +167,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                         </>
                     }
                 />
-                <AlertDialogContent className="bg-barely-lilac dark:bg-slate-900">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             Switch to {newMode} mode?
@@ -198,7 +198,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                 open={isConversionDialogOpen}
                 onOpenChange={setIsConversionDialogOpen}
             >
-                <DialogContent className="bg-barely-lilac dark:bg-slate-900">
+                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <DialogHeader>
                         <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                             Resolve Ambiguous Genes
@@ -222,10 +222,10 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                                         }))
                                     }
                                 >
-                                    <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
+                                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                         <SelectValue placeholder="Select a specific genotype..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
+                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                         {cat.options?.map((opt: any) => (
                                             <SelectItem
                                                 key={opt.genotype}

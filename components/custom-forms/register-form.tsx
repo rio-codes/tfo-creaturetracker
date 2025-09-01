@@ -53,7 +53,7 @@ export default function RegisterForm() {
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-slate-900 border-pompaca-purple dark:border-purple-400 shadow-lg">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple dark:border-purple-400 shadow-lg">
         <CardHeader className="text-center">
             <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">Create Account</CardTitle>
             <CardDescription className="text-pompaca-purple dark:text-purple-400">Join and track your breeding goals</CardDescription>
@@ -69,7 +69,7 @@ export default function RegisterForm() {
                 <Input
                 id="email" type="email" placeholder="you@example.com"
                 value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="space-y-2">
@@ -77,7 +77,7 @@ export default function RegisterForm() {
                 <Input
                 id="username" type="text" placeholder="your TFO username"
                 value={username} onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="space-y-2">
@@ -85,7 +85,7 @@ export default function RegisterForm() {
                 <Input
                 id="password" type="password" placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="flex items-center space-x-2">

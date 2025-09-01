@@ -146,7 +146,7 @@ export function EditBreedingPairForm({
                 placeholder="Pair Name"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender dark:bg-slate-800"
+                className="bg-ebena-lavender dark:bg-midnight-purple"
                 required
             />
 
@@ -194,10 +194,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "male"}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
+                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {males.map((c) => (
                         <SelectItem
                             key={c?.id}
@@ -214,10 +214,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "female"}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
+                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {females.map((c) => (
                         <SelectItem
                             key={c?.id}
@@ -232,7 +232,7 @@ export function EditBreedingPairForm({
             {goals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-slate-800">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
                         {goals.map((goal) => (
                             <div
                                 key={goal?.id}

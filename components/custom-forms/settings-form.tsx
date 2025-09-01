@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ export function SettingsForm({
     const router = useRouter();
     const { update: updateSession } = useSession();
 
+    const [mounted, setMounted] = useState(false);
     const { theme, setTheme } = useTheme();
     // Form state
     const [email, setEmail] = useState(user.email);
@@ -52,6 +53,11 @@ export function SettingsForm({
     const [conversionSelections, setConversionSelections] = useState<{
         [key: string]: any;
     }>({});
+
+    // useEffect only runs on the client, so now we can safely show the UI
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -145,7 +151,8 @@ export function SettingsForm({
     const saveSettings = async (goalConversions?: any) => {
         setIsLoading(true);
         try {
-            const payload: any = {
+            const payload: any = { // Add theme to the payload
+                theme,
                 goalMode,
                 collectionItemsPerPage: collectionItems,
                 goalsItemsPerPage: goalsItems,
@@ -232,24 +239,28 @@ export function SettingsForm({
                     </h2>
                     <div className="space-y-2 mb-6">
                         <Label className="text-lg">Theme</Label>
-                        <RadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                            className="flex space-x-4"
-                        >
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="light" id="light" />
-                                <Label htmlFor="light" className="font-normal">Light</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="dark" id="dark" />
-                                <Label htmlFor="dark" className="font-normal">Dark</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="system" id="system" />
-                                <Label htmlFor="system" className="font-normal">System</Label>
-                            </div>
-                        </RadioGroup>
+                        {!mounted ? (
+                            <div className="h-10 w-full animate-pulse rounded-md bg-pompaca-purple/20" />
+                        ) : (
+                            <RadioGroup
+                                value={theme}
+                                onValueChange={setTheme}
+                                className="flex space-x-4"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="light" id="light" />
+                                    <Label htmlFor="light" className="font-normal">Light</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="dark" id="dark" />
+                                    <Label htmlFor="dark" className="font-normal">Dark</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="system" id="system" />
+                                    <Label htmlFor="system" className="font-normal">System</Label>
+                                </div>
+                            </RadioGroup>
+                        )}
                     </div>
                     <div className="space-y-4">
                         <div className="space-y-2">

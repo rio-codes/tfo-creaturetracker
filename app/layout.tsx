@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Tektur } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "./ClientProviders";
-import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
     title: "TFO.creaturetracker",
@@ -35,9 +34,7 @@ export default async function RootLayout({
                 />
             </head>
             <body className={`${tektur.className} flex flex-col min-h-screen`}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 <ClientProviders>{children}</ClientProviders>
-                </ThemeProvider>
             </body>
         </html>
     );

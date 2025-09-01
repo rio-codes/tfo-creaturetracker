@@ -80,7 +80,7 @@ export function GoalDetailClient({
             </div>
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="md:col-span-2 bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border">
+                <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
                     <CardContent className="p-6 grid grid-cols-2 gap-6 items-center">
                         <div className="text-lg font-semibold">
                             <span>Species:</span>{" "}
@@ -96,7 +96,7 @@ export function GoalDetailClient({
                             </span>
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 pb-1">
+                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
                                 Genotype
                             </h3>
                             <div className="space-y-1 text-sm">
@@ -113,7 +113,7 @@ export function GoalDetailClient({
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 pb-1">
+                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
                                 Phenotype
                             </h3>
                             <div className="space-y-1 text-sm">
@@ -131,7 +131,7 @@ export function GoalDetailClient({
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
                     <div className="relative group">
                         <img
                             key={imageUrl}
@@ -181,8 +181,7 @@ export function GoalDetailClient({
                     // If it hasn't (i.e., during the server render), we render a simple placeholder.
                     // This placeholder MUST have a similar structure to the real component's container.
                     <div className="w-full space-y-2">
-                        <div className="h-16 bg-ebena-lavender dark:bg-slate-900 rounded-lg animate-pulse"></div>
-                        <div className="h-16 bg-ebena-lavender dark:bg-slate-900 rounded-lg animate-pulse"></div>
+                        <div className="h-16 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg animate-pulse"></div>
                     </div>
                 )}
             </div>

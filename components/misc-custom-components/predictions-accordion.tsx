@@ -110,7 +110,7 @@ export function PredictionsAccordion({
                     </AccordionTrigger>
 
                     {/* Expanded, "deep-dive" view - remains the same */}
-                    <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30">
+                    <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
                             {Object.entries(p.chancesByCategory || {}).map(
                                 ([category, chance]) => (

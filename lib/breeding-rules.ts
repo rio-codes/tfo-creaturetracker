@@ -25,6 +25,13 @@ export const breedingRules = {
         ["Rida Frakaso", "Osta Frakaso"].sort().join("|"),
         ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"),
         ["Kosmira Girafo", "Tera Girafo"].sort().join("|"),
+        // Back-crosses are compatible and can produce offspring of either parent species.
+        ["Kora Voko", "Nokta Voko"].sort().join("|"),
+        ["Kora Voko", "Tagluma Valso"].sort().join("|"),
+        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"),
+        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"),
+        ["Tonbleko", "Ranbleko"].sort().join("|"),
+        ["Tonbleko", "Glubleko"].sort().join("|"),
     ]),
 
     // Pairs of different species that produce a specific hybrid offspring.
@@ -35,14 +42,7 @@ export const breedingRules = {
     ]),
 
     // Specific pairings that are explicitly disallowed.
-    exceptions: new Set([
-        ["Kora Voko", "Nokta Voko"].sort().join("|"),
-        ["Kora Voko", "Tagluma Valso"].sort().join("|"),
-        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"),
-        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"),
-        ["Tonbleko", "Ranbleko"].sort().join("|"),
-        ["Tonbleko", "Glubleko"].sort().join("|"),
-    ]),
+    exceptions: new Set([]),
 };
 
 export function getPossibleOffspringSpecies(

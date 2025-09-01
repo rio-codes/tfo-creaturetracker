@@ -277,7 +277,7 @@ export function ViewOutcomesDialog({
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
+                    <div className="flex flex-col gap-4">
                         <div className="space-y-4 rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
                             {isLoading && !outcomes ? (
                                 <Loader2 className="animate-spin" />
@@ -343,39 +343,43 @@ export function ViewOutcomesDialog({
                                     )
                                 )}
                         </div>
-                        <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
-                            {isLoading && (
-                                <Loader2 className="animate-spin absolute" />
-                            )}
-                            {previewUrl && (
-                                <img
-                                    key={previewUrl} // Force re-render on URL change
-                                    src={previewUrl}
-                                    alt="Progeny Preview"
-                                    className="max-w-full max-h-full object-contain"
-                                    onError={() => setPreviewUrl(null)} // Handle broken image links
-                                />
-                            )}
-                            {!previewUrl && !isLoading && (
-                                <p>No preview available.</p>
-                            )}
+                        <div className="grid grid-cols-2 gap-4 items-center">
+                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative min-h-[10rem]">
+                                {isLoading && (
+                                    <Loader2 className="animate-spin absolute" />
+                                )}
+                                {previewUrl && (
+                                    <img
+                                        key={previewUrl} // Force re-render on URL change
+                                        src={previewUrl}
+                                        alt="Progeny Preview"
+                                        className="max-w-full max-h-full object-contain"
+                                        onError={() => setPreviewUrl(null)} // Handle broken image links
+                                    />
+                                )}
+                                {!previewUrl && !isLoading && (
+                                    <p>No preview available.</p>
+                                )}
+                            </div>
+                            <div className="flex justify-center">
+                                <Button
+                                    onClick={() => setShowSaveDialog(true)}
+                                    disabled={!outcomes || isLoading || isCrossBreed}
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                >
+                                    Save as Goal
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}
-                <DialogFooter className="pt-4 sm:justify-end">
+                <DialogFooter className="pt-4 sm:justify-start">
                     <Button
                         variant="ghost"
                         onClick={() => setIsOpen(false)}
                         className="text-dusk-purple dark:text-purple-400"
                     >
                         Close
-                    </Button>
-                    <Button
-                        onClick={() => setShowSaveDialog(true)}
-                        disabled={!outcomes || isLoading || isCrossBreed}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                    >
-                        Save as Goal
                     </Button>
                 </DialogFooter>
                 <AlertDialog

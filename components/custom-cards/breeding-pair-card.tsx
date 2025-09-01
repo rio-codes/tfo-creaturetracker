@@ -57,7 +57,6 @@ import {
     ChevronDown,
 } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
-import { getHybridOffspring } from "@/lib/breeding-rules";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
 import { ViewOutcomesDialog } from "../custom-dialogs/view-outcomes-dialog";
 import { InfoDisplay } from "../misc-custom-components/info-display";
@@ -199,10 +198,6 @@ export function BreedingPairCard({
 
     const maleParent = pair!.maleParent;
     const femaleParent = pair!.femaleParent;
-    const hybridSpecies = getHybridOffspring(
-        maleParent!.species!,
-        femaleParent!.species!
-    );
 
     const pairForDialog = { id: pair!.id, species: pair!.species };
     return (

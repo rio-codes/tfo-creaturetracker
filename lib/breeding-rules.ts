@@ -1,4 +1,4 @@
-import type {
+import type { 
     EnrichedCreature,
     DbCreature,
     DbResearchGoal,
@@ -10,28 +10,28 @@ import { enrichAndSerializeGoal } from "./enrichAndSerializeGoal";
 
 export const breedingRules = {
     // Species that cannot breed with anything, including their own kind.
-    incompatible: new Set(["Imsanga Afero"]),
+    incompatible: new Set<string>(["Imsanga Afero"]),
 
     // Pairs of different species that can breed but do not produce a hybrid.
     // The offspring can be of either parent's species.
-    compatible: new Set([
+    compatible: new Set<string>([
         ["Glacia Alsalto", "Silenta Spuristo"].sort().join("|"),
         ["Klara Alsalto", "Silenta Spuristo"].sort().join("|"),
         ["Transira Alsalto", "Silenta Spuristo"].sort().join("|"),
         ["Avka Felo", "Muska Felo"].sort().join("|"),
         ["Luna Hundo", "Suna Hundo"].sort().join("|"),
         ["Furioza Vizago", "Lanuga Vizago"].sort().join("|"),
-        ["Frida Fisisto", "Terura Fisisto"].sort().join("|"),
-        ["Rida Frakaso", "Osta Frakaso"].sort().join("|"),
-        ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"),
-        ["Kosmira Girafo", "Tera Girafo"].sort().join("|"),
+        ["Frida Fisisto", "Terura Fisisto"].sort().join("|"), 
+        ["Rida Frakaso", "Osta Frakaso"].sort().join("|"), 
+        ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"), 
+        ["Kosmira Girafo", "Tera Girafo"].sort().join("|"), 
         // Back-crosses are compatible and can produce offspring of either parent species.
-        ["Kora Voko", "Nokta Voko"].sort().join("|"),
-        ["Kora Voko", "Tagluma Valso"].sort().join("|"),
-        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"),
-        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"),
-        ["Tonbleko", "Ranbleko"].sort().join("|"),
-        ["Tonbleko", "Glubleko"].sort().join("|"),
+        ["Kora Voko", "Nokta Voko"].sort().join("|"), 
+        ["Kora Voko", "Tagluma Valso"].sort().join("|"), 
+        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"), 
+        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"), 
+        ["Tonbleko", "Ranbleko"].sort().join("|"), 
+        ["Tonbleko", "Glubleko"].sort().join("|"), 
     ]),
 
     // Pairs of different species that produce a specific hybrid offspring.
@@ -41,8 +41,8 @@ export const breedingRules = {
         [["Nokta Voko", "Tagluma Valso"].sort().join("|"), "Kora Voko"],
     ]),
 
-    // Specific pairings that are explicitly disallowed.
-    exceptions: new Set([]),
+    // Specific pairings that are explicitly disallowed. 
+    exceptions: new Set<string>([]),
 };
 
 export function getPossibleOffspringSpecies(
@@ -67,11 +67,11 @@ export function getPossibleOffspringSpecies(
 }
 
 export function validatePairing(
-    creatureA: { species?: string | null },
-    creatureB: { species?: string | null }
+    creatureA: { species?: string | null } | null,
+    creatureB: { species?: string | null } | null
 ): { isValid: boolean; error?: string } {
-    const speciesA = creatureA.species;
-    const speciesB = creatureB.species;
+    const speciesA = creatureA?.species;
+    const speciesB = creatureB?.species;
 
     if (!speciesA || !speciesB) {
         return { isValid: false, error: "Parent species is missing." };

@@ -7,67 +7,106 @@ import type {
 } from "@/types";
 import { enrichAndSerializeCreature } from "@/lib/serialization";
 import { enrichAndSerializeGoal } from "./enrichAndSerializeGoal";
-const INCOMPATIBLE_SPECIES = new Set(["Imsanga Afero"]);
 
-const COMPATIBLE_PAIRS = new Set([
-    ["Glacia Alsalto", "Silenta Spuristo"].sort().join("|"),
-    ["Klara Alsalto", "Silenta Spuristo"].sort().join("|"),
-    ["Transira Alsalto", "Silenta Spuristo"].sort().join("|"),
-    ["Avka Felo", "Muska Felo"].sort().join("|"),
-    ["Luna Hundo", "Suna Hundo"].sort().join("|"),
-    ["Furioza Vizago", "Lanuga Vizago"].sort().join("|"),
-    ["Frida Fisisto", "Terura Fisisto"].sort().join("|"),
-    ["Rida Frakaso", "Osta Frakaso"].sort().join("|"),
-    ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"),
-    ["Kosmira Girafo", "Tera Girafo"].sort().join("|"),
-]);
+export const breedingRules = {
+    // Species that cannot breed with anything, including their own kind.
+    incompatible: new Set(["Imsanga Afero"]),
 
-const HYBRID_PAIRS = new Map<string, string>([
-    [["Glacia Alsalto", "Klara Alsalto"].sort().join("|"), "Transira Alsalto"],
-    [["Ranbleko", "Glubleko"].sort().join("|"), "Tonbleko"],
-    [["Nokta Voko", "Tagluma Valso"].sort().join("|"), "Kora Voko"],
-]);
+    // Pairs of different species that can breed but do not produce a hybrid.
+    // The offspring can be of either parent's species.
+    compatible: new Set([
+        ["Glacia Alsalto", "Silenta Spuristo"].sort().join("|"),
+        ["Klara Alsalto", "Silenta Spuristo"].sort().join("|"),
+        ["Transira Alsalto", "Silenta Spuristo"].sort().join("|"),
+        ["Avka Felo", "Muska Felo"].sort().join("|"),
+        ["Luna Hundo", "Suna Hundo"].sort().join("|"),
+        ["Furioza Vizago", "Lanuga Vizago"].sort().join("|"),
+        ["Frida Fisisto", "Terura Fisisto"].sort().join("|"),
+        ["Rida Frakaso", "Osta Frakaso"].sort().join("|"),
+        ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"),
+        ["Kosmira Girafo", "Tera Girafo"].sort().join("|"),
+    ]),
 
-export function validatePairing(
-    creatureA: EnrichedCreature,
-    creatureB: EnrichedCreature
-): { isValid: boolean; error?: string } {
+    // Pairs of different species that produce a specific hybrid offspring.
+    hybrids: new Map<string, string>([
+        [["Glacia Alsalto", "Klara Alsalto"].sort().join("|"), "Transira Alsalto"],
+        [["Ranbleko", "Glubleko"].sort().join("|"), "Tonbleko"],
+        [["Nokta Voko", "Tagluma Valso"].sort().join("|"), "Kora Voko"],
+    ]),
 
-    if (
-        creatureA?.species === "Imsanga Afero" ||
-        creatureB?.species === "Imsanga Afero"
-    ) {
-        return { isValid: false, error: "Imsanga Afero cannot breed." };
+    // Specific pairings that are explicitly disallowed.
+    exceptions: new Set([
+        ["Kora Voko", "Nokta Voko"].sort().join("|"),
+        ["Kora Voko", "Tagluma Valso"].sort().join("|"),
+        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"),
+        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"),
+        ["Tonbleko", "Ranbleko"].sort().join("|"),
+        ["Tonbleko", "Glubleko"].sort().join("|"),
+    ]),
+};
+
+export function getPossibleOffspringSpecies(
+    speciesA: string,
+    speciesB: string
+): string[] {
+    if (speciesA === speciesB) {
+        return [speciesA];
+    }
+    const sortedPairString = [speciesA, speciesB].sort().join("|");
+
+    const hybridOffspring = breedingRules.hybrids.get(sortedPairString);
+    if (hybridOffspring) {
+        return [hybridOffspring];
     }
 
-    if (creatureA?.species === creatureB?.species) {
+    if (breedingRules.compatible.has(sortedPairString)) {
+        return [speciesA, speciesB];
+    }
+
+    return []; // Incompatible
+}
+
+export function validatePairing(
+    creatureA: { species?: string | null },
+    creatureB: { species?: string | null }
+): { isValid: boolean; error?: string } {
+    const speciesA = creatureA.species;
+    const speciesB = creatureB.species;
+
+    if (!speciesA || !speciesB) {
+        return { isValid: false, error: "Parent species is missing." };
+    }
+
+    if (
+        breedingRules.incompatible.has(speciesA) ||
+        breedingRules.incompatible.has(speciesB)
+    ) {
+        return { isValid: false, error: `${speciesA} cannot breed.` };
+    }
+
+    const sortedPairString = [speciesA, speciesB].sort().join("|");
+    if (breedingRules.exceptions.has(sortedPairString)) {
+        return {
+            isValid: false,
+            error: `${speciesA} and ${speciesB} cannot be paired together.`,
+        };
+    }
+
+    if (speciesA === speciesB) {
         return { isValid: true };
     }
 
-    const sortedPairString = [creatureA?.species, creatureB?.species]
-        .sort()
-        .join("|");
-
     if (
-        COMPATIBLE_PAIRS.has(sortedPairString) ||
-        HYBRID_PAIRS.has(sortedPairString)
+        breedingRules.compatible.has(sortedPairString) ||
+        breedingRules.hybrids.has(sortedPairString)
     ) {
         return { isValid: true };
     }
 
     return {
         isValid: false,
-        error: `${creatureA?.species} and ${creatureB?.species} cannot be paired together.`,
+        error: `${speciesA} and ${speciesB} cannot be paired together.`,
     };
-}
-
-export function getHybridOffspring(
-    speciesA: string,
-    speciesB: string
-): string | null {
-    if (speciesA === speciesB) return null;
-    const sortedPairString = [speciesA, speciesB].sort().join("|");
-    return HYBRID_PAIRS.get(sortedPairString) || null;
 }
 
 export function checkGoalAchieved(

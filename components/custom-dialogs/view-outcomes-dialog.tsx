@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
+import { getPossibleOffspringSpecies } from "@/lib/breeding-rules";
 
 type Outcome = {
     genotype: string;
@@ -81,6 +82,11 @@ export function ViewOutcomesDialog({
     const [showSaveDialog, setShowSaveDialog] = useState(false);
     const [newGoalName, setNewGoalName] = useState("");
     const [isSavingGoal, setIsSavingGoal] = useState(false);
+    const [possibleOffspringSpecies, setPossibleOffspringSpecies] = useState<string[]>([]);
+
+    const isCrossBreed = useMemo(() => {
+        return pair.maleParent?.species !== pair.femaleParent?.species;
+    }, [pair]);
 
     // Helper function to fetch and set a new preview image.
     const updatePreviewImage = async (genotypes: { [key: string]: string }) => {
@@ -153,6 +159,12 @@ export function ViewOutcomesDialog({
             return;
         }
 
+        const offspringSpecies = getPossibleOffspringSpecies(pair.maleParent!.species!, pair.femaleParent!.species!);
+        setPossibleOffspringSpecies(offspringSpecies);
+        if (isCrossBreed) {
+            return; // For cross-breeds, we don't fetch detailed outcomes yet.
+        }
+
         // This effect runs once when the dialog opens to fetch all necessary data.
         if (!outcomes) {
             const fetchInitialData = async () => {
@@ -182,7 +194,7 @@ export function ViewOutcomesDialog({
                 }
             };
             fetchInitialData();
-        }
+        } 
     }, [isOpen, pair.id, outcomes]);
 
     useEffect(() => {
@@ -212,47 +224,62 @@ export function ViewOutcomesDialog({
                 <DialogHeader>
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
-                    <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
-                        <div className="space-y-4">
-                            {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
-                            {outcomes && Object.entries(outcomes).map(([category, categoryOutcomes]) => (
-                                <div key={category} className="space-y-1">
-                                    <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">{category}</Label>
-                                    <Select
-                                        value={selectedGenotypes[category]}
-                                        onValueChange={(value) => setSelectedGenotypes(prev => ({ ...prev, [category]: value }))}
-                                    >
-                                        <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
-                                            <SelectValue placeholder={`Select ${category}...`} />
-                                        </SelectTrigger>
-                                        <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
-                                            {categoryOutcomes.map(o => (
-                                                <SelectItem key={o.genotype} value={o.genotype} className="w-55 text-xs">
-                                                    {o.phenotype} ({o.genotype}) - <span className="font-semibold">{Math.round(o.probability * 100)}%</span>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            ))}
-                        </div>
-                        <ScrollBar orientation="vertical" />
-                    </ScrollArea>
-                    <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
-                        {isLoading && <Loader2 className="animate-spin absolute" />}
-                        {previewUrl && <img 
-                            key={previewUrl} // Force re-render on URL change
-                            src={previewUrl} 
-                            alt="Progeny Preview" 
-                            className="max-w-full max-h-full object-contain"
-                            onError={() => setPreviewUrl(null)} // Handle broken image links
-                        />}
-                        {!previewUrl && !isLoading && <p>No preview available.</p>}
+                {isCrossBreed ? (
+                    <div className="p-4 text-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md">
+                        <h3 className="font-bold text-lg">Cross-Species Breeding</h3>
+                        <p className="mt-2 text-dusk-purple dark:text-purple-400">
+                            This pair can produce the following species:
+                        </p>
+                        <ul className="font-semibold my-2">
+                            {possibleOffspringSpecies.map(species => <li key={species}>{species}</li>)}
+                        </ul>
+                        <p className="text-xs italic text-dusk-purple dark:text-purple-400">
+                            Detailed gene predictions for cross-species and hybrid pairings are not yet supported.
+                        </p>
                     </div>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
+                        <ScrollArea className="h-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
+                            <div className="space-y-4">
+                                {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
+                                {outcomes && Object.entries(outcomes).map(([category, categoryOutcomes]) => (
+                                    <div key={category} className="space-y-1">
+                                        <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">{category}</Label>
+                                        <Select
+                                            value={selectedGenotypes[category]}
+                                            onValueChange={(value) => setSelectedGenotypes(prev => ({ ...prev, [category]: value }))}
+                                        >
+                                            <SelectTrigger className="w-47 bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
+                                                <SelectValue placeholder={`Select ${category}...`} />
+                                            </SelectTrigger>
+                                            <SelectContent className="w-55 bg-ebena-lavender dark:bg-midnight-purple text-xs">
+                                                {categoryOutcomes.map(o => (
+                                                    <SelectItem key={o.genotype} value={o.genotype} className="w-55 text-xs">
+                                                        {o.phenotype} ({o.genotype}) - <span className="font-semibold">{Math.round(o.probability * 100)}%</span>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                ))}
+                            </div>
+                            <ScrollBar orientation="vertical" />
+                        </ScrollArea>
+                        <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative">
+                            {isLoading && <Loader2 className="animate-spin absolute" />}
+                            {previewUrl && <img 
+                                key={previewUrl} // Force re-render on URL change
+                                src={previewUrl} 
+                                alt="Progeny Preview" 
+                                className="max-w-full max-h-full object-contain"
+                                onError={() => setPreviewUrl(null)} // Handle broken image links
+                            />}
+                            {!previewUrl && !isLoading && <p>No preview available.</p>}
+                        </div>
+                    </div>
+                )}
                 <div className="flex justify-end pt-4">
-                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                    <Button onClick={() => setShowSaveDialog(true)} disabled={!outcomes || isLoading || isCrossBreed} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
                         Save as Goal
                     </Button>
                 </div>

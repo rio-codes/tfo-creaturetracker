@@ -22,7 +22,7 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from "@/types";
-import { checkForInbreeding } from "@/lib/breeding-rules";
+import { checkForInbreeding, getPossibleOffspringSpecies } from "@/lib/breeding-rules";
 
 
 type EditBreedingPairFormProps = {
@@ -76,9 +76,16 @@ export function EditBreedingPairForm({
                     c?.gender === "female" &&
                     c?.growthLevel === 3
             ),
-            goals: allGoals.filter((g) => g?.species === pair?.species),
         };
-    }, [allCreatures, allGoals, pair?.species]);
+    }, [allCreatures, pair?.species]);
+
+    const assignableGoals = useMemo(() => {
+        const male = allCreatures.find(c => c?.id === selectedMaleId);
+        const female = allCreatures.find(c => c?.id === selectedFemaleId);
+        if (!male || !female) return [];
+        const possibleOffspring = getPossibleOffspringSpecies(male.species!, female.species!);
+        return allGoals.filter(g => g && possibleOffspring.includes(g.species!));
+    }, [selectedMaleId, selectedFemaleId, allCreatures, allGoals]);
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
@@ -229,11 +236,11 @@ export function EditBreedingPairForm({
                 </SelectContent>
             </Select>
 
-            {goals.length > 0 && (
+            {assignableGoals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
-                        {goals.map((goal) => (
+                        {assignableGoals.map((goal) => (
                             <div
                                 key={goal?.id}
                                 className="flex items-center space-x-2"

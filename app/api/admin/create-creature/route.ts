@@ -16,6 +16,7 @@ const createCreatureSchema = z.object({
         genotype: z.string(),
         phenotype: z.string(),
         isMultiGenotype: z.boolean(),
+        isOptional: z.boolean(),
     })),
 });
 
@@ -29,12 +30,11 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         const validated = createCreatureSchema.safeParse(body);
-        const validatedError = "Could not create creature: " + z.flattenError(validated.error).fieldErrors.toString();
-        console.error(validatedError);
-        Sentry.captureException(validatedError);
-
 
         if (!validated.success) {
+            const validatedError = "Could not create creature: " + z.flattenError(validated.error).fieldErrors.toString();
+            console.error(validatedError);
+            Sentry.captureException(validatedError);
             return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Creature created successfully!" }, { status: 201 });
 
     } catch (error: any) {
-        Sentry.captureException(error);
+        //Sentry.captureException(error.message);
         return NextResponse.json({ error: error.message || "An internal error occurred." }, { status: 500 });
     }
 }

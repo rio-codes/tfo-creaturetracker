@@ -24,11 +24,11 @@ export function PredictionsAccordion({
 }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
-            <div className="text-center py-10 px-4 bg-ebena-lavender/50 rounded-lg">
-                <h3 className="text-xl font-semibold text-pompaca-purple">
+            <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                <h3 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300">
                     No Assigned Pairs Found
                 </h3>
-                <p className="text-dusk-purple mt-2">
+                <p className="text-dusk-purple dark:text-purple-400 mt-2">
                     No assigned breeding pairs of this species were found in your
                     collection.
                 </p>
@@ -51,16 +51,16 @@ export function PredictionsAccordion({
                 <AccordionItem
                     key={p.pairId}
                     value={`item-${index}`}
-                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender"
+                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple"
                 >
-                    <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple text-left">
+                    <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
                             {/* Left side: Pair Name and Parents */}
                             <div className="flex-1 space-y-1">
                                 <div className="font-bold text-lg truncate">
                                     {p.pairName}
                                 </div>
-                                <div className="font-normal text-sm text-dusk-purple wrap-anywhere">
+                                <div className="font-normal text-sm text-dusk-purple dark:text-purple-400 wrap-anywhere">
                                     {p?.maleParent?.creatureName}
                                     {" ("}
                                     {p?.maleParent?.code}){" x "}
@@ -78,7 +78,7 @@ export function PredictionsAccordion({
                                             {(p.averageChance * 100).toFixed(2)}
                                             %
                                         </div>
-                                        <div className="text-xs text-dusk-purple">
+                                        <div className="text-xs text-dusk-purple dark:text-purple-400">
                                             Match Score
                                         </div>
                                     </div>
@@ -100,7 +100,7 @@ export function PredictionsAccordion({
                                 >
                                     <Button
                                         size="sm"
-                                        className="bg-pompaca-purple text-barely-lilac"
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                                     >
                                         Log Breeding
                                     </Button>
@@ -110,15 +110,15 @@ export function PredictionsAccordion({
                     </AccordionTrigger>
 
                     {/* Expanded, "deep-dive" view - remains the same */}
-                    <AccordionContent className="p-6 bg-barely-lilac border-t border-pompaca-purple/30">
+                    <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
                             {Object.entries(p.chancesByCategory || {}).map(
                                 ([category, chance]) => (
                                     <div key={category}>
-                                        <div className="font-bold text-pompaca-purple">
+                                        <div className="font-bold text-pompaca-purple dark:text-purple-300">
                                             {category}
                                         </div>
-                                        <div className="font-mono text-lg text-dusk-purple">
+                                        <div className="font-mono text-lg text-dusk-purple dark:text-purple-400">
                                             {(chance * 100).toFixed(2)}%
                                         </div>
                                     </div>

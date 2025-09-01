@@ -19,141 +19,83 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import * as Sentry from "@sentry/nextjs";
 
-type User = {
-    id: string;
-    username: string | null;
-    email: string | null;
-    role: string;
-    status: "active" | "suspended";
-    createdAt: Date | null;
-};
-
-export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
+export function UserManagement({ initialUsers }) {
     const router = useRouter();
     const [users, setUsers] = useState(initialUsers);
-    const [loadingStates, setLoadingStates] = useState<{
-        [key: string]: boolean;
-    }>({});
+    const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
-    const handleStatusChange = async (userId: string, newStatus: string) => {
-        setLoadingStates((prev) => ({ ...prev, [userId]: true }));
+    const handleRoleChange = async (userId, newRole) => {
+        setIsLoading(prev => ({ ...prev, [userId]: true }));
         try {
-            const response = await fetch(`/api/admin/users/${userId}/status`, {
+            const res = await fetch(`/api/admin/users/${userId}/role`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus }),
+                body: JSON.stringify({ role: newRole })
             });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "Failed to update status.");
-            }
-
-            setUsers(currentUsers =>
-                currentUsers.map(u => u.id === userId ? { ...u, status: newStatus as any } : u)
-            );
+            if (!res.ok) throw new Error("Failed to update role.");
             router.refresh();
         } catch (error) {
-            Sentry.captureException(error);
-            alert((error as Error).message);
+            console.error(error);
+            alert("Failed to update role.");
         } finally {
-            setLoadingStates((prev) => ({ ...prev, [userId]: false }));
+            setIsLoading(prev => ({ ...prev, [userId]: false }));
         }
     };
 
-    const handleRoleChange = async (userId: string, newRole: string) => {
-        setLoadingStates((prev) => ({ ...prev, [userId]: true }));
+    const handleStatusChange = async (userId, newStatus) => {
+        setIsLoading(prev => ({ ...prev, [userId]: true }));
         try {
-            const response = await fetch(`/api/admin/users/${userId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ role: newRole }),
+            const res = await fetch(`/api/admin/users/${userId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
             });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "Failed to update role.");
-            }
-
-            // Update local state to reflect the change immediately
-            setUsers((currentUsers) =>
-                currentUsers.map((u) =>
-                    u.id === userId ? { ...u, role: newRole } : u
-                )
-            );
-            router.refresh(); // Re-fetch server data in the background
+            if (!res.ok) throw new Error("Failed to update status.");
+            router.refresh();
         } catch (error) {
-            Sentry.captureException(error);
-            alert((error as Error).message);
+            console.error(error);
+            alert("Failed to update status.");
         } finally {
-            setLoadingStates((prev) => ({ ...prev, [userId]: false }));
+            setIsLoading(prev => ({ ...prev, [userId]: false }));
         }
     };
 
     return (
         <Table>
             <TableHeader>
-                <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                    <TableHead>Joined</TableHead>
+                <TableRow className="border-pompaca-purple/50 dark:border-purple-400/50">
+                    <TableHead className="text-pompaca-purple dark:text-purple-300">Username</TableHead>
+                    <TableHead className="text-pompaca-purple dark:text-purple-300">Email</TableHead>
+                    <TableHead className="text-pompaca-purple dark:text-purple-300">Role</TableHead>
+                    <TableHead className="text-pompaca-purple dark:text-purple-300">Status</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {users.map((user) => (
-                    <TableRow key={user.id}>
+                    <TableRow key={user.id} className="text-pompaca-purple dark:text-purple-300 border-pompaca-purple/50 dark:border-purple-400/50">
                         <TableCell>{user.username}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
-                            <div className="flex items-center gap-2">
-                                <Select
-                                    value={user.role}
-                                    onValueChange={(value) =>
-                                        handleRoleChange(user.id, value)
-                                    }
-                                    disabled={loadingStates[user.id]}
-                                >
-                                    <SelectTrigger className="w-[120px] bg-ebena-lavender">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-ebena-lavender">
-                                        <SelectItem value="user">
-                                            User
-                                        </SelectItem>
-                                        <SelectItem value="admin">
-                                            Admin
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {loadingStates[user.id] && (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                )}
-                            </div>
+                            <Select value={user.role} onValueChange={(newRole) => handleRoleChange(user.id, newRole)} disabled={isLoading[user.id]}>
+                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <SelectItem value="user">User</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </TableCell>
                         <TableCell>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                            }`}>
-                                {user.status}
-                            </span>
-                        </TableCell>
-                        <TableCell>
-                            <Button
-                                className="bg-pompaca-purple text-barely-lilac"
-                                size="sm"
-                                onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')}
-                                disabled={loadingStates[user.id]}
-                            >
-                                {user.status === 'active' ? 'Suspend' : 'Reinstate'}
-                            </Button>
-                        </TableCell>
-                        <TableCell>
-                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                            <Select value={user.status} onValueChange={(newStatus) => handleStatusChange(user.id, newStatus)} disabled={isLoading[user.id]}>
+                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <SelectItem value="active">Active</SelectItem><SelectItem value="suspended">Suspended</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </TableCell>
                     </TableRow>
                 ))}

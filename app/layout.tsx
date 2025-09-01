@@ -3,12 +3,10 @@ import type { Metadata } from "next";
 import { Tektur } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "./ClientProviders";
-import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
     title: "TFO.creaturetracker",
-    description:
-        "This is a utility site for the web game The Final Outpost to manage your collection, research goals, and breeding pairs",
+    description: "A breeding tracker for The Final Outpost",
     metadataBase: new URL("https://tfo.creaturetracker.net"),
 };
 
@@ -22,7 +20,7 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <link
                     rel="icon"
@@ -35,8 +33,7 @@ export default async function RootLayout({
                     rel="stylesheet"
                 />
             </head>
-            <body className="{tektur.className} flex flex-col min-h-screen">
-                <Analytics />
+            <body className={`${tektur.className} flex flex-col min-h-screen`}>
                 <ClientProviders>{children}</ClientProviders>
             </body>
         </html>

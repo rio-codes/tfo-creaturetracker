@@ -37,7 +37,7 @@ export default async function BreedingPairsPage({
     ]);
 
     return (
-        <div className="bg-barely-lilac min-h-screen inset-shadow-sm inset-shadow-gray-700">
+        <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading pairs...</div>}>
                     <BreedingPairsClient

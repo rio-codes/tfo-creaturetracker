@@ -1,10 +1,12 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@/components/theme-provider";
 import { usePathname } from "next/navigation";
 import Header from "@/components/custom-layout-elements/header";
 import { Footer } from "@/components/custom-layout-elements/footer";
 import { Alert } from "@/components/ui/alert";
+import { ThemeSyncer } from "@/components/misc-custom-components/theme-syncer";
 
 export default function ClientProviders({
     children,
@@ -26,13 +28,18 @@ export default function ClientProviders({
     const showHeader = !hideHeaderOnPaths.includes(pathname);
 
     return (
-        <SessionProvider>
-            {showHeader && <Header />}
-            <main className="flex-1 isolation-auto">
-                <div className="z-50 object-center"><Alert /></div>
-                {children}
-            </main>
-            <Footer />
-        </SessionProvider>
+        <ThemeProvider enableSystem={true} defaultTheme="system">
+            <SessionProvider>
+                <ThemeSyncer />
+                {showHeader && <Header />}
+                <main className="flex flex-col flex-1 isolation-auto">
+                    <div className="z-50 object-center">
+                        <Alert />
+                    </div>
+                    {children}
+                </main>
+                <Footer />
+            </SessionProvider>
+        </ThemeProvider>
     );
 }

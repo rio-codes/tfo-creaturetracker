@@ -34,7 +34,7 @@ export default async function ResearchGoalsPage({
     );
 
     return (
-        <div className="bg-barely-lilac min-h-screen">
+        <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading goals...</div>}>
                     <ResearchGoalClient

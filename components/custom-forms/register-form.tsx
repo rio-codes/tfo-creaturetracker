@@ -53,10 +53,10 @@ export default function RegisterForm() {
     };
 
     return (
-        <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple dark:border-purple-400 shadow-lg">
         <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-pompaca-purple">Create Account</CardTitle>
-            <CardDescription className="text-pompaca-purple">Join and track your breeding goals</CardDescription>
+            <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">Create Account</CardTitle>
+            <CardDescription className="text-pompaca-purple dark:text-purple-400">Join and track your breeding goals</CardDescription>
         </CardHeader>
         <CardContent>
             {/* Display success or error messages */}
@@ -65,27 +65,27 @@ export default function RegisterForm() {
             
             <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="email" className="text-pompaca-purple font-medium">Email</Label>
+                <Label htmlFor="email" className="text-pompaca-purple dark:text-purple-300 font-medium">Email</Label>
                 <Input
                 id="email" type="email" placeholder="you@example.com"
                 value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="username" className="text-pompaca-purple font-medium">Username</Label>
+                <Label htmlFor="username" className="text-pompaca-purple dark:text-purple-300 font-medium">Username</Label>
                 <Input
                 id="username" type="text" placeholder="your TFO username"
                 value={username} onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="password" className="text-pompaca-purple font-medium">Password</Label>
+                <Label htmlFor="password" className="text-pompaca-purple dark:text-purple-300 font-medium">Password</Label>
                 <Input
                 id="password" type="password" placeholder="••••••••"
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple" required
+                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
                 />
             </div>
             <div className="flex items-center space-x-2">
@@ -94,16 +94,16 @@ export default function RegisterForm() {
                 onCheckedChange={(checked: CheckedState) => setAgreeToTerms(!!checked)}
                 className="border-pompaca-purple"
                 />
-                <Label htmlFor="terms" className="text-sm text-pompaca-purple">
+                <Label htmlFor="terms" className="text-sm text-pompaca-purple dark:text-purple-300">
                 I agree to the{" "}
-                <Link href="/terms" className="text-dusk-purple hover:underline">Terms of Service</Link>{" "}
+                <Link href="/terms" className="text-dusk-purple dark:text-purple-400 hover:underline">Terms of Service</Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-dusk-purple hover:underline">Privacy Policy</Link>
+                <Link href="/privacy" className="text-dusk-purple dark:text-purple-400 hover:underline">Privacy Policy</Link>
                 </Label>
             </div>
             <Button
                 type="submit"
-                className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
+                className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                 disabled={!agreeToTerms}
             >
                 Create Account
@@ -111,9 +111,9 @@ export default function RegisterForm() {
             </form>
 
             <div className="mt-6 text-center">
-            <p className="text-pompaca-purple">
+            <p className="text-pompaca-purple dark:text-purple-300">
                 Already have an account?{" "}
-                <Link href="/login" className="text-dusk-purple font-medium hover:underline">
+                <Link href="/login" className="text-dusk-purple dark:text-purple-400 font-medium hover:underline">
                 Sign in here
                 </Link>
             </p>

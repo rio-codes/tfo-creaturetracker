@@ -16,7 +16,7 @@ export default function Header() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
+    <header className="bg-pompaca-purple dark:bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
       <div className="flex items-center justify-between">
         {/* Left side - Menu and logo */}
         <div className="flex items-center gap-2">
@@ -29,33 +29,33 @@ export default function Header() {
                 <ChevronsDown className="size-10" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac">
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
-                <Link href="/collection" className="text-lg w-full h-full">
+            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple">
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
+                <Link href="/collection" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
                   🦋 Collection
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
-                <Link href="/research-goals" className="text-lg w-full h-full">
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
+                <Link href="/research-goals" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
                   🧪 Research Goals
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
-                <Link href="/breeding-pairs" className="text-lg w-full h-full">
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
+                <Link href="/breeding-pairs" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
                   💜 Breeding Pairs
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
-                <Link href="/settings" className="text-lg w-full h-full">
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
+                <Link href="/settings" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
                   🔧 Settings
                 </Link>
               </DropdownMenuItem>
               {session?.user?.role === "admin" && (
                 <DropdownMenuItem
-                  className="bg-barely-lilac hover:bg-dusk-purple h-10"
+                  className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10"
                   asChild
                 >
-                  <Link href="/admin" className="text-lg w-full h-full">🧑🏾‍💻 Admin</Link>
+                  <Link href="/admin" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">🧑🏾‍💻 Admin</Link>
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -85,7 +85,7 @@ export default function Header() {
                 onClick={() => signOut({ callbackUrl: "/" })}
                 variant="ghost"
                 size="sm"
-                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple shadow-xl"
+                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
               >
                 Log Out
                 <LogOut className="h-4 w-4 mr-2" />

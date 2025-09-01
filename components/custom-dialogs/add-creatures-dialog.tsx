@@ -78,20 +78,20 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             onClick={handleClose}
         >
             <div
-                className="bg-barely-lilac rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
+                className="bg-barely-lilac dark:bg-pompaca-purple rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-pompaca-purple">
+                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
                         Add or Update Creatures
                     </h2>
                     <Button variant="ghost" size="icon" onClick={handleClose}>
-                        <X className="h-4 w-4 text-dusk-purple" />
+                        <X className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
                     </Button>
                 </div>
 
                 <div>
-                    <p className="text-md justify-items-evenly text-dusk-purple mb-4">
+                    <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 mb-4">
                         <span>
                             Enter the Tab ID from your TFO tab's URL. For
                             example, if the URL is
@@ -116,7 +116,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     </p>
                     <Label
                         htmlFor="tab-id"
-                        className="text-pompaca-purple font-medium text-lg"
+                        className="text-pompaca-purple dark:text-purple-300 font-medium text-lg"
                     >
                         TFO Tab ID
                     </Label>
@@ -126,7 +126,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                         value={tabId}
                         onChange={(e) => setTabId(e.target.value)}
                         placeholder="e.g., 12345"
-                        className="mt-2 bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                        className="mt-2 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                     />
                 </div>
 
@@ -134,13 +134,13 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     <Button
                         variant="ghost"
                         onClick={handleClose}
-                        className="text-dusk-purple"
+                        className="text-dusk-purple dark:text-purple-400"
                     >
                         Close
                     </Button>
                     <Button
                         onClick={handleSync}
-                        className="w-32 bg-pompaca-purple text-barely-lilac"
+                        className="w-32 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                         disabled={status === "loading" || !tabId}
                     >
                         {status === "loading" ? (

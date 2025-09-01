@@ -15,6 +15,7 @@ import type { AdapterAccount } from "@auth/core/adapters";
 
 export const goalModeEnum = pgEnum("goal_mode", ["genotype", "phenotype"]);
 export const userStatusEnum = pgEnum("user_status", ["active", "suspended"]);
+export const themeEnum = pgEnum("theme", ["light", "dark", "system"]);
 
 
 export const users = pgTable("user", {
@@ -27,6 +28,7 @@ export const users = pgTable("user", {
     password: text("password"),
     role: text("role").default('user').notNull(),
     status: userStatusEnum("status").default("active").notNull(),
+    theme: themeEnum("theme").default("system").notNull(),
     collectionItemsPerPage: integer("collection_items_per_page")
         .default(12)
         .notNull(),

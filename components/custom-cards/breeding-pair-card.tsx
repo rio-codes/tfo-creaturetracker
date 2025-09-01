@@ -206,7 +206,7 @@ export function BreedingPairCard({
 
     const pairForDialog = { id: pair!.id, species: pair!.species };
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/* Pin Icon */}
             <div className="absolute top-1 right-1 z-10">
                 <Button
@@ -217,9 +217,9 @@ export function BreedingPairCard({
                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
                     {isPinned ? (
-                        <Pin className="h-5 w-5 text-pompaca-purple fill-pompaca-purple" />
+                        <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
                     ) : (
-                        <PinOff className="h-5 w-5 text-dusk-purple" />
+                        <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
                     )}
                 </Button>
             </div>
@@ -249,16 +249,17 @@ export function BreedingPairCard({
             </div>
 
             {/* Content Section */}
-            <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0">
+            <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
                 {/* Parent Details */}
-                <div className="px-2 text-center text-md text-pompaca-purple">
+                <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
                     <Collapsible>
                         <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
                             <p className="truncate">
-                                <span className="font-semibold text-pompaca-purple">
+                                <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     M:
                                 </span>{" "}
-                                {maleParent.creatureName || "Unnamed"} ({maleParent.code})
+                                {maleParent.creatureName || "Unnamed"} (
+                                {maleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>
@@ -269,10 +270,11 @@ export function BreedingPairCard({
                     <Collapsible>
                         <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
                             <p className="truncate">
-                                <span className="font-semibold text-pompaca-purple">
+                                <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     F:
                                 </span>{" "}
-                                {femaleParent.creatureName || "Unnamed"} ({femaleParent.code})
+                                {femaleParent.creatureName || "Unnamed"} (
+                                {femaleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>
@@ -294,14 +296,19 @@ export function BreedingPairCard({
                             </h4>
                             {pair.isInbred && (
                                 <InfoDisplay
-                                    trigger={<Network className="h-4 w-4 text-yellow-600" />}
+                                    trigger={
+                                        <Network className="h-4 w-4 text-yellow-600" />
+                                    }
                                     content={
-                                        <p>This pair is inbred. Progeny will be related.</p>
+                                        <p>
+                                            This pair is inbred. Progeny will be
+                                            related.
+                                        </p>
                                     }
                                 />
                             )}
                         </div>
-                        <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
+                        <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
                             {pair.progeny && pair.progeny.length > 0 ? (
                                 <ul className="text-xs space-y-1">
                                     {pair.progeny.map((p) => {
@@ -311,7 +318,9 @@ export function BreedingPairCard({
                                                 key={p.id}
                                                 className="flex items-center justify-between gap-1 p-1 rounded hover:bg-pompaca-purple/10"
                                             >
-                                                <TooltipProvider>
+                                                <TooltipProvider
+                                                    delayDuration={100}
+                                                >
                                                     <Tooltip
                                                         delayDuration={100}
                                                     >
@@ -340,7 +349,7 @@ export function BreedingPairCard({
                                                                 </Link>
                                                             </div>
                                                         </TooltipTrigger>
-                                                        <TooltipContent className="hidden md:block bg-pompaca-purple text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
+                                                        <TooltipContent className="hidden md:block bg-pompaca-purple dark:bg-purple-400 dark:text-slate-950 text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
                                                             <ProgenyPreview
                                                                 creature={p}
                                                                 getCacheBustedImageUrl={
@@ -362,7 +371,7 @@ export function BreedingPairCard({
                                                                 <Info className="h-4 w-4" />
                                                             </Button>
                                                         </DialogTrigger>
-                                                        <DialogContent className="bg-barely-lilac">
+                                                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                                                             <DialogHeader>
                                                                 <DialogTitle>
                                                                     {p.creatureName ||
@@ -391,7 +400,7 @@ export function BreedingPairCard({
                                                                 <Trash2 className="h-4 w-4" />
                                                             </Button>
                                                         </AlertDialogTrigger>
-                                                        <AlertDialogContent className="bg-barely-lilac">
+                                                        <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                                                             <AlertDialogHeader>
                                                                 <AlertDialogTitle>
                                                                     Are you
@@ -452,7 +461,7 @@ export function BreedingPairCard({
                         <h4 className="font-bold text-sm mb-1">
                             Assigned Goals
                         </h4>
-                        <ScrollArea className="flex-grow bg-ebena-lavender/50 rounded-md border p-2">
+                        <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
                             {pair.assignedGoals &&
                             pair.assignedGoals.length > 0 ? (
                                 <ul className="text-xs space-y-1">
@@ -467,12 +476,17 @@ export function BreedingPairCard({
                                                 ) : (
                                                     <Target className="h-3 w-3 text-dusk-purple flex-shrink-0" />
                                                 )}
-                                                <Link 
+                                                <Link
                                                     title={g.name}
                                                     href={`/research-goals/${g.id}`}
                                                     className="truncate hover:underline wrap-anywhere"
                                                 >
-                                                    {g.name.length > 15 ? `${g.name.substring(0, 15)}...` : g.name}
+                                                    {g.name.length > 15
+                                                        ? `${g.name.substring(
+                                                              0,
+                                                              15
+                                                          )}...`
+                                                        : g.name}
                                                 </Link>
                                             </div>
                                             <div
@@ -507,14 +521,14 @@ export function BreedingPairCard({
                     pair={pairForDialog}
                     allCreatures={allCreatures}
                 >
-                    <Button className="bg-pompaca-purple text-barely-lilac h-16 w-24 text-sm/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
                         Log
                         <br />
                         Breeding
                     </Button>
                 </LogBreedingDialog>
                 <ViewOutcomesDialog pair={pair}>
-                    <Button className="h-16 text-sm/tight bg-pompaca-purple text-barely-lilac w-24">
+                    <Button className="h-16 text-sm/tight bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-24">
                         Possible
                         <br />
                         Outcomes
@@ -527,7 +541,7 @@ export function BreedingPairCard({
                     allPairs={allPairs}
                     allLogs={allLogs}
                 >
-                    <Button className="bg-pompaca-purple text-barely-lilac h-16 w-24 text-sm/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
                         Edit /
                         <br />
                         Delete

@@ -70,10 +70,10 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 1 (Optional)</Label>
                 <Select value={progeny1Id} onValueChange={setProgeny1Id}>
-                    <SelectTrigger className="bg-ebena-lavender">
+                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectValue placeholder="Select first offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender">
+                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectItem value="none">
                             None
                         </SelectItem>
@@ -94,10 +94,10 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 2 (Optional)</Label>
                 <Select value={progeny2Id} onValueChange={setProgeny2Id}>
-                    <SelectTrigger className="bg-ebena-lavender">
+                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectValue placeholder="Select second offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender">
+                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectItem value="none">
                             None
                         </SelectItem>
@@ -117,7 +117,7 @@ export function LogBreedingForm({
                 <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="bg-ebena-lavender"
+                    className="bg-ebena-lavender dark:bg-midnight-purple"
                     placeholder="Add any notes about this breeding event..."
                 />
             </div>
@@ -127,7 +127,7 @@ export function LogBreedingForm({
                 <Button type="button" variant="ghost" onClick={onSuccess}>
                     Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading} className="bg-pompaca-purple text-barely-lilac">
+                <Button type="submit" disabled={isLoading} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
                     {isLoading ? (
                         <Loader2 className="animate-spin" />
                     ) : (

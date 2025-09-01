@@ -74,10 +74,10 @@ export function BreedingPairsClient({
 
     return (
         <TooltipProvider>
-            <div className="bg-barely-lilac min-h-screen">
-            <div className="container mx-auto px-4 py-5">
+            <div className="min-h-screen">
+                <div className="container mx-auto px-4 py-5">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-5xl font-bold text-pompaca-purple">
+                    <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300">
                         Breeding Pairs
                     </h1>
                     <AddBreedingPairDialog
@@ -90,23 +90,23 @@ export function BreedingPairsClient({
                 {/* Search and Filter Controls */}
                 <div className="flex gap-4 mb-8">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
                         <Input
                             placeholder="Search by pair name, parent name, or code..."
                             defaultValue={searchParams?.query || ""}
                             onChange={(e) => handleSearch(e.target.value)}
-                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
+                            className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                         />
                     </div>
                     <Select
                         onValueChange={handleSpeciesFilter}
                         defaultValue={searchParams?.species || "all"}
                     >
-                        <SelectTrigger className="w-[200px] bg-ebena-lavender drop-shadow-sm drop-shadow-gray-500">
+                        <SelectTrigger className="w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by species" />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender">
-                            <SelectItem value="all" className="bg-ebena-lavender">All Species</SelectItem>
+                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <SelectItem value="all">All Species</SelectItem>
                             {speciesList.map((species) => (
                                 <SelectItem key={species} value={species!}>
                                     {species}
@@ -130,11 +130,11 @@ export function BreedingPairsClient({
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple">
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
                             No Breeding Pairs Found
                         </h2>
-                        <p className="text-dusk-purple mt-2">
+                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
                             Try adjusting your search or filter, or click the "+
                             New Pair" button to get started.
                         </p>
@@ -143,8 +143,8 @@ export function BreedingPairsClient({
                 <div className="mt-8 flex justify-center">
                     <Pagination totalPages={totalPages} />
                 </div>
+                </div>
             </div>
-        </div>
         </TooltipProvider>
     );
 }

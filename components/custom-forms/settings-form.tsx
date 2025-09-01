@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { structuredGeneData } from "@/lib/creature-data";
 import { User, ResearchGoal } from "@/types"
@@ -33,6 +34,8 @@ export function SettingsForm({
     const router = useRouter();
     const { update: updateSession } = useSession();
 
+    const [mounted, setMounted] = useState(false);
+    const { theme, setTheme } = useTheme();
     // Form state
     const [email, setEmail] = useState(user.email);
     const [password, setPassword] = useState("");
@@ -50,6 +53,11 @@ export function SettingsForm({
     const [conversionSelections, setConversionSelections] = useState<{
         [key: string]: any;
     }>({});
+
+    // useEffect only runs on the client, so now we can safely show the UI
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -143,7 +151,8 @@ export function SettingsForm({
     const saveSettings = async (goalConversions?: any) => {
         setIsLoading(true);
         try {
-            const payload: any = {
+            const payload: any = { // Add theme to the payload
+                theme,
                 goalMode,
                 collectionItemsPerPage: collectionItems,
                 goalsItemsPerPage: goalsItems,
@@ -163,7 +172,7 @@ export function SettingsForm({
                 setError("Failed to update settings. " + data.error)
 
             setSuccessMessage(data.message);
-            if (email !== user.email) await updateSession({ user: { email } });
+            if (email !== user.email) await updateSession({ user: { email } }); // Session update for theme is not needed
             router.refresh();
         } catch (err: any) {
             setError(err.message);
@@ -177,7 +186,7 @@ export function SettingsForm({
         <>
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Account Settings Section */}
-                <div className="p-6 bg-ebena-lavender rounded-lg border border-pompaca-purple/50 text-pompaca-purple">
+                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
                     <h2 className="text-2xl font-bold mb-4">Account</h2>
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -187,7 +196,7 @@ export function SettingsForm({
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                                 required
                             />
                         </div>
@@ -202,7 +211,7 @@ export function SettingsForm({
                                         setPassword(e.target.value)
                                     }
                                     placeholder="Leave blank to keep current"
-                                    className="bg-ebena-lavender"
+                                    className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -216,7 +225,7 @@ export function SettingsForm({
                                     onChange={(e) =>
                                         setConfirmPassword(e.target.value)
                                     }
-                                    className="bg-ebena-lavender"
+                                    className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
                         </div>
@@ -224,10 +233,35 @@ export function SettingsForm({
                 </div>
 
                 {/* Preferences Section */}
-                <div className="p-6 bg-ebena-lavender rounded-lg border border-pompaca-purple/50 text-pompaca-purple">
+                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
                     <h2 className="text-2xl font-bold text-pompaca-purple mb-4">
                         Preferences
                     </h2>
+                    <div className="space-y-2 mb-6">
+                        <Label className="text-lg">Theme</Label>
+                        {!mounted ? (
+                            <div className="h-10 w-full animate-pulse rounded-md bg-pompaca-purple/20" />
+                        ) : (
+                            <RadioGroup
+                                value={theme}
+                                onValueChange={setTheme}
+                                className="flex space-x-4"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="light" id="light" />
+                                    <Label htmlFor="light" className="font-normal">Light</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="dark" id="dark" />
+                                    <Label htmlFor="dark" className="font-normal">Dark</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="system" id="system" />
+                                    <Label htmlFor="system" className="font-normal">System</Label>
+                                </div>
+                            </RadioGroup>
+                        )}
+                    </div>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label
@@ -242,10 +276,10 @@ export function SettingsForm({
                                 value={collectionItems}
                                 onChange={(e) =>
                                     setCollectionItems(Number(e.target.value))
-                                }
+                                } 
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
@@ -264,7 +298,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
@@ -283,7 +317,7 @@ export function SettingsForm({
                                 }
                                 min="3"
                                 max="30"
-                                className="bg-ebena-lavender"
+                                className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                     </div>
@@ -312,9 +346,9 @@ export function SettingsForm({
                 open={isConversionDialogOpen}
                 onOpenChange={setIsConversionDialogOpen}
             >
-                <DialogContent className="bg-barely-lilac">
+                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <DialogHeader>
-                        <DialogTitle className="text-pompaca-purple">
+                        <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                             Resolve Ambiguous Goals
                         </DialogTitle>
                     </DialogHeader>
@@ -323,9 +357,9 @@ export function SettingsForm({
                         {goalsToConvert.map((goal) => (
                             <div
                                 key={goal.id}
-                                className="p-4 border rounded-md bg-ebena-lavender"
+                                className="p-4 border rounded-md bg-ebena-lavender dark:bg-midnight-purple"
                             >
-                                <h3 className="font-bold text-pompaca-purple">
+                                <h3 className="font-bold text-pompaca-purple dark:text-purple-300">
                                     {goal.name}
                                 </h3>
                                 {goal.ambiguousCategories.map((cat: any) => (
@@ -344,10 +378,10 @@ export function SettingsForm({
                                                 )
                                             }
                                         >
-                                            <SelectTrigger className="bg-ebena-lavender">
+                                            <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                                                 <SelectValue placeholder="Select a specific genotype..." />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender">
+                                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                                                 {cat.options.map((opt: any) => (
                                                     <SelectItem
                                                         key={opt.genotype}

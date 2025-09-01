@@ -43,9 +43,9 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
     }, 300);
 
     return (
-        <div className="bg-barely-lilac min-h-screen">
+        <div className="min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple mb-8">
+                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-8">
                     Research Goals
                 </h1>
                 <AddGoalDialog />
@@ -54,10 +54,10 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
               <div className="flex flex-col md:flex-row gap-4 mb-8">
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
                   <Input
                     placeholder="search for a goal by name..."
-                    className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
+                    className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                     defaultValue={searchParams.get('query') || ''}
                     onChange={(e) => handleFilterChange('query', e.target.value)}
                   />
@@ -68,10 +68,10 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
                   defaultValue={searchParams.get('species') || 'all'}
                   onValueChange={(value) => handleFilterChange('species', value)}
                 >
-                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                  <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-ebena-lavender">
+                  <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                     <SelectItem value="all">All Species</SelectItem>
                     {speciesList.map((species) => (
                       <SelectItem key={species} value={species}>{species}</SelectItem>
@@ -88,9 +88,9 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages}) {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
-                  <h2 className="text-2xl font-semibold text-pompaca-purple">No Goals Found</h2>
-                  <p className="text-dusk-purple mt-2">
+                <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                  <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">No Goals Found</h2>
+                  <p className="text-dusk-purple dark:text-purple-400 mt-2">
                     Try adjusting your search or filter, or create a new goal.
                   </p>
                 </div>

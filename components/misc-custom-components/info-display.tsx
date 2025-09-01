@@ -27,7 +27,7 @@ export function InfoDisplay({ trigger, content, tooltipClassName, dialogClassNam
                 <TooltipProvider>
                     <Tooltip delayDuration={100}>
                         <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-                        <TooltipContent className={`bg-pompaca-purple text-barely-lilac border-dusk-purple max-w-xs ${tooltipClassName}`}>
+                        <TooltipContent className={`bg-pompaca-purple dark:bg-purple-400 text-barely-lilac dark:text-slate-950 border-dusk-purple max-w-xs ${tooltipClassName}`}>
                             {content}
                         </TooltipContent>
                     </Tooltip>
@@ -38,7 +38,7 @@ export function InfoDisplay({ trigger, content, tooltipClassName, dialogClassNam
             <div className="md:hidden inline-flex">
                 <Dialog>
                     <DialogTrigger asChild>{trigger}</DialogTrigger>
-                    <DialogContent className={`bg-barely-lilac ${dialogClassName}`}>
+                    <DialogContent className={`bg-barely-lilac dark:bg-pompaca-purple ${dialogClassName}`}>
                         <div className="p-4 text-pompaca-purple">{content}</div>
                     </DialogContent>
                 </Dialog>

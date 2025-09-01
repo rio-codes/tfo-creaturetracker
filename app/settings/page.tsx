@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/src/db";
 import { users, researchGoals } from "@/src/db/schema";
+import type { User } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { SettingsForm } from "@/components/custom-forms/settings-form";
 import { redirect } from "next/navigation";
@@ -10,10 +11,14 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
     const session = await auth();
 
+    if (!session?.user?.id) {
+        redirect("/");
+    }
+
     const [user, allGoals] = await Promise.all([
-        db.query.users.findFirst({ where: eq(users.id, session.user.id) }),
+        db.query.users.findFirst({ where: eq(users.id, session.user.id) }) as Promise<User | undefined>,
         db.query.researchGoals.findMany({
-            where: eq(researchGoals.userId, session.user.id),
+            where: eq(researchGoals.userId, session.user.id)
         }),
     ]);
 

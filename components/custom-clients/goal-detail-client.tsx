@@ -71,7 +71,7 @@ export function GoalDetailClient({
     return (
         <div className="space-y-8">
             <div className="flex-col gap-4">
-                <h1 className="text-4xl font-bold text-pompaca-purple">
+                <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300">
                     Goal: {goal?.name}
                 </h1>
                 <div className="mt-5">
@@ -80,7 +80,7 @@ export function GoalDetailClient({
             </div>
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="md:col-span-2 bg-ebena-lavender text-pompaca-purple border-border">
+                <Card className="md:col-span-2 bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border">
                     <CardContent className="p-6 grid grid-cols-2 gap-6 items-center">
                         <div className="text-lg font-semibold">
                             <span>Species:</span>{" "}
@@ -131,7 +131,7 @@ export function GoalDetailClient({
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender text-pompaca-purple border-border flex flex-col items-center justify-center p-4">
+                <Card className="bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
                     <div className="relative group">
                         <img
                             key={imageUrl}
@@ -159,14 +159,14 @@ export function GoalDetailClient({
             {/* Bottom Section */}
             <div className="mt-10">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-3xl font-bold text-pompaca-purple">
+                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
                         Breeding Pairs
                     </h2>
                     <AssignPairDialog
                         goal={goal}
                         predictions={initialPredictions}
                     >
-                        <Button className="bg-pompaca-purple text-barely-lilac">
+                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
                             Manage Breeding Pairs
                         </Button>
                     </AssignPairDialog>
@@ -181,15 +181,15 @@ export function GoalDetailClient({
                     // If it hasn't (i.e., during the server render), we render a simple placeholder.
                     // This placeholder MUST have a similar structure to the real component's container.
                     <div className="w-full space-y-2">
-                        <div className="h-16 bg-ebena-lavender rounded-lg animate-pulse"></div>
-                        <div className="h-16 bg-ebena-lavender rounded-lg animate-pulse"></div>
+                        <div className="h-16 bg-ebena-lavender dark:bg-slate-900 rounded-lg animate-pulse"></div>
+                        <div className="h-16 bg-ebena-lavender dark:bg-slate-900 rounded-lg animate-pulse"></div>
                     </div>
                 )}
             </div>
 
             {/* Note Section */}
             <div className="flex w-full justify-center">
-                <span className="text-s text-dusk-purple text-center py-5">
+                <span className="text-s text-dusk-purple dark:text-purple-400 text-center py-5">
                     Note: Some features are still under development and not yet
                     available.
                 </span>

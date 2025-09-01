@@ -56,6 +56,7 @@ export const authConfig = {
                 token.id = user.id;
                 token.username = (user as any).username;
                 token.role = (user as any).role;
+                token.theme = (user as any).theme;
             }
             // This token is then encrypted and stored in the user's cookie.
             return token;
@@ -68,6 +69,7 @@ export const authConfig = {
                 session.user.id = token.id as string;
                 session.user.username = token.username as string;
                 session.user.role = token.role as string;
+                session.user.theme = token.theme as string;
             }
             // ALWAYS return the session object.
             return session;

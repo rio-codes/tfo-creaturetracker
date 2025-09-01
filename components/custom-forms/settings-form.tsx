@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { structuredGeneData } from "@/lib/creature-data";
 import { User, ResearchGoal } from "@/types"
@@ -33,6 +34,7 @@ export function SettingsForm({
     const router = useRouter();
     const { update: updateSession } = useSession();
 
+    const { theme, setTheme } = useTheme();
     // Form state
     const [email, setEmail] = useState(user.email);
     const [password, setPassword] = useState("");
@@ -163,7 +165,7 @@ export function SettingsForm({
                 setError("Failed to update settings. " + data.error)
 
             setSuccessMessage(data.message);
-            if (email !== user.email) await updateSession({ user: { email } });
+            if (email !== user.email) await updateSession({ user: { email } }); // Session update for theme is not needed
             router.refresh();
         } catch (err: any) {
             setError(err.message);
@@ -228,6 +230,27 @@ export function SettingsForm({
                     <h2 className="text-2xl font-bold text-pompaca-purple mb-4">
                         Preferences
                     </h2>
+                    <div className="space-y-2 mb-6">
+                        <Label className="text-lg">Theme</Label>
+                        <RadioGroup
+                            value={theme}
+                            onValueChange={setTheme}
+                            className="flex space-x-4"
+                        >
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="light" id="light" />
+                                <Label htmlFor="light" className="font-normal">Light</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="dark" id="dark" />
+                                <Label htmlFor="dark" className="font-normal">Dark</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="system" id="system" />
+                                <Label htmlFor="system" className="font-normal">System</Label>
+                            </div>
+                        </RadioGroup>
+                    </div>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label
@@ -242,7 +265,7 @@ export function SettingsForm({
                                 value={collectionItems}
                                 onChange={(e) =>
                                     setCollectionItems(Number(e.target.value))
-                                }
+                                } 
                                 min="3"
                                 max="30"
                                 className="bg-ebena-lavender"

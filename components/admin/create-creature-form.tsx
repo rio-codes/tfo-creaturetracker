@@ -186,10 +186,10 @@ export function CreateCreatureForm() {
             <div className="space-y-2">
                 <Label htmlFor="species-select">Species</Label>
                 <Select value={species} onValueChange={setSpecies} required>
-                    <SelectTrigger id="species-select" className="bg-barely-lilac">
+                    <SelectTrigger id="species-select" className="bg-ebena-lavender dark:bg-slate-800">
                         <SelectValue placeholder="Select Species..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-barely-lilac">
+                    <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
                         {speciesList.map((s) => (
                             <SelectItem key={s} value={s}>
                                 {s}
@@ -200,7 +200,7 @@ export function CreateCreatureForm() {
             </div>
 
             {species && (
-                <ScrollArea className="flex-col pr-4 relative border rounded-md p-4">
+                <ScrollArea className="flex-col pr-4 relative border rounded-md p-4 bg-barely-lilac dark:bg-slate-800/50">
                     <div className="space-y-4">
                         {geneCategories.map((category) => (
                             <div
@@ -218,10 +218,10 @@ export function CreateCreatureForm() {
                                         handleGeneChange(category, value)
                                     }
                                 >
-                                    <SelectTrigger className="bg-ebena-lavender">
+                                    <SelectTrigger className="bg-ebena-lavender dark:bg-slate-700">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-ebena-lavender">
+                                    <SelectContent className="bg-ebena-lavender dark:bg-slate-700">
                                         {(geneOptions[category] || []).map(
                                             (option) => (
                                                 <SelectItem
@@ -244,7 +244,7 @@ export function CreateCreatureForm() {
                 <div className="flex items-center gap-2">
                     <Button
                         type="button"
-                        className="bg-pompaca-purple text-barely-lilac"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                         onClick={handlePreview}
                         disabled={isPreviewLoading || !species}
                     >
@@ -267,7 +267,7 @@ export function CreateCreatureForm() {
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <div className="flex justify-end pt-4">
-                <Button className="bg-pompaca-purple text-barely-lilac"
+                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                     type="submit"
                     disabled={
                         isLoading || !species || !creatureCode || !creatureName

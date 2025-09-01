@@ -54,7 +54,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
     };
 
     return (
-        <Card className="bg-ebena-lavender text-pompaca-purple border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+        <Card className="bg-ebena-lavender dark:bg-slate-900 text-pompaca-purple dark:text-purple-300 border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
             {/* Goal Mode Badge */}
             <div className="absolute top-2 left-2 z-10">
                 <InfoDisplay
@@ -95,9 +95,9 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
                     {isPinned ? (
-                        <Pin className="h-5 w-5 text-pompaca-purple fill-pompaca-purple" />
+                        <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
                     ) : (
-                        <PinOff className="h-5 w-5 text-dusk-purple" />
+                        <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
                     )}
                 </Button>
             </div>
@@ -120,7 +120,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                 </div>
                 {/* Goal Details in Scrollable Area */}
                 <strong>Target Genes:</strong>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20">
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-slate-800/50">
                     <div className="text-sm text-card-foreground space-y-1">
                         <div className="whitespace-pre-line pr-4">
                             {geneEntries.length > 0 ? (
@@ -171,7 +171,7 @@ export function ResearchGoalCard({ goal }: ResearchGoalCardProps) {
                 {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
                     <Link href={`/research-goals/${goal?.id}`} passHref>
-                        <Button className="bg-pompaca-purple text-barely-lilac h-16 w-25 text-sm/tight">
+                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-25 text-sm/tight">
                             <span className="text-wrap wrap-normal text-sm/tight">
                                 Goal Tracker
                             </span>

@@ -118,10 +118,10 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                                     }
                                     disabled={loadingStates[user.id]}
                                 >
-                                    <SelectTrigger className="w-[120px] bg-ebena-lavender">
+                                    <SelectTrigger className="w-[120px] bg-ebena-lavender dark:bg-slate-800">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-ebena-lavender">
+                                    <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
                                         <SelectItem value="user">
                                             User
                                         </SelectItem>
@@ -144,7 +144,7 @@ export function UserManagement({ initialUsers }: { initialUsers: User[] }) {
                         </TableCell>
                         <TableCell>
                             <Button
-                                className="bg-pompaca-purple text-barely-lilac"
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                                 size="sm"
                                 onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')}
                                 disabled={loadingStates[user.id]}

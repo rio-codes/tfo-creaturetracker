@@ -1,44 +1,27 @@
-import type React from "react";
 import type { Metadata } from "next";
-import { Tektur } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import ClientProviders from "./ClientProviders";
-import { Analytics } from "@vercel/analytics/next"
+import { ThemeProvider } from "@/components/theme-provider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "TFO.creaturetracker",
-    description:
-        "This is a utility site for the web game The Final Outpost to manage your collection, research goals, and breeding pairs",
-    metadataBase: new URL("https://tfo.creaturetracker.net"),
+  title: "TFO Creature Tracker",
+  description: "A breeding tracker for The Final Outpost",
 };
 
-const tektur = Tektur({
-    subsets: ["latin"],
-});
-
-export default async function RootLayout({
-    children,
+export default function RootLayout({
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <head>
-                <link
-                    rel="icon"
-                    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🧬</text></svg>"
-                ></link>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Tektur:wght@400;700&display=swap"
-                    rel="stylesheet"
-                />
-            </head>
-            <body className="{tektur.className} flex flex-col min-h-screen">
-                <Analytics />
-                <ClientProviders>{children}</ClientProviders>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }

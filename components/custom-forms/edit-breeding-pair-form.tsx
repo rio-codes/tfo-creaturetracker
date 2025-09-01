@@ -146,12 +146,12 @@ export function EditBreedingPairForm({
                 placeholder="Pair Name"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender"
+                className="bg-ebena-lavender dark:bg-slate-800"
                 required
             />
 
             {isInbred && (
-                <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-dusk-purple">
+                <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 dark:bg-yellow-900/50 dark:text-yellow-300 p-2 text-sm text-dusk-purple">
                     <Network className="h-4 w-4 flex-shrink-0" />
                     <span>
                         This pairing is inbred. Progeny will be related.
@@ -194,10 +194,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "male"}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender">
+                <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
                     {males.map((c) => (
                         <SelectItem
                             key={c?.id}
@@ -214,10 +214,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== "female"}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender">
+                <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
                     {females.map((c) => (
                         <SelectItem
                             key={c?.id}
@@ -232,7 +232,7 @@ export function EditBreedingPairForm({
             {goals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-slate-800">
                         {goals.map((goal) => (
                             <div
                                 key={goal?.id}
@@ -286,7 +286,7 @@ export function EditBreedingPairForm({
                     <Button type="button" variant="ghost" onClick={onSuccess}>
                         Cancel
                     </Button>
-                    <Button type="submit" className="bg-pompaca-purple text-barely-lilac" disabled={isLoading || isDeleting}>
+                    <Button type="submit" className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950" disabled={isLoading || isDeleting}>
                         {isLoading ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>

@@ -16,7 +16,7 @@ export default function Header() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
+    <header className="bg-pompaca-purple dark:bg-slate-900 text-barely-lilac px-2 py-2 max-h-28">
       <div className="flex items-center justify-between">
         {/* Left side - Menu and logo */}
         <div className="flex items-center gap-2">
@@ -29,30 +29,30 @@ export default function Header() {
                 <ChevronsDown className="size-10" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac">
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
+            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac dark:bg-slate-900">
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-slate-900 hover:bg-dusk-purple dark:hover:bg-slate-800 h-10" asChild>
                 <Link href="/collection" className="text-lg w-full h-full">
                   🦋 Collection
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-slate-900 hover:bg-dusk-purple dark:hover:bg-slate-800 h-10" asChild>
                 <Link href="/research-goals" className="text-lg w-full h-full">
                   🧪 Research Goals
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-slate-900 hover:bg-dusk-purple dark:hover:bg-slate-800 h-10" asChild>
                 <Link href="/breeding-pairs" className="text-lg w-full h-full">
                   💜 Breeding Pairs
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac hover:bg-dusk-purple h-10" asChild>
+              <DropdownMenuItem className="bg-barely-lilac dark:bg-slate-900 hover:bg-dusk-purple dark:hover:bg-slate-800 h-10" asChild>
                 <Link href="/settings" className="text-lg w-full h-full">
                   🔧 Settings
                 </Link>
               </DropdownMenuItem>
               {session?.user?.role === "admin" && (
                 <DropdownMenuItem
-                  className="bg-barely-lilac hover:bg-dusk-purple h-10"
+                  className="bg-barely-lilac dark:bg-slate-900 hover:bg-dusk-purple dark:hover:bg-slate-800 h-10"
                   asChild
                 >
                   <Link href="/admin" className="text-lg w-full h-full">🧑🏾‍💻 Admin</Link>
@@ -85,7 +85,7 @@ export default function Header() {
                 onClick={() => signOut({ callbackUrl: "/" })}
                 variant="ghost"
                 size="sm"
-                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple shadow-xl"
+                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-slate-800 dark:text-purple-300 dark:hover:bg-slate-700 shadow-xl"
               >
                 Log Out
                 <LogOut className="h-4 w-4 mr-2" />

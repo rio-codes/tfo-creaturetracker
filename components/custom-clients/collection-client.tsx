@@ -76,14 +76,14 @@ export function CollectionClient({
     const currentQuery = searchParams.get("query") || "";
 
     return (
-        <div className="bg-barely-lilac min-h-screen">
+        <div className="bg-barely-lilac dark:bg-slate-950 min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple mb-8">
+                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-8">
                     Collection
                 </h1>
                 <Button
                     onClick={() => handleOpenSyncDialog(null)}
-                    className="text-xl mb-8 bg-pompaca-purple text-barely-lilac drop-shadow-md drop-shadow-gray-500"
+                    className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
                 >
                     + Add or Update Creatures
                 </Button>
@@ -95,10 +95,10 @@ export function CollectionClient({
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple h-4 w-4 z-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
                         <Input
                             placeholder="search for a creature..."
-                            className="pl-10 bg-ebena-lavender border-pompaca-purple text-pompaca-purple focus-visible:ring-0 placeholder:text-dusk-purple drop-shadow-sm drop-shadow-gray-500"
+                            className="pl-10 bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) =>
                                 handleFilterChange("query", e.target.value)
@@ -113,10 +113,10 @@ export function CollectionClient({
                             handleFilterChange("gender", value)
                         }
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500">
+                        <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by gender..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender">
+                        <SelectContent className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
                             <SelectItem value="all">
                                 All Genders
                             </SelectItem>
@@ -134,10 +134,10 @@ export function CollectionClient({
                         value={currentStage}
                         onValueChange={(e) => handleFilterChange("stage", e)}
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                        <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender">
+                        <SelectContent className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
                             <SelectItem value="all">
                                 All Stages
                             </SelectItem>
@@ -160,10 +160,10 @@ export function CollectionClient({
                             handleFilterChange("species", value)
                         }
                     >
-                        <SelectTrigger className="w-48 bg-ebena-lavender text-pompaca-purple border-pompaca-purple drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                        <SelectTrigger className="w-48 bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender">
+                        <SelectContent className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
                             <SelectItem value="all">
                                 All Species
                             </SelectItem>
@@ -194,11 +194,11 @@ export function CollectionClient({
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple">
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-slate-900/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
                             No Creatures Found
                         </h2>
-                        <p className="text-dusk-purple mt-2">
+                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
                             Try adjusting your filters or use the button above
                             to sync your collection.
                         </p>

@@ -167,7 +167,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                         </>
                     }
                 />
-                <AlertDialogContent className="bg-barely-lilac">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-slate-900">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             Switch to {newMode} mode?
@@ -198,14 +198,14 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                 open={isConversionDialogOpen}
                 onOpenChange={setIsConversionDialogOpen}
             >
-                <DialogContent className="bg-barely-lilac">
+                <DialogContent className="bg-barely-lilac dark:bg-slate-900">
                     <DialogHeader>
-                        <DialogTitle className="text-pompaca-purple">
+                        <DialogTitle className="text-pompaca-purple dark:text-purple-300">
                             Resolve Ambiguous Genes
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
-                        <p className="text-sm text-dusk-purple">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400">
                             To switch to Genotype Mode, please select a specific
                             genotype for each trait.
                         </p>
@@ -222,10 +222,10 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                                         }))
                                     }
                                 >
-                                    <SelectTrigger className="bg-barely-lilac text-pompaca-purple">
+                                    <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
                                         <SelectValue placeholder="Select a specific genotype..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-barely-lilac text-pompaca-purple">
+                                    <SelectContent className="bg-ebena-lavender dark:bg-slate-800 text-pompaca-purple dark:text-purple-300">
                                         {cat.options?.map((opt: any) => (
                                             <SelectItem
                                                 key={opt.genotype}
@@ -241,6 +241,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                     </div>
                     <Button
                         onClick={handleConversionSubmit}
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                         disabled={isSwitchingMode}
                     >
                         {isSwitchingMode

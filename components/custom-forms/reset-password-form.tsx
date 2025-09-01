@@ -58,18 +58,18 @@ export default function ResetPasswordForm() {
     };
     
     return (
-        <div className="bg-barely-lilac min-h-screen flex items-center justify-center px-4">
+        <div className="bg-barely-lilac dark:bg-slate-950 min-h-screen flex items-center justify-center px-4">
             <div className=" w-full max-w-md">
                 {/* Logo/Branding */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-2 mb-4">
                         <div className="text-3xl">🧬</div>
-                        <h1 className="text-3xl font-bold text-pompaca-purple">TFO.creaturetracker</h1>
+                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">TFO.creaturetracker</h1>
                     </div>
-                    <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
+                    <p className="text-pompaca-purple dark:text-purple-400">a breeding tracker for The Final Oupost</p>
                 </div>
                 {/* Reset Form */}
-                <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
+                <Card className="bg-ebena-lavender dark:bg-slate-900 border-pompaca-purple dark:border-purple-400 shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl text-pompaca-purple">Welcome Back</CardTitle>
                         <CardDescription className="text-pompaca-purple">Sign in to your account to continue</CardDescription>
@@ -77,7 +77,7 @@ export default function ResetPasswordForm() {
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-pompaca-purple font-medium">
+                                <Label htmlFor="password" className="text-pompaca-purple dark:text-purple-300 font-medium">
                                 New Password
                                 </Label>
                                 <Input
@@ -86,12 +86,12 @@ export default function ResetPasswordForm() {
                                     placeholder="Enter your new password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    className="bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-pompaca-purple font-medium">
+                                <Label htmlFor="password" className="text-pompaca-purple dark:text-purple-300 font-medium">
                                 Confirm Password
                                 </Label>
                                 <Input
@@ -100,11 +100,11 @@ export default function ResetPasswordForm() {
                                     placeholder="Confirm new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-ebena-lavender border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
+                                    className="bg-ebena-lavender dark:bg-slate-800 border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                                     required
                                 />
                             </div>
-                            <Button type="submit" className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac">
+                            <Button type="submit" className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
                                 Reset
                             </Button>
                         </form>

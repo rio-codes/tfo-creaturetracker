@@ -16,11 +16,11 @@ export function AddGoalDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-pompaca-purple text-barely-lilac mb-5">
+                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 mb-5">
                     + New Goal
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac max-h-3/4 overflow-y-auto">
+            <DialogContent className="bg-barely-lilac dark:bg-slate-900 max-h-3/4 overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create New Research Goal</DialogTitle>
                 </DialogHeader>

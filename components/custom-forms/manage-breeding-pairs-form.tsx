@@ -174,12 +174,12 @@ export function ManageBreedingPairsForm({
                 <h4 className="font-bold text-pompaca-purple mb-2">
                     Existing Pairs
                 </h4>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
+                <div className="space-y-2 max-h-40 overflow-y-auto p-1">
                     {existingPairs.length > 0 ? (
                         existingPairs.map((pair) => (
                             <div
                                 key={pair!.id}
-                                className="flex items-center justify-between bg-ebena-lavender p-2 rounded-md"
+                                className="flex items-center justify-between bg-ebena-lavender dark:bg-slate-800 p-2 rounded-md"
                             >
                                 <span>{pair!.pairName}</span>
                                 <Button
@@ -193,7 +193,7 @@ export function ManageBreedingPairsForm({
                             </div>
                         ))
                     ) : (
-                        <p className="text-sm text-dusk-purple">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400">
                             This creature is not in any pairs.
                         </p>
                     )}
@@ -210,17 +210,17 @@ export function ManageBreedingPairsForm({
                         placeholder="New Pair Name (Optional)"
                         value={newPairName}
                         onChange={(e) => setNewPairName(e.target.value)}
-                        className="bg-ebena-lavender"
+                        className="bg-ebena-lavender dark:bg-slate-800"
                     />
                     <Select
                         value={selectedMateId}
                         onValueChange={setSelectedMateId}
                         required
                     >
-                        <SelectTrigger className="bg-ebena-lavender">
+                        <SelectTrigger className="bg-ebena-lavender dark:bg-slate-800">
                             <SelectValue placeholder="Select a mate..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender">
+                        <SelectContent className="bg-ebena-lavender dark:bg-slate-800">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
                                     <SelectItem
@@ -231,7 +231,7 @@ export function ManageBreedingPairsForm({
                                     </SelectItem>
                                 ))
                             ) : (
-                                <div className="p-2 text-sm text-center text-dusk-purple">
+                                <div className="p-2 text-sm text-center text-dusk-purple dark:text-purple-400">
                                     No suitable unpaired mates found.
                                 </div>
                             )}
@@ -245,7 +245,7 @@ export function ManageBreedingPairsForm({
                         </div>
                     )}
                     {predictions.length > 0 && (
-                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender">
+                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-slate-800">
                             <h5 className="font-bold">
                                 Goal Predictions for this Pairing:
                             </h5>
@@ -283,7 +283,7 @@ export function ManageBreedingPairsForm({
                     <Button
                         type="submit"
                         disabled={isLoading || !selectedMateId}
-                        className="w-full bg-pompaca-purple text-barely-lilac"
+                        className="w-full bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                     >
                         {isLoading ? (
                             <Loader2 className="animate-spin" />

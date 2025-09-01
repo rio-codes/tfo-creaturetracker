@@ -18,7 +18,7 @@ import type {
     EnrichedResearchGoal,
     Prediction,
 } from "@/types";
-import { findSuitableMates } from "@/lib/breeding-rules"; // Import the new helper
+import { findSuitableMates, getPossibleOffspringSpecies } from "@/lib/breeding-rules"; // Import the new helper
 import * as Sentry from "@sentry/nextjs";
 
 type ManagePairsFormProps = {
@@ -63,10 +63,14 @@ export function ManageBreedingPairsForm({
         return findSuitableMates(baseCreature, allCreatures, allPairs);
     }, [baseCreature, allCreatures, allPairs]);
 
-    const relevantGoals = useMemo(
-        () => allGoals.filter((g) => g?.species === baseCreature!.species),
-        [allGoals, baseCreature!.species]
-    );
+    const relevantGoals = useMemo(() => {
+        const selectedMate = allCreatures.find(c => c?.id === selectedMateId);
+        if (!selectedMate) {
+            return allGoals.filter((g) => g?.species === baseCreature!.species);
+        }
+        const possibleOffspring = getPossibleOffspringSpecies(baseCreature.species!, selectedMate.species!);
+        return allGoals.filter(g => g && possibleOffspring.includes(g.species!));
+    }, [allGoals, baseCreature, selectedMateId, allCreatures]);
 
     // EFFECT: Fetch predictions whenever a mate is selected
     useEffect(() => {

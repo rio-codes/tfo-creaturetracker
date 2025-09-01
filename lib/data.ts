@@ -20,7 +20,11 @@ import type {
     EnrichedResearchGoal,
     EnrichedBreedingPair,
 } from "@/types";
-import { checkForInbreeding, validatePairing } from "@/lib/breeding-rules";
+import {
+    checkForInbreeding,
+    validatePairing,
+    getPossibleOffspringSpecies,
+} from "@/lib/breeding-rules";
 import {
     enrichAndSerializeCreature,
     enrichAndSerializeGoal,
@@ -206,31 +210,31 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
     if (!userId) throw new Error("Not authenticated.");
 
     try {
-        // fetch and enrich goal
         const goal = await db.query.researchGoals.findFirst({
             where: and(
                 eq(researchGoals.id, goalId),
                 eq(researchGoals.userId, userId)
             ),
         });
-
-        // if goal does not exist return null and empty predictions array
         if (!goal) return { goal: null, predictions: [] };
 
-        // get goal mode from goal and enrich/serialize goal
         const goalMode = goal.goalMode;
         const enrichedGoal = enrichAndSerializeGoal(goal, goalMode);
 
-        // fetch breeding pairs for goal
-        const relevantPairs = await db.query.breedingPairs.findMany({
-            where: and(
-                eq(breedingPairs.userId, userId),
-                eq(breedingPairs.species, goal.species)
-            ),
+        // Fetch all pairs and filter in code, because a pair's `species` property
+        // might not match the goal's species in the case of hybrids.
+        const allUserPairs = await db.query.breedingPairs.findMany({
+            where: eq(breedingPairs.userId, userId),
             with: { maleParent: true, femaleParent: true },
         });
 
-        // perform genetic predictions for pairs
+        // Filter pairs that can produce the goal's species
+        const relevantPairs = allUserPairs.filter((p) => {
+            if (!p.maleParent || !p.femaleParent) return false;
+            const possibleOffspring = getPossibleOffspringSpecies(p.maleParent.species, p.femaleParent.species);
+            return possibleOffspring.includes(goal.species);
+        });
+
         const predictions = relevantPairs
             .filter((p) => p.maleParent && p.femaleParent)
             .map((pair) => {
@@ -458,8 +462,11 @@ export async function fetchBreedingPairsWithStats(
     // Build conditions for filtering
     const conditions = [
         eq(breedingPairs.userId, userId),
-        species && species !== "all"
-            ? eq(breedingPairs.species, species)
+        species && species !== 'all'
+            ? or(
+                  eq(maleCreatures.species, species),
+                  eq(femaleCreatures.species, species)
+              )
             : undefined,
         query
             ? or(

@@ -21,7 +21,7 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from "@/types";
-import { validatePairing, checkForInbreeding } from "@/lib/breeding-rules";
+import { getPossibleOffspringSpecies, checkForInbreeding } from "@/lib/breeding-rules";
 
 type AddPairFormProps = {
     allCreatures: EnrichedCreature[];
@@ -94,27 +94,29 @@ export function AddPairForm({
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     // Memoize filtered lists for dropdowns based on the selected species
-    const { males, females, goals } = useMemo(() => {
+    const { males, females } = useMemo(() => {
         if (!selectedSpecies) {
-            return { males: [], females: [], goals: [] };
+            return { males: [], females: [] };
         }
         return {
             males: allCreatures.filter(
                 (c) =>
                     c?.species === selectedSpecies &&
-                    c?.gender === "male" &&
-                    c?.growthLevel === 3
+                    c?.gender === "male"
             ),
             females: allCreatures.filter(
                 (c) =>
                     c?.species === selectedSpecies &&
-                    c?.gender === "female" &&
-                    c?.growthLevel === 3
+                    c?.gender === "female"
             ),
-            goals: allGoals.filter((g) => g?.species === selectedSpecies),
         };
-    }, [selectedSpecies, allCreatures, allGoals]);
+    }, [selectedSpecies, allCreatures]);
 
+    const assignableGoals = useMemo(() => {
+        if (!selectedMale || !selectedFemale) return [];
+        const possibleOffspring = getPossibleOffspringSpecies(selectedMale.species!, selectedFemale.species!);
+        return allGoals.filter(g => g && possibleOffspring.includes(g.species!));
+    }, [selectedMale, selectedFemale, allGoals]);
     useEffect(() => {
         if (!selectedMaleId || !selectedFemaleId) {
             setPredictions([]);
@@ -122,7 +124,7 @@ export function AddPairForm({
         }
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
-            const goalIds = goals.map((g) => g?.id);
+            const goalIds = assignableGoals.map((g) => g?.id);
             try {
                 const response = await fetch("/api/breeding-predictions", {
                     method: "POST",
@@ -143,7 +145,7 @@ export function AddPairForm({
             }
         };
         fetchPredictions();
-    }, [selectedMaleId, selectedFemaleId, goals]);
+    }, [selectedMaleId, selectedFemaleId, assignableGoals]);
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
@@ -335,11 +337,11 @@ export function AddPairForm({
             )}
 
             {/* Goal Selector (Multi-select) */}
-            {goals.length > 0 && (
+            {assignableGoals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
-                        {goals.map((goal) => (
+                        {assignableGoals.map((goal) => (
                             <div
                                 key={goal?.id}
                                 className="flex items-center space-x-2"

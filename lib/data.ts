@@ -339,9 +339,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all"
             ? eq(creatures.gender, gender as any)

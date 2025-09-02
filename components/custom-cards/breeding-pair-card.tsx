@@ -54,12 +54,14 @@ import {
     Loader2,
     Info,
     Dna,
+    BookText,
     ChevronDown,
 } from "lucide-react";
 import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
 import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
 import { ViewOutcomesDialog } from "../custom-dialogs/view-outcomes-dialog";
 import { InfoDisplay } from "../misc-custom-components/info-display";
+import { ViewLogsDialog } from "../custom-dialogs/view-logs-dialog";
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -202,6 +204,20 @@ export function BreedingPairCard({
     const pairForDialog = { id: pair!.id, species: pair!.species };
     return (
         <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
+            {/*Notes Icon */}
+            <div className="absolute top-2 left-7 z-10">
+                <ViewLogsDialog pair={pair}>
+                    <Button
+                        size="icon"
+                        className="h-6 w-6 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
+                    >
+                        <BookText className="h-4 w-4" />
+                        <span className="text-xs">
+                            Logs 
+                        </span>
+                    </Button>
+                </ViewLogsDialog>
+            </div>
             {/* Pin Icon */}
             <div className="absolute top-1 right-1 z-10">
                 <Button
@@ -283,26 +299,28 @@ export function BreedingPairCard({
                 </div>
                 {/* Main Info Grid */}
                 <div className="gap-4 w-4/5">
-
                     {/* Left Column: Progeny */}
                     <div className="flex flex-col w-full">
-                        <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-sm">
-                                Progeny ({pair.progenyCount})
-                            </h4>
-                            {pair.isInbred && (
-                                <InfoDisplay
-                                    trigger={
-                                        <Network className="h-4 w-4 text-yellow-600" />
-                                    }
-                                    content={
-                                        <p>
-                                            This pair is inbred. Progeny will be
-                                            related.
-                                        </p>
-                                    }
-                                />
-                            )}
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-sm">
+                                    Progeny ({pair.progenyCount})
+                                </h4>
+                                {pair.isInbred && (
+                                    <InfoDisplay
+                                        trigger={
+                                            <Network className="h-4 w-4 text-yellow-600" />
+                                        }
+                                        content={
+                                            <p>
+                                                This pair is related
+                                                genetically. Offspring will be
+                                                inbred.
+                                            </p>
+                                        }
+                                    />
+                                )}
+                            </div>
                         </div>
                         <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
                             {pair.progeny && pair.progeny.length > 0 ? (
@@ -368,7 +386,11 @@ export function BreedingPairCard({
                                                             </Button>
                                                         </DialogTrigger>
                                                         <DialogContent
-                                                            onPointerDownOutside={(e) => e.preventDefault()}
+                                                            onPointerDownOutside={(
+                                                                e
+                                                            ) =>
+                                                                e.preventDefault()
+                                                            }
                                                             className="bg-barely-lilac dark:bg-pompaca-purple"
                                                         >
                                                             <DialogHeader>
@@ -482,9 +504,9 @@ export function BreedingPairCard({
                                                 >
                                                     {g.name.length > 26
                                                         ? `${g.name.substring(
-                                                                0,
-                                                                26
-                                                            )}...`
+                                                              0,
+                                                              26
+                                                          )}...`
                                                         : g.name}
                                                 </Link>
                                             </div>
@@ -496,7 +518,9 @@ export function BreedingPairCard({
                                                 }`}
                                             >
                                                 {g.isPossible
-                                                    ? `${(g.averageChance * 100).toFixed(2)}%`
+                                                    ? `${(
+                                                          g.averageChance * 100
+                                                      ).toFixed(2)}%`
                                                     : "Impossible"}
                                             </div>
                                         </li>

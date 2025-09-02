@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type {
     EnrichedCreature,
     EnrichedBreedingPair,
     EnrichedResearchGoal,
     DbBreedingPair,
     DbBreedingLogEntry,
-} from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from '@/components/ui/collapsible';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
     TooltipProvider,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -33,16 +33,16 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { SpeciesAvatar } from "@/components/misc-custom-components/species-avatar";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { SpeciesAvatar } from '@/components/misc-custom-components/species-avatar';
 import {
     Pin,
     PinOff,
@@ -56,12 +56,12 @@ import {
     Dna,
     BookText,
     ChevronDown,
-} from "lucide-react";
-import { EditBreedingPairDialog } from "@/components/custom-dialogs/edit-breeding-pair-dialog";
-import { LogBreedingDialog } from "@/components/custom-dialogs/log-breeding-dialog";
-import { ViewOutcomesDialog } from "../custom-dialogs/view-outcomes-dialog";
-import { InfoDisplay } from "../misc-custom-components/info-display";
-import { ViewLogsDialog } from "../custom-dialogs/view-logs-dialog";
+} from 'lucide-react';
+import { EditBreedingPairDialog } from '@/components/custom-dialogs/edit-breeding-pair-dialog';
+import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dialog';
+import { ViewOutcomesDialog } from '../custom-dialogs/view-outcomes-dialog';
+import { InfoDisplay } from '../misc-custom-components/info-display';
+import { ViewLogsDialog } from '../custom-dialogs/view-logs-dialog';
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -69,6 +69,7 @@ type BreedingPairCardProps = {
     allGoals: EnrichedResearchGoal[];
     allPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
+    isAdminView?: boolean;
 };
 
 const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
@@ -76,18 +77,18 @@ const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
     const summary = creature.geneData
-        .filter((g) => g.category !== "Gender")
+        .filter((g) => g.category !== 'Gender')
         .map(
             (gene) =>
                 `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`
         )
-        .join(", ");
+        .join(', ');
 
     return (
         <p
             className="pt-1 text-xs text-dusk-purple break-words"
             dangerouslySetInnerHTML={{ __html: summary }}
-            title={summary.replace(/<strong>/g, "").replace(/<\/strong>/g, "")}
+            title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
         />
     );
 };
@@ -132,6 +133,7 @@ export function BreedingPairCard({
     allGoals,
     allPairs,
     allLogs,
+    isAdminView = false,
 }: BreedingPairCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
@@ -147,15 +149,15 @@ export function BreedingPairCard({
         setIsPinning(true);
         try {
             await fetch(`/api/breeding-pairs/${pair!.id}/pin`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPinned: !isPinned }),
             });
             setIsPinned(!isPinned);
             router.refresh();
         } catch (error) {
             console.error(error);
-            alert("Could not update pin status.");
+            alert('Could not update pin status.');
         } finally {
             setIsPinning(false);
         }
@@ -167,12 +169,12 @@ export function BreedingPairCard({
             const response = await fetch(
                 `/api/breeding-pairs/${pair.id}?progenyId=${progenyId}`,
                 {
-                    method: "DELETE",
+                    method: 'DELETE',
                 }
             );
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || "Failed to remove progeny.");
+                throw new Error(data.error || 'Failed to remove progeny.');
             }
             router.refresh();
         } catch (error: any) {
@@ -187,7 +189,7 @@ export function BreedingPairCard({
         creature: EnrichedCreature | null | undefined
     ) => {
         if (!creature?.imageUrl) {
-            return "";
+            return '';
         }
 
         if (creature.updatedAt) {
@@ -212,9 +214,7 @@ export function BreedingPairCard({
                         className="h-6 w-6 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
                     >
                         <BookText className="h-4 w-4" />
-                        <span className="text-xs">
-                            Logs 
-                        </span>
+                        <span className="text-xs">Logs</span>
                     </Button>
                 </ViewLogsDialog>
             </div>
@@ -268,8 +268,8 @@ export function BreedingPairCard({
                             <p className="truncate">
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     M:
-                                </span>{" "}
-                                {maleParent.creatureName || "Unnamed"} (
+                                </span>{' '}
+                                {maleParent.creatureName || 'Unnamed'} (
                                 {maleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
@@ -283,8 +283,8 @@ export function BreedingPairCard({
                             <p className="truncate">
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     F:
-                                </span>{" "}
-                                {femaleParent.creatureName || "Unnamed"} (
+                                </span>{' '}
+                                {femaleParent.creatureName || 'Unnamed'} (
                                 {femaleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
@@ -358,7 +358,7 @@ export function BreedingPairCard({
                                                                     }
                                                                 >
                                                                     {p.creatureName ||
-                                                                        "Unnamed"}{" "}
+                                                                        'Unnamed'}{' '}
                                                                     ({p.code})
                                                                 </Link>
                                                             </div>
@@ -396,7 +396,7 @@ export function BreedingPairCard({
                                                             <DialogHeader>
                                                                 <DialogTitle>
                                                                     {p.creatureName ||
-                                                                        "Unnamed"}{" "}
+                                                                        'Unnamed'}{' '}
                                                                     ({p.code})
                                                                 </DialogTitle>
                                                             </DialogHeader>
@@ -432,7 +432,7 @@ export function BreedingPairCard({
                                                                     remove "
                                                                     {
                                                                         p.creatureName
-                                                                    }{" "}
+                                                                    }{' '}
                                                                     ({p.code})"
                                                                     from this
                                                                     pair's
@@ -513,15 +513,15 @@ export function BreedingPairCard({
                                             <div
                                                 className={`text-right text-dusk-purple flex-shrink-0 font-semibold ${
                                                     !g.isPossible
-                                                        ? "text-red-500"
-                                                        : ""
+                                                        ? 'text-red-500'
+                                                        : ''
                                                 }`}
                                             >
                                                 {g.isPossible
                                                     ? `${(
                                                           g.averageChance * 100
                                                       ).toFixed(2)}%`
-                                                    : "Impossible"}
+                                                    : 'Impossible'}
                                             </div>
                                         </li>
                                     ))}
@@ -561,6 +561,7 @@ export function BreedingPairCard({
                     allGoals={allGoals}
                     allPairs={allPairs}
                     allLogs={allLogs}
+                    isAdminView={isAdminView}
                 >
                     <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
                         Edit /

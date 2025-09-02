@@ -4,6 +4,32 @@ import { db } from "@/src/db";
 import { researchGoals } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { logAdminAction } from "@/lib/audit";
+import { enrichAndSerializeGoal } from "@/lib/serialization";
+
+export async function GET(
+    req: Request,
+    { params }: { params: { goalId: string } }
+) {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== "admin") {
+        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
+    try {
+        const goal = await db.query.researchGoals.findFirst({
+            where: eq(researchGoals.id, params.goalId),
+        });
+
+        if (!goal) {
+            return NextResponse.json({ error: "Research goal not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ enrichedGoal: enrichAndSerializeGoal(goal, goal.goalMode) });
+    } catch (error) {
+        console.error("Failed to fetch research goal details:", error);
+        return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
+    }
+}
 
 export async function DELETE(
     req: Request,

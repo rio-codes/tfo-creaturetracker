@@ -1,62 +1,54 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { breedingPairs, creatures, researchGoals } from "@/src/db/schema";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { breedingPairs, creatures, researchGoals } from '@/src/db/schema';
+import { z } from 'zod';
+import { and, eq, inArray } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import { validatePairing } from '@/lib/breeding-rules';
 import {
     RegExpMatcher,
-    TextCensor,
     englishDataset,
     englishRecommendedTransformers,
-} from "obscenity";
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { validatePairing } from "@/lib/breeding-rules";
-import { and, eq, inArray } from "drizzle-orm";
+} from 'obscenity';
 
 const createPairSchema = z.object({
     pairName: z
         .string()
-        .min(3, "Pair name must be at least 3 characters.")
-        .max(32, "Pair name can not be more than 32 characters."),
-    species: z.string().min(1, "Species is required."),
-    maleParentId: z.string().uuid("Invalid male parent ID."),
-    femaleParentId: z.string().uuid("Invalid female parent ID."),
-    assignedGoalIds: z.array(z.string().uuid()).optional(), // Array of goal IDs
+        .min(3, 'Pair name must be at least 3 characters.')
+        .max(32, 'Pair name can not be more than 32 characters.'),
+    species: z.string().min(1, 'Species is required.'),
+    maleParentId: z.string().uuid('Invalid male parent ID.'),
+    femaleParentId: z.string().uuid('Invalid female parent ID.'),
+    assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
 export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
-
     const userId = session.user.id;
 
     try {
         const body = await req.json();
-        const validated = createPairSchema.safeParse(body);
+        const validatedFields = createPairSchema.safeParse(body);
 
-        if (!validated.success) {
-            const fieldErrors = z.flattenError(validated.error).fieldErrors;
-            const allErrorArrays = Object.values(fieldErrors);
-            const allErrors = allErrorArrays.flat();
-            const errorString = allErrors.join("\n");
-            console.error("Zod Validation Failed:", fieldErrors);
+        if (!validatedFields.success) {
             return NextResponse.json(
-                { error: "Invalid input.", details: errorString },
+                {
+                    error: 'Invalid data provided.',
+                    details: validatedFields.error.flatten(),
+                },
                 { status: 400 }
             );
         }
-        const {
-            pairName,
-            species,
-            maleParentId,
-            femaleParentId,
-            assignedGoalIds,
-        } = validated.data;
+
+        const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
+            validatedFields.data;
 
         const matcher = new RegExpMatcher({
             ...englishDataset.build(),
@@ -65,7 +57,7 @@ export async function POST(req: Request) {
 
         if (matcher.hasMatch(pairName)) {
             return NextResponse.json(
-                { error: "The provided name contains inappropriate language." },
+                { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
             );
         }
@@ -87,24 +79,8 @@ export async function POST(req: Request) {
 
         if (!maleParent || !femaleParent) {
             return NextResponse.json(
-                { error: "One or both parents not found." },
+                { error: 'One or both selected parents could not be found.' },
                 { status: 404 }
-            );
-        }
-
-        // Check if a pair with these exact parents already exists for this user
-        const existingPair = await db.query.breedingPairs.findFirst({
-            where: and(
-                eq(breedingPairs.userId, userId),
-                eq(breedingPairs.maleParentId, maleParentId),
-                eq(breedingPairs.femaleParentId, femaleParentId)
-            ),
-        });
-
-        if (existingPair) {
-            return NextResponse.json(
-                { error: "A breeding pair with these parents already exists." },
-                { status: 409 }
             );
         }
 
@@ -119,30 +95,24 @@ export async function POST(req: Request) {
         const [newPair] = await db
             .insert(breedingPairs)
             .values({
-                userId: session.user.id,
+                userId,
                 pairName,
-                species,
+                species: maleParent.species!,
                 maleParentId,
                 femaleParentId,
-                assignedGoalIds: assignedGoalIds || [], // Default to an empty array if none are provided
-                updatedAt: new Date(),
+                assignedGoalIds: assignedGoalIds || [],
             })
-            .returning({ id: breedingPairs.id });
+            .returning();
 
-        // if goals were assigned during creation, update them to include this new pair
-        if (assignedGoalIds && assignedGoalIds.length > 0 && newPair) {
-            console.log("updating goals");
+        if (assignedGoalIds && assignedGoalIds.length > 0) {
             const goalsToUpdate = await db.query.researchGoals.findMany({
                 where: and(
                     inArray(researchGoals.id, assignedGoalIds),
                     eq(researchGoals.userId, userId)
                 ),
             });
-
-            // update associated research goals with assigned pair ids
             for (const goal of goalsToUpdate) {
                 const currentPairIds = new Set(goal.assignedPairIds || []);
-                console.log("updating pair ", currentPairIds);
                 currentPairIds.add(newPair.id);
                 await db
                     .update(researchGoals)
@@ -152,18 +122,17 @@ export async function POST(req: Request) {
             }
         }
 
-        // Revalidate the path so the new pair shows up immediately
-        revalidatePath("/breeding-pairs");
-        revalidatePath("/research-goals");
+        revalidatePath('/breeding-pairs');
+        revalidatePath('/research-goals');
 
         return NextResponse.json(
-            { message: "Breeding pair created successfully!" },
+            { message: 'Breeding pair created successfully!', pair: newPair },
             { status: 201 }
         );
-    } catch (error) {
-        console.error("Failed to create breeding pair:", error);
+    } catch (error: any) {
+        console.error('Failed to create breeding pair:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: error.message || 'An internal error occurred.' },
             { status: 500 }
         );
     }

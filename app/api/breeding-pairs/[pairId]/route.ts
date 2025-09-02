@@ -1,27 +1,32 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { breedingPairs, creatures, researchGoals, breedingLogEntries } from "@/src/db/schema";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import {
+    breedingPairs,
+    creatures,
+    researchGoals,
+    breedingLogEntries,
+} from '@/src/db/schema';
 import {
     RegExpMatcher,
     TextCensor,
     englishDataset,
     englishRecommendedTransformers,
-} from "obscenity";
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { and, eq, inArray, or } from "drizzle-orm";
-import { validatePairing } from "@/lib/breeding-rules";
-import { logAdminAction } from "@/lib/audit";
+} from 'obscenity';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { and, eq, inArray, or } from 'drizzle-orm';
+import { validatePairing } from '@/lib/breeding-rules';
+import { logAdminAction } from '@/lib/audit';
 
 const editPairSchema = z.object({
     pairName: z
         .string()
-        .min(3, "Pair name must be at least 3 characters.")
-        .max(32, "Pair name can not be more than 32 characters."),
-    species: z.string().min(1, "Species is required."),
-    maleParentId: z.string().uuid("Invalid male parent ID."),
-    femaleParentId: z.string().uuid("Invalid female parent ID."),
+        .min(3, 'Pair name must be at least 3 characters.')
+        .max(32, 'Pair name can not be more than 32 characters.'),
+    species: z.string().min(1, 'Species is required.'),
+    maleParentId: z.string().uuid('Invalid male parent ID.'),
+    femaleParentId: z.string().uuid('Invalid female parent ID.'),
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
@@ -32,7 +37,7 @@ export async function PATCH(
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -44,7 +49,7 @@ export async function PATCH(
         if (!validatedFields.success) {
             return NextResponse.json(
                 {
-                    error: "Invalid data provided.",
+                    error: 'Invalid data provided.',
                     details: validatedFields.error.flatten(),
                 },
                 { status: 400 }
@@ -60,7 +65,7 @@ export async function PATCH(
 
         if (matcher.hasMatch(pairName)) {
             return NextResponse.json(
-                { error: "The provided name contains inappropriate language." },
+                { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
             );
         }
@@ -75,7 +80,7 @@ export async function PATCH(
 
         if (!existingPair) {
             return NextResponse.json(
-                { error: "Breeding pair not found." },
+                { error: 'Breeding pair not found.' },
                 { status: 404 }
             );
         }
@@ -98,7 +103,7 @@ export async function PATCH(
         if (!maleParent || !femaleParent) {
             return NextResponse.json(
                 {
-                    error: "One or both selected parents could not be found.",
+                    error: 'One or both selected parents could not be found.',
                 },
                 { status: 404 }
             );
@@ -125,7 +130,7 @@ export async function PATCH(
             if (goals.length !== assignedGoalIds.length) {
                 return NextResponse.json(
                     {
-                        error: "One or more selected goals could not be found.",
+                        error: 'One or more selected goals could not be found.',
                     },
                     { status: 404 }
                 );
@@ -165,16 +170,16 @@ export async function PATCH(
         if (result.length === 0) {
             return NextResponse.json(
                 {
-                    error: "Pair not found or you do not have permission to edit it.",
+                    error: 'Pair not found or you do not have permission to edit it.',
                 },
                 { status: 404 }
             );
         }
 
-        if (session.user.role === "admin") {
+        if (session.user.role === 'admin') {
             await logAdminAction({
-                action: "breeding_pair.edit",
-                targetType: "breeding_pair",
+                action: 'breeding_pair.edit',
+                targetType: 'breeding_pair',
                 targetId: params.pairId,
                 details: {
                     updatedFields: Object.keys(validatedFields.data),
@@ -230,16 +235,16 @@ export async function PATCH(
             }
         }
 
-        revalidatePath("/breeding-pairs");
-        revalidatePath("/research-goals");
+        revalidatePath('/breeding-pairs');
+        revalidatePath('/research-goals');
 
         return NextResponse.json({
-            message: "Breeding pair updated successfully!",
+            message: 'Breeding pair updated successfully!',
         });
     } catch (error: any) {
-        console.error("Failed to update breeding pair:", error);
+        console.error('Failed to update breeding pair:', error);
         return NextResponse.json(
-            { error: error.message || "An internal error occurred." },
+            { error: error.message || 'An internal error occurred.' },
             { status: 500 }
         );
     }
@@ -252,13 +257,13 @@ export async function DELETE(
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
     const userId = session.user.id;
     const { searchParams } = new URL(req.url);
-    const progenyIdToRemove = searchParams.get("progenyId");
+    const progenyIdToRemove = searchParams.get('progenyId');
 
     try {
         if (progenyIdToRemove) {
@@ -275,17 +280,14 @@ export async function DELETE(
                                 breedingLogEntries.progeny1Id,
                                 progenyIdToRemove
                             ),
-                            eq(
-                                breedingLogEntries.progeny2Id,
-                                progenyIdToRemove
-                            )
+                            eq(breedingLogEntries.progeny2Id, progenyIdToRemove)
                         )
                     )
                 );
 
             if (logEntriesToUpdate.length === 0) {
                 return NextResponse.json(
-                    { error: "Progeny log entry not found." },
+                    { error: 'Progeny log entry not found.' },
                     { status: 404 }
                 );
             }
@@ -310,11 +312,11 @@ export async function DELETE(
                 }
             }
 
-            revalidatePath("/breeding-pairs");
-            revalidatePath("/research-goals", "layout");
+            revalidatePath('/breeding-pairs');
+            revalidatePath('/research-goals', 'layout');
 
             return NextResponse.json({
-                message: "Progeny removed successfully.",
+                message: 'Progeny removed successfully.',
             });
         } else {
             // Original logic to delete the entire pair
@@ -331,28 +333,30 @@ export async function DELETE(
             if (result.length === 0) {
                 return NextResponse.json(
                     {
-                        error: "Pair not found or you do not have permission to delete it.",
+                        error: 'Pair not found or you do not have permission to delete it.',
                     },
                     { status: 404 }
                 );
             }
 
-            await logAdminAction({
-                action: 'breeding_pair.delete',
-                targetType: 'breeding_pair',
-                targetId: params.pairId,
-                details: { pairName: result[0].pairName }
-            });
+            if (session.user.role === 'admin') {
+                await logAdminAction({
+                    action: 'breeding_pair.delete',
+                    targetType: 'breeding_pair',
+                    targetId: params.pairId,
+                    details: { pairName: result[0].pairName },
+                });
+            }
 
-            revalidatePath("/breeding-pairs");
+            revalidatePath('/breeding-pairs');
             return NextResponse.json({
-                message: "Breeding pair deleted successfully.",
+                message: 'Breeding pair deleted successfully.',
             });
         }
     } catch (error: any) {
-        console.error("Failed to process DELETE request:", error);
+        console.error('Failed to process DELETE request:', error);
         return NextResponse.json(
-            { error: error.message || "An internal error occurred." },
+            { error: error.message || 'An internal error occurred.' },
             { status: 500 }
         );
     }

@@ -1,16 +1,15 @@
-import { Suspense } from "react";
-import { AdminDataTable } from "@/components/admin/admin-data-table";
-import { columns } from "./columns";
-import { db } from "@/src/db";
-import { researchGoals, users } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { Suspense } from 'react';
+import { db } from '@/src/db';
+import { researchGoals, users } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
+import { ResearchGoalsPageClient } from './research-goals-page-client';
 
 async function fetchAdminResearchGoals(searchParams: {
     page?: string;
@@ -79,11 +78,9 @@ export default async function AdminResearchGoalsPage({
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading research goals...</div>}>
-                    <AdminDataTable
-                        columns={columns}
-                        data={goals as any}
+                    <ResearchGoalsPageClient
+                        goals={goals}
                         pagination={pagination}
-                        searchPlaceholder="Filter by name, species, or owner..."
                     />
                 </Suspense>
             </CardContent>

@@ -1,16 +1,15 @@
-import { Suspense } from "react";
-import { AdminDataTable } from "@/components/admin/admin-data-table";
-import { columns } from "./columns";
-import { db } from "@/src/db";
-import { breedingPairs, users } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { Suspense } from 'react';
+import { db } from '@/src/db';
+import { breedingPairs, users } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
+import { BreedingPairsPageClient } from './breeding-pairs-page-client';
 
 async function fetchAdminBreedingPairs(searchParams: {
     page?: string;
@@ -78,11 +77,9 @@ export default async function AdminBreedingPairsPage({
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading breeding pairs...</div>}>
-                    <AdminDataTable
-                        columns={columns}
-                        data={pairs as any}
+                    <BreedingPairsPageClient
+                        pairs={pairs}
                         pagination={pagination}
-                        searchPlaceholder="Filter by name or owner..."
                     />
                 </Suspense>
             </CardContent>

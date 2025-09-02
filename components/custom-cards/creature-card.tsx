@@ -1,24 +1,25 @@
-"use client";
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ChevronUp, ChevronDown, Pin, PinOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+'use client';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ChevronUp, ChevronDown, Pin, PinOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import type {
     EnrichedBreedingPair,
     EnrichedResearchGoal,
-    EnrichedCreature
-} from "@/types/index";
-import { ManageBreedingPairsDialog } from "../custom-dialogs/manage-breeding-pairs-dialog";
-import { structuredGeneData } from "@/lib/creature-data";
+    EnrichedCreature,
+} from '@/types';
+import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
+import { structuredGeneData } from '@/lib/creature-data';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
     allCreatures: EnrichedCreature[];
     allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[];
+    isAdminView?: boolean;
 }
 
 export function CreatureCard({
@@ -26,6 +27,7 @@ export function CreatureCard({
     allCreatures,
     allPairs,
     allGoals,
+    isAdminView = false,
 }: CreatureCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(creature!.isPinned);
@@ -37,18 +39,18 @@ export function CreatureCard({
         const newPinState = !isPinned;
         try {
             const response = await fetch(`/api/creatures/${creature!.id}/pin`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPinned: newPinState }),
             });
             if (!response.ok) {
-                throw new Error("Failed to update pin status.");
+                throw new Error('Failed to update pin status.');
             }
             setIsPinned(newPinState);
             router.refresh(); // Re-fetch data to re-sort the grid
         } catch (error) {
             console.error(error);
-            alert("Could not update pin status. Please try again.");
+            alert('Could not update pin status. Please try again.');
         } finally {
             setIsPinning(false);
         }
@@ -66,16 +68,21 @@ export function CreatureCard({
         }
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/creatures/${creature!.id}`, {
-                method: "DELETE",
+            const apiUrl = isAdminView
+                ? `/api/admin/creatures/${creature!.id}`
+                : `/api/creatures/${creature!.id}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'DELETE',
             });
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || "Failed to remove the creature.");
+                throw new Error(data.error || 'Failed to remove the creature.');
             }
-            router.refresh();
+            // Reload the page to ensure the underlying admin table is updated.
+            window.location.reload();
         } catch (error: any) {
-            alert(error.message); // Show an alert on failure
+            alert(error.message);
         } finally {
             setIsDeleting(false);
         }
@@ -89,7 +96,7 @@ export function CreatureCard({
                     size="icon"
                     onClick={handlePinToggle}
                     disabled={isPinning}
-                    aria-label={isPinned ? "Unpin goal" : "Pin goal"}
+                    aria-label={isPinned ? 'Unpin goal' : 'Pin goal'}
                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
                     {isPinned ? (
@@ -103,8 +110,8 @@ export function CreatureCard({
                 {/* Creature Image */}
                 <div className="rounded-lg p-4 mb-4 flex justify-center">
                     <img
-                        src={creature!.imageUrl || "/placeholder.png"}
-                        alt={creature!.code + ", " + creature!.species}
+                        src={creature!.imageUrl || '/placeholder.png'}
+                        alt={creature!.code + ', ' + creature!.species}
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>

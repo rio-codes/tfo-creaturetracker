@@ -1,8 +1,21 @@
 import type { InferSelectModel } from "drizzle-orm";
+import type {
+    users,
+    creatures,
+    breedingPairs,
+    breedingLogEntries,
+    researchGoals,
+    achievedGoals,
+} from "@/src/db/schema";
 
-/**
- * Represents a user of the application.
- */
+export type DbUser = typeof users.$inferSelect;
+export type DbCreature = typeof creatures.$inferSelect;
+export type DbBreedingPair = typeof breedingPairs.$inferSelect;
+export type DbBreedingLogEntry = typeof breedingLogEntries.$inferSelect;
+export type DbResearchGoal = typeof researchGoals.$inferSelect;
+export type DbAchievedGoal = typeof achievedGoals.$inferselect;
+
+
 export type User = {
     id: string;
     name?: string | null;
@@ -17,29 +30,6 @@ export type User = {
     pairsItemsPerPage: number;
 };
 
-/**
- * Represents the raw creature object as it is stored in the database.
- */
-export type DbCreature = {
-    id: string;
-    userId: string;
-    code: string;
-    creatureName: string | null;
-    species: string;
-    imageUrl: string;
-    gender: "male" | "female";
-    growthLevel: number;
-    genetics: string;
-    isPinned: boolean;
-    gottenAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-/**
- * Represents a creature after it has been enriched with serialized dates
- * and detailed gene information. This is the object used in client components.
- */
 export type EnrichedCreature =
     | (Omit<DbCreature, "createdAt" | "updatedAt" | "gottenAt"> & {
             createdAt: string;
@@ -53,9 +43,7 @@ export type EnrichedCreature =
         })
     | null;
 
-/**
- * Represents the detailed information for a single selected gene in a research goal.
- */
+
 export type GoalGene = {
     genotype: string;
     phenotype: string;
@@ -63,29 +51,6 @@ export type GoalGene = {
     isOptional: boolean;
 };
 
-/**
- * Represents the raw research goal object as it is stored in the database.
- */
-export type DbResearchGoal = {
-    id: string;
-    userId: string;
-    name: string;
-    species: string;
-    imageUrl: string | null; // The 'genes' column is JSONB
-    genes: InferSelectModel<
-        typeof import("../src/db/schema").researchGoals
-    >["genes"];
-    goalMode: "genotype" | "phenotype";
-    isPinned: boolean;
-    assignedPairIds: string[] | null;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-/**
- * Represents a research goal after it has been enriched with serialized dates
- * and detailed gene information. This is the object used in client components.
- */
 export type EnrichedResearchGoal = Omit<
     DbResearchGoal,
     "createdAt" | "updatedAt" | "genes"
@@ -97,59 +62,23 @@ export type EnrichedResearchGoal = Omit<
     };
 };
 
-/**
- * Represents the raw breeding pair object as it is stored in the database.
- */
-export type DbBreedingPair = {
-    id: string;
-    userId: string;
-    pairName: string;
-    species: string;
-    maleParentId: string;
-    femaleParentId: string;
-    isPinned: boolean;
-    assignedGoalIds: string[] | null;
-    outcomesPreviewUrl: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-/**
- * Represents a breeding pair after it has been enriched with full parent and progeny data.
- */
-export type EnrichedBreedingPair = Omit<
-    DbBreedingPair,
-    "createdAt" | "updatedAt"
-> & {
+export type EnrichedBreedingPair = Omit<DbBreedingPair, "createdAt" | "updatedAt"> & {
     createdAt: string;
     updatedAt: string;
     timesBred: number;
     progenyCount: number;
     progeny: EnrichedCreature[];
     isInbred: boolean;
+    logs: SerializedBreedingLogEntry[];
     maleParent: EnrichedCreature;
     femaleParent: EnrichedCreature;
     assignedGoals: (EnrichedResearchGoal & {
-        isAchieved: boolean; isPossible: boolean; averageChance: number 
+        isAchieved: boolean;
+        isPossible: boolean;
+        averageChance: number;
     })[];
 };
 
-/**
- * Represents a single breeding log entry from the database.
- */
-export type DbBreedingLogEntry = {
-    id: number;
-    userId: string;
-    pairId: string;
-    progeny1Id: string | null;
-    progeny2Id: string | null;
-    notes: string | null;
-    createdAt: Date;
-};
-
-/**
- * Represents the data structure for a breeding prediction against a goal.
- */
 export type Prediction = {
     goalId: string;
     goalName: string;
@@ -160,4 +89,12 @@ export type Prediction = {
     maleParent?: EnrichedCreature;
     femaleParent?: EnrichedCreature;
     chancesByCategory?: { [key: string]: number };
+};
+
+export type SerializedBreedingLogEntry = Omit<
+    DbBreedingLogEntry,
+    "createdAt" | "updatedAt"
+> & {
+    createdAt: string;
+    updatedAt: string;
 };

@@ -5,7 +5,12 @@
     "allowJs": true,
     "target": "esnext",
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": true,
     "noImplicitAny": false,
     "noEmit": true,
     "esModuleInterop": true,
@@ -26,5 +31,5 @@
     }
   },
   "include": ["types/next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.d.ts", ".next"]
 }

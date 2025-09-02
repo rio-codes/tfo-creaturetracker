@@ -63,6 +63,8 @@ const enrichAndSerializeBreedingPair = (
     });
 
     const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
+    const serializedLogs = relevantLogs.map(log => ({ ...log, createdAt: log.createdAt.toISOString() }));
+
     const progenyCount = progeny.length;
 
     const assignedGoalsFromPair = allEnrichedGoals.filter(
@@ -123,6 +125,7 @@ const enrichAndSerializeBreedingPair = (
         timesBred,
         progenyCount,
         progeny,
+        logs: serializedLogs,
         isInbred,
         createdAt: pair.createdAt.toISOString(),
         updatedAt: pair.updatedAt.toISOString(),
@@ -151,7 +154,7 @@ export async function getAllBreedingPairsForUser(): Promise<
         if (!user) return [];
 
         const [
-            allPairs,
+            allPairsWithParents,
             allGoals,
             logEntries,
             allUserCreatures,
@@ -181,7 +184,10 @@ export async function getAllBreedingPairsForUser(): Promise<
         const enrichedCreatures = allUserCreatures.map(
             enrichAndSerializeCreature
         );
-        const enrichedPairs = allPairs
+        const rawPairs = allPairsWithParents.map(
+            ({ maleParent, femaleParent, ...rest }) => rest
+        );
+        const enrichedPairs = allPairsWithParents
             .map((pair) =>
                 enrichAndSerializeBreedingPair(
                     pair,
@@ -189,7 +195,7 @@ export async function getAllBreedingPairsForUser(): Promise<
                     logEntries,
                     enrichedCreatures,
                     allUserAchievedGoals,
-                    allPairs
+                    rawPairs
                 )
             )
             .filter((p): p is EnrichedBreedingPair => p !== null);
@@ -333,9 +339,9 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`)
-              )
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`)
+                )
             : undefined,
         gender && gender !== "all"
             ? eq(creatures.gender, gender as any)

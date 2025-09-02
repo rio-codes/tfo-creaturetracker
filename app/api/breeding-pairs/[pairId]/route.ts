@@ -12,6 +12,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray, or } from "drizzle-orm";
 import { validatePairing } from "@/lib/breeding-rules";
+import { logAdminAction } from "@/lib/audit";
 
 const editPairSchema = z.object({
     pairName: z
@@ -170,6 +171,18 @@ export async function PATCH(
             );
         }
 
+        if (session.user.role === "admin") {
+            await logAdminAction({
+                action: "breeding_pair.edit",
+                targetType: "breeding_pair",
+                targetId: params.pairId,
+                details: {
+                    updatedFields: Object.keys(validatedFields.data),
+                    pairName: result[0].pairName,
+                },
+            });
+        }
+
         // --- Synchronize Goal Assignments ---
         const oldGoalIds = new Set(existingPair.assignedGoalIds || []);
         const newGoalIds = new Set(assignedGoalIds || []);
@@ -323,6 +336,13 @@ export async function DELETE(
                     { status: 404 }
                 );
             }
+
+            await logAdminAction({
+                action: 'breeding_pair.delete',
+                targetType: 'breeding_pair',
+                targetId: params.pairId,
+                details: { pairName: result[0].pairName }
+            });
 
             revalidatePath("/breeding-pairs");
             return NextResponse.json({

@@ -12,7 +12,10 @@ export async function GET(
 ) {
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+        return NextResponse.json(
+            { error: "Not authenticated" },
+            { status: 401 }
+        );
     }
 
     try {
@@ -28,17 +31,23 @@ export async function GET(
         });
 
         if (!pair || !pair.maleParent || !pair.femaleParent) {
-            return NextResponse.json({ error: "Breeding pair not found or parents are missing." }, { status: 404 });
+            return NextResponse.json(
+                { error: "Breeding pair not found or parents are missing." },
+                { status: 404 }
+            );
         }
 
-        const maleParent = enrichAndSerializeCreature(pair.maleParent);
-        const femaleParent = enrichAndSerializeCreature(pair.femaleParent);
+        const maleParent = enrichAndSerializeCreature(pair.maleParent!);
+        const femaleParent = enrichAndSerializeCreature(pair.femaleParent!);
 
         const outcomes = calculateAllPossibleOutcomes(maleParent, femaleParent);
 
         return NextResponse.json({ outcomes });
     } catch (error: any) {
         console.error("Failed to calculate breeding outcomes:", error);
-        return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
+        return NextResponse.json(
+            { error: "An internal error occurred." },
+            { status: 500 }
+        );
     }
 }

@@ -1,12 +1,38 @@
 import { relations } from "drizzle-orm";
 import type { AdapterAccount } from "@auth/core/adapters";
-import { timestamp, pgTable, text, primaryKey, integer, boolean, serial, jsonb, uniqueIndex, pgEnum, index } from "drizzle-orm/pg-core";
+import {
+    pgTable,
+    text,
+    primaryKey,
+    integer,
+    boolean,
+    serial,
+    jsonb,
+    timestamp,
+    uniqueIndex,
+    pgEnum,
+    index,
+    uuid,
+} from "drizzle-orm/pg-core";
 
+export const auditLog = pgTable("audit_log", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    timestamp: timestamp("timestamp", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    adminId: text("admin_id").references(() => users.id, {
+        onDelete: "set null",
+    }),
+    adminUsername: text("admin_username"),
+    action: text("action").notNull(), // e.g., 'user.suspend', 'pair.delete'
+    targetType: text("target_type"),
+    targetId: text("target_id"),
+    details: jsonb("details"), // For storing before/after states or other context
+});
 
 export const goalModeEnum = pgEnum("goal_mode", ["genotype", "phenotype"]);
 export const userStatusEnum = pgEnum("user_status", ["active", "suspended"]);
 export const themeEnum = pgEnum("theme", ["light", "dark", "system"]);
-
 
 export const users = pgTable("user", {
     id: text("id").notNull().primaryKey(),
@@ -16,7 +42,7 @@ export const users = pgTable("user", {
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
     password: text("password"),
-    role: text("role").default('user').notNull(),
+    role: text("role").default("user").notNull(),
     status: userStatusEnum("status").default("active").notNull(),
     theme: themeEnum("theme").default("system").notNull(),
     collectionItemsPerPage: integer("collection_items_per_page")
@@ -24,6 +50,8 @@ export const users = pgTable("user", {
         .notNull(),
     goalsItemsPerPage: integer("goals_items_per_page").default(9).notNull(),
     pairsItemsPerPage: integer("pairs_items_per_page").default(10).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const accounts = pgTable(

@@ -1,7 +1,7 @@
-import type { NextAuthConfig } from 'next-auth';
+import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { db } from '@/src/db';
-import { users } from '@/src/db/schema';
+import { db } from "@/src/db";
+import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { compare } from "bcryptjs";
 import * as Sentry from "@sentry/nextjs";
@@ -14,15 +14,18 @@ export const authConfig = {
                 if (!credentials?.username || !credentials.password) {
                     return null;
                 }
-                
+
                 try {
                     const user = await db.query.users.findFirst({
-                        where: eq(users.username, credentials.username as string),
+                        where: eq(
+                            users.username,
+                            credentials.username as string
+                        ),
                     });
                     if (!user) {
                         return null;
                     }
-                    if ((user as any).status === 'suspended') {
+                    if ((user as any).status === "suspended") {
                         // User is suspended, deny login.
                         return null;
                     }
@@ -35,14 +38,14 @@ export const authConfig = {
                     );
                     if (isPasswordValid) {
                         return user;
-                    } else {;
+                    } else {
                         return null;
                     }
                 } catch (error) {
                     Sentry.captureException(error);
                     return null;
                 }
-            }
+            },
         }),
     ],
     session: {
@@ -58,6 +61,11 @@ export const authConfig = {
                 token.role = (user as any).role;
                 token.theme = (user as any).theme;
             }
+
+            // Handle impersonation
+            if (token.impersonator && !user) {
+                // If impersonating, ensure the token data is for the impersonated user
+            }
             // This token is then encrypted and stored in the user's cookie.
             return token;
         },
@@ -70,12 +78,15 @@ export const authConfig = {
                 session.user.username = token.username as string;
                 session.user.role = token.role as string;
                 session.user.theme = token.theme as string;
+                if (token.impersonator) {
+                    session.impersonator = token.impersonator as any;
+                }
             }
             // ALWAYS return the session object.
             return session;
         },
     },
     pages: {
-        signIn: '/login',
+        signIn: "/login",
     },
 } satisfies NextAuthConfig;

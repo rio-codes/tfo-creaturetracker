@@ -11,10 +11,14 @@ export type User = {
     image?: string | null;
     username: string;
     tfoUsername: string;
-    goalMode: "genotype" | "phenotype";
     collectionItemsPerPage: number;
     goalsItemsPerPage: number;
     pairsItemsPerPage: number;
+    createdAt: Date;
+    updatedAt: Date;
+    role: "admin" | "user";
+    status: "active" | "suspended";
+    theme: "light" | "dark";
 };
 
 /**
@@ -42,15 +46,15 @@ export type DbCreature = {
  */
 export type EnrichedCreature =
     | (Omit<DbCreature, "createdAt" | "updatedAt" | "gottenAt"> & {
-            createdAt: string;
-            updatedAt: string;
-            gottenAt: string | null;
-            geneData: {
-                category: string;
-                genotype: string;
-                phenotype: string;
-            }[];
-        })
+          createdAt: string;
+          updatedAt: string;
+          gottenAt: string | null;
+          geneData: {
+              category: string;
+              genotype: string;
+              phenotype: string;
+          }[];
+      })
     | null;
 
 /**
@@ -130,7 +134,9 @@ export type EnrichedBreedingPair = Omit<
     maleParent: EnrichedCreature;
     femaleParent: EnrichedCreature;
     assignedGoals: (EnrichedResearchGoal & {
-        isAchieved: boolean; isPossible: boolean; averageChance: number 
+        isAchieved: boolean;
+        isPossible: boolean;
+        averageChance: number;
     })[];
 };
 

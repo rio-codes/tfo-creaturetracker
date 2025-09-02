@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { creatures } from "@/src/db/schema";
-import { z } from "zod";
-import { fetchAndUploadWithRetry } from "@/lib/data";
-import { revalidatePath } from "next/cache";
-import { and, eq, sql } from "drizzle-orm";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { creatures } from '@/src/db/schema';
+import { z } from 'zod';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+import { revalidatePath } from 'next/cache';
+import { and, eq, sql } from 'drizzle-orm';
 
 // get type of creatures array for inserting
 type CreatureInsert = typeof creatures.$inferInsert;
@@ -14,16 +14,16 @@ const syncSchema = z.object({
     tabId: z.coerce
         .number()
         .int()
-        .min(0, "Tab ID must be 0 or a positive number."),
+        .min(0, 'Tab ID must be 0 or a positive number.'),
 });
 
 // TFO API error code mapping for user-friendly messages
 const tfoErrorMap: { [key: number]: string } = {
-    1: "User does not exist.",
+    1: 'User does not exist.',
     2: "User's lab is hidden.",
-    5: "Invalid API call. This may be a temporary issue.",
-    7: "Tab does not exist.",
-    8: "Tab is hidden.",
+    5: 'Invalid API call. This may be a temporary issue.',
+    7: 'Tab does not exist.',
+    8: 'Tab is hidden.',
 };
 
 // request to fetch creatures for a given tab
@@ -32,16 +32,16 @@ export async function POST(req: Request) {
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
     if (!process.env.TFO_API_KEY) {
         console.error(
-            "CRITICAL: TFO_API_KEY is not set in the environment variables."
+            'CRITICAL: TFO_API_KEY is not set in the environment variables.'
         );
         return NextResponse.json(
-            { error: "Server configuration error. Contact administrator." },
+            { error: 'Server configuration error. Contact administrator.' },
             { status: 500 }
         );
     }
@@ -62,9 +62,9 @@ export async function POST(req: Request) {
         const username = session.user.username;
         const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${username}`;
         const response = await fetch(tfoApiUrl, {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apiKey: process.env.TFO_API_KEY,
             },
         });
@@ -79,14 +79,14 @@ export async function POST(req: Request) {
         if (data.error === true) {
             const errorMessage =
                 tfoErrorMap[data.errorCode] ||
-                "An unknown error occurred with the TFO API.";
+                'An unknown error occurred with the TFO API.';
             return NextResponse.json({ error: errorMessage }, { status: 400 });
         }
         // response if no creatures are found
         if (data.error || !data.creatures || data.creatures.length === 0) {
             return NextResponse.json(
                 {
-                    error: "No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.",
+                    error: 'No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.',
                 },
                 { status: 400 }
             );
@@ -111,11 +111,11 @@ export async function POST(req: Request) {
                 existingCreature &&
                 existingCreature.growthLevel !== tfoCreature.growthLevel;
             const isOldTfoUrl =
-                newImageUrl && !newImageUrl.includes("vercel-storage.com");
+                newImageUrl && !newImageUrl.includes('vercel-storage.com');
             if (hasGrown || isOldTfoUrl) {
                 console.log(
                     `Updating image for ${tfoCreature.code} because ${
-                        hasGrown ? "it grew" : "it has an old URL"
+                        hasGrown ? 'it grew' : 'it has an old URL'
                     }.`
                 );
                 try {
@@ -160,12 +160,17 @@ export async function POST(req: Request) {
                         creatureName: sql`excluded.name`,
                         imageUrl: sql`excluded.imgsrc`,
                         growthLevel: sql`excluded.growth_level`,
+                        isStunted: sql`excluded.is_stunted`,
+                        species: sql`excluded.breed_name`,
+                        genetics: sql`excluded.genetics`,
+                        gender: sql`excluded.gender`,
+                        gottenAt: sql`excluded.gotten_at`,
                         updatedAt: new Date(),
                     },
                 });
         }
 
-        revalidatePath("/collection");
+        revalidatePath('/collection');
         return NextResponse.json(
             {
                 message: `Successfully synced ${creatureValuesToUpdate.length} creatures. Updated ${updatedImageCount} images.`,
@@ -173,9 +178,9 @@ export async function POST(req: Request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Creature sync failed:", error);
+        console.error('Creature sync failed:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

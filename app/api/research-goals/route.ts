@@ -1,23 +1,23 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { researchGoals } from "@/src/db/schema";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { researchGoals } from '@/src/db/schema';
 import {
     RegExpMatcher,
     englishDataset,
     englishRecommendedTransformers,
-} from "obscenity";
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { TFO_SPECIES_CODES } from "@/lib/creature-data";
-import { constructTfoImageUrl } from "@/lib/tfo-utils";
-import { structuredGeneData } from "@/lib/creature-data";
-import { fetchAndUploadWithRetry } from "@/lib/data";
-import * as Sentry from "@sentry/nextjs";
+} from 'obscenity';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { TFO_SPECIES_CODES } from '@/lib/creature-data';
+import { constructTfoImageUrl } from '@/lib/tfo-utils';
+import { structuredGeneData } from '@/lib/creature-data';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+import * as Sentry from '@sentry/nextjs';
 
 const goalSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters."),
-    species: z.string().min(1, "Species is required."),
+    name: z.string().min(3, 'Name must be at least 3 characters.'),
+    species: z.string().min(1, 'Species is required.'),
     genes: z.record(
         z.string(),
         z.object({
@@ -27,13 +27,20 @@ const goalSchema = z.object({
             isOptional: z.boolean(),
         })
     ),
-    goalMode: z.enum(["genotype", "phenotype"]),
+    goalMode: z.enum(['genotype', 'phenotype']),
 });
 
 // function to make sure species, categories, and genotypes are valid
 export function validateGoalData(
     species: string,
-    genes: { [key: string]: { genotype: string } }
+    genes: {
+        [key: string]: {
+            genotype: string;
+            phenotype: string;
+            isMultiGenotype: boolean;
+            isOptional: boolean;
+        };
+    }
 ) {
     const speciesData = structuredGeneData[species];
     if (!speciesData) {
@@ -50,9 +57,9 @@ export function validateGoalData(
             );
         }
         // ensure genotype exists for category
-        const isValidGenotype = (
-            categoryData as { genotype: string }[]
-        ).some((gene) => gene.genotype === selectedGenotype);
+        const isValidGenotype = (categoryData as { genotype: string }[]).some(
+            (gene) => gene.genotype === selectedGenotype
+        );
         // error if genotype is not valid
         if (!isValidGenotype) {
             throw new Error(
@@ -64,10 +71,11 @@ export function validateGoalData(
 
 // add new research goal
 export async function POST(req: Request) {
+    console.log('Received', req.body);
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -77,11 +85,12 @@ export async function POST(req: Request) {
         // validate received data with zod schema
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
-            Sentry.logger.warn("Zod validation failed for new goal", validatedFields.error.flatten());
+            Sentry.logger.warn('Zod validation failed for new goal');
+            const errorMessage = z.flattenError(validatedFields.error);
+            console.log(errorMessage);
             return NextResponse.json(
                 {
-                    error: "Invalid data provided.",
-                    details: validatedFields.error.flatten(),
+                    error: `Invalid data provided: ${errorMessage}`,
                 },
                 { status: 400 }
             );
@@ -95,7 +104,7 @@ export async function POST(req: Request) {
 
         if (matcher.hasMatch(name)) {
             return NextResponse.json(
-                { error: "The provided name contains inappropriate language." },
+                { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
             );
         }
@@ -119,7 +128,11 @@ export async function POST(req: Request) {
         // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
+        const blobUrl = await fetchAndUploadWithRetry(
+            bustedTfoImageUrl,
+            null,
+            3
+        );
 
         // insert new research goal into db
         await db.insert(researchGoals).values({
@@ -131,16 +144,16 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
         });
 
-        revalidatePath("/research-goals");
+        revalidatePath('/research-goals');
 
         return NextResponse.json(
-            { message: "Research Goal created successfully!" },
+            { message: 'Research Goal created successfully!' },
             { status: 201 }
         );
     } catch (error: any) {
         Sentry.captureException(error);
         return NextResponse.json(
-            { error: error.message || "An internal error occurred." },
+            { error: error.message || 'An internal error occurred.' },
             { status: 500 }
         );
     }

@@ -1,8 +1,8 @@
-import { db } from "@/src/db";
-import { creatures, userTabs } from "@/src/db/schema";
-import { eq, and, inArray, sql } from "drizzle-orm";
-import { fetchAndUploadWithRetry } from "@/lib/data";
-import * as Sentry from "@sentry/nextjs";
+import { db } from '@/src/db';
+import { creatures, userTabs } from '@/src/db/schema';
+import { eq, and, inArray, sql } from 'drizzle-orm';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+import * as Sentry from '@sentry/nextjs';
 
 type CreatureInsert = typeof creatures.$inferInsert;
 
@@ -11,7 +11,7 @@ type TfoCreature = {
     code: string;
     name: string;
     breedName: string;
-    gender: "male" | "female" | "unknown" | null | undefined;
+    gender: 'male' | 'female' | 'unknown' | null | undefined;
     growthLevel: number; // TFO API returns number
     genetics: string;
     imgsrc: string;
@@ -21,11 +21,11 @@ type TfoCreature = {
 
 // TFO API error code mapping for user-friendly messages
 const tfoErrorMap: { [key: number]: string } = {
-    1: "User does not exist.",
+    1: 'User does not exist.',
     2: "User's lab is hidden.",
-    5: "Invalid API call. This may be a temporary issue.",
-    7: "Tab does not exist.",
-    8: "Tab is hidden.",
+    5: 'Invalid API call. This may be a temporary issue.',
+    7: 'Tab does not exist.',
+    8: 'Tab is hidden.',
 };
 
 async function fetchCreaturesFromTfo(
@@ -34,9 +34,9 @@ async function fetchCreaturesFromTfo(
 ): Promise<TfoCreature[]> {
     const url = `https://finaloutpost.net/api/v1/tab/${tabId}/${tfoUsername}`;
     const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apiKey: process.env.TFO_API_KEY,
         },
     });
@@ -49,13 +49,13 @@ async function fetchCreaturesFromTfo(
     if (data.error === true) {
         const errorMessage =
             tfoErrorMap[data.errorCode] ||
-            "An unknown error occurred with the TFO API.";
+            'An unknown error occurred with the TFO API.';
         Sentry.captureException(errorMessage);
         throw new Error(errorMessage);
     }
     if (!data.creatures || data.creatures.length === 0) {
         const errorMessage =
-            "No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.";
+            'No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.';
         Sentry.captureException(errorMessage);
         throw new Error(errorMessage);
     }
@@ -85,7 +85,7 @@ export async function syncTfoTab(
     let added = 0;
     let updated = 0;
 
-    var imageUrl = "";
+    var imageUrl = '';
 
     for (const tfoCreature of tfoCreatures) {
         const existingCreature = existingCreatureMap.get(tfoCreature.code);
@@ -112,7 +112,12 @@ export async function syncTfoTab(
             isStunted: tfoCreature.isStunted,
             species: tfoCreature.breedName?.trim(),
             genetics: tfoCreature.genetics,
-            gender: (tfoCreature.gender?.toLowerCase() as "male" | "female" | "unknown" | null) || null,
+            gender:
+                (tfoCreature.gender?.toLowerCase() as
+                    | 'male'
+                    | 'female'
+                    | 'unknown'
+                    | null) || null,
             updatedAt: new Date(),
         });
 
@@ -126,6 +131,11 @@ export async function syncTfoTab(
                         creatureName: sql`excluded.name`,
                         imageUrl: sql`excluded.imgsrc`,
                         growthLevel: sql`excluded.growth_level`,
+                        isStunted: sql`excluded.is_stunted`,
+                        species: sql`excluded.breed_name`,
+                        genetics: sql`excluded.genetics`,
+                        gender: sql`excluded.gender`,
+                        gottenAt: sql`excluded.gotten_at`,
                         updatedAt: new Date(),
                     },
                 });

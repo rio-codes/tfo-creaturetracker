@@ -1,16 +1,15 @@
-import { Suspense } from "react";
-import { AdminDataTable } from "@/components/admin/admin-data-table";
-import { columns } from "./columns";
-import { db } from "@/src/db";
-import { creatures, users } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { Suspense } from 'react';
+import { db } from '@/src/db';
+import { creatures, users } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
+import { CreaturesPageClient } from './creatures-page-client';
 
 async function fetchAdminCreatures(searchParams: {
     page?: string;
@@ -81,11 +80,9 @@ export default async function AdminCreaturesPage({
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading creatures...</div>}>
-                    <AdminDataTable
-                        columns={columns}
-                        data={creatures as any}
+                    <CreaturesPageClient
+                        creatures={creatures}
                         pagination={pagination}
-                        searchPlaceholder="Filter by name, code, or owner..."
                     />
                 </Suspense>
             </CardContent>

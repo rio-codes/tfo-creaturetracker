@@ -1,124 +1,141 @@
-"use client";
-import Link from "next/link";
-import { useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
-import { ChevronsDown, LogIn, LogOut, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+'use client';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { ChevronsDown, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { data: session, status } = useSession();
 
-  return (
-    <header className="bg-pompaca-purple dark:bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
-      <div className="flex items-center justify-between">
-        {/* Left side - Menu and logo */}
-        <div className="flex items-center gap-2">
-          <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="lg"
-                className="text-barely-lilac hover:bg-transparent focus-visible:ring-0"
-              >
-                <ChevronsDown className="size-10" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-50 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple">
-              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
-                <Link href="/collection" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
-                  🦋 Collection
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
-                <Link href="/research-goals" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
-                  🧪 Research Goals
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
-                <Link href="/breeding-pairs" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
-                  💜 Breeding Pairs
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10" asChild>
-                <Link href="/settings" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">
-                  🔧 Settings
-                </Link>
-              </DropdownMenuItem>
-              {session?.user?.role === "admin" && (
-                <DropdownMenuItem
-                  className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10"
-                  asChild
-                >
-                  <Link href="/admin" className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac">🧑🏾‍💻 Admin</Link>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+    const menuItems = [
+        { href: '/collection', label: 'Collection', icon: '🦋' },
+        { href: '/research-goals', label: 'Research Goals', icon: '🧪' },
+        { href: '/breeding-pairs', label: 'Breeding Pairs', icon: '💜' },
+        { href: '/settings', label: 'Settings', icon: '🔧' },
+    ];
 
-          <div className="flex items-center gap-2">
-            <div className="text-yellow-300 text-2xl">
-              <Link href="/">🧬</Link>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">
-                <Link href="/">TFO.creaturetracker</Link>
-              </h1>
-              <p className="text-sm text-purple-200">
-                <Link href="/">a breeding tracker for The Final Outpost</Link>
-              </p>
-            </div>
-          </div>
-        </div>
+    const adminMenuItem = {
+        href: '/admin',
+        label: 'Admin',
+        icon: '🧑🏾‍💻',
+    };
 
-        {/* Right side - User info and actions */}
-        {status === "authenticated" && (
-          <div className="flex flex-col items-end py-1">
-            <div className="py-1 hidden md:block">Welcome back, {session.user.username}!</div>
-            <div className="py-1">
-              <Button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                variant="ghost"
-                size="sm"
-                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
-              >
-                Log Out
-                <LogOut className="h-4 w-4 mr-2" />
-              </Button>
-            </div>
-          </div>
-        )}
-        {status === "loading" && (
-          <div className="flex flex-col items-end py-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled
-              className="text-barely-lilac"
+    const renderMenuItem = (item: {
+        href: string;
+        label: string;
+        icon: string;
+    }) => (
+        <DropdownMenuItem
+            key={item.href}
+            className="bg-barely-lilac dark:bg-pompaca-purple hover:bg-dusk-purple dark:hover:bg-midnight-purple h-10"
+            asChild
+        >
+            <Link
+                href={item.href}
+                className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac"
             >
-              <Loader2 className="h-4 w-4 animate-spin" />
-            </Button>
-          </div>
-        )}
-        {status != "authenticated" && status != "loading" && (
-          <div className="flex flex-col items-end py-1">
-            <Button
-              onClick={() => signIn()}
-              variant="ghost"
-              size="sm"
-              className="text-barely-lilac hover:bg-dusk-purple"
-            >
-              Log In
-              <LogIn className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        )}
-      </div>
-    </header>
-  );
+                {item.icon} {item.label}
+            </Link>
+        </DropdownMenuItem>
+    );
+
+    return (
+        <header className="bg-pompaca-purple dark:bg-pompaca-purple text-barely-lilac px-2 py-2 max-h-28">
+            <div className="flex items-center justify-between">
+                {/* Left side - Menu and logo */}
+                <div className="flex items-center gap-2">
+                    <DropdownMenu
+                        open={isMenuOpen}
+                        onOpenChange={setIsMenuOpen}
+                    >
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                size="lg"
+                                className="text-barely-lilac hover:bg-transparent focus-visible:ring-0"
+                            >
+                                <ChevronsDown className="size-10" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="start"
+                            className="w-50 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple"
+                        >
+                            {menuItems.map(renderMenuItem)}
+                            {session?.user?.role === 'admin' &&
+                                renderMenuItem(adminMenuItem)}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <div className="flex items-center gap-2">
+                        <div className="text-yellow-300 text-2xl">
+                            <Link href="/">🧬</Link>
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold">
+                                <Link href="/">TFO.creaturetracker</Link>
+                            </h1>
+                            <p className="text-sm text-purple-200">
+                                <Link href="/">
+                                    a breeding tracker for The Final Outpost
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right side - User info and actions */}
+                {status === 'authenticated' && (
+                    <div className="flex flex-col items-end py-1">
+                        <div className="py-1 hidden md:block">
+                            Welcome back, {session.user.username}!
+                        </div>
+                        <div className="py-1">
+                            <Button
+                                onClick={() => signOut({ callbackUrl: '/' })}
+                                variant="ghost"
+                                size="sm"
+                                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
+                            >
+                                Log Out
+                                <LogOut className="h-4 w-4 mr-2" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
+                {status === 'loading' && (
+                    <div className="flex flex-col items-end py-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled
+                            className="text-barely-lilac"
+                        >
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        </Button>
+                    </div>
+                )}
+                {status != 'authenticated' && status != 'loading' && (
+                    <div className="flex flex-col items-end py-1">
+                        <Button
+                            onClick={() => signIn()}
+                            variant="ghost"
+                            size="sm"
+                            className="text-barely-lilac hover:bg-dusk-purple"
+                        >
+                            Log In
+                            <LogIn className="h-4 w-4 ml-2" />
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </header>
+    );
 }

@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { creatures, researchGoals, users } from "@/src/db/schema";
-import { z } from "zod";
-import { and, eq, inArray } from "drizzle-orm";
-import { calculateGeneProbability } from "@/lib/genetics";
-import { structuredGeneData } from "@/lib/creature-data";
-import * as Sentry from "@sentry/nextjs";
-import type { DbCreature, EnrichedCreature } from "@/types";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { creatures, researchGoals, users } from '@/src/db/schema';
+import { z } from 'zod';
+import { and, eq, inArray } from 'drizzle-orm';
+import { calculateGeneProbability } from '@/lib/genetics';
+import { structuredGeneData } from '@/constants/creature-data';
+import * as Sentry from '@sentry/nextjs';
+import type { DbCreature, EnrichedCreature } from '@/types';
 
 // Helper function to enrich and serialize a single creature.
 // For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.
 const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
     if (!creature) return null;
-    const speciesGeneData = structuredGeneData[creature.species || ""];
+    const speciesGeneData = structuredGeneData[creature.species || ''];
     return {
         ...creature,
         createdAt: creature.createdAt.toISOString(),
@@ -21,9 +21,9 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
         gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
         geneData:
             creature.genetics
-                ?.split(",")
+                ?.split(',')
                 .map((genePair) => {
-                    const [category, genotype] = genePair.split(":");
+                    const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
                     const categoryData = speciesGeneData[category] as {
                         genotype: string;
@@ -35,7 +35,7 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
                     return {
                         category,
                         genotype,
-                        phenotype: matchedGene?.phenotype || "Unknown",
+                        phenotype: matchedGene?.phenotype || 'Unknown',
                     };
                 })
                 .filter(Boolean) || [],
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         const validated = predictionSchema.safeParse(body);
         if (!validated.success) {
             return NextResponse.json(
-                { error: "Invalid input." },
+                { error: 'Invalid input.' },
                 { status: 400 }
             );
         }
@@ -88,16 +88,16 @@ export async function POST(req: Request) {
         const goals =
             goalIds && goalIds.length > 0
                 ? await db.query.researchGoals.findMany({
-                        where: and(
-                            inArray(researchGoals.id, goalIds),
-                            eq(researchGoals.userId, userId)
-                        ),
-                    })
+                      where: and(
+                          inArray(researchGoals.id, goalIds),
+                          eq(researchGoals.userId, userId)
+                      ),
+                  })
                 : [];
 
         if (!user || !maleParentRaw || !femaleParentRaw) {
             return NextResponse.json(
-                { error: "Could not find user or parent creatures." },
+                { error: 'Could not find user or parent creatures.' },
                 { status: 404 }
             );
         }
@@ -112,15 +112,17 @@ export async function POST(req: Request) {
             if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
 
             for (const [category, selection] of Object.entries(goal.genes)) {
-                let finalGenotype: string, finalPhenotype: string, isMulti = false;
+                let finalGenotype: string,
+                    finalPhenotype: string,
+                    isMulti = false;
                 if (
-                    typeof selection === "object" &&
+                    typeof selection === 'object' &&
                     selection?.phenotype &&
                     selection?.genotype
                 ) {
                     finalGenotype = selection.genotype;
                     finalPhenotype = selection.phenotype;
-                } else if (typeof selection === "string") {
+                } else if (typeof selection === 'string') {
                     finalGenotype = selection;
                     const categoryData = speciesGeneData[category] as {
                         genotype: string;
@@ -129,12 +131,16 @@ export async function POST(req: Request) {
                     const matchedGene = categoryData?.find(
                         (g) => g.genotype === finalGenotype
                     );
-                    finalPhenotype = matchedGene?.phenotype || "Unknown";
+                    finalPhenotype = matchedGene?.phenotype || 'Unknown';
                 } else continue;
 
-                if (goal.goalMode === "phenotype") {
-                    const categoryData = speciesGeneData[category] as { phenotype: string }[];
-                    const genotypesForPhenotype = categoryData?.filter(g => g.phenotype === finalPhenotype);
+                if (goal.goalMode === 'phenotype') {
+                    const categoryData = speciesGeneData[category] as {
+                        phenotype: string;
+                    }[];
+                    const genotypesForPhenotype = categoryData?.filter(
+                        (g) => g.phenotype === finalPhenotype
+                    );
                     isMulti = (genotypesForPhenotype?.length || 0) > 1;
                 }
 
@@ -152,7 +158,9 @@ export async function POST(req: Request) {
             let totalChance = 0;
             let geneCount = 0;
             let isPossible = true;
-            for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
+            for (const [category, targetGeneInfo] of Object.entries(
+                goal.genes
+            )) {
                 const targetGene = targetGeneInfo as any;
                 const chance = calculateGeneProbability(
                     maleParent,
@@ -183,7 +191,7 @@ export async function POST(req: Request) {
     } catch (error) {
         Sentry.captureException(error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

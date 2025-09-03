@@ -15,7 +15,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { structuredGeneData, speciesList } from '@/lib/creature-data';
+import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { EnrichedResearchGoal, GoalGene } from '@/types';
 

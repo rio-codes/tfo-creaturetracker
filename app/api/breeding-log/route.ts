@@ -1,25 +1,33 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
 import {
     breedingLogEntries,
     researchGoals,
     creatures,
     achievedGoals,
     breedingPairs,
-} from "@/src/db/schema";
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { and, eq, inArray } from "drizzle-orm";
-import { checkGoalAchieved } from "@/lib/breeding-rules";
+} from '@/src/db/schema';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { and, eq, inArray } from 'drizzle-orm';
+import { checkGoalAchieved } from '@/lib/breeding-rules';
+import {
+    RegExpMatcher,
+    englishRecommendedTransformers,
+    DataSet,
+    englishDataset,
+    pattern,
+} from 'obscenity';
+import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 
 const createLogSchema = z.object({
-    pairId: z.string().uuid("Invalid pair ID"),
-    progeny1Id: z.string().uuid("Invalid progeny ID").nullable().optional(),
-    progeny2Id: z.string().uuid("Invalid progeny ID").nullable().optional(),
+    pairId: z.string().uuid('Invalid pair ID'),
+    progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
+    progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
     notes: z
         .string()
-        .max(500, "Notes cannot exceed 500 characters.")
+        .max(500, 'Notes cannot exceed 500 characters.')
         .optional(),
 });
 
@@ -27,7 +35,7 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -38,11 +46,35 @@ export async function POST(req: Request) {
         const validated = createLogSchema.safeParse(body);
         if (!validated.success) {
             return NextResponse.json(
-                { error: "Invalid input.", details: validated.error.flatten() },
+                { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
             );
         }
         const { pairId, progeny1Id, progeny2Id, notes } = validated.data;
+
+        const customDataSet = new DataSet<{
+            originalWord: string;
+        }>().addAll(englishDataset);
+
+        OBSCENITY_BLACKLIST.forEach((word) =>
+            customDataSet.addPhrase((phrase) =>
+                phrase
+                    .setMetadata({ originalWord: word })
+                    .addPattern(pattern`${word}`)
+            )
+        );
+
+        const defaultMatcher = new RegExpMatcher({
+            ...customDataSet.build(),
+            ...englishRecommendedTransformers,
+        });
+
+        if (defaultMatcher.hasMatch(notes)) {
+            return NextResponse.json(
+                { error: 'The provided notes contain inappropriate language.' },
+                { status: 400 }
+            );
+        }
 
         const [newLogEntry] = await db
             .insert(breedingLogEntries)
@@ -119,16 +151,16 @@ export async function POST(req: Request) {
             }
         }
 
-        revalidatePath("/breeding-pairs");
+        revalidatePath('/breeding-pairs');
 
         return NextResponse.json(
-            { message: "Breeding event logged successfully!" },
+            { message: 'Breeding event logged successfully!' },
             { status: 201 }
         );
     } catch (error) {
-        console.error("Failed to log breeding event:", error);
+        console.error('Failed to log breeding event:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

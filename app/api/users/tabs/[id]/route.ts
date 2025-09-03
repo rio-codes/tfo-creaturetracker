@@ -6,9 +6,12 @@ import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import {
     RegExpMatcher,
-    englishDataset,
     englishRecommendedTransformers,
+    DataSet,
+    englishDataset,
+    pattern,
 } from 'obscenity';
+import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 
 // PATCH to update a tab
 export async function PATCH(
@@ -34,12 +37,24 @@ export async function PATCH(
             updatedAt: Date;
         } = { updatedAt: new Date() };
 
-        const matcher = new RegExpMatcher({
-            ...englishDataset.build(),
+        const customDataSet = new DataSet<{
+            originalWord: string;
+        }>().addAll(englishDataset);
+
+        OBSCENITY_BLACKLIST.forEach((word) =>
+            customDataSet.addPhrase((phrase) =>
+                phrase
+                    .setMetadata({ originalWord: word })
+                    .addPattern(pattern`${word}`)
+            )
+        );
+
+        const defaultMatcher = new RegExpMatcher({
+            ...customDataSet.build(),
             ...englishRecommendedTransformers,
         });
 
-        if (matcher.hasMatch(tabName)) {
+        if (defaultMatcher.hasMatch(tabName)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

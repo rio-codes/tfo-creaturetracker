@@ -6,12 +6,15 @@ import {
     RegExpMatcher,
     englishDataset,
     englishRecommendedTransformers,
+    pattern,
+    DataSet,
 } from 'obscenity';
+import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { TFO_SPECIES_CODES } from '@/lib/creature-data';
+import { TFO_SPECIES_CODES } from '@/constants/creature-data';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
-import { structuredGeneData } from '@/lib/creature-data';
+import { structuredGeneData } from '@/constants/creature-data';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import * as Sentry from '@sentry/nextjs';
 
@@ -69,6 +72,16 @@ export function validateGoalData(
     }
 }
 
+const customDataSet = new DataSet<{
+    originalWord: string;
+}>().addAll(englishDataset);
+
+OBSCENITY_BLACKLIST.forEach((word) =>
+    customDataSet.addPhrase((phrase) =>
+        phrase.setMetadata({ originalWord: word }).addPattern(pattern`${word}`)
+    )
+);
+
 // add new research goal
 export async function POST(req: Request) {
     console.log('Received', req.body);
@@ -97,12 +110,12 @@ export async function POST(req: Request) {
         }
         const { name, species, genes } = validatedFields.data;
 
-        const matcher = new RegExpMatcher({
-            ...englishDataset.build(),
+        const defaultMatcher = new RegExpMatcher({
+            ...customDataSet.build(),
             ...englishRecommendedTransformers,
         });
 
-        if (matcher.hasMatch(name)) {
+        if (defaultMatcher.hasMatch(name)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

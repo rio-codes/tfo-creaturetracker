@@ -12,7 +12,7 @@ import type {
     EnrichedCreature,
 } from '@/types';
 import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
-import { structuredGeneData } from '@/lib/creature-data';
+import { structuredGeneData } from '@/constants/creature-data';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;

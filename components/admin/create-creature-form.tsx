@@ -1,42 +1,42 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { structuredGeneData, speciesList } from "@/lib/creature-data";
-import { Loader2 } from "lucide-react";
-import type { GoalGene } from "@/types";
-import * as Sentry from "@sentry/nextjs";
+} from '@/components/ui/select';
+import { structuredGeneData, speciesList } from '@/constants/creature-data';
+import { Loader2 } from 'lucide-react';
+import type { GoalGene } from '@/types';
+import * as Sentry from '@sentry/nextjs';
 
 type GeneOption = {
     value: string;
     display: string;
-    selection: Omit<GoalGene, "isOptional">;
+    selection: Omit<GoalGene, 'isOptional'>;
 };
 
 export function CreateCreatureForm() {
     const router = useRouter();
-    const [creatureName, setCreatureName] = useState("");
-    const [creatureCode, setCreatureCode] = useState("");
-    const [species, setSpecies] = useState("");
+    const [creatureName, setCreatureName] = useState('');
+    const [creatureCode, setCreatureCode] = useState('');
+    const [species, setSpecies] = useState('');
     const [selectedGenes, setSelectedGenes] = useState<{
         [key: string]: GoalGene;
     }>({});
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-    const [previewError, setPreviewError] = useState("");
+    const [previewError, setPreviewError] = useState('');
 
     const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
@@ -50,7 +50,7 @@ export function CreateCreatureForm() {
             ).map((gene) => ({
                 value: gene.genotype,
                 display:
-                    category === "Gender"
+                    category === 'Gender'
                         ? gene.genotype
                         : `${gene.phenotype} (${gene.genotype})`,
                 selection: {
@@ -75,10 +75,10 @@ export function CreateCreatureForm() {
                 const options = geneOptions[category];
                 if (options && options.length > 0) {
                     let defaultOption = options[0];
-                    if (category === "Gender") {
+                    if (category === 'Gender') {
                         defaultOption =
                             options.find(
-                                (opt) => opt.selection.genotype === "Female"
+                                (opt) => opt.selection.genotype === 'Female'
                             ) || options[0];
                     }
                     defaultSelections[category] = {
@@ -107,17 +107,17 @@ export function CreateCreatureForm() {
 
     const handlePreview = async () => {
         setIsPreviewLoading(true);
-        setPreviewError("");
+        setPreviewError('');
         setPreviewImageUrl(null);
         try {
-            const response = await fetch("/api/admin/creature-preview", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/admin/creature-preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ species, genes: selectedGenes }),
             });
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || "Failed to create image.");
+                throw new Error(data.error || 'Failed to create image.');
             }
             setPreviewImageUrl(data.imageUrl);
         } catch (err: any) {
@@ -131,7 +131,7 @@ export function CreateCreatureForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
             const payload = {
                 creatureName,
@@ -139,16 +139,16 @@ export function CreateCreatureForm() {
                 species,
                 genes: selectedGenes,
             };
-            const response = await fetch("/api/admin/create-creature", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/admin/create-creature', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
             if (!response.ok)
-                throw new Error(data.error || "Failed to create creature.");
+                throw new Error(data.error || 'Failed to create creature.');
 
-            alert("Creature created successfully!"); // Replace with a toast
+            alert('Creature created successfully!'); // Replace with a toast
             router.refresh();
         } catch (err: any) {
             setError(err.message);
@@ -158,7 +158,10 @@ export function CreateCreatureForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 text-pompaca-purple dark:text-purple-300">
+        <form
+            onSubmit={handleSubmit}
+            className="space-y-4 text-pompaca-purple dark:text-purple-300"
+        >
             {/* Top section for name, code, species */}
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,7 +223,8 @@ export function CreateCreatureForm() {
                                     </Label>
                                     <Select
                                         value={
-                                            selectedGenes[category]?.genotype || ""
+                                            selectedGenes[category]?.genotype ||
+                                            ''
                                         }
                                         onValueChange={(value) =>
                                             handleGeneChange(category, value)
@@ -263,7 +267,9 @@ export function CreateCreatureForm() {
                             </Button>
                         </div>
                         {previewError && (
-                            <p className="text-sm text-red-500">{previewError}</p>
+                            <p className="text-sm text-red-500">
+                                {previewError}
+                            </p>
                         )}
                         {previewImageUrl ? (
                             <img

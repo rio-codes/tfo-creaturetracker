@@ -1,27 +1,30 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Loader2, Network, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@/components/ui/select';
+import { Loader2, Network, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     Prediction,
     DbBreedingPair,
     DbBreedingLogEntry,
-} from "@/types";
-import { getPossibleOffspringSpecies, checkForInbreeding } from "@/lib/breeding-rules";
+} from '@/types';
+import {
+    getPossibleOffspringSpecies,
+    checkForInbreeding,
+} from '@/lib/breeding-rules';
 
 type AddPairFormProps = {
     allCreatures: EnrichedCreature[];
@@ -43,7 +46,7 @@ export function AddPairForm({
     onSuccess,
 }: AddPairFormProps) {
     const router = useRouter();
-    const [pairName, setPairName] = useState("");
+    const [pairName, setPairName] = useState('');
     const [selectedMaleId, setSelectedMaleId] = useState<string | undefined>(
         undefined
     );
@@ -53,9 +56,9 @@ export function AddPairForm({
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
     const [isInbred, setIsInbred] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [message, setMessage] = useState("");
-    const [selectedSpecies, setSelectedSpecies] = useState<string>("");
+    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+    const [selectedSpecies, setSelectedSpecies] = useState<string>('');
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
 
@@ -69,10 +72,10 @@ export function AddPairForm({
     useEffect(() => {
         if (baseCreature) {
             // If a creature is passed in, automatically set the species
-            setSelectedSpecies(baseCreature.species || "");
-            if (baseCreature.gender === "male") {
+            setSelectedSpecies(baseCreature.species || '');
+            if (baseCreature.gender === 'male') {
                 setSelectedMaleId(baseCreature.id);
-            } else if (baseCreature.gender === "female") {
+            } else if (baseCreature.gender === 'female') {
                 setSelectedFemaleId(baseCreature.id);
             }
         }
@@ -100,22 +103,23 @@ export function AddPairForm({
         }
         return {
             males: allCreatures.filter(
-                (c) =>
-                    c?.species === selectedSpecies &&
-                    c?.gender === "male"
+                (c) => c?.species === selectedSpecies && c?.gender === 'male'
             ),
             females: allCreatures.filter(
-                (c) =>
-                    c?.species === selectedSpecies &&
-                    c?.gender === "female"
+                (c) => c?.species === selectedSpecies && c?.gender === 'female'
             ),
         };
     }, [selectedSpecies, allCreatures]);
 
     const assignableGoals = useMemo(() => {
         if (!selectedMale || !selectedFemale) return [];
-        const possibleOffspring = getPossibleOffspringSpecies(selectedMale.species!, selectedFemale.species!);
-        return allGoals.filter(g => g && possibleOffspring.includes(g.species!));
+        const possibleOffspring = getPossibleOffspringSpecies(
+            selectedMale.species!,
+            selectedFemale.species!
+        );
+        return allGoals.filter(
+            (g) => g && possibleOffspring.includes(g.species!)
+        );
     }, [selectedMale, selectedFemale, allGoals]);
     useEffect(() => {
         if (!selectedMaleId || !selectedFemaleId) {
@@ -126,9 +130,9 @@ export function AddPairForm({
             setIsPredictionLoading(true);
             const goalIds = assignableGoals.map((g) => g?.id);
             try {
-                const response = await fetch("/api/breeding-predictions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const response = await fetch('/api/breeding-predictions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         maleParentId: selectedMaleId,
                         femaleParentId: selectedFemaleId,
@@ -149,7 +153,12 @@ export function AddPairForm({
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
-            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
+            const inbred = checkForInbreeding(
+                selectedMaleId,
+                selectedFemaleId,
+                allLogs,
+                allPairs
+            );
             setIsInbred(inbred);
         } else {
             setIsInbred(false);
@@ -159,17 +168,17 @@ export function AddPairForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMaleId || !selectedFemaleId) {
-            setError("Both a male and a female parent must be selected.");
+            setError('Both a male and a female parent must be selected.');
             return;
         }
         setIsLoading(true);
-        setError("");
-        setMessage("");
+        setError('');
+        setMessage('');
 
         try {
-            const response = await fetch("/api/breeding-pairs", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/breeding-pairs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairName,
                     species: selectedSpecies,
@@ -183,7 +192,7 @@ export function AddPairForm({
             if (!response.ok) {
                 setError(
                     data.error ||
-                        "An unknown error occurred while creating the pair."
+                        'An unknown error occurred while creating the pair.'
                 );
                 return;
             }
@@ -194,7 +203,7 @@ export function AddPairForm({
             onSuccess();
         } catch (err: any) {
             setError(
-                err.message || "A network error occurred. Please try again."
+                err.message || 'A network error occurred. Please try again.'
             );
         } finally {
             setIsLoading(false);
@@ -207,11 +216,11 @@ export function AddPairForm({
                 placeholder="Pair Name (e.g., Silver Project)"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple"
+                className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
                 required
             />
             {isInbred && (
-                <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-dusk-purple">
+                <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-pompaca-purple">
                     <Network className="h-4 w-4 flex-shrink-0" />
                     <span>
                         This pairing is inbred. This does not affect gameplay.
@@ -223,17 +232,24 @@ export function AddPairForm({
             {(selectedMale || selectedFemale) && (
                 <div className="flex justify-center items-center gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
                     {selectedMale && (
-                        <img src={selectedMale.imageUrl} alt={selectedMale.code} className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg" />
+                        <img
+                            src={selectedMale.imageUrl}
+                            alt={selectedMale.code}
+                            className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                        />
                     )}
                     {selectedMale && selectedFemale && (
                         <X className="text-dusk-purple" />
                     )}
                     {selectedFemale && (
-                        <img src={selectedFemale.imageUrl} alt={selectedFemale.code} className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg" />
+                        <img
+                            src={selectedFemale.imageUrl}
+                            alt={selectedFemale.code}
+                            className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                        />
                     )}
                 </div>
             )}
-
 
             {/* Species Selector */}
             <Select
@@ -246,10 +262,7 @@ export function AddPairForm({
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {availableSpecies.map((species) => (
-                        <SelectItem
-                            key={species}
-                            value={species!}
-                        >
+                        <SelectItem key={species} value={species!}>
                             {species}
                         </SelectItem>
                     ))}
@@ -268,10 +281,7 @@ export function AddPairForm({
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {males.map((c) => (
-                        <SelectItem
-                            key={c?.id}
-                            value={c!.id}
-                        >
+                        <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
@@ -288,10 +298,7 @@ export function AddPairForm({
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {females.map((c) => (
-                        <SelectItem
-                            key={c?.id}
-                            value={c!.id}
-                        >
+                        <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName} ({c?.code})
                         </SelectItem>
                     ))}
@@ -319,13 +326,13 @@ export function AddPairForm({
                                 <span
                                     className={`font-semibold text-xs ${
                                         pred.isPossible
-                                            ? "text-green-600"
-                                            : "text-red-500"
+                                            ? 'text-green-600'
+                                            : 'text-red-500'
                                     }`}
                                 >
                                     {pred.isPossible
-                                        ? "POSSIBLE"
-                                        : "IMPOSSIBLE"}
+                                        ? 'POSSIBLE'
+                                        : 'IMPOSSIBLE'}
                                 </span>
                                 <span className="font-mono font-bold w-20 text-right">
                                     {(pred.averageChance * 100).toFixed(2)}%
@@ -383,7 +390,7 @@ export function AddPairForm({
                 disabled={isLoading}
                 className="w-full bg-pompaca-purple text-barely-lilac"
             >
-                {isLoading ? "Saving..." : "Create Pair"}
+                {isLoading ? 'Saving...' : 'Create Pair'}
             </Button>
         </form>
     );

@@ -8,7 +8,7 @@ import {
     breedingLogEntries,
     achievedGoals,
 } from '@/src/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { logAdminAction } from '@/lib/audit';
 import {
     enrichAndSerializeCreature,

@@ -8,9 +8,12 @@ import { revalidatePath } from 'next/cache';
 import { validatePairing } from '@/lib/breeding-rules';
 import {
     RegExpMatcher,
-    englishDataset,
     englishRecommendedTransformers,
+    DataSet,
+    englishDataset,
+    pattern,
 } from 'obscenity';
+import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 
 const createPairSchema = z.object({
     pairName: z
@@ -50,12 +53,24 @@ export async function POST(req: Request) {
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-        const matcher = new RegExpMatcher({
-            ...englishDataset.build(),
+        const customDataSet = new DataSet<{
+            originalWord: string;
+        }>().addAll(englishDataset);
+
+        OBSCENITY_BLACKLIST.forEach((word) =>
+            customDataSet.addPhrase((phrase) =>
+                phrase
+                    .setMetadata({ originalWord: word })
+                    .addPattern(pattern`${word}`)
+            )
+        );
+
+        const defaultMatcher = new RegExpMatcher({
+            ...customDataSet.build(),
             ...englishRecommendedTransformers,
         });
 
-        if (matcher.hasMatch(pairName)) {
+        if (defaultMatcher.hasMatch(pairName)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
+import { useState } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
-} from "@/types";
+} from '@/types';
 
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { CreatureCard } from "@/components/custom-cards/creature-card";
-import { Pagination } from "@/components/misc-custom-components/pagination";
-import { Button } from "@/components/ui/button";
-import { AddCreaturesDialog } from "@/components/custom-dialogs/add-creatures-dialog";
-import { speciesList } from "@/lib/creature-data";
+} from '@/components/ui/select';
+import { CreatureCard } from '@/components/custom-cards/creature-card';
+import { Pagination } from '@/components/misc-custom-components/pagination';
+import { Button } from '@/components/ui/button';
+import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-dialog';
+import { speciesList } from '@/constants/creature-data';
 
 type CollectionClientProps = {
     initialCreatures: EnrichedCreature[];
@@ -54,14 +54,14 @@ export function CollectionClient({
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
             var params = new URLSearchParams();
-            if (filterName == "male" || filterName == "female") {
-                params = new URLSearchParams("genders");
+            if (filterName == 'male' || filterName == 'female') {
+                params = new URLSearchParams('genders');
             } else {
                 params = new URLSearchParams(searchParams);
             }
-            params.set("page", "1");
+            params.set('page', '1');
 
-            if (value && value !== "all") {
+            if (value && value !== 'all') {
                 params.set(filterName, String(value));
             } else {
                 params.delete(filterName);
@@ -71,9 +71,9 @@ export function CollectionClient({
         300
     ); // 300ms debounce delay
 
-    const currentSpecies = searchParams.get("species") || "all";
-    const currentStage = searchParams.get("stage") || "all";
-    const currentQuery = searchParams.get("query") || "";
+    const currentSpecies = searchParams.get('species') || 'all';
+    const currentStage = searchParams.get('stage') || 'all';
+    const currentQuery = searchParams.get('query') || '';
 
     return (
         <div className="min-h-screen">
@@ -101,55 +101,41 @@ export function CollectionClient({
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) =>
-                                handleFilterChange("query", e.target.value)
+                                handleFilterChange('query', e.target.value)
                             }
                         />
                     </div>
 
                     {/* Gender Filters */}
                     <Select
-                        defaultValue={searchParams.get("gender") || "all"}
+                        defaultValue={searchParams.get('gender') || 'all'}
                         onValueChange={(value) =>
-                            handleFilterChange("gender", value)
+                            handleFilterChange('gender', value)
                         }
                     >
                         <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by gender..." />
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">
-                                All Genders
-                            </SelectItem>
-                            <SelectItem value="female">
-                                Female
-                            </SelectItem>
-                            <SelectItem value="male">
-                                Male
-                            </SelectItem>
+                            <SelectItem value="all">All Genders</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="male">Male</SelectItem>
                         </SelectContent>
                     </Select>
 
                     {/* Stage Filter */}
                     <Select
                         value={currentStage}
-                        onValueChange={(e) => handleFilterChange("stage", e)}
+                        onValueChange={(e) => handleFilterChange('stage', e)}
                     >
                         <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by stage..." />
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">
-                                All Stages
-                            </SelectItem>
-                            <SelectItem value="capsule">
-                                Capsule
-                            </SelectItem>
-                            <SelectItem value="juvenile">
-                                Juvenile
-                            </SelectItem>
-                            <SelectItem value="adult">
-                                Adult
-                            </SelectItem>
+                            <SelectItem value="all">All Stages</SelectItem>
+                            <SelectItem value="capsule">Capsule</SelectItem>
+                            <SelectItem value="juvenile">Juvenile</SelectItem>
+                            <SelectItem value="adult">Adult</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -157,22 +143,17 @@ export function CollectionClient({
                     <Select
                         value={currentSpecies}
                         onValueChange={(value) =>
-                            handleFilterChange("species", value)
+                            handleFilterChange('species', value)
                         }
                     >
                         <SelectTrigger className="w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">
-                                All Species
-                            </SelectItem>
+                            <SelectItem value="all">All Species</SelectItem>
                             {speciesList.map((species) => {
                                 return (
-                                    <SelectItem
-                                        key={species}
-                                        value={species}
-                                    >
+                                    <SelectItem key={species} value={species}>
                                         {species}
                                     </SelectItem>
                                 );

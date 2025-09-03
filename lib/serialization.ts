@@ -1,10 +1,17 @@
-import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal } from "@/types";
-import { structuredGeneData } from "@/lib/creature-data";
+import type {
+    DbCreature,
+    DbResearchGoal,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+} from '@/types';
+import { structuredGeneData } from '@/constants/creature-data';
 
 // serialize dates and add rich gene data to creature object
-export const enrichAndSerializeCreature = (creature: DbCreature | null): EnrichedCreature => {
+export const enrichAndSerializeCreature = (
+    creature: DbCreature | null
+): EnrichedCreature => {
     if (!creature) return null;
-    const speciesGeneData = structuredGeneData[creature.species || ""];
+    const speciesGeneData = structuredGeneData[creature.species || ''];
     return {
         ...creature,
         createdAt: creature.createdAt.toISOString(),
@@ -12,9 +19,9 @@ export const enrichAndSerializeCreature = (creature: DbCreature | null): Enriche
         gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
         geneData:
             creature.genetics
-                ?.split(",")
+                ?.split(',')
                 .map((genePair) => {
-                    const [category, genotype] = genePair.split(":");
+                    const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
                     const categoryData = speciesGeneData[category] as {
                         genotype: string;
@@ -26,7 +33,7 @@ export const enrichAndSerializeCreature = (creature: DbCreature | null): Enriche
                     return {
                         category,
                         genotype,
-                        phenotype: matchedGene?.phenotype || "Unknown",
+                        phenotype: matchedGene?.phenotype || 'Unknown',
                     };
                 })
                 .filter(
@@ -44,21 +51,21 @@ export const enrichAndSerializeCreature = (creature: DbCreature | null): Enriche
 // serialize dates and add enriched gene data to research goal object
 export const enrichAndSerializeGoal = (
     goal: DbResearchGoal,
-    goalMode: "genotype" | "phenotype"
+    goalMode: 'genotype' | 'phenotype'
 ): EnrichedResearchGoal => {
     const enrichedGenes: { [key: string]: any } = {};
     const speciesGeneData = structuredGeneData[goal.species];
-    if (speciesGeneData && goal.genes && typeof goal.genes === "object") {
+    if (speciesGeneData && goal.genes && typeof goal.genes === 'object') {
         for (const [category, selection] of Object.entries(goal.genes)) {
             let finalGenotype: string, finalPhenotype: string;
             if (
-                typeof selection === "object" &&
+                typeof selection === 'object' &&
                 selection.phenotype &&
                 selection.genotype
             ) {
                 finalGenotype = selection.genotype;
                 finalPhenotype = selection.phenotype;
-            } else if (typeof selection === "string") {
+            } else if (typeof selection === 'string') {
                 finalGenotype = selection;
                 const categoryData = speciesGeneData[category] as {
                     genotype: string;
@@ -67,11 +74,11 @@ export const enrichAndSerializeGoal = (
                 const matchedGene = categoryData?.find(
                     (g) => g.genotype === finalGenotype
                 );
-                finalPhenotype = matchedGene?.phenotype || "Unknown";
+                finalPhenotype = matchedGene?.phenotype || 'Unknown';
             } else continue;
 
             let isMulti = false;
-            if (goalMode === "phenotype") {
+            if (goalMode === 'phenotype') {
                 const categoryData = speciesGeneData[category];
                 const genotypesForPhenotype = categoryData?.filter(
                     (g) => g.phenotype === finalPhenotype

@@ -1,5 +1,5 @@
-import "server-only";
-import { TFO_SPECIES_CODES } from "./creature-data";
+import 'server-only';
+import { TFO_SPECIES_CODES } from '../constants/creature-data';
 
 /**
  * Constructs a dynamic TFO image URL based on species and genes.
@@ -17,16 +17,16 @@ export function constructTfoImageUrl(
         throw new Error(`Invalid or missing species code for: ${species}`);
     }
 
-    const gender = genes["Gender"]?.toLowerCase();
+    const gender = genes['Gender']?.toLowerCase();
 
     const geneticsString = Object.entries(genes)
-        .filter(([category]) => category !== 'Gender') 
+        .filter(([category]) => category !== 'Gender')
         .map(([category, genotype]) => `${category}:${genotype}`)
         .join(',');
 
-    const baseUrl = "https://finaloutpost.net/ln";
+    const baseUrl = 'https://finaloutpost.net/ln';
     const finalUrl = `${baseUrl}?s=${speciesCode}&c=${geneticsString}&g=${gender}`;
 
-    console.log("Constructed TFO URL:", finalUrl);
+    console.log('Constructed TFO URL:', finalUrl);
     return finalUrl;
 }

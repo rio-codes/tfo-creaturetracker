@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { usePathname, useRouter } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
+import { usePathname, useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
     DbBreedingPair,
     DbBreedingLogEntry,
-} from "@/types";
-import { BreedingPairCard } from "@/components/custom-cards/breeding-pair-card";
-import { Pagination } from "@/components/misc-custom-components/pagination";
-import { AddBreedingPairDialog } from "@/components/custom-dialogs/add-breeding-pair-dialog";
-import { Input } from "@/components/ui/input";
+} from '@/types';
+import { BreedingPairCard } from '@/components/custom-cards/breeding-pair-card';
+import { Pagination } from '@/components/misc-custom-components/pagination';
+import { AddBreedingPairDialog } from '@/components/custom-dialogs/add-breeding-pair-dialog';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { speciesList } from "@/lib/creature-data";
-import { Search } from "lucide-react";
+} from '@/components/ui/select';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { speciesList } from '@/constants/creature-data';
+import { Search } from 'lucide-react';
 
 type BreedingPairsClientProps = {
     initialPairs: EnrichedBreedingPair[];
@@ -52,22 +52,22 @@ export function BreedingPairsClient({
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
-        params.set("page", "1");
+        params.set('page', '1');
         if (term) {
-            params.set("query", term);
+            params.set('query', term);
         } else {
-            params.delete("query");
+            params.delete('query');
         }
         router.replace(`${pathname}?${params.toString()}`);
     }, 300);
 
     const handleSpeciesFilter = (species: string) => {
         const params = new URLSearchParams(searchParams);
-        params.set("page", "1");
-        if (species && species !== "all") {
-            params.set("species", species);
+        params.set('page', '1');
+        if (species && species !== 'all') {
+            params.set('species', species);
         } else {
-            params.delete("species");
+            params.delete('species');
         }
         router.replace(`${pathname}?${params.toString()}`);
     };
@@ -76,73 +76,73 @@ export function BreedingPairsClient({
         <TooltipProvider>
             <div className="min-h-screen">
                 <div className="container mx-auto px-4 py-5">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300">
-                        Breeding Pairs
-                    </h1>
-                    <AddBreedingPairDialog
-                        allCreatures={allCreatures}
-                        allGoals={allGoals}
-                        allPairs={allPairs}
-                        allLogs={allLogs}
-                    />
-                </div>
-                {/* Search and Filter Controls */}
-                <div className="flex gap-4 mb-8">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
-                        <Input
-                            placeholder="Search by pair name, parent name, or code..."
-                            defaultValue={searchParams?.query || ""}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300">
+                            Breeding Pairs
+                        </h1>
+                        <AddBreedingPairDialog
+                            allCreatures={allCreatures}
+                            allGoals={allGoals}
+                            allPairs={allPairs}
+                            allLogs={allLogs}
                         />
                     </div>
-                    <Select
-                        onValueChange={handleSpeciesFilter}
-                        defaultValue={searchParams?.species || "all"}
-                    >
-                        <SelectTrigger className="w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
-                            <SelectValue placeholder="Filter by species" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">All Species</SelectItem>
-                            {speciesList.map((species) => (
-                                <SelectItem key={species} value={species!}>
-                                    {species}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                {/* Pairs Grid */}
-                {initialPairs.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {initialPairs.map((pair) => (
-                            <BreedingPairCard
-                                key={pair?.id}
-                                pair={pair}
-                                allCreatures={allCreatures}
-                                allGoals={allGoals}
-                                allPairs={allPairs}
-                                allLogs={allLogs}
+                    {/* Search and Filter Controls */}
+                    <div className="flex gap-4 mb-8">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                            <Input
+                                placeholder="Search by pair name, parent name, or code..."
+                                defaultValue={searchParams?.query || ''}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             />
-                        ))}
+                        </div>
+                        <Select
+                            onValueChange={handleSpeciesFilter}
+                            defaultValue={searchParams?.species || 'all'}
+                        >
+                            <SelectTrigger className="w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                <SelectValue placeholder="Filter by species" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <SelectItem value="all">All Species</SelectItem>
+                                {speciesList.map((species) => (
+                                    <SelectItem key={species} value={species!}>
+                                        {species}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
-                ) : (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
-                            No Breeding Pairs Found
-                        </h2>
-                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                            Try adjusting your search or filter, or click the "+
-                            New Pair" button to get started.
-                        </p>
+                    {/* Pairs Grid */}
+                    {initialPairs.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            {initialPairs.map((pair) => (
+                                <BreedingPairCard
+                                    key={pair?.id}
+                                    pair={pair}
+                                    allCreatures={allCreatures}
+                                    allGoals={allGoals}
+                                    allPairs={allPairs}
+                                    allLogs={allLogs}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
+                                No Breeding Pairs Found
+                            </h2>
+                            <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                                Try adjusting your search or filter, or click
+                                the "+ New Pair" button to get started.
+                            </p>
+                        </div>
+                    )}
+                    <div className="mt-8 flex justify-center">
+                        <Pagination totalPages={totalPages} />
                     </div>
-                )}
-                <div className="mt-8 flex justify-center">
-                    <Pagination totalPages={totalPages} />
-                </div>
                 </div>
             </div>
         </TooltipProvider>

@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { useTheme } from "next-themes";
-import { useSession } from "next-auth/react";
-import { structuredGeneData } from "@/lib/creature-data";
-import { User, ResearchGoal } from "@/types"
+} from '@/components/ui/select';
+import { useTheme } from 'next-themes';
+import { useSession } from 'next-auth/react';
+import { structuredGeneData } from '@/constants/creature-data';
+import { User, ResearchGoal } from '@/types';
 
 export function SettingsForm({
     user,
@@ -38,16 +38,18 @@ export function SettingsForm({
     const { theme, setTheme } = useTheme();
     // Form state
     const [email, setEmail] = useState(user.email);
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [goalMode, setGoalMode] = useState(user.goalMode);
-    const [collectionItems, setCollectionItems] = useState(user.collectionItemsPerPage);
+    const [collectionItems, setCollectionItems] = useState(
+        user.collectionItemsPerPage
+    );
     const [goalsItems, setGoalsItems] = useState(user.goalsItemsPerPage);
     const [pairsItems, setPairsItems] = useState(user.pairsItemsPerPage);
     // State for the conversion flow
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [isConversionDialogOpen, setIsConversionDialogOpen] = useState(false);
     const [goalsToConvert, setGoalsToConvert] = useState<any[]>([]);
     const [conversionSelections, setConversionSelections] = useState<{
@@ -62,15 +64,14 @@ export function SettingsForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password && password !== confirmPassword) {
-            setError("Passwords do not match.");
+            setError('Passwords do not match.');
             return;
         }
         setIsLoading(true);
-        setError("");
-        setSuccessMessage("");
+        setError('');
+        setSuccessMessage('');
 
-        if (user.goalMode === "phenotype" && goalMode === "genotype") {
-
+        if (user.goalMode === 'phenotype' && goalMode === 'genotype') {
             const ambiguousGoals = [];
             for (const goal of goals) {
                 const ambiguousCategories = [];
@@ -83,11 +84,11 @@ export function SettingsForm({
 
                     // Intelligently determine the phenotype based on the data structure.
                     if (
-                        typeof geneSelection === "object" &&
+                        typeof geneSelection === 'object' &&
                         geneSelection.phenotype
                     ) {
                         targetPhenotype = geneSelection.phenotype;
-                    } else if (typeof geneSelection === "string") {
+                    } else if (typeof geneSelection === 'string') {
                         const categoryData = speciesGeneData[category] as {
                             genotype: string;
                             phenotype: string;
@@ -151,7 +152,8 @@ export function SettingsForm({
     const saveSettings = async (goalConversions?: any) => {
         setIsLoading(true);
         try {
-            const payload: any = { // Add theme to the payload
+            const payload: any = {
+                // Add theme to the payload
                 theme,
                 goalMode,
                 collectionItemsPerPage: collectionItems,
@@ -162,14 +164,14 @@ export function SettingsForm({
             if (password) payload.password = password;
             if (goalConversions) payload.goalConversions = goalConversions;
 
-            const response = await fetch("/api/settings", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/settings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
             if (!response.ok)
-                setError("Failed to update settings. " + data.error)
+                setError('Failed to update settings. ' + data.error);
 
             setSuccessMessage(data.message);
             if (email !== user.email) await updateSession({ user: { email } }); // Session update for theme is not needed
@@ -249,15 +251,33 @@ export function SettingsForm({
                             >
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="light" id="light" />
-                                    <Label htmlFor="light" className="font-normal">Light</Label>
+                                    <Label
+                                        htmlFor="light"
+                                        className="font-normal"
+                                    >
+                                        Light
+                                    </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="dark" id="dark" />
-                                    <Label htmlFor="dark" className="font-normal">Dark</Label>
+                                    <Label
+                                        htmlFor="dark"
+                                        className="font-normal"
+                                    >
+                                        Dark
+                                    </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="system" id="system" />
-                                    <Label htmlFor="system" className="font-normal">System</Label>
+                                    <RadioGroupItem
+                                        value="system"
+                                        id="system"
+                                    />
+                                    <Label
+                                        htmlFor="system"
+                                        className="font-normal"
+                                    >
+                                        System
+                                    </Label>
                                 </div>
                             </RadioGroup>
                         )}
@@ -276,7 +296,7 @@ export function SettingsForm({
                                 value={collectionItems}
                                 onChange={(e) =>
                                     setCollectionItems(Number(e.target.value))
-                                } 
+                                }
                                 min="3"
                                 max="30"
                                 className="bg-barely-lilac dark:bg-midnight-purple"
@@ -336,7 +356,7 @@ export function SettingsForm({
                         disabled={isLoading}
                         className="bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
                     >
-                        {isLoading ? "Saving..." : "Save Settings"}
+                        {isLoading ? 'Saving...' : 'Save Settings'}
                     </Button>
                 </div>
             </form>
@@ -403,8 +423,8 @@ export function SettingsForm({
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? "Saving..."
-                            : "Confirm Selections & Save Settings"}
+                            ? 'Saving...'
+                            : 'Confirm Selections & Save Settings'}
                     </Button>
                 </DialogContent>
             </Dialog>

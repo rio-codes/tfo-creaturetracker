@@ -9,10 +9,12 @@ import {
 } from '@/src/db/schema';
 import {
     RegExpMatcher,
-    TextCensor,
-    englishDataset,
     englishRecommendedTransformers,
+    DataSet,
+    englishDataset,
+    pattern,
 } from 'obscenity';
+import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
@@ -58,14 +60,28 @@ export async function PATCH(
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-        const matcher = new RegExpMatcher({
-            ...englishDataset.build(),
+        const customDataSet = new DataSet<{
+            originalWord: string;
+        }>().addAll(englishDataset);
+
+        OBSCENITY_BLACKLIST.forEach((word) =>
+            customDataSet.addPhrase((phrase) =>
+                phrase
+                    .setMetadata({ originalWord: word })
+                    .addPattern(pattern`${word}`)
+            )
+        );
+
+        const defaultMatcher = new RegExpMatcher({
+            ...customDataSet.build(),
             ...englishRecommendedTransformers,
         });
 
-        if (matcher.hasMatch(pairName)) {
+        if (defaultMatcher.hasMatch(pairName)) {
             return NextResponse.json(
-                { error: 'The provided name contains inappropriate language.' },
+                {
+                    error: 'The provided name contains inappropriate language.',
+                },
                 { status: 400 }
             );
         }

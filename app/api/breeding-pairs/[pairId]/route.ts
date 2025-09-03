@@ -7,14 +7,7 @@ import {
     researchGoals,
     breedingLogEntries,
 } from '@/src/db/schema';
-import {
-    RegExpMatcher,
-    englishRecommendedTransformers,
-    DataSet,
-    englishDataset,
-    pattern,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
@@ -60,24 +53,7 @@ export async function PATCH(
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-        const customDataSet = new DataSet<{
-            originalWord: string;
-        }>().addAll(englishDataset);
-
-        OBSCENITY_BLACKLIST.forEach((word) =>
-            customDataSet.addPhrase((phrase) =>
-                phrase
-                    .setMetadata({ originalWord: word })
-                    .addPattern(pattern`${word}`)
-            )
-        );
-
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(pairName)) {
+        if (hasObscenity(pairName)) {
             return NextResponse.json(
                 {
                     error: 'The provided name contains inappropriate language.',

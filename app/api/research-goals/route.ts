@@ -2,14 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { researchGoals } from '@/src/db/schema';
-import {
-    RegExpMatcher,
-    englishDataset,
-    englishRecommendedTransformers,
-    pattern,
-    DataSet,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { TFO_SPECIES_CODES } from '@/constants/creature-data';
@@ -72,16 +65,6 @@ export function validateGoalData(
     }
 }
 
-const customDataSet = new DataSet<{
-    originalWord: string;
-}>().addAll(englishDataset);
-
-OBSCENITY_BLACKLIST.forEach((word) =>
-    customDataSet.addPhrase((phrase) =>
-        phrase.setMetadata({ originalWord: word }).addPattern(pattern`${word}`)
-    )
-);
-
 // add new research goal
 export async function POST(req: Request) {
     console.log('Received', req.body);
@@ -110,12 +93,7 @@ export async function POST(req: Request) {
         }
         const { name, species, genes } = validatedFields.data;
 
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(name)) {
+        if (hasObscenity(name)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

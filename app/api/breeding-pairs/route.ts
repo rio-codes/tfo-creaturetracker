@@ -5,15 +5,7 @@ import { breedingPairs, creatures, researchGoals } from '@/src/db/schema';
 import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { validatePairing } from '@/lib/breeding-rules';
-import {
-    RegExpMatcher,
-    englishRecommendedTransformers,
-    DataSet,
-    englishDataset,
-    pattern,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 
 const createPairSchema = z.object({
     pairName: z
@@ -53,24 +45,7 @@ export async function POST(req: Request) {
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
             validatedFields.data;
 
-        const customDataSet = new DataSet<{
-            originalWord: string;
-        }>().addAll(englishDataset);
-
-        OBSCENITY_BLACKLIST.forEach((word) =>
-            customDataSet.addPhrase((phrase) =>
-                phrase
-                    .setMetadata({ originalWord: word })
-                    .addPattern(pattern`${word}`)
-            )
-        );
-
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(pairName)) {
+        if (hasObscenity(pairName)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

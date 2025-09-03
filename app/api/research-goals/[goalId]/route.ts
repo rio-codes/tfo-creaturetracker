@@ -8,14 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/lib/audit';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
-import {
-    RegExpMatcher,
-    englishRecommendedTransformers,
-    DataSet,
-    englishDataset,
-    pattern,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 
 const editGoalSchema = z.object({
     name: z
@@ -64,24 +57,7 @@ export async function PATCH(
 
         const { name, species, genes, goalMode } = validatedFields.data;
 
-        const customDataSet = new DataSet<{
-            originalWord: string;
-        }>().addAll(englishDataset);
-
-        OBSCENITY_BLACKLIST.forEach((word) =>
-            customDataSet.addPhrase((phrase) =>
-                phrase
-                    .setMetadata({ originalWord: word })
-                    .addPattern(pattern`${word}`)
-            )
-        );
-
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(name)) {
+        if (hasObscenity(name)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

@@ -4,14 +4,7 @@ import { db } from '@/src/db';
 import { userTabs } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import {
-    RegExpMatcher,
-    englishRecommendedTransformers,
-    DataSet,
-    englishDataset,
-    pattern,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 
 // GET all tabs for a user
 export async function GET() {
@@ -59,24 +52,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const customDataSet = new DataSet<{
-            originalWord: string;
-        }>().addAll(englishDataset);
-
-        OBSCENITY_BLACKLIST.forEach((word) =>
-            customDataSet.addPhrase((phrase) =>
-                phrase
-                    .setMetadata({ originalWord: word })
-                    .addPattern(pattern`${word}`)
-            )
-        );
-
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(tabName)) {
+        if (hasObscenity(tabName)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

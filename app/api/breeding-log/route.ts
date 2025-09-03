@@ -12,14 +12,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
-import {
-    RegExpMatcher,
-    englishRecommendedTransformers,
-    DataSet,
-    englishDataset,
-    pattern,
-} from 'obscenity';
-import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
+import { hasObscenity } from '@/lib/obscenity';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
@@ -52,24 +45,7 @@ export async function POST(req: Request) {
         }
         const { pairId, progeny1Id, progeny2Id, notes } = validated.data;
 
-        const customDataSet = new DataSet<{
-            originalWord: string;
-        }>().addAll(englishDataset);
-
-        OBSCENITY_BLACKLIST.forEach((word) =>
-            customDataSet.addPhrase((phrase) =>
-                phrase
-                    .setMetadata({ originalWord: word })
-                    .addPattern(pattern`${word}`)
-            )
-        );
-
-        const defaultMatcher = new RegExpMatcher({
-            ...customDataSet.build(),
-            ...englishRecommendedTransformers,
-        });
-
-        if (defaultMatcher.hasMatch(notes)) {
+        if (hasObscenity(notes)) {
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }

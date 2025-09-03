@@ -24,8 +24,8 @@
   line-height: var(--text-3xl--line-height);
 }
 
-.bg-primary-background {
-  --bg-primary-background: var(--color-barely-lilac);
+.dark:bg-background {
+  --bg-background: var(--color-pompaca-purple);
 }
 
 .fg-primary-foreground {

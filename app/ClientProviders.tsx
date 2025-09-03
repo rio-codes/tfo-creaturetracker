@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "@/components/theme-provider";
-import { usePathname } from "next/navigation";
-import Header from "@/components/custom-layout-elements/header";
-import { Footer } from "@/components/custom-layout-elements/footer";
-import { Alert } from "@/components/ui/alert";
-import { ThemeSyncer } from "@/components/misc-custom-components/theme-syncer";
+import { SessionProvider } from 'next-auth/react';
+import { ThemeProvider } from '@/components/theme-provider';
+import { usePathname } from 'next/navigation';
+import Header from '@/components/custom-layout-elements/header';
+import { Footer } from '@/components/custom-layout-elements/footer';
+import { Alert } from '@/components/ui/alert';
+import { ThemeSyncer } from '@/components/misc-custom-components/theme-syncer';
+import { Analytics } from '@vercel/analytics/next';
 
 export default function ClientProviders({
     children,
@@ -17,13 +18,13 @@ export default function ClientProviders({
 
     // Define the paths where the header should be hidden
     const hideHeaderOnPaths = [
-        "/",
-        "/login",
-        "/register",
-        "/terms",
-        "/privacy",
-        "/forgot-password",
-        "/password-reset",
+        '/',
+        '/login',
+        '/register',
+        '/terms',
+        '/privacy',
+        '/forgot-password',
+        '/password-reset',
     ];
     const showHeader = !hideHeaderOnPaths.includes(pathname);
 
@@ -38,6 +39,7 @@ export default function ClientProviders({
                     </div>
                     {children}
                 </main>
+                <Analytics />
                 <Footer />
             </SessionProvider>
         </ThemeProvider>

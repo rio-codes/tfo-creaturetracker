@@ -211,7 +211,10 @@ export function AddPairForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+            onSubmit={handleSubmit}
+            className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple dark"
+        >
             <Input
                 placeholder="Pair Name (e.g., Silver Project)"
                 value={pairName}

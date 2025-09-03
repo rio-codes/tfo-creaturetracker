@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 
 type AdminBreedingPair = {
     id: string;
@@ -32,20 +32,20 @@ async function handleDeleteBreedingPair(pairId: string, pairName: string) {
         )
     ) {
         const res = await fetch(`/api/admin/breeding-pairs/${pairId}`, {
-            method: "DELETE",
+            method: 'DELETE',
         });
         if (res.ok) {
             window.location.reload();
         } else {
-            alert("Failed to delete breeding pair.");
+            alert('Failed to delete breeding pair.');
         }
     }
 }
 
 export const columns: ColumnDef<AdminBreedingPair>[] = [
     {
-        accessorKey: "pairName",
-        header: "Name",
+        accessorKey: 'pairName',
+        header: 'Name',
         cell: ({ row }) => {
             const name = row.original.pairName;
 
@@ -66,21 +66,21 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
         },
     },
     {
-        accessorKey: "species",
-        header: "Species",
+        accessorKey: 'species',
+        header: 'Species',
     },
     {
-        accessorKey: "ownerUsername",
-        header: "Owner",
+        accessorKey: 'ownerUsername',
+        header: 'Owner',
     },
     {
-        accessorKey: "createdAt",
-        header: "Created",
+        accessorKey: 'createdAt',
+        header: 'Created',
         cell: ({ row }) =>
             new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
-        id: "actions",
+        id: 'actions',
         cell: ({ row }) => {
             const pair = row.original;
             return (
@@ -91,10 +91,13 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                        align="end"
+                        className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
+                    >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            className="text-red-600"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
                             onClick={() =>
                                 handleDeleteBreedingPair(pair.id, pair.pairName)
                             }

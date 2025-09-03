@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 
 type AdminResearchGoal = {
     id: string;
@@ -32,20 +32,20 @@ async function handleDeleteResearchGoal(goalId: string, goalName: string) {
         )
     ) {
         const res = await fetch(`/api/admin/research-goals/${goalId}`, {
-            method: "DELETE",
+            method: 'DELETE',
         });
         if (res.ok) {
             window.location.reload();
         } else {
-            alert("Failed to delete research goal.");
+            alert('Failed to delete research goal.');
         }
     }
 }
 
 export const columns: ColumnDef<AdminResearchGoal>[] = [
     {
-        accessorKey: "name",
-        header: "Name",
+        accessorKey: 'name',
+        header: 'Name',
         cell: ({ row }) => {
             const name = row.original.name;
 
@@ -66,21 +66,21 @@ export const columns: ColumnDef<AdminResearchGoal>[] = [
         },
     },
     {
-        accessorKey: "species",
-        header: "Species",
+        accessorKey: 'species',
+        header: 'Species',
     },
     {
-        accessorKey: "ownerUsername",
-        header: "Owner",
+        accessorKey: 'ownerUsername',
+        header: 'Owner',
     },
     {
-        accessorKey: "createdAt",
-        header: "Created",
+        accessorKey: 'createdAt',
+        header: 'Created',
         cell: ({ row }) =>
             new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
-        id: "actions",
+        id: 'actions',
         cell: ({ row }) => {
             const goal = row.original;
             return (
@@ -91,10 +91,13 @@ export const columns: ColumnDef<AdminResearchGoal>[] = [
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                        align="end"
+                        className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
+                    >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            className="text-red-600"
+                            className=" bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
                             onClick={() =>
                                 handleDeleteResearchGoal(goal.id, goal.name)
                             }

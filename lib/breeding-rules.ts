@@ -1,47 +1,50 @@
-import type { 
+import type {
     EnrichedCreature,
     DbCreature,
     DbResearchGoal,
     DbBreedingPair,
     DbBreedingLogEntry,
-} from "@/types";
-import { enrichAndSerializeCreature } from "@/lib/serialization";
-import { enrichAndSerializeGoal } from "./enrichAndSerializeGoal";
+} from '@/types';
+import { enrichAndSerializeCreature } from '@/lib/serialization';
+import { enrichAndSerializeGoal } from './enrichAndSerializeGoal';
 
 export const breedingRules = {
     // Species that cannot breed with anything, including their own kind.
-    incompatible: new Set<string>(["Imsanga Afero"]),
+    incompatible: new Set<string>(['Imsanga Afero']),
 
     // Pairs of different species that can breed but do not produce a hybrid.
     // The offspring can be of either parent's species.
     compatible: new Set<string>([
-        ["Glacia Alsalto", "Silenta Spuristo"].sort().join("|"),
-        ["Klara Alsalto", "Silenta Spuristo"].sort().join("|"),
-        ["Transira Alsalto", "Silenta Spuristo"].sort().join("|"),
-        ["Avka Felo", "Muska Felo"].sort().join("|"),
-        ["Luna Hundo", "Suna Hundo"].sort().join("|"),
-        ["Furioza Vizago", "Lanuga Vizago"].sort().join("|"),
-        ["Frida Fisisto", "Terura Fisisto"].sort().join("|"), 
-        ["Rida Frakaso", "Osta Frakaso"].sort().join("|"), 
-        ["Songa Kreinto", "Inkuba Brulajo"].sort().join("|"), 
-        ["Kosmira Girafo", "Tera Girafo"].sort().join("|"), 
+        ['Glacia Alsalto', 'Silenta Spuristo'].sort().join('|'),
+        ['Klara Alsalto', 'Silenta Spuristo'].sort().join('|'),
+        ['Transira Alsalto', 'Silenta Spuristo'].sort().join('|'),
+        ['Avka Felo', 'Muska Felo'].sort().join('|'),
+        ['Luna Hundo', 'Suna Hundo'].sort().join('|'),
+        ['Furioza Vizago', 'Lanuga Vizago'].sort().join('|'),
+        ['Frida Fisisto', 'Terura Fisisto'].sort().join('|'),
+        ['Rida Frakaso', 'Osta Frakaso'].sort().join('|'),
+        ['Songa Kreinto', 'Inkuba Brulajo'].sort().join('|'),
+        ['Kosmira Girafo', 'Tera Girafo'].sort().join('|'),
         // Back-crosses are compatible and can produce offspring of either parent species.
-        ["Kora Voko", "Nokta Voko"].sort().join("|"), 
-        ["Kora Voko", "Tagluma Valso"].sort().join("|"), 
-        ["Transira Alsalto", "Klara Alsalto"].sort().join("|"), 
-        ["Transira Alsalto", "Glacia Alsalto"].sort().join("|"), 
-        ["Tonbleko", "Ranbleko"].sort().join("|"), 
-        ["Tonbleko", "Glubleko"].sort().join("|"), 
+        ['Kora Voko', 'Nokta Voko'].sort().join('|'),
+        ['Kora Voko', 'Tagluma Valso'].sort().join('|'),
+        ['Transira Alsalto', 'Klara Alsalto'].sort().join('|'),
+        ['Transira Alsalto', 'Glacia Alsalto'].sort().join('|'),
+        ['Tonbleko', 'Ranbleko'].sort().join('|'),
+        ['Tonbleko', 'Glubleko'].sort().join('|'),
     ]),
 
     // Pairs of different species that produce a specific hybrid offspring.
     hybrids: new Map<string, string>([
-        [["Glacia Alsalto", "Klara Alsalto"].sort().join("|"), "Transira Alsalto"],
-        [["Ranbleko", "Glubleko"].sort().join("|"), "Tonbleko"],
-        [["Nokta Voko", "Tagluma Valso"].sort().join("|"), "Kora Voko"],
+        [
+            ['Glacia Alsalto', 'Klara Alsalto'].sort().join('|'),
+            'Transira Alsalto',
+        ],
+        [['Ranbleko', 'Glubleko'].sort().join('|'), 'Tonbleko'],
+        [['Nokta Voko', 'Tagluma Valso'].sort().join('|'), 'Kora Voko'],
     ]),
 
-    // Specific pairings that are explicitly disallowed. 
+    // Specific pairings that are explicitly disallowed.
     exceptions: new Set<string>([]),
 };
 
@@ -52,7 +55,7 @@ export function getPossibleOffspringSpecies(
     if (speciesA === speciesB) {
         return [speciesA];
     }
-    const sortedPairString = [speciesA, speciesB].sort().join("|");
+    const sortedPairString = [speciesA, speciesB].sort().join('|');
 
     const hybridOffspring = breedingRules.hybrids.get(sortedPairString);
     if (hybridOffspring) {
@@ -74,7 +77,7 @@ export function validatePairing(
     const speciesB = creatureB?.species;
 
     if (!speciesA || !speciesB) {
-        return { isValid: false, error: "Parent species is missing." };
+        return { isValid: false, error: 'Parent species is missing.' };
     }
 
     if (
@@ -84,7 +87,7 @@ export function validatePairing(
         return { isValid: false, error: `${speciesA} cannot breed.` };
     }
 
-    const sortedPairString = [speciesA, speciesB].sort().join("|");
+    const sortedPairString = [speciesA, speciesB].sort().join('|');
     if (breedingRules.exceptions.has(sortedPairString)) {
         return {
             isValid: false,
@@ -122,10 +125,12 @@ export function checkGoalAchieved(
 
     if (!enrichedProgeny || !enrichedGoal) return false;
 
-    const progenyGenes = new Map(enrichedProgeny.geneData.map(g => [g.category, g]));
+    const progenyGenes = new Map(
+        enrichedProgeny.geneData.map((g) => [g.category, g])
+    );
 
     for (const [category, targetGene] of Object.entries(enrichedGoal.genes)) {
-        if (category === "Gender") continue;
+        if (category === 'Gender') continue;
 
         const progenyGene = progenyGenes.get(category);
         if (!progenyGene) {
@@ -136,7 +141,8 @@ export function checkGoalAchieved(
             if (progenyGene.genotype !== targetGene.genotype) {
                 return false;
             }
-        } else { // phenotype mode
+        } else {
+            // phenotype mode
             if (progenyGene.phenotype !== targetGene.phenotype) {
                 return false;
             }
@@ -175,8 +181,20 @@ function getAncestorsRecursive(
     if (maleParentId) ancestors.add(maleParentId);
     if (femaleParentId) ancestors.add(femaleParentId);
 
-    getAncestorsRecursive(maleParentId, allLogs, allPairs, depth - 1, ancestors);
-    getAncestorsRecursive(femaleParentId, allLogs, allPairs, depth - 1, ancestors);
+    getAncestorsRecursive(
+        maleParentId,
+        allLogs,
+        allPairs,
+        depth - 1,
+        ancestors
+    );
+    getAncestorsRecursive(
+        femaleParentId,
+        allLogs,
+        allPairs,
+        depth - 1,
+        ancestors
+    );
 }
 
 export function findSuitableMates(
@@ -196,12 +214,6 @@ export function findSuitableMates(
             return false;
         }
         if (potentialMate?.growthLevel !== 3) {
-            return false;
-        }
-        if (
-            pairedCreatureIds.has(potentialMate?.id) &&
-            pairedCreatureIds.has(baseCreature?.id)
-        ) {
             return false;
         }
 

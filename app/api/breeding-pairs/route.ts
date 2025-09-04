@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
+import { validatePairing } from '@/lib/breeding-rules';
 
 const createPairSchema = z.object({
     pairName: z

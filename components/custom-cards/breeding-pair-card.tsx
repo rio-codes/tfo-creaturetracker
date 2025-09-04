@@ -312,7 +312,7 @@ export function BreedingPairCard({
                                             <Network className="h-4 w-4 text-yellow-600" />
                                         }
                                         content={
-                                            <p>
+                                            <p className="dark:text-barely-lilac">
                                                 This pair is related
                                                 genetically. Offspring will be
                                                 inbred.

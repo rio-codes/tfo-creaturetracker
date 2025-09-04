@@ -7,7 +7,6 @@ import Header from '@/components/custom-layout-elements/header';
 import { Footer } from '@/components/custom-layout-elements/footer';
 import { ThemeSyncer } from '@/components/misc-custom-components/theme-syncer';
 import { Analytics } from '@vercel/analytics/next';
-import { Toaster } from '@/components/ui/sonner';
 
 // Define the paths where the header should be hidden
 const hideHeaderOnPaths = [
@@ -29,14 +28,9 @@ export default function ClientProviders({
     const showHeader = !hideHeaderOnPaths.includes(pathname);
 
     return (
-        <ThemeProvider
-            attribute="class"
-            enableSystem={true}
-            defaultTheme="system"
-        >
+        <ThemeProvider enableSystem={true} defaultTheme="system">
             <SessionProvider>
                 <ThemeSyncer />
-                <Toaster />
                 {showHeader && <Header />}
                 <main className="flex flex-col flex-1">{children}</main>
                 <Analytics />

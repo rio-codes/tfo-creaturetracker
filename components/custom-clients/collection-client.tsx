@@ -8,6 +8,8 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
 } from '@/types';
+import type { DbBreedingPair } from '@/types';
+import type { DbBreedingLogEntry } from '@/types';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -28,6 +30,8 @@ type CollectionClientProps = {
     initialCreatures: EnrichedCreature[];
     totalPages: number;
     allCreatures: EnrichedCreature[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[];
 };
@@ -37,6 +41,8 @@ export function CollectionClient({
     totalPages,
     allCreatures,
     allPairs,
+    allRawPairs,
+    allLogs,
     allGoals,
 }: CollectionClientProps) {
     const searchParams = useSearchParams();
@@ -164,15 +170,19 @@ export function CollectionClient({
                 {/* Creature Grid */}
                 {initialCreatures.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {initialCreatures.map((creature) => (
-                            <CreatureCard
-                                key={creature?.id}
-                                creature={creature}
-                                allCreatures={allCreatures}
-                                allPairs={allPairs}
-                                allGoals={allGoals}
-                            />
-                        ))}
+                        {initialCreatures.map((creature) => {
+                            return (
+                                <CreatureCard
+                                    key={creature?.id}
+                                    creature={creature}
+                                    allCreatures={allCreatures}
+                                    allRawPairs={allRawPairs}
+                                    allEnrichedPairs={allPairs}
+                                    allLogs={allLogs}
+                                    allGoals={allGoals}
+                                />
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">

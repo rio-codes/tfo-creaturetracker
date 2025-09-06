@@ -3,11 +3,13 @@ import {
     getAllCreaturesForUser,
     getAllBreedingPairsForUser,
     getAllResearchGoalsForUser,
-} from "@/lib/data";
-import { CollectionClient } from "@/components/custom-clients/collection-client";
-import { Suspense } from "react";
+    getAllBreedingLogEntriesForUser,
+    getAllRawBreedingPairsForUser,
+} from '@/lib/data';
+import { CollectionClient } from '@/components/custom-clients/collection-client';
+import { Suspense } from 'react';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function CollectionPage({
     searchParams,
@@ -23,13 +25,17 @@ export default async function CollectionPage({
     const [
         { creatures: paginatedCreatures, totalPages },
         allCreatures,
+        allRawPairs,
         allPairs,
         allGoals,
+        allLogs,
     ] = await Promise.all([
         fetchFilteredCreatures(searchParams),
+        getAllRawBreedingPairsForUser(),
         getAllCreaturesForUser(),
         getAllBreedingPairsForUser(),
         getAllResearchGoalsForUser(),
+        getAllBreedingLogEntriesForUser(),
     ]);
 
     return (
@@ -40,8 +46,10 @@ export default async function CollectionPage({
                         initialCreatures={paginatedCreatures}
                         totalPages={totalPages}
                         allCreatures={allCreatures}
+                        allRawPairs={allRawPairs}
                         allPairs={allPairs}
                         allGoals={allGoals}
+                        allLogs={allLogs}
                     />
                 </Suspense>
             </div>

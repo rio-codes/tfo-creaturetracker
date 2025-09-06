@@ -26,11 +26,25 @@ const createLogSchema = z.object({
     keepSourceOnEmpty: z.boolean().optional(),
 });
 
+const editLogSchema = z.object({
+    logId: z.string().uuid('Invalid log ID'),
+    notes: z
+        .string()
+        .max(500, 'Notes cannot exceed 500 characters.')
+        .optional(),
+    progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
+    progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
+});
+
 const updateLogSchema = z.object({
     logEntryId: z.string().uuid('Invalid log entry ID'),
     progenyId: z.string().uuid('Invalid progeny ID'),
     sourceLogId: z.string().uuid().optional(),
     keepSourceOnEmpty: z.boolean().optional(),
+});
+
+const deleteLogSchema = z.object({
+    logId: z.string().uuid('Invalid log ID'),
 });
 
 async function checkAndRecordAchievements(
@@ -193,6 +207,180 @@ export async function POST(req: Request) {
         );
     } catch (error) {
         console.error('Failed to log breeding event:', error);
+        return NextResponse.json(
+            {
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : 'An internal error occurred.',
+            },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(req: Request) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json(
+            { error: 'Not authenticated' },
+            { status: 401 }
+        );
+    }
+    const userId = session.user.id;
+
+    try {
+        const body = await req.json();
+        const validated = editLogSchema.safeParse(body);
+        if (!validated.success) {
+            return NextResponse.json(
+                { error: 'Invalid input.', details: validated.error.flatten() },
+                { status: 400 }
+            );
+        }
+        const { logId, notes, progeny1Id, progeny2Id } = validated.data;
+
+        if (hasObscenity(notes)) {
+            return NextResponse.json(
+                { error: 'The provided notes contain inappropriate language.' },
+                { status: 400 }
+            );
+        }
+
+        await db.transaction(async (tx) => {
+            const existingLog = await tx.query.breedingLogEntries.findFirst({
+                where: and(
+                    eq(breedingLogEntries.id, logId),
+                    eq(breedingLogEntries.userId, userId)
+                ),
+            });
+
+            if (!existingLog) {
+                throw new Error('Log entry not found.');
+            }
+
+            const oldProgenyIds = [
+                existingLog.progeny1Id,
+                existingLog.progeny2Id,
+            ].filter(Boolean) as string[];
+            const newProgenyIds = [progeny1Id, progeny2Id].filter(
+                Boolean
+            ) as string[];
+
+            const removedProgenyIds = oldProgenyIds.filter(
+                (id) => !newProgenyIds.includes(id)
+            );
+
+            // Delete achievements for removed progeny from this log
+            if (removedProgenyIds.length > 0) {
+                await tx
+                    .delete(achievedGoals)
+                    .where(
+                        and(
+                            eq(achievedGoals.logEntryId, logId),
+                            inArray(
+                                achievedGoals.matchingProgenyId,
+                                removedProgenyIds
+                            )
+                        )
+                    );
+            }
+
+            // Update the log entry
+            await tx
+                .update(breedingLogEntries)
+                .set({
+                    notes: notes,
+                    progeny1Id: progeny1Id,
+                    progeny2Id: progeny2Id,
+                })
+                .where(eq(breedingLogEntries.id, logId));
+
+            // Check for new achievements
+            await checkAndRecordAchievements(
+                userId,
+                existingLog.pairId,
+                newProgenyIds,
+                logId
+            );
+        });
+
+        revalidatePath('/breeding-pairs');
+        revalidatePath('/collection');
+
+        return NextResponse.json(
+            { message: 'Log entry updated successfully!' },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error('Failed to update breeding log:', error);
+        return NextResponse.json(
+            {
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : 'An internal error occurred.',
+            },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(req: Request) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json(
+            { error: 'Not authenticated' },
+            { status: 401 }
+        );
+    }
+    const userId = session.user.id;
+
+    try {
+        const body = await req.json();
+        const validated = deleteLogSchema.safeParse(body);
+        if (!validated.success) {
+            return NextResponse.json(
+                { error: 'Invalid input.', details: validated.error.flatten() },
+                { status: 400 }
+            );
+        }
+        const { logId } = validated.data;
+
+        await db.transaction(async (tx) => {
+            const logToDelete = await tx.query.breedingLogEntries.findFirst({
+                where: and(
+                    eq(breedingLogEntries.id, logId),
+                    eq(breedingLogEntries.userId, userId)
+                ),
+            });
+
+            if (!logToDelete) {
+                throw new Error(
+                    'Log entry not found or you do not have permission to delete it.'
+                );
+            }
+
+            // Delete associated achievements
+            await tx
+                .delete(achievedGoals)
+                .where(eq(achievedGoals.logEntryId, logId));
+
+            // Delete the log entry
+            await tx
+                .delete(breedingLogEntries)
+                .where(eq(breedingLogEntries.id, logId));
+        });
+
+        revalidatePath('/breeding-pairs');
+        revalidatePath('/collection');
+
+        return NextResponse.json(
+            { message: 'Log entry deleted successfully!' },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error('Failed to delete breeding log:', error);
         return NextResponse.json(
             {
                 error:

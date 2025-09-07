@@ -1,1 +1,1 @@
-export const OBSCENITY_BLACKLIST = ['tranny', 'gypsy', 'midget'];
+export const OBSCENITY_BLACKLIST = ['gypsy', 'midget'];

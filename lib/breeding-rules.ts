@@ -7,6 +7,9 @@ import type {
 } from '@/types';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { enrichAndSerializeGoal } from './enrichAndSerializeGoal';
+import { speciesList as allSpecies } from '@/constants/creature-data';
+
+export const speciesList = allSpecies;
 
 export const breedingRules = {
     // Species that cannot breed with anything, including their own kind.

@@ -108,7 +108,7 @@ export function PredictionsAccordion({
 
                                 {/* Right side: Stats and Button */}
                                 <div className="flex flex-col items-stretch gap-y-3 md:flex-row md:items-center md:gap-x-6">
-                                    <div className="flex justify-between md:justify-center">
+                                    <div className="flex justify-end md:justify-center">
                                         <div className="text-center">
                                             <div className="font-mono text-lg">
                                                 {(
@@ -148,8 +148,8 @@ export function PredictionsAccordion({
                         </AccordionTrigger>
 
                         {/* Expanded, "deep-dive" view - remains the same */}
-                        <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
+                        <AccordionContent className="p-4 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-4">
                                 {Object.entries(p.chancesByCategory || {}).map(
                                     ([category, chance]) => (
                                         <div key={category}>

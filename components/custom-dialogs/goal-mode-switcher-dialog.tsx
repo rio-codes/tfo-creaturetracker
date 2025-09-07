@@ -231,7 +231,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                         </p>
                         {ambiguousCategories.map((cat) => (
                             <div key={cat.category} className="mt-2">
-                                <Label className="text-pompaca-purple">
+                                <Label className="text-pompaca-purple dark:text-barely-lilac">
                                     {cat.category} ({cat.phenotype})
                                 </Label>
                                 <Select

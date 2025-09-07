@@ -50,12 +50,10 @@ export function GoalDetailClient({
         const progenyWithPairInfo = allPairs
             .filter((p) => assignedPairIds.has(p.id))
             .flatMap((p) =>
-                (p.progeny || [])
-                    .filter((prog) => prog.growthLevel === 3) // Only include adult creatures
-                    .map((prog) => ({
-                        ...prog,
-                        parentPairName: p.pairName || 'Unnamed Pair',
-                    }))
+                (p.progeny || []).map((prog) => ({
+                    ...prog,
+                    parentPairName: p.pairName || 'Unnamed Pair',
+                }))
             );
 
         // Deduplicate progeny in case it's part of multiple assigned pairs
@@ -348,7 +346,7 @@ export function GoalDetailClient({
                                 {scoredProgeny.map((progeny) => (
                                     <li
                                         key={progeny.id}
-                                        className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple"
+                                        className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple border border-pompaca-purple dark:border-barely-lilac"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center">
@@ -429,12 +427,20 @@ export function GoalDetailClient({
                             </ul>
                         ) : (
                             <p className="text-center text-dusk-purple dark:text-purple-400 italic py-4">
-                                No adult progeny have been logged for the
-                                assigned pairs.
+                                No progeny have been logged for the assigned
+                                pairs.
                             </p>
                         )}
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Note Section */}
+            <div className="flex w-full justify-center">
+                <span className="text-s text-dusk-purple dark:text-purple-400 text-center py-5">
+                    Note: Some features are still under development and not yet
+                    available.
+                </span>
             </div>
         </div>
     );

@@ -41,7 +41,10 @@ export function AddBreedingPairDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger
+                className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
+                asChild
+            >
                 {children || (
                     <Button className="bg-pompaca-purple text-barely-lilac">
                         + New Pair

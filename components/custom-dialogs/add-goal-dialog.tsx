@@ -1,14 +1,14 @@
-"use client";
-import { useState } from "react";
-import { GoalForm } from "@/components/custom-forms/goal-form";
+'use client';
+import { useState } from 'react';
+import { GoalForm } from '@/components/custom-forms/goal-form';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { DialogTrigger } from '@radix-ui/react-dialog';
 
 export function AddGoalDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +16,7 @@ export function AddGoalDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 mb-5">
+                <Button className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500 mb-5">
                     + New Goal
                 </Button>
             </DialogTrigger>

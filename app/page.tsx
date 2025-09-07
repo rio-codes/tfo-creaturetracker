@@ -1,50 +1,5 @@
 'use client';
-
-import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import { Switch } from '@mui/material';
-import { Moon, Sun } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { createTheme } from '@mui/material/styles';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
-
-declare module '@mui/material/styles' {
-    interface Palette {
-        custom: Palette['primary'];
-    }
-
-    interface PaletteOptions {
-        custom?: PaletteOptions['primary'];
-    }
-}
-
-declare module '@mui/material/Switch' {
-    interface SwitchPropsColorOverrides {
-        custom: true;
-    }
-}
-
 export default function Page() {
-    const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const muiTheme = createTheme({
-        palette: {
-            primary: {
-                main: '#3C2D63',
-                light: '#D0BCFF',
-                dark: '#251a3d',
-                contrastText: ' #EADDFF',
-            },
-        },
-    });
-
-    const usePurpleTheme = useMuiTheme();
-
     return (
         <div className="flex h-screen bg-ebena-lavender dark:bg-midnight-purple">
             <div className="w-screen h-screen flex flex-col justify-center items-center">
@@ -114,32 +69,6 @@ export default function Page() {
                     </p>
                 </div>
             </div>
-            {mounted && (
-                <div className="absolute flex right-1 bottom-4 w-25">
-                    <Label
-                        htmlFor="theme-switch"
-                        className="text-pompaca-purple dark:text-barely-lilac"
-                    >
-                        <Sun className="h-4 w-4" />
-                    </Label>
-                    <Switch
-                        id="theme-switch"
-                        defaultValue={theme === 'system' ? undefined : theme}
-                        checked={theme === 'dark'}
-                        onChange={() =>
-                            setTheme(theme === 'dark' ? 'light' : 'dark')
-                        }
-                        color="custom"
-                        size="small"
-                    />
-                    <Label
-                        htmlFor="theme-switch"
-                        className="text-pompaca-purple  dark:text-barely-lilac"
-                    >
-                        <Moon className="h-4 w-4" />
-                    </Label>
-                </div>
-            )}
         </div>
     );
 }

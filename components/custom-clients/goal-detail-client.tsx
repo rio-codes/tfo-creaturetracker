@@ -299,7 +299,7 @@ export function GoalDetailClient({
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg  font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
+                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
                                     Phenotype
                                 </h3>
                                 <div className="space-y-1 text-sm">

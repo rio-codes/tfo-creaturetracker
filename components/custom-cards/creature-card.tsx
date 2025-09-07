@@ -388,7 +388,7 @@ export function CreatureCard({
                                     allPairs={allEnrichedPairs}
                                     allGoals={allGoals}
                                 >
-                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-30 h-16">
+                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                         <span className="text-wrap wrap-normal text-sm/tight">
                                             Manage Breeding Pairs
                                         </span>
@@ -400,7 +400,7 @@ export function CreatureCard({
                                     allEnrichedPairs={allEnrichedPairs}
                                     allLogs={allLogs}
                                 >
-                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-30 h-16">
+                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                         <span className="text-wrap wrap-normal text-sm/tight">
                                             Log as Progeny
                                         </span>
@@ -410,7 +410,7 @@ export function CreatureCard({
                         )}
                     <Button
                         onClick={handleRemoveFromCollection}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-30 h-16"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
                         disabled={isDeleting}
                     >
                         {isDeleting ? (

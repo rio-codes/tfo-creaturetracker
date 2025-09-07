@@ -24,6 +24,8 @@ import type {
 import {
     getPossibleOffspringSpecies,
     checkForInbreeding,
+    validatePairing,
+    speciesList,
 } from '@/lib/breeding-rules';
 
 type AddPairFormProps = {
@@ -48,35 +50,30 @@ export function AddPairForm({
     const router = useRouter();
     const [pairName, setPairName] = useState('');
     const [selectedMaleId, setSelectedMaleId] = useState<string | undefined>(
-        undefined
+        baseCreature?.gender === 'male' ? baseCreature.id : undefined
     );
     const [selectedFemaleId, setSelectedFemaleId] = useState<
         string | undefined
-    >(undefined);
+    >(baseCreature?.gender === 'female' ? baseCreature.id : undefined);
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
     const [isInbred, setIsInbred] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
-    const [selectedSpecies, setSelectedSpecies] = useState<string>('');
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
-
-    const handleSpeciesChange = (newSpecies: string) => {
-        setSelectedSpecies(newSpecies);
-        setSelectedMaleId(undefined);
-        setSelectedFemaleId(undefined);
-        setSelectedGoalIds([]);
-    };
+    const [isHybridMode, setIsHybridMode] = useState(false);
+    const [selectedSpecies, setSelectedSpecies] = useState('');
 
     useEffect(() => {
         if (baseCreature) {
-            // If a creature is passed in, automatically set the species
-            setSelectedSpecies(baseCreature.species || '');
             if (baseCreature.gender === 'male') {
                 setSelectedMaleId(baseCreature.id);
             } else if (baseCreature.gender === 'female') {
                 setSelectedFemaleId(baseCreature.id);
+            }
+            if (!isHybridMode) {
+                setSelectedSpecies(baseCreature.species || '');
             }
         }
         if (initialGoal) {
@@ -84,32 +81,69 @@ export function AddPairForm({
         }
     }, [baseCreature, initialGoal]);
 
-    // Get a unique list of all available species from the creature data
-    const availableSpecies = useMemo(
-        () => [...new Set(allCreatures.map((c) => c?.species).filter(Boolean))],
-        [allCreatures]
-    );
-
     const { selectedMale, selectedFemale } = useMemo(() => {
         const male = allCreatures.find((c) => c?.id === selectedMaleId);
         const female = allCreatures.find((c) => c?.id === selectedFemaleId);
         return { selectedMale: male, selectedFemale: female };
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
-    // Memoize filtered lists for dropdowns based on the selected species
-    const { males, females } = useMemo(() => {
-        if (!selectedSpecies) {
-            return { males: [], females: [] };
+    const { availableMales, availableFemales } = useMemo(() => {
+        const allAdultMales = allCreatures.filter(
+            (c) => c.gender === 'male' && c.growthLevel === 3
+        );
+        const allAdultFemales = allCreatures.filter(
+            (c) => c.gender === 'female' && c.growthLevel === 3
+        );
+
+        if (isHybridMode) {
+            // Hybrid mode: show all valid mates
+            if (selectedMale) {
+                const validFemales = allAdultFemales.filter(
+                    (female) => validatePairing(selectedMale, female).isValid
+                );
+                return {
+                    availableMales: allAdultMales,
+                    availableFemales: validFemales,
+                };
+            }
+
+            if (selectedFemale) {
+                const validMales = allAdultMales.filter(
+                    (male) => validatePairing(male, selectedFemale).isValid
+                );
+                return {
+                    availableMales: validMales,
+                    availableFemales: allAdultFemales,
+                };
+            }
+
+            return {
+                availableMales: allAdultMales,
+                availableFemales: allAdultFemales,
+            };
+        } else {
+            // Standard mode: filter by selected species
+            if (!selectedSpecies) {
+                return { availableMales: [], availableFemales: [] };
+            }
+            const malesOfSpecies = allAdultMales.filter(
+                (c) => c.species === selectedSpecies
+            );
+            const femalesOfSpecies = allAdultFemales.filter(
+                (c) => c.species === selectedSpecies
+            );
+            return {
+                availableMales: malesOfSpecies,
+                availableFemales: femalesOfSpecies,
+            };
         }
-        return {
-            males: allCreatures.filter(
-                (c) => c?.species === selectedSpecies && c?.gender === 'male'
-            ),
-            females: allCreatures.filter(
-                (c) => c?.species === selectedSpecies && c?.gender === 'female'
-            ),
-        };
-    }, [selectedSpecies, allCreatures]);
+    }, [
+        isHybridMode,
+        selectedSpecies,
+        selectedMale,
+        selectedFemale,
+        allCreatures,
+    ]);
 
     const assignableGoals = useMemo(() => {
         if (!selectedMale || !selectedFemale) return [];
@@ -165,6 +199,26 @@ export function AddPairForm({
         }
     }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
 
+    const handleHybridToggle = (checked: boolean) => {
+        setIsHybridMode(checked);
+        // Reset selections when toggling mode
+        setSelectedMaleId(
+            baseCreature?.gender === 'male' ? baseCreature.id : undefined
+        );
+        setSelectedFemaleId(
+            baseCreature?.gender === 'female' ? baseCreature.id : undefined
+        );
+        setSelectedSpecies(
+            !checked && baseCreature ? baseCreature.species || '' : ''
+        );
+    };
+
+    const handleSpeciesChange = (species: string) => {
+        setSelectedSpecies(species);
+        setSelectedMaleId(undefined);
+        setSelectedFemaleId(undefined);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMaleId || !selectedFemaleId) {
@@ -181,7 +235,9 @@ export function AddPairForm({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairName,
-                    species: selectedSpecies,
+                    species: isHybridMode
+                        ? selectedMale?.species
+                        : selectedSpecies,
                     maleParentId: selectedMaleId,
                     femaleParentId: selectedFemaleId,
                     assignedGoalIds: selectedGoalIds,
@@ -222,6 +278,16 @@ export function AddPairForm({
                 className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
                 required
             />
+            <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="hybrid-mode"
+                    checked={isHybridMode}
+                    onCheckedChange={handleHybridToggle}
+                />
+                <Label htmlFor="hybrid-mode">
+                    Create Hybrid/Compatible Pair
+                </Label>
+            </div>
             {isInbred && (
                 <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 p-2 text-sm text-pompaca-purple">
                     <Network className="h-4 w-4 flex-shrink-0" />
@@ -254,38 +320,38 @@ export function AddPairForm({
                 </div>
             )}
 
-            {/* Species Selector */}
             <Select
                 value={selectedSpecies}
                 onValueChange={handleSpeciesChange}
-                required
+                required={!isHybridMode}
+                disabled={isHybridMode}
             >
                 <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Species..." />
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                    {availableSpecies.map((species) => (
-                        <SelectItem key={species} value={species!}>
-                            {species}
+                    {speciesList.map((s) => (
+                        <SelectItem key={s} value={s}>
+                            {s}
                         </SelectItem>
                     ))}
                 </SelectContent>
             </Select>
 
-            {/* Parent Selectors - now disabled until a species is chosen */}
+            {/* Parent Selectors */}
             <Select
                 value={selectedMaleId}
                 onValueChange={setSelectedMaleId}
-                required
-                disabled={!selectedSpecies}
+                disabled={!isHybridMode && !selectedSpecies}
             >
                 <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                    {males.map((c) => (
+                    {availableMales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
-                            {c?.creatureName} ({c?.code})
+                            {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
+                            {c.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -293,16 +359,16 @@ export function AddPairForm({
             <Select
                 value={selectedFemaleId}
                 onValueChange={setSelectedFemaleId}
-                required
-                disabled={!selectedSpecies}
+                disabled={!isHybridMode && !selectedSpecies}
             >
                 <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                    {females.map((c) => (
+                    {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
-                            {c?.creatureName} ({c?.code})
+                            {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
+                            {c.species}
                         </SelectItem>
                     ))}
                 </SelectContent>

@@ -219,52 +219,58 @@ export function GoalDetailClient({
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
-                    <CardContent className="p-6 grid grid-cols-2 gap-6 items-center">
-                        <div className="text-lg font-semibold">
-                            <span>Species:</span>{' '}
-                            <span className="text-lg font-normal">
-                                {goal?.species}
-                            </span>
-                        </div>
-                        <div className="text-lg font-semibold">
-                            Gender:
-                            <span className="text-lg font-normal">
-                                {' '}
-                                {gender}
-                            </span>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
-                                Genotype
-                            </h3>
-                            <div className="space-y-1 text-sm">
-                                {geneEntries
-                                    .filter(
-                                        ([category]) => category !== 'Gender'
-                                    )
-                                    .map(([category, gene]) => (
-                                        <div key={category}>
-                                            <strong>{category}:</strong>{' '}
-                                            {gene.genotype}
-                                        </div>
-                                    ))}
+                    <CardContent className="p-6 flex flex-col gap-6">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="text-lg font-semibold">
+                                <span>Species:</span>{' '}
+                                <span className="text-lg font-normal">
+                                    {goal?.species}
+                                </span>
+                            </div>
+                            <div className="text-lg font-semibold">
+                                Gender:
+                                <span className="text-lg font-normal">
+                                    {' '}
+                                    {gender}
+                                </span>
                             </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
-                                Phenotype
-                            </h3>
-                            <div className="space-y-1 text-sm">
-                                {geneEntries
-                                    .filter(
-                                        ([category]) => category !== 'Gender'
-                                    )
-                                    .map(([category, gene]) => (
-                                        <div key={category}>
-                                            <strong>{category}:</strong>{' '}
-                                            {gene.phenotype}
-                                        </div>
-                                    ))}
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
+                                    Genotype
+                                </h3>
+                                <div className="space-y-1 text-sm">
+                                    {geneEntries
+                                        .filter(
+                                            ([category]) =>
+                                                category !== 'Gender'
+                                        )
+                                        .map(([category, gene]) => (
+                                            <div key={category}>
+                                                <strong>{category}:</strong>{' '}
+                                                {gene.genotype}
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
+                                    Phenotype
+                                </h3>
+                                <div className="space-y-1 text-sm">
+                                    {geneEntries
+                                        .filter(
+                                            ([category]) =>
+                                                category !== 'Gender'
+                                        )
+                                        .map(([category, gene]) => (
+                                            <div key={category}>
+                                                <strong>{category}:</strong>{' '}
+                                                {gene.phenotype}
+                                            </div>
+                                        ))}
+                                </div>
                             </div>
                         </div>
                     </CardContent>

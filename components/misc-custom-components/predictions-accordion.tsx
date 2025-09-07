@@ -67,7 +67,7 @@ export function PredictionsAccordion({
                         <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
                                 {/* Left side: Pair Name and Parents */}
-                                <div className="flex flex-1 items-center gap-4">
+                                <div className="flex flex-1 items-center gap-4 min-w-0">
                                     <div className="flex flex-shrink-0 items-center gap-1">
                                         <img
                                             src={getCacheBustedImageUrl(
@@ -91,11 +91,11 @@ export function PredictionsAccordion({
                                             className="w-10 h-10 object-contain bg-pink-100 p-1 border border-pompaca-purple rounded-md"
                                         />
                                     </div>
-                                    <div>
-                                        <div className="font-bold text-xl truncate">
+                                    <div className="min-w-0 flex-wrap">
+                                        <div className="font-bold text-xl truncate min-w-0">
                                             {p.pairName}
                                         </div>
-                                        <div className="text-xs text-dusk-purple dark:text-purple-400 truncate">
+                                        <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
                                             {p.maleParent?.creatureName ||
                                                 'Unnamed'}{' '}
                                             ({p.maleParent?.code}) x{' '}
@@ -108,7 +108,7 @@ export function PredictionsAccordion({
 
                                 {/* Right side: Stats and Button */}
                                 <div className="flex flex-col items-stretch gap-y-3 md:flex-row md:items-center md:gap-x-6">
-                                    <div className="flex justify-between md:justify-center">
+                                    <div className="flex justify-end md:justify-center">
                                         <div className="text-center">
                                             <div className="font-mono text-lg">
                                                 {(
@@ -148,8 +148,8 @@ export function PredictionsAccordion({
                         </AccordionTrigger>
 
                         {/* Expanded, "deep-dive" view - remains the same */}
-                        <AccordionContent className="p-6 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
+                        <AccordionContent className="p-4 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-4">
                                 {Object.entries(p.chancesByCategory || {}).map(
                                     ([category, chance]) => (
                                         <div key={category}>

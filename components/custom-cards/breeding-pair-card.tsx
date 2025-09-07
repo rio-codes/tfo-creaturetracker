@@ -154,7 +154,7 @@ export function BreedingPairCard({
                 body: JSON.stringify({ isPinned: !isPinned }),
             });
             setIsPinned(!isPinned);
-            router.refresh();
+            router.push('/breeding-pairs');
         } catch (error) {
             console.error(error);
             alert('Could not update pin status.');
@@ -565,7 +565,6 @@ export function BreedingPairCard({
                     allGoals={allGoals}
                     allPairs={allPairs}
                     allLogs={allLogs}
-                    isAdminView={isAdminView}
                 >
                     <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
                         Edit /

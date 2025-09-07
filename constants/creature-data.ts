@@ -6034,19 +6034,20 @@ export const structuredGeneData = {
             { genotype: 'Female', phenotype: 'Female' },
         ],
         Body: [
-            { genotype: 'AA', phenotype: 'Gold' },
-            { genotype: 'Aa', phenotype: 'Silver' },
-            { genotype: 'aa', phenotype: 'Stormy' },
+            { genotype: 'AA', phenotype: 'Holly' },
+            { genotype: 'Aa', phenotype: 'Everglade' },
+            { genotype: 'aa', phenotype: 'Yucca' },
         ],
-        Markinga: [
-            { genotype: 'AA', phenotype: 'Gold Painted' },
-            { genotype: 'Aa', phenotype: 'Brindled' },
-            { genotype: 'aa', phenotype: 'Snow Leopard' },
-        ],
-        Markingb: [
-            { genotype: 'AA', phenotype: 'White Mask/Pinions' },
-            { genotype: 'Aa', phenotype: 'Wing Tips' },
-            { genotype: 'aa', phenotype: 'Tuxedo' },
+        Morph: [
+            { genotype: 'AABB', phenotype: 'Horned' },
+            { genotype: 'AABb', phenotype: 'Horned Colorful' },
+            { genotype: 'AAbb', phenotype: 'Gold-Maned' },
+            { genotype: 'AaBB', phenotype: 'Colorful' },
+            { genotype: 'AaBb', phenotype: 'None' },
+            { genotype: 'Aabb', phenotype: 'Silver-Maned' },
+            { genotype: 'aaBB', phenotype: 'Gilled' },
+            { genotype: 'aaBb', phenotype: 'Maned Gilled' },
+            { genotype: 'aabb', phenotype: 'Coal-Maned' },
         ],
     },
     'Klara Alsalto': {

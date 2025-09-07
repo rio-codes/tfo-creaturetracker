@@ -13,10 +13,11 @@ import { Button } from '@/components/ui/button';
 import { PredictionsAccordion } from '@/components/misc-custom-components/predictions-accordion';
 import { AssignPairDialog } from '@/components/custom-dialogs/assign-breeding-pair-dialog';
 import { GoalModeSwitcher } from '@/components/custom-dialogs/goal-mode-switcher-dialog';
-import { RefreshCw, Loader2, Award } from 'lucide-react';
+import { RefreshCw, Loader2, Award, Info } from 'lucide-react';
 import * as Sentry from '@sentry/nextjs';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
+import { InfoDisplay } from '../misc-custom-components/info-display';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -39,6 +40,31 @@ export function GoalDetailClient({
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
     const gender = goal?.genes['Gender'].phenotype;
+
+    const goalModeInfoContent = (
+        <div className="p-2 max-w-xs dark:text-barely-lilac text-pompaca-purple">
+            <h4 className="font-bold mb-2 border-b pb-1">Goal Modes</h4>
+            <div className="space-y-3 mt-2">
+                <div>
+                    <p className="font-semibold">🧬 Genotype Mode</p>
+                    <p className="text-sm">
+                        Calculates odds for achieving an exact genetic code.
+                        Match scores will be much lower. For advanced users
+                        aiming for specific breeding outcomes.
+                    </p>
+                </div>
+                <div>
+                    <p className="font-semibold">🪶 Phenotype Mode</p>
+                    <p className="text-sm">
+                        Calculates odds based on achieving a desired look (e.g.,
+                        "Steppes"), accepting any genotype that produces it.
+                        Match scores will be higher and "possible" goals more
+                        common. Recommended for most users.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
 
     const assignedPredictions = useMemo(() => {
         const assignedIds = new Set(goal?.assignedPairIds || []);
@@ -213,7 +239,25 @@ export function GoalDetailClient({
                     Goal: {goal?.name}
                 </h1>
                 <div className="mt-5">
-                    <GoalModeSwitcher goal={goal} />
+                    {/* Desktop: Info on the badge itself */}
+                    <div className="hidden md:block">
+                        <InfoDisplay
+                            trigger={<GoalModeSwitcher goal={goal} />}
+                            content={goalModeInfoContent}
+                        />
+                    </div>
+
+                    {/* Mobile: Badge + separate info icon */}
+                    <div className="flex items-center gap-2 md:hidden">
+                        <GoalModeSwitcher goal={goal} />
+                        <InfoDisplay
+                            trigger={
+                                <Info className="h-5 w-5 dark:text-barely-lilac text-pompaca-purple cursor-pointer" />
+                            }
+                            content={goalModeInfoContent}
+                            className="dark:text-barely-lilac text-pompaca-purple cursor-pointer"
+                        />
+                    </div>
                 </div>
             </div>
             {/* Top Section: Goal Details */}
@@ -255,7 +299,7 @@ export function GoalDetailClient({
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
+                                <h3 className="text-lg  font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
                                     Phenotype
                                 </h3>
                                 <div className="space-y-1 text-sm">
@@ -441,14 +485,6 @@ export function GoalDetailClient({
                         )}
                     </CardContent>
                 </Card>
-            </div>
-
-            {/* Note Section */}
-            <div className="flex w-full justify-center">
-                <span className="text-s text-dusk-purple dark:text-purple-400 text-center py-5">
-                    Note: Some features are still under development and not yet
-                    available.
-                </span>
             </div>
         </div>
     );

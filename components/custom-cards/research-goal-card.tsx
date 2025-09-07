@@ -56,7 +56,7 @@ export function ResearchGoalCard({
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
             {/* Goal Mode Badge */}
             <div className="absolute top-2 left-2 z-10">
                 <InfoDisplay
@@ -64,8 +64,8 @@ export function ResearchGoalCard({
                         <Badge
                             className={
                                 goal?.goalMode === 'genotype'
-                                    ? 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-30'
-                                    : 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-30'
+                                    ? 'h-auto p-2 capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-30'
+                                    : 'h-auto p-2  capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-30'
                             }
                         >
                             <span>
@@ -83,14 +83,14 @@ export function ResearchGoalCard({
                                     : 'Phenotype Mode'}
                             </h4>
                             {goal?.goalMode === 'genotype' ? (
-                                <p>
+                                <p className="dark:text-barely-lilac">
                                     Calculates odds for achieving an exact
                                     genetic code. Match scores will be much
                                     lower. For advanced users aiming for
                                     specific breeding outcomes.
                                 </p>
                             ) : (
-                                <p>
+                                <p className="dark:text-barely-lilac">
                                     Calculates odds based on achieving a desired
                                     look (e.g., "Steppes"), accepting any
                                     genotype that produces it. Match scores will

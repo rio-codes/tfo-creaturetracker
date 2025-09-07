@@ -84,7 +84,7 @@ export function CollectionClient({
     return (
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-8">
+                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-5">
                     Collection
                 </h1>
                 <Button

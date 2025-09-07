@@ -110,7 +110,7 @@ export function CreatureCard({
                 throw new Error('Failed to update pin status.');
             }
             setIsPinned(newPinState);
-            router.refresh(); // Re-fetch data to re-sort the grid
+            router.push('/collection');
         } catch (error) {
             console.error(error);
             alert('Could not update pin status. Please try again.');

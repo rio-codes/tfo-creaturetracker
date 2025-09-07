@@ -46,7 +46,7 @@ export function ResearchGoalCard({
             }
 
             setIsPinned(newPinState);
-            router.refresh();
+            router.push('/research-goals');
         } catch (error) {
             console.error(error);
             alert('Could not update pin status. Please try again.');

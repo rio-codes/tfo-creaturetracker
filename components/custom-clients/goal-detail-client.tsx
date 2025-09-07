@@ -50,10 +50,12 @@ export function GoalDetailClient({
         const progenyWithPairInfo = allPairs
             .filter((p) => assignedPairIds.has(p.id))
             .flatMap((p) =>
-                (p.progeny || []).map((prog) => ({
-                    ...prog,
-                    parentPairName: p.pairName || 'Unnamed Pair',
-                }))
+                (p.progeny || [])
+                    .filter((prog) => prog.growthLevel === 3)
+                    .map((prog) => ({
+                        ...prog,
+                        parentPairName: p.pairName || 'Unnamed Pair',
+                    }))
             );
 
         // Deduplicate progeny in case it's part of multiple assigned pairs

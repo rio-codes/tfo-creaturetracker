@@ -91,7 +91,7 @@ export function PredictionsAccordion({
                                             className="w-10 h-10 object-contain bg-pink-100 p-1 border border-pompaca-purple rounded-md"
                                         />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                         <div className="font-bold text-xl truncate">
                                             {p.pairName}
                                         </div>

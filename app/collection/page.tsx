@@ -24,8 +24,8 @@ export default async function CollectionPage({
 }) {
     const [
         { creatures: paginatedCreatures, totalPages },
-        allCreatures,
         allRawPairs,
+        allCreatures,
         allPairs,
         allGoals,
         allLogs,

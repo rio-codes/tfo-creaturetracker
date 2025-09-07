@@ -67,7 +67,7 @@ export function PredictionsAccordion({
                         <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
                                 {/* Left side: Pair Name and Parents */}
-                                <div className="flex flex-1 items-center gap-4">
+                                <div className="flex flex-1 items-center gap-4 min-w-0">
                                     <div className="flex flex-shrink-0 items-center gap-1">
                                         <img
                                             src={getCacheBustedImageUrl(
@@ -91,11 +91,11 @@ export function PredictionsAccordion({
                                             className="w-10 h-10 object-contain bg-pink-100 p-1 border border-pompaca-purple rounded-md"
                                         />
                                     </div>
-                                    <div className="min-w-0">
-                                        <div className="font-bold text-xl truncate">
+                                    <div className="min-w-0 flex-wrap">
+                                        <div className="font-bold text-xl truncate min-w-0">
                                             {p.pairName}
                                         </div>
-                                        <div className="text-xs text-dusk-purple dark:text-purple-400 truncate">
+                                        <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
                                             {p.maleParent?.creatureName ||
                                                 'Unnamed'}{' '}
                                             ({p.maleParent?.code}) x{' '}

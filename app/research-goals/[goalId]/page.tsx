@@ -1,10 +1,19 @@
-import { fetchGoalDetailsAndPredictions, getAllCreaturesForUser } from "@/lib/data";
-import { GoalDetailClient } from "@/components/custom-clients/goal-detail-client";
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import type { EnrichedCreature, EnrichedResearchGoal, Prediction } from "@/types";
+import {
+    fetchGoalDetailsAndPredictions,
+    getAllCreaturesForUser,
+    getAllBreedingPairsForUser,
+} from '@/lib/data';
+import { GoalDetailClient } from '@/components/custom-clients/goal-detail-client';
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import type {
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    Prediction,
+    EnrichedBreedingPair,
+} from '@/types';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 type PageProps = {
     params: {
@@ -12,17 +21,11 @@ type PageProps = {
     };
 };
 
-type GoalDetailClientProps = {
-    goal: EnrichedResearchGoal;
-    initialPredictions: Prediction[];
-    allCreatures: EnrichedCreature[];
-
-};
-
 export default async function GoalDetailPage({ params }: PageProps) {
     const { goalId } = params;
     const { goal, predictions } = await fetchGoalDetailsAndPredictions(goalId);
-    const allCreaturesData = await getAllCreaturesForUser()
+    const allCreaturesData = await getAllCreaturesForUser();
+    const allPairsData = await getAllBreedingPairsForUser();
 
     if (!goal) {
         notFound();
@@ -42,6 +45,7 @@ export default async function GoalDetailPage({ params }: PageProps) {
                         goal={goal!}
                         initialPredictions={predictions}
                         allCreatures={allCreaturesData}
+                        allPairs={allPairsData}
                     />
                 </Suspense>
             </div>

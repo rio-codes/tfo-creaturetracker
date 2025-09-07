@@ -207,11 +207,15 @@ export function BreedingPairCard({
     return (
         <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/*Notes Icon */}
-            <div className="absolute top-2 left-7 z-10">
-                <ViewLogsDialog pair={pair}>
+            <div className="absolute top-2 left-2 z-10">
+                <ViewLogsDialog
+                    pair={pair}
+                    allCreatures={allCreatures}
+                    allLogs={allLogs}
+                >
                     <Button
                         size="icon"
-                        className="h-6 w-6 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
+                        className="h-6 w-20 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
                     >
                         <BookText className="h-4 w-4" />
                         <span className="text-xs">Logs</span>

@@ -9399,7 +9399,6 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Dorna Maco': 'S8jRV',
     'Ebena Kuranto': 'bBE77',
     'Ekvinoska Kavigo': 'rxGB4',
-    // prettier-ignore
     'Etarakido': 'yuGOZ',
     'Flirtanta Flamo': 'kfD3Y',
     'Floranta Doloro': 'RMDqX',
@@ -9408,7 +9407,6 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Furioza Vizago': 'hH2RQ',
     'Glacia Alsalto': 'E1Txo',
     'Glita Skvamo': '2xKYN',
-    // prettier-ignore
     'Glubleko': 'BnRyG',
     'Gudra Kornaro': 'rsOPo',
     'Imsanga Afero': 'bvQ0y',
@@ -9417,7 +9415,6 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Kauri Makzelo': 'qIlRj',
     'Klara Alsalto': 'juvAD',
     'Klipeta Kapto': 'YxpzG',
-    // prettier-ignore
     'Koleratako': 'DFUpL',
     'Kora Voko': 'SPtOw',
     'Kosmira Girafo': 'C774V',
@@ -9432,11 +9429,9 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Minuskla Casadisto': 'UkBbC',
     'Monta Selo': 's8JOP',
     'Muska Felo': '277yl',
-    // prettier-ignore
     'Muskbirdo': 'jvvzO',
     'Nebula Glisanto': 'XwCRx',
     'Nektara Veziko': 'B7Cpx',
-    // prettier-ignore
     'Netimo': 'VV8LH',
     'Nokta Voko': 'hpCtp',
     'Okula Pikilo': 'XSNbq',
@@ -9444,14 +9439,11 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Osta Frakaso': 'Gd1y0',
     'Pieda Pastigo': 'mJPou',
     'Pompaca Floro': 'jUjCb',
-    // prettier-ignore
     'Ranbleko': '3qaZZ',
     'Reganta Plumaro': '0JY0A',
     'Rida Frakaso': 'CMKpN',
-    // prettier-ignore
     'Ruzafolio': 'MEiwI',
     'Sabla Rego': 'ZIHTg',
-    // prettier-ignore
     'Saltanta': 'Hvg6u',
     'Sauma Kudrilo': 'La72v',
     'Sencesa Simfonio': 'rAeTa',
@@ -9461,17 +9453,14 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Songa Kreinto': '3HhEm',
     'Stepa Safido': 'DU0VX',
     'Stranga Sciuro': 'k3sRE',
-    // prettier-ignore
     'Strigosto': 'oqqTj',
     'Suna Hundo': 'yOOcd',
-    // prettier-ignore
     'Tagalo': 'jdUUG',
     'Tagluma Valso': 'QcPz4',
     'Tera Girafo': 'BqzrA',
     'Terura Fisisto': 'l1fkI',
     'Timiga Dancanto': '333mP',
     'Toksa Muko': 'X9dht',
-    // prettier-ignore
     'Tonbleko': 'Dbk6u',
     'Transira Alsalto': 'YsPYT',
     'Vetura Oazo': 'km4eo',

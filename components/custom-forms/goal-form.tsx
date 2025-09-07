@@ -367,7 +367,7 @@ export function GoalForm({
                 >
                     <SelectTrigger
                         id="species-select"
-                        className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
+                        className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-barely-lilac"
                     >
                         <SelectValue placeholder="Species Name" />
                     </SelectTrigger>
@@ -383,10 +383,10 @@ export function GoalForm({
             {species && (
                 <div className="flex min-h-0 flex-col space-y-4 rounded-md border bg-ebena-lavender dark:bg-midnight-purple p-4">
                     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1">
-                        <Label className="font-bold text-pompaca-purple col-span-2">
+                        <Label className="font-bold text-pompaca-purple dark:text-barely-lilac col-span-2">
                             Target Genes
                         </Label>
-                        <Label className="font-bold text-pompaca-purple text-xs justify-self-center">
+                        <Label className="font-bold text-pompaca-purple dark:text-barely-lilac text-xs justify-self-center">
                             Optional
                         </Label>
                     </div>
@@ -406,7 +406,7 @@ export function GoalForm({
                                         key={category}
                                         className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4"
                                     >
-                                        <Label className="font-medium text-pompaca-purple">
+                                        <Label className="font-medium dark:text-barely-lilac">
                                             {category}
                                         </Label>
                                         <Select

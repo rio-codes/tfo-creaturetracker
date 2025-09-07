@@ -34,11 +34,13 @@ export async function POST(req: Request) {
         const validatedFields = createPairSchema.safeParse(body);
 
         if (!validatedFields.success) {
+            const { fieldErrors } = z.flattenError(validatedFields.error);
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(" ");
+            console.error("Zod Validation Failed:", fieldErrors);
             return NextResponse.json(
-                {
-                    error: 'Invalid data provided.',
-                    details: validatedFields.error.flatten(),
-                },
+                { error: errorMessage || "Invalid input." },
                 { status: 400 }
             );
         }

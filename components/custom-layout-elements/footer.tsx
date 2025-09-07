@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export function Footer() {
     const year = new Date().getFullYear();
@@ -7,7 +7,7 @@ export function Footer() {
             <div className="flex flex-wrap justify-between text-sm max-w-full">
                 <div className="mb-4 md:mb-0">
                     <span>
-                        ©{year} Rio S., licensed under{" "}
+                        ©{year} Rio S., licensed under{' '}
                         <a
                             href="https://www.gnu.org/licenses/agpl-3.0.en.html"
                             className="underline hover:no-underline"
@@ -18,7 +18,7 @@ export function Footer() {
                     </span>
                     <br></br>
                     <span>
-                        All art is the copyright of respective artists on{" "}
+                        All art is the copyright of respective artists on{' '}
                         <a
                             href="https://finaloutpost.net/"
                             className="underline"
@@ -44,17 +44,24 @@ export function Footer() {
                     </a>
                     <span>|</span>
                     <a
+                        href="https://www.patreon.com/cw/tfoct"
+                        className="hover:underline"
+                    >
+                        Patreon
+                    </a>
+                    <span>|</span>
+                    <a
+                        href="https://discord.gg/PMtE3jrXYR"
+                        className="hover:underline"
+                    >
+                        Discord
+                    </a>
+                    <span>|</span>
+                    <a
                         href="https://finaloutpost.net/lab/lyricism"
                         className="hover:underline"
                     >
                         My Lab
-                    </a>
-                    <span>|</span>
-                    <a
-                        href="https://ko-fi.com/lyricism_"
-                        className="hover:underline"
-                    >
-                        Buy Me a Coffee
                     </a>
                 </div>
             </div>

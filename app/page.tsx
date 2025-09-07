@@ -23,14 +23,23 @@ export default function Page() {
                         </ul>
                     </div>
                     <p className="text-slate-400 font-bold text-l mt-5">
-                        Want to be a beta tester? Join us on{' '}
+                        Want a preview of the site before it launches? Become a
+                        subscriber on our{' '}
                         <a
-                            href="https://discord.gg/2avcnP83v9"
+                            href="https://www.patreon.com/cw/tfoct"
+                            className="text-dusk-purple"
+                        >
+                            Patreon
+                        </a>
+                        {'. '} Curious about the site? join our{' '}
+                        <a
+                            href="https://discord.gg/PMtE3jrXYR"
                             className="text-dusk-purple"
                         >
                             Discord
-                        </a>
-                        !
+                        </a>{' '}
+                        to talk to the team and chat about what will be
+                        available.
                     </p>
                     <p className="text-slate-400 font-semibold text-md mt-5">
                         Current beta testers:{' '}

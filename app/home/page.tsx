@@ -28,7 +28,7 @@ export default function Page() {
                         Want a preview of the site before it launches? Become a
                         subscriber on our{' '}
                         <a
-                            href="https://www.patreon.com/cw/tfoct"
+                            href="https://patreon.com/tfoct?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink"
                             className="text-dusk-purple dark:text-purple-400 "
                         >
                             Patreon

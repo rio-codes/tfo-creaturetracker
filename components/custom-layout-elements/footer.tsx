@@ -88,7 +88,7 @@ export function Footer() {
                         </a>
                         <span>|</span>
                         <a
-                            href="https://www.patreon.com/cw/tfoct"
+                            href="https://patreon.com/tfoct?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink"
                             className="hover:underline"
                         >
                             Patreon

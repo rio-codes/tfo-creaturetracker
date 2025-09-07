@@ -149,7 +149,7 @@ export function CreateCreatureForm() {
                 throw new Error(data.error || 'Failed to create creature.');
 
             alert('Creature created successfully!'); // Replace with a toast
-            router.refresh();
+            router.push('/admin/creatures');
         } catch (err: any) {
             setError(err.message);
         } finally {

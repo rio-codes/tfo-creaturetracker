@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { X, Loader2, PlusCircle, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useRouter } from "next/navigation";
-import { alertService } from "@/services/alert.service";
+import { useState, useEffect } from 'react';
+import { X, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useRouter } from 'next/navigation';
+import { alertService } from '@/services/alert.service';
 
 type DialogProps = {
     isOpen: boolean;
     onClose: () => void;
 };
 
-type SyncStatus = "idle" | "loading" | "success" | "error";
+type SyncStatus = 'idle' | 'loading' | 'success' | 'error';
 
 type UserTab = {
     id: number;
@@ -25,10 +25,10 @@ type UserTab = {
 };
 
 export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
-    const [newTabId, setNewTabId] = useState("");
-    const [newTabName, setNewTabName] = useState("");
-    const [status, setStatus] = useState<SyncStatus>("idle");
-    const [message, setMessage] = useState("");
+    const [newTabId, setNewTabId] = useState('');
+    const [newTabName, setNewTabName] = useState('');
+    const [status, setStatus] = useState<SyncStatus>('idle');
+    const [message, setMessage] = useState('');
     const [userTabs, setUserTabs] = useState<UserTab[]>([]);
     const [isLoadingTabs, setIsLoadingTabs] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
@@ -38,13 +38,13 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const fetchUserTabs = async () => {
         setIsLoadingTabs(true);
         try {
-            const response = await fetch("/api/users/tabs");
+            const response = await fetch('/api/users/tabs');
             if (response.ok) {
                 const tabs = await response.json();
                 setUserTabs(tabs);
             }
         } catch (error) {
-            console.error("Failed to fetch user tabs", error);
+            console.error('Failed to fetch user tabs', error);
         } finally {
             setIsLoadingTabs(false);
         }
@@ -61,15 +61,15 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     }
 
     const handleSyncAll = async () => {
-        setStatus("loading");
-        setMessage("");
+        setStatus('loading');
+        setMessage('');
         const tabsToSync = userTabs
             .filter((tab) => tab.isSyncEnabled)
             .map((tab) => tab.tabId);
 
         if (tabsToSync.length === 0) {
-            setStatus("idle");
-            alertService.warn("No tabs selected for syncing.", {
+            setStatus('idle');
+            alertService.warn('No tabs selected for syncing.', {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
@@ -77,9 +77,9 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         }
 
         try {
-            const response = await fetch("/api/creatures/sync-all", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/creatures/sync-all', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tabIds: tabsToSync }),
             });
 
@@ -87,11 +87,11 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
             if (!response.ok) {
                 throw new Error(
-                    data.error || "Something went wrong during sync."
+                    data.error || 'Something went wrong during sync.'
                 );
             }
 
-            setStatus("success");
+            setStatus('success');
             setMessage(data.message);
             handleClose();
             alertService.success(data.message, {
@@ -100,24 +100,23 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             });
             router.refresh();
         } catch (error: any) {
-            setStatus("error");
+            setStatus('error');
             setMessage(error.message);
             alertService.error(error.message, {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
-        } finally {
-            setStatus("idle");
         }
     };
 
     const handleAddTab = async (e: React.FormEvent) => {
         e.preventDefault();
-        setStatus("loading");
+        setMessage('');
+        setStatus('loading');
         try {
-            const response = await fetch("/api/users/tabs", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/users/tabs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     tabId: Number(newTabId),
                     tabName: newTabName || null,
@@ -125,19 +124,16 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             });
             const data = await response.json();
             if (!response.ok)
-                throw new Error(data.error || "Failed to add tab.");
+                throw new Error(data.error || 'Failed to add tab.');
 
             await fetchUserTabs(); // Refresh the list
             setShowAddForm(false);
-            setNewTabId("");
-            setNewTabName("");
+            setNewTabId('');
+            setNewTabName('');
+            setStatus('idle');
         } catch (error: any) {
-            alertService.error(error.message, {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
-        } finally {
-            setStatus("idle");
+            setStatus('error');
+            setMessage(error.message);
         }
     };
 
@@ -151,12 +147,12 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
         try {
             await fetch(`/api/users/tabs/${tab.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isSyncEnabled: !tab.isSyncEnabled }),
             });
         } catch (error) {
-            alertService.error("Failed to update sync status.", {
+            alertService.error('Failed to update sync status.', {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
@@ -165,19 +161,19 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     };
 
     const handleDeleteTab = async (tabId: number) => {
-        if (!window.confirm("Are you sure you want to remove this saved tab?"))
+        if (!window.confirm('Are you sure you want to remove this saved tab?'))
             return;
         setUserTabs((prev) => prev.filter((t) => t.id !== tabId));
-        await fetch(`/api/users/tabs/${tabId}`, { method: "DELETE" });
+        await fetch(`/api/users/tabs/${tabId}`, { method: 'DELETE' });
     };
 
     const handleClose = () => {
         onClose();
         setTimeout(() => {
-            setNewTabId("");
-            setNewTabName("");
-            setStatus("idle");
-            setMessage("");
+            setNewTabId('');
+            setNewTabName('');
+            setStatus('idle');
+            setMessage('');
             setShowAddForm(false);
         }, 300);
     };
@@ -205,11 +201,11 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
                                 .../tab/username/tab_name/12345/1/...
                             </code>
-                            , your Tab ID is{" "}
+                            , your Tab ID is{' '}
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
                                 12345
                             </code>
-                            . For the default tab, use{" "}
+                            . For the default tab, use{' '}
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
                                 0
                             </code>
@@ -306,12 +302,12 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                                 type="submit"
                                 size="sm"
                                 className="bg-pompaca-purple text-barely-lilac"
-                                disabled={status === "loading"}
+                                disabled={status === 'loading'}
                             >
-                                {status === "loading" ? (
+                                {status === 'loading' ? (
                                     <Loader2 className="animate-spin h-4 w-4" />
                                 ) : (
-                                    "Save Tab"
+                                    'Save Tab'
                                 )}
                             </Button>
                         </div>
@@ -326,6 +322,13 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     </Button>
                 )}
 
+                {/* Error Display */}
+                {status === 'error' && message && (
+                    <p className="text-sm text-red-500 text-center">
+                        {message}
+                    </p>
+                )}
+
                 <div className="flex justify-end gap-4 pt-4">
                     <Button
                         variant="ghost"
@@ -337,12 +340,12 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     <Button
                         onClick={handleSyncAll}
                         className="w-32 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                        disabled={status === "loading"}
+                        disabled={status === 'loading'}
                     >
-                        {status === "loading" ? (
+                        {status === 'loading' ? (
                             <Loader2 className="animate-spin" />
                         ) : (
-                            "Sync All Checked"
+                            'Sync All Checked'
                         )}
                     </Button>
                 </div>

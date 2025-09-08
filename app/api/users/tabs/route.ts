@@ -5,6 +5,15 @@ import { userTabs } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
+import { z } from 'zod';
+
+const createTabSchema = z.object({
+    tabId: z.number('Tab ID must be a number.'),
+    tabName: z
+        .string()
+        .max(32, 'Tab name must be 32 characters or less.')
+        .optional(),
+});
 
 // GET all tabs for a user
 export async function GET() {
@@ -44,10 +53,18 @@ export async function POST(req: Request) {
 
     try {
         const { tabId, tabName } = await req.json();
+        const validatedTabs = createTabSchema.safeParse({ tabId, tabName });
 
-        if (typeof tabId !== 'number') {
+        if (!validatedTabs.success) {
+            const flattenedError = z.flattenError(validatedTabs.error);
+            const fullError =
+                flattenedError.fieldErrors.tabId ||
+                '' + flattenedError.fieldErrors.tabName ||
+                '';
             return NextResponse.json(
-                { error: 'Invalid Tab ID.' },
+                {
+                    error: `Error: ${fullError}`,
+                },
                 { status: 400 }
             );
         }

@@ -178,7 +178,7 @@ export function CreatureCard({
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
-                <div className="text-smspace-y-1 h-30">
+                <div className="flex-col text-sm h-30">
                     <div>
                         <strong>Name:</strong> {creature!.creatureName}
                     </div>
@@ -192,7 +192,7 @@ export function CreatureCard({
                         <strong>Gender:</strong> {creature!.gender}
                     </div>
                     {!isAdminView && (
-                        <div className="mb-4">
+                        <div className="text-sm">
                             <strong>Parents:</strong>{' '}
                             {parentPair ? (
                                 <Dialog>
@@ -338,41 +338,45 @@ export function CreatureCard({
                         </div>
                     )}
                 </div>
-                <div className="h-5">
+                <div className="h-5 text-sm">
                     <strong>Genetics:</strong>
                 </div>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
-                    <div className="text-sm space-y-1 ">
-                        <div className="whitespace-pre-line pr-4">
-                            {creature!.geneData ? (
-                                <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
-                                    {creature!.geneData.map((gene) => (
-                                        <div key={gene!.category}>
-                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
-                                                {gene!.category}:
-                                            </span>
-                                            <div className="pl-2">
-                                                <div>
-                                                    Phenotype: {gene!.phenotype}
-                                                </div>
-                                                <div>
-                                                    Genotype: {gene!.genotype}
+                <div>
+                    <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
+                        <div className="text-sm space-y-1 ">
+                            <div className="whitespace-pre-line pr-4">
+                                {creature!.geneData ? (
+                                    <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
+                                        {creature!.geneData.map((gene) => (
+                                            <div key={gene!.category}>
+                                                <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                                    {gene!.category}:
+                                                </span>
+                                                <div className="pl-2">
+                                                    <div>
+                                                        Phenotype:{' '}
+                                                        {gene!.phenotype}
+                                                    </div>
+                                                    <div>
+                                                        Genotype:{' '}
+                                                        {gene!.genotype}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p>Unknown</p>
-                            )}
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p>Unknown</p>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <ScrollBar orientation="vertical" />
-                    <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                        <ChevronUp className=" h-4 w-4 text-barely-lilac" />
-                        <ChevronDown className="h-4 w-4 text-barely-lilac" />
-                    </div>
-                </ScrollArea>
+                        <ScrollBar orientation="vertical" />
+                        <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
+                            <ChevronUp className=" h-4 w-4 text-barely-lilac" />
+                            <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                        </div>
+                    </ScrollArea>
+                </div>
             </CardContent>
             <CardFooter className="flex flex-col items-center justify-center p-2 pt-0">
                 <div className="flex w-full gap-2 justify-center text-sm">

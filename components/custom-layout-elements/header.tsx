@@ -78,11 +78,11 @@ export default function Header() {
                         <div className="text-yellow-300 text-2xl">
                             <Link href="/">🧬</Link>
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold">
+                        <div className="min-w-0">
+                            <h1 className="text-xl font-regular mr-2 truncate">
                                 <Link href="/">TFO.creaturetracker</Link>
                             </h1>
-                            <p className="text-sm text-purple-200">
+                            <p className="text-sm text-purple-200 hidden sm:block">
                                 <Link href="/">
                                     a breeding tracker for The Final Outpost
                                 </Link>
@@ -93,19 +93,21 @@ export default function Header() {
 
                 {/* Right side - User info and actions */}
                 {status === 'authenticated' && (
-                    <div className="flex flex-col items-end py-1">
+                    <div className="flex flex-col items-between py-1">
                         <div className="py-1 hidden md:block">
                             Welcome back, {session.user.username}!
                         </div>
-                        <div className="py-1">
+                        <div className="py-1 px-1">
                             <Button
                                 onClick={() => signOut({ callbackUrl: '/' })}
                                 variant="ghost"
                                 size="sm"
                                 className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
                             >
-                                Log Out
-                                <LogOut className="h-4 w-4 mr-2" />
+                                <span className="hidden sm:inline">
+                                    Log Out
+                                </span>
+                                <LogOut className="h-4 w-4 sm:ml-2" />
                             </Button>
                         </div>
                     </div>
@@ -130,8 +132,8 @@ export default function Header() {
                             size="sm"
                             className="text-barely-lilac hover:bg-dusk-purple"
                         >
-                            Log In
-                            <LogIn className="h-4 w-4 ml-2" />
+                            <span className="hidden sm:inline">Log In</span>
+                            <LogIn className="h-4 w-4 sm:ml-2" />
                         </Button>
                     </div>
                 )}

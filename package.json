@@ -1,6 +1,6 @@
 {
     "name": "tfo-creaturetracker",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "private": true,
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm i && pnpm dev",

@@ -46,7 +46,7 @@ export function Footer() {
 
     const year = new Date().getFullYear();
     return (
-        <footer className="items-center h-30 w-full bg-midnight-purple dark:bg-ebena-lavender text-barely-lilac dark:text-pompaca-purple px-4 py-4 mt-auto inset-shadow-sm inset-shadow-gray-500">
+        <footer className="items-center w-full bg-midnight-purple dark:bg-ebena-lavender text-barely-lilac dark:text-pompaca-purple px-4 py-4 mt-auto">
             <div className="flex flex-wrap justify-between text-sm max-w-full">
                 <div className="mb-4 md:mb-0">
                     <span>
@@ -71,36 +71,36 @@ export function Footer() {
                     </span>
                 </div>
                 <div className="flex-col justify-items-end">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap justify-end items-center gap-x-4 gap-y-2">
                         <Link href="/terms" className="hover:underline">
                             Terms of Service
                         </Link>
-                        <span>|</span>
+                        <span className="hidden md:inline">|</span>
                         <Link href="/privacy" className="hover:underline">
                             Privacy Policy
                         </Link>
-                        <span>|</span>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://github.com/rio-codes/tfo-creaturetracker"
                             className="hover:underline"
                         >
                             Github
                         </a>
-                        <span>|</span>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://patreon.com/tfoct?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink"
                             className="hover:underline"
                         >
                             Patreon
                         </a>
-                        <span>|</span>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://discord.gg/PMtE3jrXYR"
                             className="hover:underline"
                         >
                             Discord
                         </a>
-                        <span>|</span>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://finaloutpost.net/lab/lyricism"
                             className="hover:underline"
@@ -109,7 +109,7 @@ export function Footer() {
                         </a>
                     </div>
                     {mounted && (
-                        <div className="flex w-25 items-center justify-end py-2">
+                        <div className="flex items-center justify-end py-2">
                             <Label
                                 htmlFor="theme-switch"
                                 className="dark:text-pompaca-purple text-barely-lilac"

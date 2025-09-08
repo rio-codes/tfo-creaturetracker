@@ -73,58 +73,51 @@ export function EditBreedingPairForm({
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     const { availableMales, availableFemales } = useMemo(() => {
-        const allAdultMales = allCreatures.filter(
+        let males = allCreatures.filter(
             (c) => c.gender === 'male' && c.growthLevel === 3
         );
-        const allAdultFemales = allCreatures.filter(
+        let females = allCreatures.filter(
             (c) => c.gender === 'female' && c.growthLevel === 3
         );
 
         if (editingWhichParent === 'male' && selectedFemale) {
-            let validMales = allAdultMales;
             if (isHybridMode) {
-                validMales = allAdultMales.filter(
+                males = males.filter(
                     (male) =>
                         validatePairing(male, selectedFemale).isValid ||
                         male.id === selectedMaleId
                 );
             } else {
-                validMales = allAdultMales.filter(
+                males = males.filter(
                     (male) =>
                         male.species === selectedFemale.species ||
                         male.id === selectedMaleId
                 );
             }
-            return {
-                availableMales: validMales,
-                availableFemales: allAdultFemales,
-            };
-        }
-
-        if (editingWhichParent === 'female' && selectedMale) {
-            let validFemales = allAdultFemales;
+            females = females.filter((f) => f.id === selectedFemaleId);
+        } else if (editingWhichParent === 'female' && selectedMale) {
             if (isHybridMode) {
-                validFemales = allAdultFemales.filter(
+                females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
                         female.id === selectedFemaleId
                 );
             } else {
-                validFemales = allAdultFemales.filter(
+                females = females.filter(
                     (female) =>
                         female.species === selectedMale.species ||
                         female.id === selectedFemaleId
                 );
             }
-            return {
-                availableMales: allAdultMales,
-                availableFemales: validFemales,
-            };
+            males = males.filter((m) => m.id === selectedMaleId);
+        } else if (editingWhichParent === 'none') {
+            males = males.filter((m) => m.id === selectedMaleId);
+            females = females.filter((f) => f.id === selectedFemaleId);
         }
 
         return {
-            availableMales: allAdultMales,
-            availableFemales: allAdultFemales,
+            availableMales: males,
+            availableFemales: females,
         };
     }, [
         editingWhichParent,
@@ -174,7 +167,22 @@ export function EditBreedingPairForm({
         setIsLoading(true);
         setError('');
         const newMale = allCreatures.find((c) => c.id === selectedMaleId);
-        const species = newMale?.species;
+        const newFemale = allCreatures.find((c) => c.id === selectedFemaleId);
+
+        if (!newMale || !newFemale) {
+            setError('Could not find selected parents.');
+            setIsLoading(false);
+            return;
+        }
+
+        const possibleOffspring = getPossibleOffspringSpecies(
+            newMale.species!,
+            newFemale.species!
+        );
+        const species =
+            possibleOffspring.length === 1
+                ? possibleOffspring[0]
+                : newMale.species;
         try {
             const response = await fetch(`/api/breeding-pairs/${pair?.id}`, {
                 method: 'PATCH',

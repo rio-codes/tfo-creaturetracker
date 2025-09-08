@@ -1,6 +1,6 @@
-import "server-only";
-import * as Sentry from "@sentry/nextjs";
-import { db } from "@/src/db";
+import 'server-only';
+import * as Sentry from '@sentry/nextjs';
+import { db } from '@/src/db';
 import {
     creatures,
     breedingPairs,
@@ -8,9 +8,9 @@ import {
     researchGoals,
     users,
     achievedGoals,
-} from "@/src/db/schema";
-import { auth } from "@/auth";
-import { and, ilike, or, eq, desc, count } from "drizzle-orm";
+} from '@/src/db/schema';
+import { auth } from '@/auth';
+import { and, ilike, or, eq, desc, count } from 'drizzle-orm';
 import type {
     DbCreature,
     DbBreedingLogEntry,
@@ -19,19 +19,19 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
-} from "@/types";
+} from '@/types';
 import {
     checkForInbreeding,
     validatePairing,
     getPossibleOffspringSpecies,
-} from "@/lib/breeding-rules";
+} from '@/lib/breeding-rules';
 import {
     enrichAndSerializeCreature,
     enrichAndSerializeGoal,
-} from "@/lib/serialization";
-import { calculateGeneProbability } from "@/lib/genetics";
-import { put as vercelBlobPut } from "@vercel/blob";
-import { alias } from "drizzle-orm/pg-core";
+} from '@/lib/serialization';
+import { calculateGeneProbability } from '@/lib/genetics';
+import { put as vercelBlobPut } from '@vercel/blob';
+import { alias } from 'drizzle-orm/pg-core';
 
 // ============================================================================
 // === HELPER FUNCTIONS =======================================================
@@ -49,7 +49,9 @@ const enrichAndSerializeBreedingPair = (
     allRawPairs: DbBreedingPair[]
 ): EnrichedBreedingPair | null => {
     if (!pair.maleParent || !pair.femaleParent) {
-        Sentry.logger.warn(`Skipping pair ${pair.id} due to missing parent data.`);
+        Sentry.logger.warn(
+            `Skipping pair ${pair.id} due to missing parent data.`
+        );
         return null;
     }
 
@@ -63,7 +65,10 @@ const enrichAndSerializeBreedingPair = (
     });
 
     const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
-    const serializedLogs = relevantLogs.map(log => ({ ...log, createdAt: log.createdAt.toISOString() }));
+    const serializedLogs = relevantLogs.map((log) => ({
+        ...log,
+        createdAt: log.createdAt.toISOString(),
+    }));
 
     const progenyCount = progeny.length;
 
@@ -203,7 +208,7 @@ export async function getAllBreedingPairsForUser(): Promise<
         return enrichedPairs;
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch all breeding pairs." },
+            extra: { context: 'Failed to fetch all breeding pairs.' },
         });
         return [];
     }
@@ -213,7 +218,7 @@ export async function getAllBreedingPairsForUser(): Promise<
 export async function fetchGoalDetailsAndPredictions(goalId: string) {
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) throw new Error("Not authenticated.");
+    if (!userId) throw new Error('Not authenticated.');
 
     try {
         const goal = await db.query.researchGoals.findFirst({
@@ -237,7 +242,10 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         // Filter pairs that can produce the goal's species
         const relevantPairs = allUserPairs.filter((p) => {
             if (!p.maleParent || !p.femaleParent) return false;
-            const possibleOffspring = getPossibleOffspringSpecies(p.maleParent.species, p.femaleParent.species);
+            const possibleOffspring = getPossibleOffspringSpecies(
+                p.maleParent.species,
+                p.femaleParent.species
+            );
             return possibleOffspring.includes(goal.species);
         });
 
@@ -297,7 +305,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         return { goal: enrichedGoal, predictions };
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch goal details." },
+            extra: { context: 'Failed to fetch goal details.' },
         });
         return { goal: null, predictions: [] };
     }
@@ -311,13 +319,13 @@ export async function fetchFilteredCreatures(
         gender?: string;
         stage?: string;
         species?: string;
-    } = {},
+    } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
     const { query, gender, stage, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) throw new Error("User is not authenticated.");
+    if (!userId) throw new Error('User is not authenticated.');
 
     // get logged-in user from db, determine setting for creatures per page and offset
     const user = await db.query.users.findFirst({
@@ -339,15 +347,15 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         query
             ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`)
-                )
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`)
+              )
             : undefined,
-        gender && gender !== "all"
+        gender && gender !== 'all'
             ? eq(creatures.gender, gender as any)
             : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
-        species && species !== "all"
+        species && species !== 'all'
             ? ilike(creatures.species, species)
             : undefined,
     ].filter(Boolean);
@@ -382,7 +390,7 @@ export async function fetchFilteredCreatures(
         return { creatures: enrichedCreatures, totalPages };
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch creatures." },
+            extra: { context: 'Failed to fetch creatures.' },
         });
         return { creatures: [], totalPages: 0 };
     }
@@ -394,13 +402,13 @@ export async function fetchFilteredResearchGoals(
         page?: string;
         query?: string;
         species?: string;
-    } = {},
+    } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
     const { query, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) throw new Error("User is not authenticated.");
+    if (!userId) throw new Error('User is not authenticated.');
 
     // fetch items per page for logged in user and determine offset
     const user = await db.query.users.findFirst({
@@ -413,7 +421,7 @@ export async function fetchFilteredResearchGoals(
     const conditions = [
         eq(researchGoals.userId, userId),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
-        species && species !== "all"
+        species && species !== 'all'
             ? eq(researchGoals.species, species)
             : undefined,
     ].filter(Boolean);
@@ -447,7 +455,7 @@ export async function fetchFilteredResearchGoals(
         return { goals: enrichedGoals, totalPages };
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch research goals." },
+            extra: { context: 'Failed to fetch research goals.' },
         });
         return { goals: [], totalPages: 0 };
     }
@@ -459,7 +467,7 @@ export async function fetchBreedingPairsWithStats(
         page?: string;
         query?: string;
         species?: string;
-    } = {},
+    } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
     const { query, species } = searchParams;
@@ -474,14 +482,15 @@ export async function fetchBreedingPairsWithStats(
     const offset = (currentPage - 1) * pairsPerPage;
 
     // Aliases for joining creatures table twice
-    const maleCreatures = alias(creatures, "male_creatures");
-    const femaleCreatures = alias(creatures, "female_creatures");
+    const maleCreatures = alias(creatures, 'male_creatures');
+    const femaleCreatures = alias(creatures, 'female_creatures');
 
     // Build conditions for filtering
     const conditions = [
         eq(breedingPairs.userId, userId),
         species && species !== 'all'
             ? or(
+                  eq(breedingPairs.species, species),
                   eq(maleCreatures.species, species),
                   eq(femaleCreatures.species, species)
               )
@@ -596,7 +605,7 @@ export async function fetchBreedingPairsWithStats(
         return { pairs: enrichedPairs, totalPages };
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch breeding pairs with stats." },
+            extra: { context: 'Failed to fetch breeding pairs with stats.' },
         });
         return { pairs: [], totalPages: 0 };
     }
@@ -614,7 +623,7 @@ export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
         return fetchedCreatures.map(enrichAndSerializeCreature);
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch all creatures." },
+            extra: { context: 'Failed to fetch all creatures.' },
         });
         return [];
     }
@@ -636,7 +645,7 @@ export async function getAllResearchGoalsForUser(): Promise<
         );
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch all research goals." },
+            extra: { context: 'Failed to fetch all research goals.' },
         });
         return [];
     }
@@ -656,7 +665,7 @@ export async function getAllRawBreedingPairsForUser(): Promise<
         return pairs;
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch all raw breeding pairs." },
+            extra: { context: 'Failed to fetch all raw breeding pairs.' },
         });
         return [];
     }
@@ -676,7 +685,7 @@ export async function getAllBreedingLogEntriesForUser(): Promise<
         return logEntries;
     } catch (error) {
         Sentry.captureException(error, {
-            extra: { context: "Failed to fetch all breeding log entries." },
+            extra: { context: 'Failed to fetch all breeding log entries.' },
         });
         return [];
     }
@@ -700,17 +709,19 @@ export async function fetchAndUploadWithRetry(
             const imageBlob = await imageResponse.blob();
 
             // upload the image to Vercel Blob
-            let filename = "";
-            if (referenceId?.startsWith("pair-preview-")) {
+            let filename = '';
+            if (referenceId?.startsWith('pair-preview-')) {
                 filename = `pair-previews/${referenceId.replace(
-                    "pair-preview-",
-                    ""
+                    'pair-preview-',
+                    ''
                 )}.png`;
-            } else if (referenceId?.startsWith("goal-")) {
-                filename = `goals/${referenceId.replace("goal-", "")}.png`;
-            } else if (referenceId?.startsWith("admin-preview-")) {
-                filename = `admin-previews/${referenceId.replace("admin-preview-", "")
-                }.png`;
+            } else if (referenceId?.startsWith('goal-')) {
+                filename = `goals/${referenceId.replace('goal-', '')}.png`;
+            } else if (referenceId?.startsWith('admin-preview-')) {
+                filename = `admin-previews/${referenceId.replace(
+                    'admin-preview-',
+                    ''
+                )}.png`;
             } else if (referenceId) {
                 // Assumes creature code for sync
                 filename = `creatures/${referenceId}.png`;
@@ -720,8 +731,8 @@ export async function fetchAndUploadWithRetry(
             }
 
             const blob = await vercelBlobPut(filename, imageBlob, {
-                access: "public",
-                contentType: imageBlob.type || "image/png",
+                access: 'public',
+                contentType: imageBlob.type || 'image/png',
                 allowOverwrite: false,
                 addRandomSuffix: true,
             });
@@ -742,5 +753,5 @@ export async function fetchAndUploadWithRetry(
             await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
         }
     }
-    throw new Error("Upload failed after all retries.");
+    throw new Error('Upload failed after all retries.');
 }

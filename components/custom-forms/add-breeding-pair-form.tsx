@@ -88,61 +88,48 @@ export function AddPairForm({
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     const { availableMales, availableFemales } = useMemo(() => {
-        const allAdultMales = allCreatures.filter(
+        let males = allCreatures.filter(
             (c) => c.gender === 'male' && c.growthLevel === 3
         );
-        const allAdultFemales = allCreatures.filter(
+        let females = allCreatures.filter(
             (c) => c.gender === 'female' && c.growthLevel === 3
         );
 
         if (isHybridMode) {
             // Hybrid mode: show all valid mates
-            if (selectedMale) {
-                const validFemales = allAdultFemales.filter(
-                    (female) => validatePairing(selectedMale, female).isValid
-                );
-                return {
-                    availableMales: allAdultMales,
-                    availableFemales: validFemales,
-                };
-            }
-
             if (selectedFemale) {
-                const validMales = allAdultMales.filter(
-                    (male) => validatePairing(male, selectedFemale).isValid
+                males = males.filter(
+                    (male) =>
+                        validatePairing(male, selectedFemale).isValid ||
+                        male.id === selectedMaleId
                 );
-                return {
-                    availableMales: validMales,
-                    availableFemales: allAdultFemales,
-                };
             }
-
-            return {
-                availableMales: allAdultMales,
-                availableFemales: allAdultFemales,
-            };
+            if (selectedMale) {
+                females = females.filter(
+                    (female) =>
+                        validatePairing(selectedMale, female).isValid ||
+                        female.id === selectedFemaleId
+                );
+            }
         } else {
             // Standard mode: filter by selected species
-            if (!selectedSpecies) {
-                return { availableMales: [], availableFemales: [] };
+            if (selectedSpecies) {
+                males = males.filter((c) => c.species === selectedSpecies);
+                females = females.filter((c) => c.species === selectedSpecies);
+            } else {
+                males = [];
+                females = [];
             }
-            const malesOfSpecies = allAdultMales.filter(
-                (c) => c.species === selectedSpecies
-            );
-            const femalesOfSpecies = allAdultFemales.filter(
-                (c) => c.species === selectedSpecies
-            );
-            return {
-                availableMales: malesOfSpecies,
-                availableFemales: femalesOfSpecies,
-            };
         }
+        return { availableMales: males, availableFemales: females };
     }, [
         isHybridMode,
         selectedSpecies,
         selectedMale,
         selectedFemale,
         allCreatures,
+        selectedMaleId,
+        selectedFemaleId,
     ]);
 
     const assignableGoals = useMemo(() => {
@@ -222,12 +209,35 @@ export function AddPairForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMaleId || !selectedFemaleId) {
-            setError('Both a male and a female parent must be selected.');
+            setError(
+                `Both a male and a female parent must be selected. ${selectedFemaleId},${selectedMaleId}`
+            );
             return;
         }
+
         setIsLoading(true);
         setError('');
         setMessage('');
+
+        const selectedMale = allCreatures.find((c) => c.id === selectedMaleId);
+        const selectedFemale = allCreatures.find(
+            (c) => c.id === selectedFemaleId
+        );
+
+        if (!selectedMale || !selectedFemale) {
+            setError('Could not find selected parents.');
+            setIsLoading(false);
+            return;
+        }
+
+        const possibleOffspring = getPossibleOffspringSpecies(
+            selectedMale.species!,
+            selectedFemale.species!
+        );
+        const pairSpecies =
+            possibleOffspring.length === 1
+                ? possibleOffspring[0]
+                : selectedMale.species;
 
         try {
             const response = await fetch('/api/breeding-pairs', {
@@ -235,9 +245,7 @@ export function AddPairForm({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairName,
-                    species: isHybridMode
-                        ? selectedMale?.species
-                        : selectedSpecies,
+                    species: pairSpecies,
                     maleParentId: selectedMaleId,
                     femaleParentId: selectedFemaleId,
                     assignedGoalIds: selectedGoalIds,

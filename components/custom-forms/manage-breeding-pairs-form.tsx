@@ -1,25 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Trash2, Loader2 } from "lucide-react";
+} from '@/components/ui/select';
+import { Trash2, Loader2 } from 'lucide-react';
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
     Prediction,
-} from "@/types";
-import { findSuitableMates, getPossibleOffspringSpecies } from "@/lib/breeding-rules"; // Import the new helper
-import * as Sentry from "@sentry/nextjs";
+} from '@/types';
+import {
+    findSuitableMates,
+    getPossibleOffspringSpecies,
+} from '@/lib/breeding-rules'; // Import the new helper
+import * as Sentry from '@sentry/nextjs';
 
 type ManagePairsFormProps = {
     baseCreature: EnrichedCreature;
@@ -37,12 +40,12 @@ export function ManageBreedingPairsForm({
     onActionComplete,
 }: ManagePairsFormProps) {
     const router = useRouter();
-    const [newPairName, setNewPairName] = useState("");
+    const [newPairName, setNewPairName] = useState('');
     const [selectedMateId, setSelectedMateId] = useState<string | undefined>(
         undefined
     );
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
 
     // State for predictions
     const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -64,12 +67,17 @@ export function ManageBreedingPairsForm({
     }, [baseCreature, allCreatures, allPairs]);
 
     const relevantGoals = useMemo(() => {
-        const selectedMate = allCreatures.find(c => c?.id === selectedMateId);
+        const selectedMate = allCreatures.find((c) => c?.id === selectedMateId);
         if (!selectedMate) {
             return allGoals.filter((g) => g?.species === baseCreature!.species);
         }
-        const possibleOffspring = getPossibleOffspringSpecies(baseCreature.species!, selectedMate.species!);
-        return allGoals.filter(g => g && possibleOffspring.includes(g.species!));
+        const possibleOffspring = getPossibleOffspringSpecies(
+            baseCreature.species!,
+            selectedMate.species!
+        );
+        return allGoals.filter(
+            (g) => g && possibleOffspring.includes(g.species!)
+        );
     }, [allGoals, baseCreature, selectedMateId, allCreatures]);
 
     // EFFECT: Fetch predictions whenever a mate is selected
@@ -82,19 +90,19 @@ export function ManageBreedingPairsForm({
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
             const maleParentId =
-                baseCreature!.gender === "male"
+                baseCreature!.gender === 'male'
                     ? baseCreature!.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature!.gender === "female"
+                baseCreature!.gender === 'female'
                     ? baseCreature!.id
                     : selectedMateId;
             const goalIds = relevantGoals.map((g) => g?.id);
 
             try {
-                const response = await fetch("/api/breeding-predictions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const response = await fetch('/api/breeding-predictions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         maleParentId,
                         femaleParentId,
@@ -118,36 +126,51 @@ export function ManageBreedingPairsForm({
         e.preventDefault();
         if (!selectedMateId) return;
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
             const maleParentId =
-                baseCreature!.gender === "male"
+                baseCreature!.gender === 'male'
                     ? baseCreature!.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature!.gender === "female"
+                baseCreature!.gender === 'female'
                     ? baseCreature!.id
                     : selectedMateId;
 
-            const response = await fetch("/api/breeding-pairs", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const selectedMate = allCreatures.find(
+                (c) => c.id === selectedMateId
+            );
+            if (!selectedMate) {
+                setError('Selected mate not found.');
+                setIsLoading(false);
+                return;
+            }
+
+            const possibleOffspring = getPossibleOffspringSpecies(
+                baseCreature.species!,
+                selectedMate.species!
+            );
+            const pairSpecies =
+                possibleOffspring.length === 1
+                    ? possibleOffspring[0]
+                    : baseCreature.species;
+
+            const response = await fetch('/api/breeding-pairs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairName:
                         newPairName ||
-                        `${baseCreature!.code} & ${
-                            allCreatures.find((c) => c?.id === selectedMateId)
-                                ?.code
-                        }`,
-                    species: baseCreature!.species,
+                        `${baseCreature!.code} & ${selectedMate.code}`,
+                    species: pairSpecies,
                     maleParentId,
                     femaleParentId,
                 }),
             });
-            if (!response.ok) throw new Error("Failed to create pair.");
+            if (!response.ok) throw new Error('Failed to create pair.');
             router.refresh();
             onActionComplete();
-            setNewPairName("");
+            setNewPairName('');
             setSelectedMateId(undefined);
         } catch (err: any) {
             setError(err.message);
@@ -157,15 +180,15 @@ export function ManageBreedingPairsForm({
     };
 
     const handleRemovePair = async (pairId: string) => {
-        if (!window.confirm("Are you sure you want to remove this pair?"))
+        if (!window.confirm('Are you sure you want to remove this pair?'))
             return;
         setIsLoading(true);
         try {
-            await fetch(`/api/breeding-pairs/${pairId}`, { method: "DELETE" });
+            await fetch(`/api/breeding-pairs/${pairId}`, { method: 'DELETE' });
             router.refresh();
             onActionComplete();
         } catch (err: any) {
-            alert("Failed to remove pair.");
+            alert('Failed to remove pair.');
         } finally {
             setIsLoading(false);
         }
@@ -227,10 +250,7 @@ export function ManageBreedingPairsForm({
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
-                                    <SelectItem
-                                        key={mate.id}
-                                        value={mate.id}
-                                    >
+                                    <SelectItem key={mate.id} value={mate.id}>
                                         {mate.creatureName} ({mate.code})
                                     </SelectItem>
                                 ))
@@ -263,13 +283,13 @@ export function ManageBreedingPairsForm({
                                         <span
                                             className={`font-bold text-xs ${
                                                 pred.isPossible
-                                                    ? "text-green-600"
-                                                    : "text-red-500"
+                                                    ? 'text-green-600'
+                                                    : 'text-red-500'
                                             }`}
                                         >
                                             {pred.isPossible
-                                                ? "POSSIBLE"
-                                                : "IMPOSSIBLE"}
+                                                ? 'POSSIBLE'
+                                                : 'IMPOSSIBLE'}
                                         </span>
                                         <span className="font-mono font-bold w-20 text-right">
                                             {(pred.averageChance * 100).toFixed(
@@ -292,7 +312,7 @@ export function ManageBreedingPairsForm({
                         {isLoading ? (
                             <Loader2 className="animate-spin" />
                         ) : (
-                            "Create Pair"
+                            'Create Pair'
                         )}
                     </Button>
                 </form>

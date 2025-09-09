@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { Footer } from '@/components/custom-layout-elements/footer';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
 import { SharedPredictionsAccordion } from '@/components/shared-views/shared-predictions-accordion';
@@ -17,49 +16,20 @@ type Props = {
     params: Promise<{ goalId: string }>;
 };
 
-export async function generateMetadata(
-    props: Props,
-    parent: ResolvingMetadata
-): Promise<Metadata> {
-    const params = await props.params;
-    const goal = await getGoalById(params.goalId);
-
-    if (!goal) {
-        return {
-            title: 'Goal Not Found',
-        };
-    }
-
-    const previousImages = (await parent).openGraph?.images || [];
-    const description = `${goal.user?.username || 'A user'} made this goal on TFO.creaturetracker, check it out! TFO.creaturetracker helps you track your creature breeding projects.`;
-
-    return {
-        title: `Shared Goal: ${goal.name}`,
-        description,
-        openGraph: {
-            title: `Shared Goal: ${goal.name}`,
-            description,
-            images: [goal.imageUrl, ...previousImages],
-            url: `/share/goals/${goal.id}`,
-            siteName: 'TFO.creaturetracker',
-        },
-    };
-}
-
 export default async function SharedGoalPage(props: Props) {
     const params = await props.params;
     const goal = await getGoalById(params.goalId);
+
     if (!goal) {
         notFound();
     }
+
     const predictions = await getPredictionsForGoal(params.goalId);
-    const allPairs = await getAssignedPairsForGoal(params.goalId);
+    const assignedPairsWithProgeny = await getAssignedPairsForGoal(
+        params.goalId
+    );
 
-    if (!predictions || !allPairs) {
-        notFound();
-    }
-
-    const progenyWithPairInfo = allPairs.flatMap((p) =>
+    const progenyWithPairInfo = assignedPairsWithProgeny.flatMap((p) =>
         (p.progeny || [])
             .filter((prog) => prog.growthLevel === 3)
             .map((prog) => ({
@@ -102,7 +72,6 @@ export default async function SharedGoalPage(props: Props) {
                 </div>
                 <SharedProgenyAnalysis scoredProgeny={scoredProgeny} />
             </main>
-            <Footer />
         </div>
     );
 }

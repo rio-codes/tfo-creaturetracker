@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
 const PUBLIC_ROUTES = ['/', '/login', '/register', '/terms', '/privacy'];
+const PUBLIC_PREFIXES = ['/api/', '/share/'];
+
 const PROTECTED_ROUTES = [
     '/collection',
     '/breeding-pairs',
@@ -16,12 +18,22 @@ export default auth((req) => {
     const userRole = req.auth?.user?.role;
 
     const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+
+    const isPublicPrefix = PUBLIC_PREFIXES.some((prefix) =>
+        nextUrl.pathname.startsWith(prefix)
+    );
+
     const isProtectedRoute =
         PROTECTED_ROUTES.some((route) => nextUrl.pathname.startsWith(route)) ||
         ADMIN_ROUTES.some((route) => nextUrl.pathname.startsWith(route));
     const isAdminRoute = ADMIN_ROUTES.some((route) =>
         nextUrl.pathname.startsWith(route)
     );
+
+    // If user is authenticated and trying to access a public prefix, continue
+    if (isAuthenticated && isPublicPrefix) {
+        return NextResponse.next();
+    }
 
     // If user is not authenticated and trying to access a protected route, redirect to login
     if (isProtectedRoute && !isAuthenticated) {

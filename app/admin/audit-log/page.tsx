@@ -52,11 +52,12 @@ async function fetchAdminAuditLogs(searchParams: {
     return { logs: logList, pagination: { totalPages } };
 }
 
-export default async function AdminAuditLogPage({
-    searchParams,
-}: {
-    searchParams: { page?: string; query?: string };
-}) {
+export default async function AdminAuditLogPage(
+    props: {
+        searchParams: Promise<{ page?: string; query?: string }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const { logs, pagination } = await fetchAdminAuditLogs(searchParams);
 
     return (

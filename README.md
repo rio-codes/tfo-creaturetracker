@@ -21,3 +21,36 @@ is a next.js site to organize your collection, predict breeding results and reac
 
 ## Contact
 <h4>If you have any suggestions, comments, or questions, or would like to be a beta tester, feel free to email me <a href="mailto:rio.savvii@gmail.com">here</a>. If you'd like to support what I'm doing, you can <a href="https://ko-fi.com/lyricism_">buy me a coffee</a> or become a patron on our <a href="https://patreon.com/tfoct?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink">Patreon</a>.</h4>
+
+## Contributing
+If you'd like to run tfoct locally and help contribute to the code, there are some things you'll need to have in place first. You will need a TFO API key, which you can request from Corteo on the <a href="https://forum.finaloutpost.net/">TFO forum</a>. You'll need either a PostgreSQL database provider (I use Neon) or to set up a database locally. You'll also either need a Sentry account or to comment out references to Sentry so you don't get errors related to it. In coming days I will provide an example `.env.local` file with all the environment variables my code will be looking for, so you can decide how much you'd like to emulate on your own machine (for example, I use Resend for password reset emails so I need an API key for that, but you shouldn't have to worry about that unless you are making something completely different!) I also store TFO creature images in a Vercel blob, if you are serious about contributing contact me and I will provide my own token for that, it would be too much of a hassle to change that much of the code for a local test run. 
+
+Once you have your `.env.local` file filled in with the proper variables (the most important being `NEXTAUTH_URL` which should be `http://localhost:3000/` for local development, `POSTGRES_URL` and `DATABASE_URL` which you can get from your database provider or local database, `AUTH_SECRET` which you can generate with the command `npx auth secret` (make sure you have npx installed), `TFO_API_KEY` which, as mentioned, you can get from Corteo at TFO, and `BLOB_READ_WRITE_TOKEN` which you can get by contacting me - Discord is the easiest way to reach me) make sure you have pnpm installed and run these commands:
+
+```
+pnpm i drizzle-kit
+pnpm run db:generate
+pnpm run db:push
+pnpm reset
+```
+If, after all this you see this:
+
+```
+> next dev
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168......:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 3.8s (1079 modules)
+ ✓ Ready in 6s
+```
+you are good to go! Access `http://localhost:3000` in your browser of choice, and voila! tfoct in your very own home. 
+To contribute, fork this repo, make sure your code is properly linted with ESlint and formatted with Prettier using the config files in the project root (`.prettierrc`, `.prettierignore`, `eslint.config.ts`, and `tsconfig.json`) and submit a pull request. I will get back to you as soon as I can! If this was all confusing or nonsensical but you still want to help out, thank you for making it this far!!! For contribution requiring less tech expertise we welcome bug reports and feature requests on this repo's issues page, please make sure to give me plenty of information so I can reproduce the error myself.
+
+Thanks again for considering helping out!

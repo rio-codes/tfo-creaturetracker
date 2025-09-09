@@ -16,13 +16,11 @@ import type {
 export const dynamic = 'force-dynamic';
 
 type PageProps = {
-    params: {
-        goalId: string;
-    };
+    params: { goalId: string };
 };
 
 export default async function GoalDetailPage({ params }: PageProps) {
-    const { goalId } = params;
+    const { goalId } = await params;
     const { goal, predictions } = await fetchGoalDetailsAndPredictions(goalId);
     const allCreaturesData = await getAllCreaturesForUser();
     const allPairsData = await getAllBreedingPairsForUser();

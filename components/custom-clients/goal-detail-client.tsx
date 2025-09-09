@@ -8,7 +8,7 @@ import type {
     Prediction,
     EnrichedBreedingPair,
 } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PredictionsAccordion } from '@/components/misc-custom-components/predictions-accordion';
 import { AssignPairDialog } from '@/components/custom-dialogs/assign-breeding-pair-dialog';
@@ -18,6 +18,8 @@ import * as Sentry from '@sentry/nextjs';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { InfoDisplay } from '../misc-custom-components/info-display';
+import { ShareGoalButton } from '../misc-custom-components/share-goal-button';
+import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -92,98 +94,6 @@ export function GoalDetailClient({
         return uniqueProgeny;
     }, [allPairs, goal?.assignedPairIds]);
 
-    const analyzeProgenyAgainstGoal = (
-        creature: EnrichedCreature,
-        goal: EnrichedResearchGoal,
-        excludeGender: boolean
-    ): {
-        score: number;
-        nonMatchingGenes: {
-            category: string;
-            creatureValue: string;
-            goalValue: string;
-        }[];
-    } => {
-        const goalGenes = goal.genes;
-        if (!goalGenes || Object.keys(goalGenes).length === 0) {
-            return { score: 0, nonMatchingGenes: [] };
-        }
-
-        const creatureGenes = (creature.geneData || []).reduce(
-            (acc, gene) => {
-                acc[gene.category] = gene;
-                return acc;
-            },
-            {} as Record<
-                string,
-                { category: string; genotype: string; phenotype: string }
-            >
-        );
-
-        let totalTraits = 0;
-        let matchedTraits = 0;
-        const nonMatchingGenes: {
-            category: string;
-            creatureValue: string;
-            goalValue: string;
-        }[] = [];
-
-        for (const category in goalGenes) {
-            if (Object.prototype.hasOwnProperty.call(goalGenes, category)) {
-                if (excludeGender && category === 'Gender') {
-                    continue;
-                }
-                totalTraits++;
-                const goalGene = goalGenes[category];
-                const creatureGene = creatureGenes[category];
-                const goalValue =
-                    goal.goalMode === 'genotype'
-                        ? goalGene.genotype
-                        : goalGene.phenotype;
-
-                if (!creatureGene) {
-                    nonMatchingGenes.push({
-                        category,
-                        creatureValue: 'N/A',
-                        goalValue,
-                    });
-                    continue;
-                }
-
-                const creatureValue =
-                    goal.goalMode === 'genotype'
-                        ? creatureGene.genotype
-                        : creatureGene.phenotype;
-
-                if (goal.goalMode === 'genotype') {
-                    if (creatureGene.genotype === goalGene.genotype) {
-                        matchedTraits++;
-                    } else {
-                        nonMatchingGenes.push({
-                            category,
-                            creatureValue,
-                            goalValue,
-                        });
-                    }
-                } else {
-                    if (creatureGene.phenotype === goalGene.phenotype) {
-                        matchedTraits++;
-                    } else {
-                        nonMatchingGenes.push({
-                            category,
-                            creatureValue,
-                            goalValue,
-                        });
-                    }
-                }
-            }
-        }
-
-        const score =
-            totalTraits === 0 ? 100 : (matchedTraits / totalTraits) * 100;
-        return { score, nonMatchingGenes };
-    };
-
     const getMatchScoreStyle = (score: number): React.CSSProperties => {
         const hue = (score / 100) * 120; // 0 is red, 120 is green
         return { color: `hsl(${hue}, 90%, 40%)` };
@@ -235,9 +145,12 @@ export function GoalDetailClient({
     return (
         <div className="space-y-8">
             <div className="flex-col gap-4">
-                <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300">
-                    Goal: {goal?.name}
-                </h1>
+                <div className="flex justify-between items-start">
+                    <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300">
+                        Goal: {goal?.name}
+                    </h1>
+                    <ShareGoalButton goalId={goal.id} />
+                </div>
                 <div className="mt-5">
                     {/* Desktop: Info on the badge itself */}
                     <div className="hidden md:block">
@@ -255,7 +168,6 @@ export function GoalDetailClient({
                                 <Info className="h-5 w-5 dark:text-barely-lilac text-pompaca-purple cursor-pointer" />
                             }
                             content={goalModeInfoContent}
-                            className="dark:text-barely-lilac text-pompaca-purple cursor-pointer"
                         />
                     </div>
                 </div>
@@ -366,8 +278,6 @@ export function GoalDetailClient({
                         goal={goal}
                     />
                 ) : (
-                    // If it hasn't (i.e., during the server render), we render a simple placeholder.
-                    // This placeholder MUST have a similar structure to the real component's container.
                     <div className="w-full space-y-2">
                         <div className="h-16 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg animate-pulse"></div>
                     </div>

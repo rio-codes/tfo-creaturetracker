@@ -10,15 +10,16 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function BreedingPairsPage({
-    searchParams,
-}: {
-    searchParams?: {
-        page?: string;
-        query?: string;
-        species?: string;
-    };
-}) {
+export default async function BreedingPairsPage(
+    props: {
+        searchParams?: Promise<{
+            page?: string;
+            query?: string;
+            species?: string;
+        }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const [
         { pairs, totalPages },
         allCreatures,

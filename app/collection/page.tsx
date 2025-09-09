@@ -11,17 +11,18 @@ import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CollectionPage({
-    searchParams,
-}: {
-    searchParams?: {
-        page?: string;
-        query?: string;
-        stage?: string;
-        gender?: string;
-        species?: string;
-    };
-}) {
+export default async function CollectionPage(
+    props: {
+        searchParams?: Promise<{
+            page?: string;
+            query?: string;
+            stage?: string;
+            gender?: string;
+            species?: string;
+        }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const [
         { creatures: paginatedCreatures, totalPages },
         allRawPairs,

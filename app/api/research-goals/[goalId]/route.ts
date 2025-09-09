@@ -28,6 +28,115 @@ const editGoalSchema = z.object({
     goalMode: z.enum(goalModeEnum.enumValues),
 });
 
+export async function GET(
+    req: Request,
+    { params }: { params: { goalId: string } }
+) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json(
+            { error: 'Not authenticated' },
+            { status: 401 }
+        );
+    }
+    const userId = session.user.id;
+    const goalId = params.goalId;
+    console.log(goalId);
+
+    if (!goalId) {
+        return NextResponse.json(
+            { error: 'Goal ID is required' },
+            { status: 400 }
+        );
+    }
+
+    try {
+        const goal = await db.query.researchGoals.findFirst({
+            where: and(
+                eq(researchGoals.id, goalId),
+                eq(researchGoals.userId, userId)
+            ),
+        });
+
+        if (!goal) {
+            return NextResponse.json(
+                { error: 'Goal not found' },
+                { status: 404 }
+            );
+        }
+        return NextResponse.json(goal);
+    } catch (error) {
+        console.error('Failed to fetch goal:', error);
+        return NextResponse.json(
+            { error: 'An internal error occurred.' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(
+    req: Request,
+    { params }: { params: { goalId: string } }
+) {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+    }
+
+    const goalId = params.goalId;
+    if (!goalId) {
+        return NextResponse.json(
+            { error: 'Goal ID is required' },
+            { status: 400 }
+        );
+    }
+
+    const { isPinned } = await req.json();
+
+    if (typeof isPinned !== 'boolean') {
+        return NextResponse.json(
+            { error: 'Invalid value for isPinned' },
+            { status: 400 }
+        );
+    }
+
+    try {
+        const [updatedGoal] = await db
+            .update(researchGoals)
+            .set({ isPinned, updatedAt: new Date() })
+            .where(eq(researchGoals.id, goalId))
+            .returning();
+
+        if (!updatedGoal) {
+            return NextResponse.json(
+                { error: 'Goal not found' },
+                { status: 404 }
+            );
+        }
+
+        await logAdminAction({
+            action: isPinned ? 'research_goal.pin' : 'research_goal.unpin',
+            targetType: 'research_goal',
+            targetId: goalId,
+            details: { goalName: updatedGoal.name, isPinned },
+        });
+
+        revalidatePath('/research-goals');
+        revalidatePath(`/research-goals/${goalId}`);
+
+        return NextResponse.json({
+            message: `Goal ${isPinned ? 'pinned' : 'unpinned'} successfully`,
+            goal: updatedGoal,
+        });
+    } catch (error) {
+        console.error('Failed to update goal pin status:', error);
+        return NextResponse.json(
+            { error: 'An internal error occurred.' },
+            { status: 500 }
+        );
+    }
+}
+
 export async function PATCH(
     req: Request,
     { params }: { params: { goalId: string } }

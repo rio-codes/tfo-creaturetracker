@@ -17,10 +17,8 @@ import {
 import { enrichAndSerializeBreedingPair } from '@/lib/data-helpers';
 import type { EnrichedBreedingPair } from '@/types';
 
-export async function GET(
-    req: Request,
-    { params }: { params: { creatureId: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
@@ -102,10 +100,8 @@ export async function GET(
     }
 }
 
-export async function DELETE(
-    req: Request,
-    { params }: { params: { creatureId: string } }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });

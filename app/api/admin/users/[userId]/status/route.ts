@@ -10,7 +10,8 @@ const updateStatusSchema = z.object({
     status: z.enum(userStatusEnum.enumValues),
 });
 
-export async function PATCH(req: Request, { params }: { params: { userId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ userId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (session?.user?.role !== "admin") {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });

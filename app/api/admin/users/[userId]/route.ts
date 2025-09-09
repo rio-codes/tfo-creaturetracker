@@ -5,10 +5,8 @@ import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { logAdminAction } from "@/lib/audit";
 
-export async function DELETE(
-    req: Request,
-    { params }: { params: { userId: string } }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ userId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id || session.user.role !== "admin") {
         return NextResponse.json({ error: "Not authorized" }, { status: 403 });

@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 import { Switch } from '@mui/material';
 import { Moon, Sun } from 'lucide-react';

@@ -11,10 +11,8 @@ const conversionSchema = z.object({
     conversions: z.record(z.string(), z.string()),
 });
 
-export async function PATCH(
-    req: Request,
-    { params }: { params: { goalId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

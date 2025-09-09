@@ -1,4 +1,3 @@
-import type { InferSelectModel } from "drizzle-orm";
 import type {
     users,
     creatures,
@@ -6,15 +5,14 @@ import type {
     breedingLogEntries,
     researchGoals,
     achievedGoals,
-} from "@/src/db/schema";
+} from '@/src/db/schema';
 
 export type DbUser = typeof users.$inferSelect;
 export type DbCreature = typeof creatures.$inferSelect;
 export type DbBreedingPair = typeof breedingPairs.$inferSelect;
 export type DbBreedingLogEntry = typeof breedingLogEntries.$inferSelect;
 export type DbResearchGoal = typeof researchGoals.$inferSelect;
-export type DbAchievedGoal = typeof achievedGoals.$inferselect;
-
+export type DbAchievedGoal = typeof achievedGoals.$inferSelect;
 
 export type User = {
     id: string;
@@ -29,13 +27,13 @@ export type User = {
     pairsItemsPerPage: number;
     createdAt: Date;
     updatedAt: Date;
-    role: "admin" | "user";
-    status: "active" | "suspended";
-    theme: "light" | "dark";
+    role: 'admin' | 'user';
+    status: 'active' | 'suspended';
+    theme: 'light' | 'dark';
 };
 
 export type EnrichedCreature =
-    | (Omit<DbCreature, "createdAt" | "updatedAt" | "gottenAt"> & {
+    | (Omit<DbCreature, 'createdAt' | 'updatedAt' | 'gottenAt'> & {
           createdAt: string;
           updatedAt: string;
           gottenAt: string | null;
@@ -47,7 +45,6 @@ export type EnrichedCreature =
       })
     | null;
 
-
 export type GoalGene = {
     genotype: string;
     phenotype: string;
@@ -57,16 +54,20 @@ export type GoalGene = {
 
 export type EnrichedResearchGoal = Omit<
     DbResearchGoal,
-    "createdAt" | "updatedAt" | "genes"
+    'createdAt' | 'updatedAt' | 'genes'
 > & {
     createdAt: string;
     updatedAt: string;
     genes: {
         [category: string]: GoalGene;
     };
+    user?: DbUser;
 };
 
-export type EnrichedBreedingPair = Omit<DbBreedingPair, "createdAt" | "updatedAt"> & {
+export type EnrichedBreedingPair = Omit<
+    DbBreedingPair,
+    'createdAt' | 'updatedAt'
+> & {
     createdAt: string;
     updatedAt: string;
     timesBred: number;
@@ -97,7 +98,7 @@ export type Prediction = {
 
 export type SerializedBreedingLogEntry = Omit<
     DbBreedingLogEntry,
-    "createdAt" | "updatedAt"
+    'createdAt' | 'updatedAt'
 > & {
     createdAt: string;
     updatedAt: string;

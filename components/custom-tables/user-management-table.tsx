@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Table,
     TableBody,
@@ -9,18 +9,18 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
-export function UserManagement({ initialUsers }) {
+export function UserManagementTable({ initialUsers }) {
     const router = useRouter();
     const [users, setUsers] = useState(initialUsers);
     const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
@@ -29,15 +29,15 @@ export function UserManagement({ initialUsers }) {
         setIsLoading((prev) => ({ ...prev, [userId]: true }));
         try {
             const res = await fetch(`/api/admin/users/${userId}/role`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ role: newRole }),
             });
-            if (!res.ok) throw new Error("Failed to update role.");
+            if (!res.ok) throw new Error('Failed to update role.');
             router.refresh();
         } catch (error) {
             console.error(error);
-            alert("Failed to update role.");
+            alert('Failed to update role.');
         } finally {
             setIsLoading((prev) => ({ ...prev, [userId]: false }));
         }
@@ -47,15 +47,15 @@ export function UserManagement({ initialUsers }) {
         setIsLoading((prev) => ({ ...prev, [userId]: true }));
         try {
             const res = await fetch(`/api/admin/users/${userId}/status`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
             });
-            if (!res.ok) throw new Error("Failed to update status.");
+            if (!res.ok) throw new Error('Failed to update status.');
             router.refresh();
         } catch (error) {
             console.error(error);
-            alert("Failed to update status.");
+            alert('Failed to update status.');
         } finally {
             setIsLoading((prev) => ({ ...prev, [userId]: false }));
         }

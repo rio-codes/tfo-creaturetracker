@@ -19,13 +19,18 @@ const hideHeaderOnPaths = [
     '/password-reset',
 ];
 
+// Paths that should hide the header based on a prefix
+const hideHeaderOnPrefixes = ['/share/'];
+
 export default function ClientProviders({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const showHeader = !hideHeaderOnPaths.includes(pathname);
+    const showHeader =
+        !hideHeaderOnPaths.includes(pathname) &&
+        !hideHeaderOnPrefixes.some((prefix) => pathname.startsWith(prefix));
 
     return (
         <ThemeProvider enableSystem={true} defaultTheme="system">

@@ -6,10 +6,8 @@ import { and, eq } from "drizzle-orm";
 import { enrichAndSerializeCreature } from "@/lib/serialization";
 import { calculateAllPossibleOutcomes } from "@/lib/genetics";
 
-export async function GET(
-    req: Request,
-    { params }: { params: { pairId: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ pairId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

@@ -1,16 +1,16 @@
-import { Suspense } from "react";
-import { AdminDataTable } from "@/components/admin/admin-data-table";
-import { columns } from "./columns";
-import { db } from "@/src/db";
-import { auditLog } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { Suspense } from 'react';
+import { AdminDataTable } from '@/components/admin/admin-data-table';
+import { columns } from './columns';
+import { db } from '@/src/db';
+import { auditLog } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 async function fetchAdminAuditLogs(searchParams: {
     page?: string;
@@ -52,12 +52,11 @@ async function fetchAdminAuditLogs(searchParams: {
     return { logs: logList, pagination: { totalPages } };
 }
 
-export default async function AdminAuditLogPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
-    const searchParams = await props.searchParams;
+export default async function AdminAuditLogPage({
+    searchParams,
+}: {
+    searchParams: { page?: string; query?: string };
+}) {
     const { logs, pagination } = await fetchAdminAuditLogs(searchParams);
 
     return (

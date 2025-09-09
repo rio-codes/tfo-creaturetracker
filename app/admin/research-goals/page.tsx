@@ -59,12 +59,11 @@ async function fetchAdminResearchGoals(searchParams: {
     return { goals: goalList, pagination: { totalPages } };
 }
 
-export default async function AdminResearchGoalsPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
-    const searchParams = await props.searchParams;
+export default async function AdminResearchGoalsPage({
+    searchParams,
+}: {
+    searchParams: { page?: string; query?: string };
+}) {
     const { goals, pagination } = await fetchAdminResearchGoals(searchParams);
 
     return (

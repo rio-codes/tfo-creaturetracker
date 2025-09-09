@@ -61,12 +61,11 @@ async function fetchAdminCreatures(searchParams: {
     return { creatures: creatureList, pagination: { totalPages } };
 }
 
-export default async function AdminCreaturesPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
-    const searchParams = await props.searchParams;
+export default async function AdminCreaturesPage({
+    searchParams,
+}: {
+    searchParams: { page?: string; query?: string };
+}) {
     const { creatures, pagination } = await fetchAdminCreatures(searchParams);
 
     return (

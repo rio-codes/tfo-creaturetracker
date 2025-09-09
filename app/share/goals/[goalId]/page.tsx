@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { useSession } from 'next-auth/react';
 import { Footer } from '@/components/custom-layout-elements/footer';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
@@ -14,50 +13,49 @@ import {
 } from '@/lib/api/goals';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 60;
-
 type Props = {
-    params: { goalId: string };
+    params: Promise<{ goalId: string }>;
 };
 
 export async function generateMetadata(
-    { params }: Props,
+    props: Props,
     parent: ResolvingMetadata
 ): Promise<Metadata> {
-    const urlParams = await params;
-    const goalForMetadata = getGoalById(urlParams.goalId);
+    const params = await props.params;
+    const goal = await getGoalById(params.goalId);
 
-    if (!goalForMetadata) {
-        return {};
+    if (!goal) {
+        return {
+            title: 'Goal Not Found',
+        };
     }
 
     const previousImages = (await parent).openGraph?.images || [];
-    const description = `${(await goalForMetadata).user?.username || 'A user'} made this goal on TFO.creaturetracker, check it out! TFO.creaturetracker helps you track your creature breeding projects.`;
+    const description = `${goal.user?.username || 'A user'} made this goal on TFO.creaturetracker, check it out! TFO.creaturetracker helps you track your creature breeding projects.`;
 
     return {
-        title: `Shared Goal: ${(await goalForMetadata).name}`,
+        title: `Shared Goal: ${goal.name}`,
         description,
         openGraph: {
-            title: `Shared Goal: ${(await goalForMetadata).name}`,
+            title: `Shared Goal: ${goal.name}`,
             description,
-            images: [(await goalForMetadata).imageUrl, ...previousImages],
-            url: `/share/goals/${(await goalForMetadata).id}`,
+            images: [goal.imageUrl, ...previousImages],
+            url: `/share/goals/${goal.id}`,
             siteName: 'TFO.creaturetracker',
         },
     };
 }
 
-export default async function SharedGoalPage({ params }: Props) {
-    const urlParams = await params;
-    const goal = await getGoalById(urlParams.goalId);
-    if (!urlParams.goalId || !goal) {
+export default async function SharedGoalPage(props: Props) {
+    const params = await props.params;
+    const goal = await getGoalById(params.goalId);
+    if (!goal) {
         notFound();
     }
     const predictions = await getPredictionsForGoal(params.goalId);
     const allPairs = await getAssignedPairsForGoal(params.goalId);
 
-    if (!goal || !predictions || !allPairs) {
+    if (!predictions || !allPairs) {
         notFound();
     }
 
@@ -90,8 +88,8 @@ export default async function SharedGoalPage({ params }: Props) {
                     <SharedGoalInfo goal={goal} />
                     <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
                         <img
-                            src={(await goal).imageUrl}
-                            alt={(await goal).name}
+                            src={goal.imageUrl}
+                            alt={goal.name}
                             className="max-w-full max-h-48 object-contain"
                         />
                     </Card>

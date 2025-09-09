@@ -58,12 +58,11 @@ async function fetchAdminBreedingPairs(searchParams: {
     return { pairs: pairList, pagination: { totalPages } };
 }
 
-export default async function AdminBreedingPairsPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
-    const searchParams = await props.searchParams;
+export default async function AdminBreedingPairsPage({
+    searchParams,
+}: {
+    searchParams: { page?: string; query?: string };
+}) {
     const { pairs, pagination } = await fetchAdminBreedingPairs(searchParams);
 
     return (

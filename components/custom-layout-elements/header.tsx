@@ -57,10 +57,7 @@ export default function Header() {
                         onOpenChange={setIsMenuOpen}
                     >
                         <DropdownMenuTrigger asChild>
-                            <Button
-                                size="lg"
-                                className="text-barely-lilac hover:bg-transparent focus-visible:ring-0"
-                            >
+                            <Button className="text-barely-lilac hover:bg-transparent focus-visible:ring-0">
                                 <ChevronsDown className="size-10" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -93,16 +90,17 @@ export default function Header() {
 
                 {/* Right side - User info and actions */}
                 {status === 'authenticated' && (
-                    <div className="flex flex-col items-between py-1">
-                        <div className="py-1 hidden md:block">
-                            Welcome back, {session.user.username}!
+                    <div className="flex md:flex-col items-between py-1">
+                        <div className="py-1 hidden md:justify-end-safe md:flex wrap-normal overflow-auto">
+                            Welcome back,
+                            <br /> {session.user.username}!
                         </div>
-                        <div className="py-1 px-1">
+                        <div className="py-1 px-1 md:flex-col">
                             <Button
                                 onClick={() => signOut({ callbackUrl: '/' })}
                                 variant="ghost"
                                 size="sm"
-                                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
+                                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl right-2 top-3"
                             >
                                 <span className="hidden sm:inline">
                                     Log Out
@@ -116,7 +114,7 @@ export default function Header() {
                     <div className="flex flex-col items-end py-1">
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             disabled
                             className="text-barely-lilac"
                         >
@@ -125,11 +123,11 @@ export default function Header() {
                     </div>
                 )}
                 {status != 'authenticated' && status != 'loading' && (
-                    <div className="flex flex-col items-end py-1">
+                    <div className="flex flex-col justify-end items-end py-1">
                         <Button
                             onClick={() => signIn()}
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             className="text-barely-lilac hover:bg-dusk-purple"
                         >
                             <span className="hidden sm:inline">Log In</span>

@@ -144,12 +144,13 @@ export function GoalDetailClient({
 
     return (
         <div className="space-y-8">
+            <meta property="og:image" content="{imageUrl}" />
             <div className="flex-col gap-4">
-                <div className="flex justify-between items-start">
-                    <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300">
+                <div className="flex justify-between items-start gap-4">
+                    <h1 className="min-w-0 text-4xl font-bold text-pompaca-purple dark:text-purple-300">
                         Goal: {goal?.name}
                     </h1>
-                    <ShareGoalButton goalId={goal.id} />
+                    <ShareGoalButton goal={goal} />
                 </div>
                 <div className="mt-5">
                     {/* Desktop: Info on the badge itself */}
@@ -258,7 +259,7 @@ export function GoalDetailClient({
             </div>
             {/* Bottom Section */}
             <div className="mt-10">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:items-center mb-4">
                     <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
                         Breeding Pairs
                     </h2>
@@ -286,7 +287,7 @@ export function GoalDetailClient({
 
             {/* Progeny Analysis Section */}
             <div className="mt-10">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:items-center mb-4">
                     <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
                         Progeny Analysis
                     </h2>

@@ -6,12 +6,6 @@ import {
 import { GoalDetailClient } from '@/components/custom-clients/goal-detail-client';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import type {
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    Prediction,
-    EnrichedBreedingPair,
-} from '@/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +36,7 @@ export default async function GoalDetailPage(props: PageProps) {
                 >
                     <GoalDetailClient
                         goal={goal!}
-                        initialPredictions={predictions}
+                        initialPredictions={predictions!}
                         allCreatures={allCreaturesData}
                         allPairs={allPairsData}
                     />

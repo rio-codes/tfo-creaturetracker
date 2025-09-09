@@ -17,7 +17,6 @@ export async function GET(
 ) {
     const params = await props.params;
     const session = await auth();
-    // @ts-expect-error session will be typed correctly in a later update
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -104,7 +103,7 @@ export async function DELETE(
     } catch (error) {
         console.error('Failed to delete creature:', error);
         // Handle potential foreign key constraint errors if a creature is part of a pair
-        if (error.code === '23503') {
+        if ((error as any).code === '23503') {
             // PostgreSQL foreign key violation error code
             return NextResponse.json(
                 {

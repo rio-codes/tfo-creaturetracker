@@ -1,40 +1,42 @@
-import type { NextAuthConfig } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { db } from "@/src/db";
-import { users } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { compare } from "bcryptjs";
-import * as Sentry from "@sentry/nextjs";
+import type { NextAuthConfig } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import type { User as DbUser } from '@/types';
+import { eq } from 'drizzle-orm';
+import { compare } from 'bcryptjs';
+import * as Sentry from '@sentry/nextjs';
 
 export const authConfig = {
     providers: [
         Credentials({
             credentials: {},
-            async authorize(credentials) {
-                if (!credentials?.username || !credentials.password) {
+            async authorize(c) {
+                const credentials = c as {
+                    username?: string;
+                    password?: string;
+                }; // Cast to a more specific type
+                if (!credentials.username || !credentials.password) {
                     return null;
                 }
 
                 try {
-                    const user = await db.query.users.findFirst({
-                        where: eq(
-                            users.username,
-                            credentials.username as string
-                        ),
-                    });
+                    const user = (await db.query.users.findFirst({
+                        where: eq(users.username, credentials.username),
+                    })) as unknown as DbUser | undefined;
                     if (!user) {
                         return null;
                     }
-                    if ((user as any).status === "suspended") {
+                    if (user.status === 'suspended') {
                         // User is suspended, deny login.
                         return null;
                     }
-                    if (!user.password) {
+                    if (!('password' in user) || !user.password) {
                         return null;
                     }
                     const isPasswordValid = await compare(
-                        credentials.password as string,
-                        user.password
+                        credentials.password,
+                        user.password as string
                     );
                     if (isPasswordValid) {
                         return user;
@@ -49,7 +51,7 @@ export const authConfig = {
         }),
     ],
     session: {
-        strategy: "jwt",
+        strategy: 'jwt',
     },
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
@@ -57,15 +59,11 @@ export const authConfig = {
             if (user) {
                 // Add properties from your database user model to the token.
                 token.id = user.id;
-                token.username = (user as any).username;
-                token.role = (user as any).role;
-                token.theme = (user as any).theme;
+                token.username = user.username;
+                token.role = user.role;
+                token.theme = user.theme;
             }
 
-            // Handle impersonation
-            if (token.impersonator && !user) {
-                // If impersonating, ensure the token data is for the impersonated user
-            }
             // This token is then encrypted and stored in the user's cookie.
             return token;
         },
@@ -74,19 +72,16 @@ export const authConfig = {
         session({ session, token }) {
             // The token object contains the data we stored in the `jwt` callback.
             if (token && session.user) {
-                session.user.id = token.id as string;
-                session.user.username = token.username as string;
-                session.user.role = token.role as string;
-                session.user.theme = token.theme as string;
-                if (token.impersonator) {
-                    session.impersonator = token.impersonator as any;
-                }
+                session.user.id = token.id;
+                session.user.username = token.username;
+                session.user.role = token.role;
+                session.user.theme = token.theme;
             }
             // ALWAYS return the session object.
             return session;
         },
     },
     pages: {
-        signIn: "/login",
+        signIn: '/login',
     },
 } satisfies NextAuthConfig;

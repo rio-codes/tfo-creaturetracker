@@ -61,7 +61,6 @@ export type EnrichedResearchGoal = Omit<
     genes: {
         [category: string]: GoalGene;
     };
-    user?: DbUser;
 };
 
 export type EnrichedBreedingPair = Omit<

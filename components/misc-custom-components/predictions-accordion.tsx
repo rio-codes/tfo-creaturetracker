@@ -52,7 +52,7 @@ export function PredictionsAccordion({
     }
 
     return (
-        <Accordion type="single" collapsible className="w-full space-y-2">
+        <Accordion type="single" collapsible className="w-full space-y-2 mr-5">
             {predictions.map((p, index) => {
                 const pairForDialog = {
                     id: p.pairId,
@@ -65,9 +65,9 @@ export function PredictionsAccordion({
                         className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple"
                     >
                         <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
-                            <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4 place-items-start">
                                 {/* Left side: Pair Name and Parents */}
-                                <div className="flex flex-1 items-center gap-4 min-w-0">
+                                <div className="flex flex-1 items-center gap-4 min-w-0 mr-2">
                                     <div className="flex flex-shrink-0 items-center gap-1">
                                         <img
                                             src={getCacheBustedImageUrl(
@@ -92,7 +92,7 @@ export function PredictionsAccordion({
                                         />
                                     </div>
                                     <div className="min-w-0 flex-wrap">
-                                        <div className="font-bold text-xl truncate min-w-0">
+                                        <div className="font-bold text-md truncate min-w-0">
                                             {p.pairName}
                                         </div>
                                         <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
@@ -107,29 +107,31 @@ export function PredictionsAccordion({
                                 </div>
 
                                 {/* Right side: Stats and Button */}
-                                <div className="flex flex-col items-stretch gap-y-3 md:flex-row md:items-center md:gap-x-6">
-                                    <div className="flex justify-end md:justify-center">
-                                        <div className="text-center">
-                                            <div className="font-mono text-lg">
-                                                {(
-                                                    p.averageChance * 100
-                                                ).toFixed(2)}
-                                                %
+                                <div className="flex items-end-safe px-2 ml-2 flex-1 justify-end gap-y-3 md:flex-row md:items-center md:gap-x-6">
+                                    <div className="flex w-full md:justify-center">
+                                        <div className="flex text-center">
+                                            <div>
+                                                <div className="font-mono text-lg">
+                                                    {(
+                                                        p.averageChance * 100
+                                                    ).toFixed(2)}
+                                                    %
+                                                </div>
+                                                <div className="text-xs text-dusk-purple dark:text-purple-400">
+                                                    Match Score
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-dusk-purple dark:text-purple-400">
-                                                Match Score
+                                            <div
+                                                className={`text-center text-lg font-semibold py-1 mt-6 md:mt-1 px-3 text-md ${
+                                                    p.isPossible
+                                                        ? 'text-green-600'
+                                                        : 'text-red-500'
+                                                }`}
+                                            >
+                                                {p.isPossible
+                                                    ? 'POSSIBLE'
+                                                    : 'IMPOSSIBLE'}
                                             </div>
-                                        </div>
-                                        <div
-                                            className={`text-center px-2 text-md ${
-                                                p.isPossible
-                                                    ? 'text-green-600'
-                                                    : 'text-red-500'
-                                            }`}
-                                        >
-                                            {p.isPossible
-                                                ? 'POSSIBLE'
-                                                : 'IMPOSSIBLE'}
                                         </div>
                                     </div>
                                     <LogBreedingDialog

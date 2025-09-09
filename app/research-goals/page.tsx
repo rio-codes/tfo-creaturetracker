@@ -8,15 +8,16 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-export default async function ResearchGoalsPage({
-    searchParams,
-}: {
-    searchParams?: {
-        page?: string;
-        query?: string;
-        species?: string;
-    };
-}) {
+export default async function ResearchGoalsPage(
+    props: {
+        searchParams?: Promise<{
+            page?: string;
+            query?: string;
+            species?: string;
+        }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const session = await auth();
     const userId = session?.user?.id
     const user = await db.query.users.findFirst({ where: eq(users.id, userId) });

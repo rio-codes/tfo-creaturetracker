@@ -8,10 +8,8 @@ import { fetchAndUploadWithRetry } from "@/lib/data";
 import { revalidatePath } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 
-export async function POST(
-    req: Request,
-    { params }: { params: { goalId: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ goalId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Not authenticated" }, { status: 401 });

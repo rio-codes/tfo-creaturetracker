@@ -1,29 +1,33 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { creatures } from "@/src/db/schema";
-import { z } from "zod";
-import { revalidatePath } from "next/cache";
-import { constructTfoImageUrl } from "@/lib/tfo-utils";
-import { fetchAndUploadWithRetry } from "@/lib/data";
-import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { creatures } from '@/src/db/schema';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { constructTfoImageUrl } from '@/lib/tfo-utils';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+import * as Sentry from '@sentry/nextjs';
 
 const createCreatureSchema = z.object({
     creatureName: z.string().min(1),
     creatureCode: z.string().min(1),
     species: z.string().min(1),
-    genes: z.record(z.string(), z.object({
-        genotype: z.string(),
-        phenotype: z.string(),
-        isMultiGenotype: z.boolean(),
-        isOptional: z.boolean(),
-    })),
+    genes: z.record(
+        z.string(),
+        z.object({
+            genotype: z.string(),
+            phenotype: z.string(),
+            isMultiGenotype: z.boolean(),
+            isOptional: z.boolean(),
+        })
+    ),
 });
 
 export async function POST(req: Request) {
     const session = await auth();
+    // @ts-expect-error session will be typed correctly in a later update
     if (session?.user?.role !== 'admin') {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const userId = session.user.id;
 
@@ -32,10 +36,15 @@ export async function POST(req: Request) {
         const validated = createCreatureSchema.safeParse(body);
 
         if (!validated.success) {
-            const validatedError = "Could not create creature: " + z.flattenError(validated.error).fieldErrors.toString();
+            const validatedError =
+                'Could not create creature: ' +
+                z.flattenError(validated.error).fieldErrors.toString();
             console.error(validatedError);
             Sentry.captureException(validatedError);
-            return NextResponse.json({ error: validatedError }, { status: 400 });
+            return NextResponse.json(
+                { error: validatedError },
+                { status: 400 }
+            );
         }
 
         const { creatureName, creatureCode, species, genes } = validated.data;
@@ -43,12 +52,12 @@ export async function POST(req: Request) {
         // 1. Construct genetics string and genotypes for URL
         const genotypesForUrl: { [key: string]: string } = {};
         const geneParts: string[] = [];
-        let gender = "unknown";
+        let gender = 'unknown';
 
         for (const [category, geneInfo] of Object.entries(genes)) {
             genotypesForUrl[category] = geneInfo.genotype;
             geneParts.push(`${category}:${geneInfo.genotype}`);
-            if (category === "Gender") {
+            if (category === 'Gender') {
                 gender = geneInfo.genotype;
             }
         }
@@ -57,7 +66,11 @@ export async function POST(req: Request) {
         // 2. Create image
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, creatureCode, 3);
+        const blobUrl = await fetchAndUploadWithRetry(
+            bustedTfoImageUrl,
+            creatureCode,
+            3
+        );
 
         // 3. Insert into database
         await db.insert(creatures).values({
@@ -74,10 +87,15 @@ export async function POST(req: Request) {
         });
 
         revalidatePath('/collection');
-        return NextResponse.json({ message: "Creature created successfully!" }, { status: 201 });
-
+        return NextResponse.json(
+            { message: 'Creature created successfully!' },
+            { status: 201 }
+        );
     } catch (error: any) {
         //Sentry.captureException(error.message);
-        return NextResponse.json({ error: error.message || "An internal error occurred." }, { status: 500 });
+        return NextResponse.json(
+            { error: error.message || 'An internal error occurred.' },
+            { status: 500 }
+        );
     }
 }

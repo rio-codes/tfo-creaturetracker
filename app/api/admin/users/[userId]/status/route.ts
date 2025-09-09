@@ -1,23 +1,31 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { users, userStatusEnum } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { users, userStatusEnum } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 const updateStatusSchema = z.object({
     status: z.enum(userStatusEnum.enumValues),
 });
 
-export async function PATCH(req: Request, { params }: { params: { userId: string } }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ userId: string }> }
+) {
+    const params = await props.params;
     const session = await auth();
-    if (session?.user?.role !== "admin") {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (session?.user?.role !== 'admin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     if (session.user.id === params.userId) {
-        return NextResponse.json({ error: "Admins cannot change their own status." }, { status: 400 });
+        return NextResponse.json(
+            { error: 'Admins cannot change their own status.' },
+            { status: 400 }
+        );
     }
 
     try {
@@ -25,17 +33,25 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
         const validated = updateStatusSchema.safeParse(body);
 
         if (!validated.success) {
-            return NextResponse.json({ error: "Invalid status specified." }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Invalid status specified.' },
+                { status: 400 }
+            );
         }
 
-        await db.update(users)
+        await db
+            .update(users)
             .set({ status: validated.data.status })
             .where(eq(users.id, params.userId));
 
-        return NextResponse.json({ message: "User status updated successfully." });
-
+        return NextResponse.json({
+            message: 'User status updated successfully.',
+        });
     } catch (error) {
         Sentry.captureException(error);
-        return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
+        return NextResponse.json(
+            { error: 'An internal error occurred.' },
+            { status: 500 }
+        );
     }
 }

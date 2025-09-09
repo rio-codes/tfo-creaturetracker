@@ -13,10 +13,8 @@ const querySchema = z.object({
 // The color you provided for the badge!
 const BADGE_COLOR = 'D0BCFF';
 
-export async function GET(
-    req: Request,
-    { params }: { params: { username: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ username: string }> }) {
+    const params = await props.params;
     try {
         const { username } = params;
         const { searchParams } = new URL(req.url);

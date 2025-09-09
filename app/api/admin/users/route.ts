@@ -1,21 +1,22 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { users } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 
 export async function GET(req: Request) {
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
-    const query = searchParams.get("query");
-    const role = searchParams.get("role");
-    const status = searchParams.get("status");
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const query = searchParams.get('query');
+    const role = searchParams.get('role');
+    const status = searchParams.get('status');
 
     const offset = (page - 1) * limit;
 
@@ -62,7 +63,7 @@ export async function GET(req: Request) {
         });
     } catch (error) {
         return NextResponse.json(
-            { error: "Failed to fetch users" },
+            { error: 'Failed to fetch users' },
             { status: 500 }
         );
     }

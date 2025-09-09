@@ -13,10 +13,8 @@ const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
 });
 
-export async function POST(
-    req: Request,
-    { params }: { params: { pairId: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ pairId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Not authenticated" }, { status: 401 });

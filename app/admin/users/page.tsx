@@ -1,16 +1,16 @@
-import { Suspense } from "react";
-import { AdminDataTable } from "@/components/admin/admin-data-table";
-import { columns } from "./columns";
-import { db } from "@/src/db";
-import { users } from "@/src/db/schema";
-import { and, ilike, or, eq, desc, count, SQL } from "drizzle-orm";
+import { Suspense } from 'react';
+import { AdminDataTable } from '@/components/custom-tables/admin-data-table';
+import { columns } from './columns';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 async function fetchAdminUsers(searchParams: {
     page?: string;
@@ -18,14 +18,20 @@ async function fetchAdminUsers(searchParams: {
 }) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
-	const query = searchParams.query;
+    const query = searchParams.query;
     const offset = (page - 1) * limit;
 
     const whereConditions: (SQL | undefined)[] = [
-        query ? or(ilike(users.username, `%${query}%`), ilike(users.email, `%${query}%`)) : undefined,
+        query
+            ? or(
+                  ilike(users.username, `%${query}%`),
+                  ilike(users.email, `%${query}%`)
+              )
+            : undefined,
     ].filter(Boolean);
 
-    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where =
+        whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const userList = await db.query.users.findMany({
         where,
@@ -35,14 +41,20 @@ async function fetchAdminUsers(searchParams: {
         columns: { password: false },
     });
 
-    const totalCountResult = await db.select({ count: count() }).from(users).where(where);
+    const totalCountResult = await db
+        .select({ count: count() })
+        .from(users)
+        .where(where);
     const totalUsers = totalCountResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalUsers / limit);
 
     return { users: userList, pagination: { totalPages } };
 }
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: { page?: string; query?: string } }) {
+export default async function AdminUsersPage(props: {
+    searchParams: Promise<{ page?: string; query?: string }>;
+}) {
+    const searchParams = await props.searchParams;
     const { users, pagination } = await fetchAdminUsers(searchParams);
 
     return (

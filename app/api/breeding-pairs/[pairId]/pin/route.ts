@@ -5,10 +5,8 @@ import { breedingPairs } from "@/src/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function PATCH(
-    req: Request,
-    { params }: { params: { pairId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

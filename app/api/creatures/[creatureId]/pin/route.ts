@@ -5,10 +5,8 @@ import { creatures } from "@/src/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function PATCH(
-    req: Request,
-    { params }: { params: { creatureId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

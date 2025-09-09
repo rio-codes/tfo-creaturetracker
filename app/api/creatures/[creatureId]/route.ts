@@ -13,9 +13,11 @@ import { getAllBreedingPairsForUser } from '@/lib/data';
 
 export async function GET(
     req: Request,
-    { params }: { params: { creatureId: string } }
+    props: { params: Promise<{ creatureId: string }> }
 ) {
+    const params = await props.params;
     const session = await auth();
+    // @ts-expect-error session will be typed correctly in a later update
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -53,8 +55,9 @@ export async function GET(
 // This function handles DELETE requests to /api/creatures/[creatureId]
 export async function DELETE(
     req: Request,
-    { params }: { params: { creatureId: string } }
+    props: { params: Promise<{ creatureId: string }> }
 ) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

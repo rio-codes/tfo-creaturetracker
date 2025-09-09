@@ -1,19 +1,20 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
 import {
     users,
     creatures,
     breedingPairs,
     researchGoals,
-} from "@/src/db/schema";
-import { count, gte } from "drizzle-orm";
-import { subDays } from "date-fns";
+} from '@/src/db/schema';
+import { count, gte } from 'drizzle-orm';
+import { subDays } from 'date-fns';
 
 export async function GET() {
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     try {
@@ -42,9 +43,9 @@ export async function GET() {
             totalGoals: totalGoals[0].value,
         });
     } catch (error) {
-        console.error("Failed to fetch admin metrics:", error);
+        console.error('Failed to fetch admin metrics:', error);
         return NextResponse.json(
-            { error: "Failed to fetch metrics" },
+            { error: 'Failed to fetch metrics' },
             { status: 500 }
         );
     }

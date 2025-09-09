@@ -11,10 +11,8 @@ const assignGoalSchema = z.object({
     assign: z.boolean(), // true to assign, false to unassign
 });
 
-export async function PATCH(
-    req: Request,
-    { params }: { params: { pairId: string } }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(

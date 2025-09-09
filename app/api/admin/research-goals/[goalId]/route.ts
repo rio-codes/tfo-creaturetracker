@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { researchGoals } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { logAdminAction } from "@/lib/audit";
-import { enrichAndSerializeGoal } from "@/lib/serialization";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { researchGoals } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import { logAdminAction } from '@/lib/audit';
+import { enrichAndSerializeGoal } from '@/lib/serialization';
 
-export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function GET(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     try {
@@ -19,21 +23,33 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
         });
 
         if (!goal) {
-            return NextResponse.json({ error: "Research goal not found" }, { status: 404 });
+            return NextResponse.json(
+                { error: 'Research goal not found' },
+                { status: 404 }
+            );
         }
 
-        return NextResponse.json({ enrichedGoal: enrichAndSerializeGoal(goal, goal.goalMode) });
+        return NextResponse.json({
+            enrichedGoal: enrichAndSerializeGoal(goal, goal.goalMode),
+        });
     } catch (error) {
-        console.error("Failed to fetch research goal details:", error);
-        return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
+        console.error('Failed to fetch research goal details:', error);
+        return NextResponse.json(
+            { error: 'An internal error occurred.' },
+            { status: 500 }
+        );
     }
 }
 
-export async function DELETE(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     try {
@@ -44,7 +60,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
 
         if (!targetGoal) {
             return NextResponse.json(
-                { error: "Research goal not found." },
+                { error: 'Research goal not found.' },
                 { status: 404 }
             );
         }
@@ -54,8 +70,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
             .where(eq(researchGoals.id, params.goalId));
 
         await logAdminAction({
-            action: "research_goal.delete",
-            targetType: "research_goal",
+            action: 'research_goal.delete',
+            targetType: 'research_goal',
             targetId: params.goalId,
             details: {
                 deletedGoalName: targetGoal.name,
@@ -63,12 +79,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
         });
 
         return NextResponse.json({
-            message: "Research goal deleted successfully.",
+            message: 'Research goal deleted successfully.',
         });
     } catch (error) {
-        console.error("Failed to delete research goal:", error);
+        console.error('Failed to delete research goal:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

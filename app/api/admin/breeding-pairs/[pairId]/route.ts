@@ -16,9 +16,13 @@ import {
 } from '@/lib/serialization';
 import { enrichAndSerializeBreedingPair } from '@/lib/data-helpers'; // We'll create this helper
 
-export async function GET(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function GET(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
+    // @ts-expect-error session will be typed correctly in a later update
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -91,9 +95,13 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
     }
 }
 
-export async function DELETE(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
+    // @ts-expect-error session will be typed correctly in a later update
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }

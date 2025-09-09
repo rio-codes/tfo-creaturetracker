@@ -1,20 +1,24 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { users } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { logAdminAction } from "@/lib/audit";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import { logAdminAction } from '@/lib/audit';
 
-export async function DELETE(req: Request, props: { params: Promise<{ userId: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ userId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    // @ts-expect-error session will be typed correctly in a later update
+    if (!session?.user?.id || session.user.role !== 'admin') {
+        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     if (params.userId === session.user.id) {
         return NextResponse.json(
-            { error: "Admins cannot delete themselves." },
+            { error: 'Admins cannot delete themselves.' },
             { status: 400 }
         );
     }
@@ -27,7 +31,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
 
         if (!targetUser) {
             return NextResponse.json(
-                { error: "User not found." },
+                { error: 'User not found.' },
                 { status: 404 }
             );
         }
@@ -35,8 +39,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
         await db.delete(users).where(eq(users.id, params.userId));
 
         await logAdminAction({
-            action: "user.delete",
-            targetType: "user",
+            action: 'user.delete',
+            targetType: 'user',
             targetId: params.userId,
             details: {
                 deletedUsername: targetUser.username,
@@ -44,11 +48,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
             },
         });
 
-        return NextResponse.json({ message: "User deleted successfully." });
+        return NextResponse.json({ message: 'User deleted successfully.' });
     } catch (error) {
-        console.error("Failed to delete user:", error);
+        console.error('Failed to delete user:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

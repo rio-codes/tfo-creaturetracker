@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { AdminDataTable } from '@/components/misc-custom-components/admin-data-table';
+import { AdminDataTable } from '@/components/custom-tables/admin-data-table';
 import { columns } from './columns';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';

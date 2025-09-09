@@ -1,4 +1,4 @@
-import { CreateCreatureForm } from '@/components/admin/create-creature-form';
+import { CreateCreatureForm } from '@/components/custom-forms/create-creature-form';
 import {
     Card,
     CardContent,

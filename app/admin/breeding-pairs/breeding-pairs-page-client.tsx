@@ -1,9 +1,9 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { AdminDataTable } from '@/components/admin/admin-data-table';
+import { AdminDataTable } from '@/components/custom-tables/admin-data-table';
 import { columns } from './columns';
-import { ViewItemDialog } from '@/components/admin/view-item-dialog';
+import { ViewItemDialog } from '@/components/custom-dialogs/view-item-dialog';
 
 export function BreedingPairsPageClient({
     pairs,

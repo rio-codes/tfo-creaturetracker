@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { AdminDataTable } from '@/components/admin/admin-data-table';
+import { AdminDataTable } from '@/components/misc-custom-components/admin-data-table';
 import { columns } from './columns';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
@@ -51,11 +51,9 @@ async function fetchAdminUsers(searchParams: {
     return { users: userList, pagination: { totalPages } };
 }
 
-export default async function AdminUsersPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
+export default async function AdminUsersPage(props: {
+    searchParams: Promise<{ page?: string; query?: string }>;
+}) {
     const searchParams = await props.searchParams;
     const { users, pagination } = await fetchAdminUsers(searchParams);
 

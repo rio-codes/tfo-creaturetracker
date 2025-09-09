@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation';
-import type { Metadata, ResolvingMetadata } from 'next';
+import { db } from '@/src/db';
+import { researchGoals, users } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import type { Metadata } from 'next';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
 import { SharedPredictionsAccordion } from '@/components/shared-views/shared-predictions-accordion';
@@ -15,6 +18,44 @@ import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 type Props = {
     params: Promise<{ goalId: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const goalId = (await params).goalId;
+    const goal = await db.query.researchGoals.findFirst({
+        where: eq(researchGoals.id, goalId),
+    });
+
+    if (!goal) {
+        return {
+            title: 'Goal Not Found',
+        };
+    }
+
+    const owner = await db.query.users.findFirst({
+        where: eq(users.id, goal.userId),
+    });
+
+    const title = `Research Goal: ${goal.name}`;
+    const description = `View the research goal "${goal.name}" for the species ${goal.species} on tfo.creaturetracker. Shared by ${owner?.username || 'a user'}.`;
+    const altText = `An image of the creature for the research goal: ${goal.name}.`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: [
+                {
+                    url: `/share/goals/${goalId}/opengraph-image`, // Next.js will handle the absolute URL
+                    width: 1200,
+                    height: 630,
+                    alt: altText,
+                },
+            ],
+        },
+    };
+}
 
 export default async function SharedGoalPage(props: Props) {
     const params = await props.params;

@@ -24,7 +24,7 @@ type ResearchGoalClientProps = {
     totalPages: number;
 };
 
-export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
+export function ResearchGoalClient({ initialGoals, totalPages }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -99,11 +99,7 @@ export function ResearchGoalClient({ goalMode, initialGoals, totalPages }) {
                 {initialGoals.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                         {initialGoals.map((goal) => (
-                            <ResearchGoalCard
-                                key={goal.id}
-                                goalMode={goalMode}
-                                goal={goal}
-                            />
+                            <ResearchGoalCard key={goal.id} goal={goal} />
                         ))}
                     </div>
                 ) : (

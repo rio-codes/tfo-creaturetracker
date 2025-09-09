@@ -58,7 +58,7 @@ export default function Header() {
                     >
                         <DropdownMenuTrigger asChild>
                             <Button
-                                size="lg"
+                                size="md"
                                 className="text-barely-lilac hover:bg-transparent focus-visible:ring-0"
                             >
                                 <ChevronsDown className="size-10" />
@@ -93,16 +93,16 @@ export default function Header() {
 
                 {/* Right side - User info and actions */}
                 {status === 'authenticated' && (
-                    <div className="flex flex-col items-between py-1">
+                    <div className="flex md:flex-col items-between py-1">
                         <div className="py-1 hidden md:block">
                             Welcome back, {session.user.username}!
                         </div>
-                        <div className="py-1 px-1">
+                        <div className="py-1 px-1 md:flex-col">
                             <Button
                                 onClick={() => signOut({ callbackUrl: '/' })}
                                 variant="ghost"
                                 size="sm"
-                                className="text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl"
+                                className="absolute md:relative md:right-1 md:top-1 text-pompaca-purple bg-ebena-lavender hover:bg-dusk-purple dark:bg-midnight-purple dark:text-purple-300 dark:hover:bg-ebena-lavender dark:hover:text-pompaca-purple shadow-xl right-2 top-3"
                             >
                                 <span className="hidden sm:inline">
                                     Log Out
@@ -116,7 +116,7 @@ export default function Header() {
                     <div className="flex flex-col items-end py-1">
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="xs"
                             disabled
                             className="text-barely-lilac"
                         >

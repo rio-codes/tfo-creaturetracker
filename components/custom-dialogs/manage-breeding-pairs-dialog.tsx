@@ -1,15 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { ManageBreedingPairsForm } from "@/components/custom-forms/manage-breeding-pairs-form"
-import type { EnrichedCreature, EnrichedResearchGoal, EnrichedBreedingPair } from "@/types";
+} from '@/components/ui/dialog';
+import { ManageBreedingPairsForm } from '@/components/custom-forms/manage-breeding-pairs-form';
+import type {
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    EnrichedBreedingPair,
+} from '@/types';
 
 type ManageBreedingPairsDialogProps = {
     baseCreature: EnrichedCreature;
@@ -37,7 +41,7 @@ export function ManageBreedingPairsDialog({
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">
-                        Manage Pairs for{" "}
+                        Manage Pairs for{' '}
                         {baseCreature!.creatureName || baseCreature!.code}
                     </DialogTitle>
                 </DialogHeader>
@@ -46,8 +50,7 @@ export function ManageBreedingPairsDialog({
                     allCreatures={allCreatures}
                     allPairs={allPairs}
                     allGoals={allGoals}
-                    onActionComplete={() => {
-                    }}
+                    onActionComplete={() => setIsOpen(false)}
                 />
             </DialogContent>
         </Dialog>

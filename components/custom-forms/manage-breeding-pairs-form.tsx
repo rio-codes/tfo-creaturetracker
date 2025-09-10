@@ -26,7 +26,7 @@ import type {
 import {
     findSuitableMates,
     getPossibleOffspringSpecies,
-} from '@/lib/breeding-rules'; // Import the new helper
+} from '@/lib/breeding-rules';
 import * as Sentry from '@sentry/nextjs';
 
 type ManagePairsFormProps = {
@@ -51,6 +51,7 @@ export function ManageBreedingPairsForm({
     );
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [open, setIsOpen] = useState(false);
 
     // State for predictions
     const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -72,14 +73,16 @@ export function ManageBreedingPairsForm({
     }, [baseCreature, allCreatures, allPairs]);
 
     const { maleParent, femaleParent } = useMemo(() => {
-        if (!selectedMate) {
+        if (!selectedMateId) {
             return { maleParent: null, femaleParent: null };
         }
+        const mate = allCreatures.find((c) => c.id === selectedMateId);
+        if (!mate) return { maleParent: null, femaleParent: null };
         if (baseCreature.gender === 'male') {
-            return { maleParent: baseCreature, femaleParent: selectedMate };
+            return { maleParent: baseCreature, femaleParent: mate };
         }
-        return { maleParent: selectedMate, femaleParent: baseCreature };
-    }, [baseCreature, selectedMate]);
+        return { maleParent: mate, femaleParent: baseCreature };
+    }, [baseCreature, selectedMateId, allCreatures]);
 
     const relevantGoals = useMemo(() => {
         const selectedMate = allCreatures.find((c) => c?.id === selectedMateId);
@@ -94,6 +97,33 @@ export function ManageBreedingPairsForm({
             (g) => g && possibleOffspring.includes(g.species!)
         );
     }, [allGoals, baseCreature, selectedMateId, allCreatures]);
+
+    const ParentGeneSummary = ({
+        creature,
+    }: {
+        creature: EnrichedCreature;
+    }) => {
+        if (!creature?.geneData || creature.geneData.length === 0) {
+            return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
+        }
+        const summary = creature.geneData
+            .filter((g) => g.category !== 'Gender')
+            .map(
+                (gene) =>
+                    `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`
+            )
+            .join(', ');
+
+        return (
+            <p
+                className="pt-1 text-xs text-dusk-purple break-words"
+                dangerouslySetInnerHTML={{ __html: summary }}
+                title={summary
+                    .replace(/<strong>/g, '')
+                    .replace(/<\/strong>/g, '')}
+            />
+        );
+    };
 
     // EFFECT: Fetch predictions whenever a mate is selected
     useEffect(() => {
@@ -278,7 +308,7 @@ export function ManageBreedingPairsForm({
                     </Select>
 
                     {/* Pair Preview */}
-                    {selectedMate && (
+                    {selectedMateId && (
                         <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
                             {maleParent && (
                                 <div className="flex flex-col items-center w-36">
@@ -376,6 +406,18 @@ export function ManageBreedingPairsForm({
                     )}
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
+                    {/* Cancel Button */}
+
+                    <Button
+                        type="button"
+                        onClick={onActionComplete}
+                        variant="outline"
+                        className="w-full border-pompaca-purple text-pompaca-purple hover:bg-pompaca-purple/10 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-400/10"
+                    >
+                        Cancel
+                    </Button>
+
+                    {/* Submit Button */}
                     <Button
                         type="submit"
                         disabled={isLoading || !selectedMateId}

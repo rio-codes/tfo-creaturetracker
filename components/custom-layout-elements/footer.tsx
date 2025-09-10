@@ -81,6 +81,10 @@ export function Footer() {
                             Privacy Policy
                         </Link>
                         <span className="hidden md:inline">|</span>
+                        <Link href="/help" className="hover:underline">
+                            Help
+                        </Link>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://github.com/rio-codes/tfo-creaturetracker"
                             className="hover:underline"

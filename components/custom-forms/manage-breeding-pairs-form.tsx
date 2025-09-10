@@ -11,7 +11,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Loader2 } from 'lucide-react';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Trash2, Loader2, X, ChevronDown } from 'lucide-react';
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
@@ -65,6 +70,16 @@ export function ManageBreedingPairsForm({
     const suitableMates = useMemo(() => {
         return findSuitableMates(baseCreature, allCreatures, allPairs);
     }, [baseCreature, allCreatures, allPairs]);
+
+    const { maleParent, femaleParent } = useMemo(() => {
+        if (!selectedMate) {
+            return { maleParent: null, femaleParent: null };
+        }
+        if (baseCreature.gender === 'male') {
+            return { maleParent: baseCreature, femaleParent: selectedMate };
+        }
+        return { maleParent: selectedMate, femaleParent: baseCreature };
+    }, [baseCreature, selectedMate]);
 
     const relevantGoals = useMemo(() => {
         const selectedMate = allCreatures.find((c) => c?.id === selectedMateId);
@@ -261,6 +276,63 @@ export function ManageBreedingPairsForm({
                             )}
                         </SelectContent>
                     </Select>
+
+                    {/* Pair Preview */}
+                    {selectedMate && (
+                        <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
+                            {maleParent && (
+                                <div className="flex flex-col items-center w-36">
+                                    <img
+                                        src={maleParent.imageUrl!}
+                                        alt={maleParent.code}
+                                        className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                    />
+                                    <Collapsible className="w-full">
+                                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                            <p className="truncate">
+                                                {maleParent.creatureName ||
+                                                    'Unnamed'}{' '}
+                                                ({maleParent.code})
+                                            </p>
+                                            <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent>
+                                            <ParentGeneSummary
+                                                creature={maleParent}
+                                            />
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                </div>
+                            )}
+                            {maleParent && femaleParent && (
+                                <X className="text-dusk-purple mt-10" />
+                            )}
+                            {femaleParent && (
+                                <div className="flex flex-col items-center w-36">
+                                    <img
+                                        src={femaleParent.imageUrl!}
+                                        alt={femaleParent.code}
+                                        className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                    />
+                                    <Collapsible className="w-full">
+                                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                            <p className="truncate">
+                                                {femaleParent.creatureName ||
+                                                    'Unnamed'}{' '}
+                                                ({femaleParent.code})
+                                            </p>
+                                            <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent>
+                                            <ParentGeneSummary
+                                                creature={femaleParent}
+                                            />
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Prediction Display */}
                     {isPredictionLoading && (

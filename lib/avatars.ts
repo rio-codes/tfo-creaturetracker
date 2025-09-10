@@ -1,0 +1,100 @@
+export const capsuleAvatars = [
+    'abomena_pahidermo_capsule.png',
+    'alta_koltuko_capsule.png',
+    'arba_brakumo_capsule.png',
+    'arbara_krono_capsule.png',
+    'arda_vosto_capsule.png',
+    'avka_felo_capsule.png',
+    'bera_manganto_capsule.png',
+    'brila_ornamo_capsule.png',
+    'cielarka_cimo_capsule.png',
+    'degela_koro_capsule.png',
+    'dentega_salto_capsule.png',
+    'dormema_ventreto_capsule.png',
+    'dorna_maco_capsule.png',
+    'ebena_kuranto_capsule.png',
+    'ekvinoska_kavigo_capsule.png',
+    'etarakido_capsule.png',
+    'flirtanta_flamo_capsule.png',
+    'floranta_doloro_capsule.png',
+    'fluganta_rato_capsule.png',
+    'frida_fisisto_capsule.png',
+    'furioza_vizago_capsule.png',
+    'glacia_alsalto_capsule.png',
+    'glita_skvamo_capsule.png',
+    'glubleko_capsule.png',
+    'gudra_kornaro_capsule.png',
+    'imsanga_afero_capsule.png',
+    'inkuba_brulajo_capsule.png',
+    'kasa_gardanto_capsule.png',
+    'kauri_makzelo_capsule.png',
+    'klara_alsalto_capsule.png',
+    'klipeta_kapto_capsule.png',
+    'koleratako_capsule.png',
+    'kora_voko_capsule.png',
+    'kosmira_girafo_capsule.png',
+    'kvieta_kiraso_capsule.png',
+    'lanuga_vizago_capsule.png',
+    'limaka_cevalo_capsule.png',
+    'luma_mordo_capsule.png',
+    'luna_hundo_capsule.png',
+    'malbenita_beno_capsule.png',
+    'malvolva_kapo_capsule.png',
+    'membra_cerbo_capsule.png',
+    'minuskla_casadisto_capsule.png',
+    'monta_selo_capsule.png',
+    'muska_felo_capsule.png',
+    'muskbirdo_capsule.png',
+    'nebula_glisanto_capsule.png',
+    'nektara_veziko_capsule.png',
+    'netimo_capsule.png',
+    'nokta_voko_capsule.png',
+    'okula_pikilo_capsule.png',
+    'ombra_vesperto_capsule.png',
+    'osta_frakaso_capsule.png',
+    'pieda_pastigo_capsule.png',
+    'pompaca_floro_capsule.png',
+    'ranbleko_capsule.png',
+    'reganta_plumaro_capsule.png',
+    'rida_frakaso_capsule.png',
+    'ruzafolio_capsule.png',
+    'sabla_rego_capsule.png',
+    'saltanta_capsule.png',
+    'sauma_kudrilo_capsule.png',
+    'sencesa_simfonio_capsule.png',
+    'senfina_krizo_capsule.png',
+    'senvida_naganto_capsule.png',
+    'silenta_spuristo_capsule.png',
+    'songa_kreinto_capsule.png',
+    'stepa_safido_capsule.png',
+    'stranga_sciuro_capsule.png',
+    'strigosto_capsule.png',
+    'suna_hundo_capsule.png',
+    'tagalo_capsule.png',
+    'tagluma_valso_capsule.png',
+    'tera_girafo_capsule.png',
+    'terura_fisisto_capsule.png',
+    'timiga_dancanto_capsule.png',
+    'toksa_muko_capsule.png',
+    'tonbleko_capsule.png',
+    'transira_alsalto_capsule.png',
+    'vetura_oazo_capsule.png',
+    'vira_beko_capsule.png',
+];
+
+function simpleHash(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+}
+
+export function getRandomCapsuleAvatar(userId: string): string {
+    if (!userId) return '/pompaca_floro_capsule.png'; // A default fallback
+    const hash = simpleHash(userId);
+    const index = hash % capsuleAvatars.length;
+    return `/${capsuleAvatars[index]}`;
+}

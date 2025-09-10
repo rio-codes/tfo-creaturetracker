@@ -55,16 +55,21 @@ export const authConfig = {
     },
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 // Add properties from your database user model to the token.
                 token.id = user.id;
                 token.username = user.username;
                 token.role = user.role;
                 token.theme = user.theme;
+                token.image = user.image;
             }
 
-            // This token is then encrypted and stored in the user's cookie.
+            if (trigger === 'update' && session) {
+                // When the session is updated, merge the new data into the token.
+                return { ...token, ...session };
+            }
+
             return token;
         },
 
@@ -76,6 +81,7 @@ export const authConfig = {
                 session.user.username = token.username;
                 session.user.role = token.role;
                 session.user.theme = token.theme;
+                session.user.image = token.image;
             }
             // ALWAYS return the session object.
             return session;

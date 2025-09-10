@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import type { User as DbUser } from '@/types';
 import { eq } from 'drizzle-orm';
-import { compare } from 'bcryptjs';
+import { compare } from 'bcrypt-ts';
 import * as Sentry from '@sentry/nextjs';
 
 export const authConfig = {

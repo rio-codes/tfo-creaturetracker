@@ -54,7 +54,6 @@
         "Switch": "link:@mui/material/Switch",
         "autoprefixer": "^10.4.21",
         "bcrypt-ts": "^7.1.0",
-        "bcryptjs": "^3.0.2",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
@@ -87,7 +86,6 @@
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.13",
-        "@types/bcryptjs": "^2.4.6",
         "@types/node": "^24.3.1",
         "@types/react": "^19.1.12",
         "@types/react-dom": "^19.1.9",
@@ -96,7 +94,6 @@
         "drizzle-kit": "^0.31.4",
         "eslint": "^9.35.0",
         "eslint-config-next": "^15.5.2",
-        "next": "^15.5.2",
         "postcss": "^8.5.6",
         "prettier": "^3.6.2",
         "prettier-eslint": "^16.4.2",

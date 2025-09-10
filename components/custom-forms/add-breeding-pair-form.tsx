@@ -12,7 +12,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Network, X } from 'lucide-react';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Loader2, Network, X, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import type {
     EnrichedCreature,
@@ -47,6 +52,33 @@ export function AddPairForm({
     initialGoal,
     onSuccess,
 }: AddPairFormProps) {
+    const ParentGeneSummary = ({
+        creature,
+    }: {
+        creature: EnrichedCreature;
+    }) => {
+        if (!creature?.geneData || creature.geneData.length === 0) {
+            return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
+        }
+        const summary = creature.geneData
+            .filter((g) => g.category !== 'Gender')
+            .map(
+                (gene) =>
+                    `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`
+            )
+            .join(', ');
+
+        return (
+            <p
+                className="pt-1 text-xs text-dusk-purple break-words"
+                dangerouslySetInnerHTML={{ __html: summary }}
+                title={summary
+                    .replace(/<strong>/g, '')
+                    .replace(/<\/strong>/g, '')}
+            />
+        );
+    };
+
     const router = useRouter();
     const [pairName, setPairName] = useState('');
     const [selectedMaleId, setSelectedMaleId] = useState<string | undefined>(
@@ -307,23 +339,56 @@ export function AddPairForm({
 
             {/* Pair Preview */}
             {(selectedMale || selectedFemale) && (
-                <div className="flex justify-center items-center gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
+                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
                     {selectedMale && (
-                        <img
-                            src={selectedMale.imageUrl}
-                            alt={selectedMale.code}
-                            className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                        />
+                        <div className="flex flex-col items-center w-36">
+                            <img
+                                src={selectedMale.imageUrl!}
+                                alt={selectedMale.code}
+                                className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                            />
+                            <Collapsible className="w-full">
+                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                    <p className="truncate">
+                                        {selectedMale.creatureName || 'Unnamed'}{' '}
+                                        ({selectedMale.code})
+                                    </p>
+                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <ParentGeneSummary
+                                        creature={selectedMale}
+                                    />
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </div>
                     )}
                     {selectedMale && selectedFemale && (
-                        <X className="text-dusk-purple" />
+                        <X className="text-dusk-purple mt-10" />
                     )}
                     {selectedFemale && (
-                        <img
-                            src={selectedFemale.imageUrl}
-                            alt={selectedFemale.code}
-                            className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                        />
+                        <div className="flex flex-col items-center w-36">
+                            <img
+                                src={selectedFemale.imageUrl!}
+                                alt={selectedFemale.code}
+                                className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                            />
+                            <Collapsible className="w-full">
+                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                    <p className="truncate">
+                                        {selectedFemale.creatureName ||
+                                            'Unnamed'}{' '}
+                                        ({selectedFemale.code})
+                                    </p>
+                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <ParentGeneSummary
+                                        creature={selectedFemale}
+                                    />
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </div>
                     )}
                 </div>
             )}

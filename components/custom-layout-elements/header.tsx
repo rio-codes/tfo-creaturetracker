@@ -123,7 +123,7 @@ export default function Header() {
                 {status === 'authenticated' && session.user && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="relative h-12 w-12 bg-dusk-purple rounded-full">
+                            <Button className="flex items-center gap-2 rounded-full bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac">
                                 <Image
                                     key={
                                         session.user.image ||
@@ -134,10 +134,15 @@ export default function Header() {
                                         getRandomCapsuleAvatar(session.user.id)
                                     }
                                     alt={session.user.username || 'User avatar'}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full"
+                                    width={30}
+                                    height={30}
+                                    className="rounded-full p-1"
                                 />
+                                {session.user.username && (
+                                    <span className="font-medium text-barely-lilac">
+                                        {session.user.username}
+                                    </span>
+                                )}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

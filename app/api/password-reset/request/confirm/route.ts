@@ -1,23 +1,29 @@
-import { db } from "@/src/db";
-import { users, passwordResetTokens } from "@/src/db/schema";
-import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
-import { hash, compare } from "bcrypt-ts";
-import { z } from "zod";
+import { db } from '@/src/db';
+import { users, passwordResetTokens } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { hash, compare } from 'bcrypt-ts';
+import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 const confirmSchema = z.object({
-    token: z.string().min(1, "Token is required."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    token: z.string().min(1, 'Token is required.'),
+    password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Confirming password reset', 'log');
     try {
         const body = await req.json();
         const result = confirmSchema.safeParse(body);
 
         if (!result.success) {
+            Sentry.captureMessage(
+                'Invalid input for password reset confirmation',
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Invalid input." },
+                { error: 'Invalid input.' },
                 { status: 400 }
             );
         }
@@ -35,8 +41,12 @@ export async function POST(req: Request) {
         }
 
         if (!tokenRecord) {
+            Sentry.captureMessage(
+                'Invalid or expired token for password reset',
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Invalid or expired token." },
+                { error: 'Invalid or expired token.' },
                 { status: 400 }
             );
         }
@@ -46,8 +56,12 @@ export async function POST(req: Request) {
             await db
                 .delete(passwordResetTokens)
                 .where(eq(passwordResetTokens.email, tokenRecord.email));
+            Sentry.captureMessage(
+                'Expired token used for password reset',
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Token has expired." },
+                { error: 'Token has expired.' },
                 { status: 400 }
             );
         }
@@ -64,14 +78,19 @@ export async function POST(req: Request) {
             .delete(passwordResetTokens)
             .where(eq(passwordResetTokens.email, tokenRecord.email));
 
+        Sentry.captureMessage(
+            `Password reset successfully for email: ${tokenRecord.email}`,
+            'info'
+        );
         return NextResponse.json(
-            { message: "Password has been reset successfully." },
+            { message: 'Password has been reset successfully.' },
             { status: 200 }
         );
     } catch (error) {
-        console.error("Password reset confirmation failed:", error);
+        console.error('Password reset confirmation failed:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

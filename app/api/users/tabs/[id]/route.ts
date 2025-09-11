@@ -13,8 +13,13 @@ export async function PATCH(
     props: { params: Promise<{ id: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Updating user tab ${params.id}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to update tab',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -33,6 +38,7 @@ export async function PATCH(
         } = { updatedAt: new Date() };
 
         if (hasObscenity(tabName)) {
+            Sentry.captureMessage('Obscene language in tab name', 'warning');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -53,12 +59,20 @@ export async function PATCH(
             .returning();
 
         if (updatedTab.length === 0) {
+            Sentry.captureMessage(
+                `Tab not found for update: ${tabIdToUpdate}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Tab not found or not owned by user.' },
                 { status: 404 }
             );
         }
 
+        Sentry.captureMessage(
+            `Tab ${tabIdToUpdate} updated successfully`,
+            'info'
+        );
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
     } catch (error) {
@@ -77,8 +91,13 @@ export async function DELETE(
     props: { params: Promise<{ id: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Deleting user tab ${params.id}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to delete tab',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -93,6 +112,10 @@ export async function DELETE(
             .where(
                 and(eq(userTabs.id, tabIdToDelete), eq(userTabs.userId, userId))
             );
+        Sentry.captureMessage(
+            `Tab ${tabIdToDelete} deleted successfully`,
+            'info'
+        );
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Tab deleted successfully.' });
     } catch (error) {

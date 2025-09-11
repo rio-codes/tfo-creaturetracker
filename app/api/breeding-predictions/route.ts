@@ -23,9 +23,13 @@ interface SpeciesGeneData {
 
 // Helper function to enrich and serialize a single creature.
 // For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.
-const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | null => {
+const enrichAndSerializeCreature = (
+    creature: DbCreature
+): EnrichedCreature | null => {
     if (!creature || !creature.species) return null;
-    const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[creature.species];
+    const speciesGeneData = (
+        structuredGeneData as Record<string, SpeciesGeneData>
+    )[creature.species];
 
     return {
         ...creature,
@@ -41,10 +45,24 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | nu
                     const categoryData = speciesGeneData[category];
                     if (!categoryData) return null;
 
-                    const matchedGene = categoryData.find((g) => g.genotype === genotype);
-                    return { category, genotype, phenotype: matchedGene?.phenotype || 'Unknown' };
+                    const matchedGene = categoryData.find(
+                        (g) => g.genotype === genotype
+                    );
+                    return {
+                        category,
+                        genotype,
+                        phenotype: matchedGene?.phenotype || 'Unknown',
+                    };
                 })
-                .filter((g): g is { category: string; genotype: string; phenotype: string } => g !== null) || [],
+                .filter(
+                    (
+                        g
+                    ): g is {
+                        category: string;
+                        genotype: string;
+                        phenotype: string;
+                    } => g !== null
+                ) || [],
     };
 };
 
@@ -55,8 +73,13 @@ const predictionSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Calculating breeding predictions', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to get breeding predictions',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -68,6 +91,10 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validated = predictionSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for breeding predictions',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Invalid input.' },
                 { status: 400 }
@@ -102,6 +129,10 @@ export async function POST(req: Request) {
                 : [];
 
         if (!user || !maleParentRaw || !femaleParentRaw) {
+            Sentry.captureMessage(
+                'Could not find user or parents for prediction',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Could not find user or parent creatures.' },
                 { status: 404 }
@@ -112,15 +143,23 @@ export async function POST(req: Request) {
         const femaleParent = enrichAndSerializeCreature(femaleParentRaw);
 
         if (!maleParent || !femaleParent) {
+            Sentry.captureMessage(
+                'Could not process parent creatures for prediction',
+                'warning'
+            );
             return NextResponse.json(
-                { error: 'Could not process parent creatures. They may be missing species information.' },
+                {
+                    error: 'Could not process parent creatures. They may be missing species information.',
+                },
                 { status: 404 }
             );
         }
 
         const enrichedGoals = goals.map((goal) => {
             const enrichedGenes: { [key: string]: any } = {};
-            const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[goal.species];
+            const speciesGeneData = (
+                structuredGeneData as Record<string, SpeciesGeneData>
+            )[goal.species];
             if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
 
             for (const [category, selection] of Object.entries(goal.genes)) {
@@ -137,7 +176,9 @@ export async function POST(req: Request) {
                 } else if (typeof selection === 'string') {
                     finalGenotype = selection;
                     const categoryData = speciesGeneData[category];
-                    const matchedGene = categoryData?.find((g) => g.genotype === finalGenotype);
+                    const matchedGene = categoryData?.find(
+                        (g) => g.genotype === finalGenotype
+                    );
                     finalPhenotype = matchedGene?.phenotype || 'Unknown';
                 } else continue;
 
@@ -192,6 +233,10 @@ export async function POST(req: Request) {
             };
         });
 
+        Sentry.captureMessage(
+            'Successfully calculated breeding predictions',
+            'info'
+        );
         return NextResponse.json({ predictions });
     } catch (error) {
         Sentry.captureException(error);

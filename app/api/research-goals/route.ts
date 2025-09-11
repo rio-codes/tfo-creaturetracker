@@ -70,9 +70,14 @@ export function validateGoalData(
 
 // add new research goal
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating new research goal', 'log');
     console.log('Received', req.body);
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to create research goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -87,6 +92,13 @@ export async function POST(req: Request) {
             Sentry.logger.warn('Zod validation failed for new goal');
             const errorMessage = validatedFields.error.flatten().fieldErrors;
             console.log(errorMessage);
+            Sentry.captureMessage(
+                'Invalid data for new research goal',
+                'warning',
+                {
+                    extra: { details: errorMessage },
+                }
+            );
             return NextResponse.json(
                 {
                     error: `Invalid data provided: ${errorMessage}`,
@@ -97,6 +109,10 @@ export async function POST(req: Request) {
         const { name, species, genes } = validatedFields.data;
 
         if (hasObscenity(name)) {
+            Sentry.captureMessage(
+                'Obscene language in new goal name',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -140,6 +156,10 @@ export async function POST(req: Request) {
 
         revalidatePath('/research-goals');
 
+        Sentry.captureMessage(
+            `Research goal "${name}" created successfully`,
+            'info'
+        );
         return NextResponse.json(
             { message: 'Research Goal created successfully!' },
             { status: 201 }

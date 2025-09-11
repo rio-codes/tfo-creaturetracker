@@ -1,16 +1,25 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { researchGoals } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { researchGoals } from '@/src/db/schema';
+import { and, eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import * as Sentry from '@sentry/nextjs';
 
-export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
+    Sentry.captureMessage(`Toggling mode for goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to toggle goal mode',
+            'warning'
+        );
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -28,9 +37,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!goal) {
+            Sentry.captureMessage(
+                `Goal not found for mode toggle: ${goalId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
-                    error: "Goal not found or you do not have permission to edit it.",
+                    error: 'Goal not found or you do not have permission to edit it.',
                 },
                 { status: 404 }
             );
@@ -38,7 +51,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
         // determine the new mode
         const newMode =
-            goal.goalMode === "phenotype" ? "genotype" : "phenotype";
+            goal.goalMode === 'phenotype' ? 'genotype' : 'phenotype';
 
         // update the goal in the database with the new mode
         await db
@@ -49,13 +62,18 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         // Revalidate the path to ensure the page re-fetches data
         revalidatePath(`/research-goals/${goalId}`);
 
+        Sentry.captureMessage(
+            `Goal ${goalId} mode switched to ${newMode}`,
+            'info'
+        );
         return NextResponse.json({
             message: `Goal mode switched to ${newMode} successfully.`,
         });
     } catch (error: any) {
-        console.error("Failed to switch goal mode:", error);
+        console.error('Failed to switch goal mode:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

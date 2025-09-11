@@ -24,9 +24,14 @@ const createCreatureSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Admin: creating creature', 'log');
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
+        Sentry.captureMessage(
+            'Forbidden access to admin create creature',
+            'warning'
+        );
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const userId = session.user.id;
@@ -91,6 +96,10 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
         });
 
+        Sentry.captureMessage(
+            `Admin: creature ${creatureCode} created successfully`,
+            'info'
+        );
         revalidatePath('/collection');
         return NextResponse.json(
             { message: 'Creature created successfully!' },

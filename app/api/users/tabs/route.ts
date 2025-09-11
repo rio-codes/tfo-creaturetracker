@@ -18,8 +18,13 @@ const createTabSchema = z.object({
 
 // GET all tabs for a user
 export async function GET() {
+    Sentry.captureMessage('Fetching user tabs', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to fetch tabs',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -32,6 +37,10 @@ export async function GET() {
             where: eq(userTabs.userId, userId),
             orderBy: (userTabs, { asc }) => [asc(userTabs.createdAt)],
         });
+        Sentry.captureMessage(
+            `Successfully fetched tabs for user ${userId}`,
+            'info'
+        );
         return NextResponse.json(tabs);
     } catch (error) {
         Sentry.captureException(error);
@@ -45,8 +54,13 @@ export async function GET() {
 
 // POST a new tab for a user
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating user tab', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to create tab',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -64,6 +78,10 @@ export async function POST(req: Request) {
                 flattenedError.fieldErrors.tabId ||
                 '' + flattenedError.fieldErrors.tabName ||
                 '';
+            Sentry.captureMessage(
+                `Invalid data for creating tab: ${fullError}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: `Error: ${fullError}`,
@@ -73,6 +91,10 @@ export async function POST(req: Request) {
         }
 
         if (hasObscenity(tabName)) {
+            Sentry.captureMessage(
+                'Obscene language in new tab name',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -84,6 +106,10 @@ export async function POST(req: Request) {
             .values({ userId, tabId, tabName: tabName || null })
             .returning();
 
+        Sentry.captureMessage(
+            `Tab created successfully for user ${userId}`,
+            'info'
+        );
         revalidatePath('/collection');
         return NextResponse.json(newTab[0], { status: 201 });
     } catch (error) {

@@ -15,6 +15,10 @@ const BADGE_COLOR = 'D0BCFF';
 
 export async function GET(req: Request, props: { params: Promise<{ username: string }> }) {
     const params = await props.params;
+    Sentry.captureMessage(
+        `Fetching public creature count for user ${params.username}`,
+        'log'
+    );
     try {
         const { username } = params;
         const { searchParams } = new URL(req.url);
@@ -25,6 +29,10 @@ export async function GET(req: Request, props: { params: Promise<{ username: str
         });
 
         if (!validation.success) {
+            Sentry.captureMessage(
+                'Invalid species for public creature count',
+                'warning'
+            );
             return NextResponse.json(
                 {
                     schemaVersion: 1,
@@ -45,6 +53,10 @@ export async function GET(req: Request, props: { params: Promise<{ username: str
         });
 
         if (!user) {
+            Sentry.captureMessage(
+                `User not found for public creature count: ${username}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     schemaVersion: 1,
@@ -67,6 +79,10 @@ export async function GET(req: Request, props: { params: Promise<{ username: str
         const creatureCount = result[0]?.value ?? 0;
 
         // 4. Return a shields.io-compatible JSON response
+        Sentry.captureMessage(
+            `Successfully fetched public creature count for ${username}`,
+            'info'
+        );
         return NextResponse.json({
             schemaVersion: 1,
             label: `${species}s`,
@@ -81,4 +97,3 @@ export async function GET(req: Request, props: { params: Promise<{ username: str
 
 // Ensure the badge data is always fresh by disabling caching
 export const dynamic = 'force-dynamic';
-

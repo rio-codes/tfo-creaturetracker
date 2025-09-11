@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { accountVerifications } from '@/src/db/schema';
 import crypto from 'crypto';
 import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 const startSchema = z.object({
     tabId: z.coerce.number().int().min(0, 'Tab ID must be a positive number.'),
@@ -11,7 +12,12 @@ const startSchema = z.object({
 
 export async function POST(req: Request) {
     const session = await auth();
+    Sentry.captureMessage('Starting account verification', 'log');
     if (!session?.user?.id || !session.user.username) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to start verification',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -23,6 +29,10 @@ export async function POST(req: Request) {
         const validated = startSchema.safeParse(body);
 
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid Tab ID for verification start',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Invalid Tab ID provided.' },
                 { status: 400 }
@@ -40,6 +50,10 @@ export async function POST(req: Request) {
         const data = await response.json();
 
         if (data.error || !data.creatures || data.creatures.length === 0) {
+            Sentry.captureMessage(
+                `Could not find creatures in tab for verification: ${username} / Tab ${tabId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: `Could not find any creatures in Tab ${tabId} to use for verification.`,
@@ -73,9 +87,14 @@ export async function POST(req: Request) {
                 },
             });
 
+        Sentry.captureMessage(
+            `Verification started for user ${userId}`,
+            'info'
+        );
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
         console.error('Verification start failed:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }

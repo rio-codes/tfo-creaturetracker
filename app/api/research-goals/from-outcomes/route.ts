@@ -37,8 +37,13 @@ const createGoalSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating goal from outcomes', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to create goal from outcomes',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -50,6 +55,13 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validated = createGoalSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for creating goal from outcomes',
+                'warning',
+                {
+                    extra: { details: validated.error.flatten() },
+                }
+            );
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -58,7 +70,9 @@ export async function POST(req: Request) {
         const { pairId, goalName, species, selectedGenotypes } = validated.data;
 
         // 1. Construct the full `genes` object for the new goal
-        const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
+        const speciesGeneData = (
+            structuredGeneData as Record<string, SpeciesGeneData>
+        )[species];
         if (!speciesGeneData) {
             return NextResponse.json(
                 { error: `Invalid species: ${species}` },
@@ -143,6 +157,10 @@ export async function POST(req: Request) {
         revalidatePath('/breeding-pairs');
         revalidatePath(`/research-goals/${newGoalId}`);
 
+        Sentry.captureMessage(
+            `Goal ${newGoalId} created from outcomes and assigned to pair ${pairId}`,
+            'info'
+        );
         return NextResponse.json(
             {
                 message: 'Goal created and assigned successfully!',

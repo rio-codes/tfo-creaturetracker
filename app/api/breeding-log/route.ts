@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { hasObscenity } from '@/lib/obscenity';
+import * as Sentry from '@sentry/nextjs';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
@@ -106,8 +107,13 @@ async function checkAndRecordAchievements(
 }
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Logging breeding event', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to log breeding event',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -119,6 +125,9 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validated = createLogSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage('Invalid input for breeding log', 'warning', {
+                extra: { details: validated.error.flatten() },
+            });
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -134,6 +143,10 @@ export async function POST(req: Request) {
         } = validated.data;
 
         if (hasObscenity(notes)) {
+            Sentry.captureMessage(
+                'Obscene language in breeding log notes',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -198,6 +211,10 @@ export async function POST(req: Request) {
             newLogEntry.id
         );
 
+        Sentry.captureMessage(
+            `Breeding event logged successfully for pair ${pairId}`,
+            'info'
+        );
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -207,6 +224,7 @@ export async function POST(req: Request) {
         );
     } catch (error) {
         console.error('Failed to log breeding event:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error:
@@ -220,8 +238,13 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
+    Sentry.captureMessage('Updating breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to update breeding log',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -233,6 +256,13 @@ export async function PUT(req: Request) {
         const body = await req.json();
         const validated = editLogSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for updating breeding log',
+                'warning',
+                {
+                    extra: { details: validated.error.flatten() },
+                }
+            );
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -241,6 +271,10 @@ export async function PUT(req: Request) {
         const { logId, notes, progeny1Id, progeny2Id } = validated.data;
 
         if (hasObscenity(notes)) {
+            Sentry.captureMessage(
+                'Obscene language in breeding log notes update',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -305,6 +339,10 @@ export async function PUT(req: Request) {
             );
         });
 
+        Sentry.captureMessage(
+            `Log entry ${logId} updated successfully`,
+            'info'
+        );
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -314,6 +352,7 @@ export async function PUT(req: Request) {
         );
     } catch (error) {
         console.error('Failed to update breeding log:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error:
@@ -327,8 +366,13 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+    Sentry.captureMessage('Deleting breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to delete breeding log',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -340,6 +384,13 @@ export async function DELETE(req: Request) {
         const body = await req.json();
         const validated = deleteLogSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for deleting breeding log',
+                'warning',
+                {
+                    extra: { details: validated.error.flatten() },
+                }
+            );
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -372,6 +423,10 @@ export async function DELETE(req: Request) {
                 .where(eq(breedingLogEntries.id, logId));
         });
 
+        Sentry.captureMessage(
+            `Log entry ${logId} deleted successfully`,
+            'info'
+        );
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -381,6 +436,7 @@ export async function DELETE(req: Request) {
         );
     } catch (error) {
         console.error('Failed to delete breeding log:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error:
@@ -394,8 +450,13 @@ export async function DELETE(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+    Sentry.captureMessage('Patching breeding log (moving progeny)', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to patch breeding log',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -407,6 +468,13 @@ export async function PATCH(req: Request) {
         const body = await req.json();
         const validated = updateLogSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for patching breeding log',
+                'warning',
+                {
+                    extra: { details: validated.error.flatten() },
+                }
+            );
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -494,6 +562,10 @@ export async function PATCH(req: Request) {
             );
         });
 
+        Sentry.captureMessage(
+            `Progeny ${progenyId} moved to log ${logEntryId} successfully`,
+            'info'
+        );
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -503,6 +575,7 @@ export async function PATCH(req: Request) {
         );
     } catch (error) {
         console.error('Failed to update breeding log:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error:

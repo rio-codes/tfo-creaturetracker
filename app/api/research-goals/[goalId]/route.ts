@@ -34,8 +34,13 @@ export async function GET(
     props: { params: Promise<{ goalId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Fetching goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to fetch goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -46,6 +51,7 @@ export async function GET(
     console.log(goalId);
 
     if (!goalId) {
+        Sentry.captureMessage('Goal ID not provided for fetch', 'warning');
         return NextResponse.json(
             { error: 'Goal ID is required' },
             { status: 400 }
@@ -61,14 +67,17 @@ export async function GET(
         });
 
         if (!goal) {
+            Sentry.captureMessage(`Goal not found: ${goalId}`, 'warning');
             return NextResponse.json(
                 { error: 'Goal not found' },
                 { status: 404 }
             );
         }
+        Sentry.captureMessage(`Successfully fetched goal ${goalId}`, 'info');
         return NextResponse.json(goal);
     } catch (error) {
         console.error('Failed to fetch goal:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }
@@ -81,13 +90,19 @@ export async function PUT(
     props: { params: Promise<{ goalId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(
+        `Admin pinning/unpinning goal ${params.goalId}`,
+        'log'
+    );
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage('Forbidden access to admin pin goal', 'warning');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     const goalId = params.goalId;
     if (!goalId) {
+        Sentry.captureMessage('Goal ID not provided for admin pin', 'warning');
         return NextResponse.json(
             { error: 'Goal ID is required' },
             { status: 400 }
@@ -97,6 +112,10 @@ export async function PUT(
     const { isPinned } = await req.json();
 
     if (typeof isPinned !== 'boolean') {
+        Sentry.captureMessage(
+            'Invalid isPinned value for admin pin goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Invalid value for isPinned' },
             { status: 400 }
@@ -111,6 +130,10 @@ export async function PUT(
             .returning();
 
         if (!updatedGoal) {
+            Sentry.captureMessage(
+                `Goal not found for admin pin: ${goalId}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Goal not found' },
                 { status: 404 }
@@ -127,6 +150,10 @@ export async function PUT(
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${goalId}`);
 
+        Sentry.captureMessage(
+            `Admin ${isPinned ? 'pinned' : 'unpinned'} goal ${goalId}`,
+            'info'
+        );
         return NextResponse.json({
             message: `Goal ${isPinned ? 'pinned' : 'unpinned'} successfully`,
             goal: updatedGoal,
@@ -146,8 +173,13 @@ export async function PATCH(
     props: { params: Promise<{ goalId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Editing goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to edit goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -160,6 +192,9 @@ export async function PATCH(
         const validatedFields = editGoalSchema.safeParse(body);
 
         if (!validatedFields.success) {
+            Sentry.captureMessage('Invalid data for editing goal', 'warning', {
+                extra: { details: validatedFields.error.flatten() },
+            });
             return NextResponse.json(
                 {
                     error: 'Invalid data provided.',
@@ -172,6 +207,7 @@ export async function PATCH(
         const { name, species, genes, goalMode } = validatedFields.data;
 
         if (hasObscenity(name)) {
+            Sentry.captureMessage('Obscene language in goal name', 'warning');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -186,6 +222,10 @@ export async function PATCH(
         });
 
         if (!existingGoal) {
+            Sentry.captureMessage(
+                `Goal not found for editing: ${params.goalId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',
@@ -264,6 +304,10 @@ export async function PATCH(
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${params.goalId}`);
 
+        Sentry.captureMessage(
+            `Goal ${params.goalId} updated successfully`,
+            'info'
+        );
         return NextResponse.json({ message: 'Goal updated successfully!' });
     } catch (error: any) {
         Sentry.captureException(error);
@@ -280,8 +324,13 @@ export async function DELETE(
     props: { params: Promise<{ goalId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Deleting goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to delete goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -301,6 +350,10 @@ export async function DELETE(
             .returning();
 
         if (!deletedGoal) {
+            Sentry.captureMessage(
+                `Goal not found for deletion: ${params.goalId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to delete it.',
@@ -320,6 +373,10 @@ export async function DELETE(
 
         revalidatePath('/research-goals');
 
+        Sentry.captureMessage(
+            `Goal ${params.goalId} deleted successfully`,
+            'info'
+        );
         return NextResponse.json({ message: 'Goal deleted successfully.' });
     } catch (error: any) {
         Sentry.captureException(error);

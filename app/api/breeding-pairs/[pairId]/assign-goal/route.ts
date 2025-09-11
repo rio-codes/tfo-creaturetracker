@@ -1,22 +1,31 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { breedingPairs, researchGoals } from "@/src/db/schema";
-import { z } from "zod";
-import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { breedingPairs, researchGoals } from '@/src/db/schema';
+import { z } from 'zod';
+import { and, eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import * as Sentry from '@sentry/nextjs';
 
 const assignGoalSchema = z.object({
-    goalId: z.string().uuid("A valid goal ID is required."),
+    goalId: z.string().uuid('A valid goal ID is required.'),
     assign: z.boolean(), // true to assign, false to unassign
 });
 
-export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
+    Sentry.captureMessage(`Assigning goal to pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to assign goal',
+            'warning'
+        );
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -26,8 +35,12 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         const body = await req.json();
         const validated = assignGoalSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for assigning goal',
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Invalid input." },
+                { error: 'Invalid input.' },
                 { status: 400 }
             );
         }
@@ -51,14 +64,22 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         ]);
 
         if (!pair || !goal) {
+            Sentry.captureMessage(
+                `Pair or Goal not found for assignment. Pair: ${pairId}, Goal: ${goalId}`,
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Pair or Goal not found." },
+                { error: 'Pair or Goal not found.' },
                 { status: 404 }
             );
         }
         if (pair.species !== goal.species) {
+            Sentry.captureMessage(
+                `Species mismatch on goal assignment. Pair: ${pairId}, Goal: ${goalId}`,
+                'warning'
+            );
             return NextResponse.json(
-                { error: "Goal species must match pair species." },
+                { error: 'Goal species must match pair species.' },
                 { status: 400 }
             );
         }
@@ -66,10 +87,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         // 2. Update the `assignedGoalIds` array on the PAIR
         const currentGoalIds = new Set(pair.assignedGoalIds || []);
         if (assign) {
-            console.log("adding goal")
+            console.log('adding goal');
             currentGoalIds.add(goalId); // Add the goal
         } else {
-            console.log("deleting goal")
+            console.log('deleting goal');
             currentGoalIds.delete(goalId); // Remove the goal
         }
         const updatedGoalIds = Array.from(currentGoalIds);
@@ -94,15 +115,20 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             .where(eq(researchGoals.id, goalId));
 
         revalidatePath(`/research-goals/${goalId}`);
-        revalidatePath("/breeding-pairs");
+        revalidatePath('/breeding-pairs');
 
+        Sentry.captureMessage(
+            `Goal ${goalId} ${assign ? 'assigned to' : 'unassigned from'} pair ${pairId}`,
+            'info'
+        );
         return NextResponse.json({
-            message: `Goal ${assign ? "assigned" : "unassigned"} successfully.`,
+            message: `Goal ${assign ? 'assigned' : 'unassigned'} successfully.`,
         });
     } catch (error) {
-        console.error("Failed to assign goal:", error);
+        console.error('Failed to assign goal:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

@@ -7,8 +7,13 @@ import { capsuleAvatars, getRandomCapsuleAvatar } from '@/lib/avatars';
 import * as Sentry from '@sentry/nextjs';
 
 export async function POST() {
+    Sentry.captureMessage('Changing user avatar', 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to change avatar',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -22,6 +27,10 @@ export async function POST() {
         });
 
         if (!user) {
+            Sentry.captureMessage(
+                `User not found for avatar change: ${userId}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'User not found' },
                 { status: 404 }
@@ -48,6 +57,10 @@ export async function POST() {
             .set({ image: newAvatar })
             .where(eq(users.id, userId));
 
+        Sentry.captureMessage(
+            `Avatar changed successfully for user ${userId}`,
+            'info'
+        );
         return NextResponse.json({ success: true, newAvatar });
     } catch (error) {
         Sentry.captureException(error);

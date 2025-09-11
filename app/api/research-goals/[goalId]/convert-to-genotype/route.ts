@@ -6,15 +6,27 @@ import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { enrichAndSerializeGoal } from '@/lib/serialization';
+import * as Sentry from '@sentry/nextjs';
 
 const conversionSchema = z.object({
     conversions: z.record(z.string(), z.string()),
 });
 
-export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
+    Sentry.captureMessage(
+        `Converting goal ${params.goalId} to genotype`,
+        'log'
+    );
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to convert goal',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -27,6 +39,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         const body = await req.json();
         const validated = conversionSchema.safeParse(body);
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid data for goal conversion',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Invalid conversion data.' },
                 { status: 400 }
@@ -42,6 +58,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!goal) {
+            Sentry.captureMessage(
+                `Goal not found for conversion: ${goalId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',
@@ -68,11 +88,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
         revalidatePath(`/research-goals/${goalId}`);
 
+        Sentry.captureMessage(
+            `Goal ${goalId} converted to genotype mode`,
+            'info'
+        );
         return NextResponse.json({
             message: 'Goal successfully converted to genotype mode.',
         });
     } catch (error: any) {
         console.error('Failed to convert goal:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }

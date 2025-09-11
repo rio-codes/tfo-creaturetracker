@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 import { and, eq, sql } from 'drizzle-orm';
@@ -28,9 +28,14 @@ const tfoErrorMap: { [key: number]: string } = {
 
 // request to fetch creatures for a given tab
 export async function POST(req: Request) {
+    Sentry.captureMessage('Syncing creatures from TFO tab', 'log');
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to sync creatures',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -39,6 +44,11 @@ export async function POST(req: Request) {
     if (!process.env.TFO_API_KEY) {
         console.error(
             'CRITICAL: TFO_API_KEY is not set in the environment variables.'
+        );
+        Sentry.captureException(
+            new Error(
+                'CRITICAL: TFO_API_KEY is not set in the environment variables.'
+            )
         );
         return NextResponse.json(
             { error: 'Server configuration error. Contact administrator.' },
@@ -52,10 +62,9 @@ export async function POST(req: Request) {
         const validated = syncSchema.safeParse(body);
 
         if (!validated.success) {
-            return NextResponse.json(
-                { error: `Invalid Tab ID provided. ${validated.error}` },
-                { status: 400 }
-            );
+            const errorMessage = `Invalid Tab ID provided. ${validated.error instanceof ZodError ? validated.error.message : validated.error}`;
+            Sentry.captureMessage(errorMessage, 'warning');
+            return NextResponse.json({ error: errorMessage }, { status: 400 });
         }
 
         const { tabId } = validated.data;
@@ -80,10 +89,18 @@ export async function POST(req: Request) {
             const errorMessage =
                 tfoErrorMap[data.errorCode] ||
                 'An unknown error occurred with the TFO API.';
+            Sentry.captureMessage(
+                `TFO API error during sync: ${errorMessage}`,
+                'error'
+            );
             return NextResponse.json({ error: errorMessage }, { status: 400 });
         }
         // response if no creatures are found
         if (data.error || !data.creatures || data.creatures.length === 0) {
+            Sentry.captureMessage(
+                'No creatures found in TFO tab during sync.',
+                'info'
+            );
             return NextResponse.json(
                 {
                     error: 'No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.',
@@ -170,15 +187,18 @@ export async function POST(req: Request) {
                 });
         }
 
+        const successMessage = `Successfully synced ${creatureValuesToUpdate.length} creatures. Updated ${updatedImageCount} images.`;
+        Sentry.captureMessage(successMessage, 'info');
         revalidatePath('/collection');
         return NextResponse.json(
             {
-                message: `Successfully synced ${creatureValuesToUpdate.length} creatures. Updated ${updatedImageCount} images.`,
+                message: successMessage,
             },
             { status: 200 }
         );
     } catch (error) {
         console.error('Creature sync failed:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }

@@ -16,7 +16,7 @@ export async function PATCH(
 ) {
     const params = await props.params;
     const session = await auth();
-    // @ts-expect-error session will be typed correctly in a later update
+
     if (session?.user?.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

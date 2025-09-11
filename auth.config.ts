@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import type { User as DbUser } from '@/types';
+import type { JWT } from 'next-auth/jwt';
 import { eq } from 'drizzle-orm';
 import { compare } from 'bcrypt-ts';
 import * as Sentry from '@sentry/nextjs';
@@ -56,7 +57,7 @@ export const authConfig = {
     },
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user }: { token: JWT; user: any }) {
             if (user) {
                 return { ...token, ...user };
             }
@@ -70,7 +71,7 @@ export const authConfig = {
         },
 
         // The session callback is called whenever a session is checked.
-        session({ session, token }) {
+        session({ session, token }: { session: any; token: any }): any {
             // The token object contains the data we stored in the `jwt` callback.
             if (token && session.user) {
                 session.user.id = token.id;

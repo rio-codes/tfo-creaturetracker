@@ -12,7 +12,7 @@ const PROTECTED_ROUTES = [
 ];
 const ADMIN_ROUTES = ['/admin'];
 
-export default auth((req) => {
+export default auth((req: any) => {
     const { nextUrl } = req;
     const isAuthenticated = !!req.auth;
     const userRole = req.auth?.user?.role;

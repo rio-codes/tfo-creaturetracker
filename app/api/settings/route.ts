@@ -4,7 +4,7 @@ import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt-ts";
 import * as Sentry from "@sentry/nextjs";
 
 const settingsSchema = z.object({

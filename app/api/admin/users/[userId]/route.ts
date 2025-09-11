@@ -11,7 +11,7 @@ export async function DELETE(
 ) {
     const params = await props.params;
     const session = await auth();
-    // @ts-expect-error session will be typed correctly in a later update
+
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }

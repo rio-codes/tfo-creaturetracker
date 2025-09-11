@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/src/db";
 import { users, pendingRegistrations } from "@/src/db/schema";
 import { eq, or } from "drizzle-orm";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt-ts";
 import crypto from "crypto";
 import { z } from "zod";
 

@@ -18,6 +18,7 @@
         "@hookform/resolvers": "^5.2.1",
         "@mui/icons-material": "^7.3.2",
         "@mui/material": "^7.3.2",
+        "@next/eslint-plugin-next": "^15.5.3",
         "@radix-ui/react-accordion": "1.2.12",
         "@radix-ui/react-alert-dialog": "1.1.15",
         "@radix-ui/react-aspect-ratio": "1.1.7",
@@ -58,6 +59,7 @@
         "dotenv": "^17.2.2",
         "drizzle-orm": "^0.44.5",
         "embla-carousel-react": "8.6.0",
+        "eslint-config-prettier": "^10.1.8",
         "input-otp": "^1.4.2",
         "lucide-react": "^0.543.0",
         "next": "^15.5.3",
@@ -79,11 +81,10 @@
         "tailwindcss-animate": "^1.0.7",
         "use-debounce": "^10.0.6",
         "vaul": "^1.1.2",
-        "zod": "^3.23.8"
+        "zod": "^4.1.7"
     },
     "devDependencies": {
         "@eslint/js": "^9.35.0",
-        "@rushstack/eslint-patch": "^1.12.0",
         "@tailwindcss/postcss": "^4.1.13",
         "@types/node": "^24.3.1",
         "@types/react": "^19.1.12",

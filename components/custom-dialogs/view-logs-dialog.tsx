@@ -30,7 +30,6 @@ import { format } from 'date-fns';
 import { Button } from '../ui/button';
 import { Edit, Trash2, Loader2 } from 'lucide-react';
 import { EditLogDialog } from './edit-log-dialog';
-import { Alert } from '../../services/alert.service';
 
 type ViewLogsDialogProps = {
     pair: EnrichedBreedingPair;

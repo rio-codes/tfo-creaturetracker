@@ -11,7 +11,6 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ViewLogsDialog } from '@/components/custom-dialogs/view-logs-dialog';
 import {
     Tooltip,
     TooltipContent,

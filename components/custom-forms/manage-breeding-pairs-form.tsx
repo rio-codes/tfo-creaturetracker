@@ -51,7 +51,6 @@ export function ManageBreedingPairsForm({
     );
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [open, setIsOpen] = useState(false);
 
     // State for predictions
     const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -159,6 +158,7 @@ export function ManageBreedingPairsForm({
                 setPredictions(data.predictions);
             } catch (err) {
                 Sentry.captureException(err);
+                console.error(err);
             } finally {
                 setIsPredictionLoading(false);
             }
@@ -233,6 +233,8 @@ export function ManageBreedingPairsForm({
             router.refresh();
             onActionComplete();
         } catch (err: any) {
+            Sentry.captureException(err);
+            console.error(err);
             alert('Failed to remove pair.');
         } finally {
             setIsLoading(false);

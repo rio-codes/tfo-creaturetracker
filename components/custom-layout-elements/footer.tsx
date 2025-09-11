@@ -4,8 +4,6 @@ import { Switch } from '@mui/material';
 import { Moon, Sun } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
-import { createTheme } from '@mui/material/styles';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 
 declare module '@mui/material/styles' {
@@ -31,19 +29,6 @@ export function Footer() {
     useEffect(() => {
         setMounted(true);
     }, []);
-
-    const muiTheme = createTheme({
-        palette: {
-            primary: {
-                main: '#3C2D63',
-                light: '#D0BCFF',
-                dark: '#251a3d',
-                contrastText: ' #EADDFF',
-            },
-        },
-    });
-
-    const usePurpleTheme = useMuiTheme();
 
     const year = new Date().getFullYear();
     return (

@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { db } from '@/src/db';
-import { users, researchGoals } from '@/src/db/schema';
+import { researchGoals } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 
 export default async function Image({
@@ -16,10 +16,6 @@ export default async function Image({
     if (!goal) {
         return new Response('Goal not found', { status: 404 });
     }
-
-    const owner = await db.query.users.findFirst({
-        where: eq(users.id, goal.userId),
-    });
 
     const altText = `An image of the creature for the TFO research goal: ${goal.name}.`;
 

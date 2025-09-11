@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { LogBreedingForm } from "@/components/custom-forms/log-breeding-form";
-import type { EnrichedCreature, EnrichedBreedingPair } from "@/types";
+} from '@/components/ui/dialog';
+import { LogBreedingForm } from '@/components/custom-forms/log-breeding-form';
+import type { EnrichedCreature } from '@/types';
 
 type LogBreedingDialogProps = {
     pair: { id: string | undefined; species: string };

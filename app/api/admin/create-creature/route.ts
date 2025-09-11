@@ -36,9 +36,10 @@ export async function POST(req: Request) {
         const validated = createCreatureSchema.safeParse(body);
 
         if (!validated.success) {
+            const flattenedError = validated.error.flatten();
             const validatedError =
                 'Could not create creature: ' +
-                z.flattenError(validated.error).fieldErrors.toString();
+                flattenedError.fieldErrors.toString();
             console.error(validatedError);
             Sentry.captureException(validatedError);
             return NextResponse.json(
@@ -57,7 +58,11 @@ export async function POST(req: Request) {
         for (const [category, geneInfo] of Object.entries(genes)) {
             genotypesForUrl[category] = geneInfo.genotype;
             geneParts.push(`${category}:${geneInfo.genotype}`);
-            if (category === 'Gender') {
+            if (
+                geneInfo &&
+                category === 'Gender' &&
+                typeof geneInfo.genotype === 'string'
+            ) {
                 gender = geneInfo.genotype;
             }
         }
@@ -92,7 +97,7 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
-        //Sentry.captureException(error.message);
+        Sentry.captureException(error.message);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

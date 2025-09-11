@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { breedingPairs } from "@/src/db/schema";
-import { eq, and } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { breedingPairs } from '@/src/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import * as Sentry from '@sentry/nextjs';
 
-export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -29,11 +33,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
                 )
             );
 
-        revalidatePath("/breeding-pairs");
+        revalidatePath('/breeding-pairs');
         return NextResponse.json({ success: true, isPinned: isPinned });
     } catch (error) {
+        Sentry.captureException(error);
+        console.error('Failed to update pair:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 const createTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),
@@ -33,6 +34,8 @@ export async function GET() {
         });
         return NextResponse.json(tabs);
     } catch (error) {
+        Sentry.captureException(error);
+        console.log(error);
         return NextResponse.json(
             { error: 'Failed to fetch user tabs.' },
             { status: 500 }
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
         const validatedTabs = createTabSchema.safeParse({ tabId, tabName });
 
         if (!validatedTabs.success) {
-            const flattenedError = z.flattenError(validatedTabs.error);
+            const flattenedError = validatedTabs.error.flatten();
             const fullError =
                 flattenedError.fieldErrors.tabId ||
                 '' + flattenedError.fieldErrors.tabName ||
@@ -84,6 +87,8 @@ export async function POST(req: Request) {
         revalidatePath('/collection');
         return NextResponse.json(newTab[0], { status: 201 });
     } catch (error) {
+        Sentry.captureException(error);
+        console.log(error);
         return NextResponse.json(
             { error: 'Failed to add new tab.' },
             { status: 500 }

@@ -55,7 +55,7 @@ export function GoalForm({
         goal?.imageUrl || null
     );
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-    const [previewError, setPreviewError] = useState('');
+    const [_previewError, setPreviewError] = useState('');
 
     // generate gene options for selected species depending on goal moad
     const geneOptions = useMemo(() => {
@@ -172,12 +172,6 @@ export function GoalForm({
             setSelectedGenes(defaultSelections);
         }
     }, [species, geneCategories, isEditMode, geneOptions, goal?.genes]);
-
-    const handleSpeciesChange = (newSpecies: string) => {
-        setSpecies(newSpecies);
-        setSelectedGenes({});
-        setPreviewImageUrl(null);
-    };
 
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];

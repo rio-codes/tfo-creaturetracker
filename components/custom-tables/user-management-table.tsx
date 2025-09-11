@@ -17,12 +17,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
 
 export function UserManagementTable({ initialUsers }) {
     const router = useRouter();
-    const [users, setUsers] = useState(initialUsers);
+    const [users, _setUsers] = useState(initialUsers);
     const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
     const handleRoleChange = async (userId, newRole) => {

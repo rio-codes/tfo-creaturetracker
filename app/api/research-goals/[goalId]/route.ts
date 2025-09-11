@@ -9,6 +9,7 @@ import { logAdminAction } from '@/lib/audit';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { hasObscenity } from '@/lib/obscenity';
+import * as Sentry from '@sentry/nextjs';
 
 const editGoalSchema = z.object({
     name: z
@@ -28,7 +29,10 @@ const editGoalSchema = z.object({
     goalMode: z.enum(goalModeEnum.enumValues),
 });
 
-export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function GET(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -72,7 +76,10 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
     }
 }
 
-export async function PUT(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function PUT(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
@@ -125,6 +132,7 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
             goal: updatedGoal,
         });
     } catch (error) {
+        Sentry.captureException(error);
         console.error('Failed to update goal pin status:', error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
@@ -133,7 +141,10 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
     }
 }
 
-export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -214,12 +225,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                     newImageUrl = blob.url;
                 }
             } catch (e) {
+                Sentry.captureException(e);
                 console.error('Failed to generate new goal image', e);
                 // Don't block the update if image generation fails
             }
         }
 
-        const [updatedGoal] = await db
+        await db
             .update(researchGoals)
             .set({
                 name,
@@ -254,6 +266,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
         return NextResponse.json({ message: 'Goal updated successfully!' });
     } catch (error: any) {
+        Sentry.captureException(error);
         console.error('Failed to update research goal:', error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
@@ -262,7 +275,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
     }
 }
 
-export async function DELETE(req: Request, props: { params: Promise<{ goalId: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ goalId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -306,6 +322,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
 
         return NextResponse.json({ message: 'Goal deleted successfully.' });
     } catch (error: any) {
+        Sentry.captureException(error);
         console.error('Failed to delete research goal:', error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },

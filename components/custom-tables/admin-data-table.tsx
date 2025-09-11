@@ -31,7 +31,6 @@ interface DataTableProps<TData, TValue> {
     searchPlaceholder: string;
     onRowClick?: (row: TData) => void;
 }
-const ITEMS_PER_PAGE = 50;
 
 export function AdminDataTable<TData, TValue>({
     columns,

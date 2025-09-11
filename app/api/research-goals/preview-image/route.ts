@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { z } from "zod";
-import { constructTfoImageUrl } from "@/lib/tfo-utils";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { z } from 'zod';
+import { constructTfoImageUrl } from '@/lib/tfo-utils';
 
 const previewSchema = z.object({
     species: z.string().min(1),
@@ -17,26 +17,24 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
 
     try {
         const body = await req.json();
-        console.log("Received ", body);
+        console.log('Received ', body);
         const validatedFields = previewSchema.safeParse(body);
 
         if (!validatedFields.success) {
-            const fieldErrors = z.flattenError(
-                validatedFields.error
-            ).fieldErrors;
+            const fieldErrors = validatedFields.error.flatten().fieldErrors;
             const allErrorArrays = Object.values(fieldErrors);
             const allErrors = allErrorArrays.flat();
-            const errorString = allErrors.join("\n");
-            console.error("Zod Validation Failed:", errorString);
+            const errorString = allErrors.join('\n');
+            console.error('Zod Validation Failed:', errorString);
             return NextResponse.json(
-                { error: "Invalid data provided." },
+                { error: 'Invalid data provided.' },
                 { status: 400 }
             );
         }
@@ -54,9 +52,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ imageUrl });
     } catch (error: any) {
-        console.error("Failed to generate preview URL:", error);
+        console.error('Failed to generate preview URL:', error);
         return NextResponse.json(
-            { error: error.message || "An internal error occurred." },
+            { error: error.message || 'An internal error occurred.' },
             { status: 500 }
         );
     }

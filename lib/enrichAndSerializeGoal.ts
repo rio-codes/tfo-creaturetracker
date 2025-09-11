@@ -27,16 +27,7 @@ export const enrichAndSerializeGoal = (
                     finalPhenotype = selection.phenotype;
                 } else if (typeof selection === 'string') {
                     finalGenotype = selection;
-                    type FullGene = {
-                        genotype: string;
-                        phenotype: string;
-                    };
-
-                    type FullGeneSet = FullGene[];
-
-                    const categoryData = speciesGeneData[
-                        category
-                    ] as FullGeneSet;
+                    const categoryData = speciesGeneData[category];
                     const matchedGene = categoryData?.find(
                         (g) => g.genotype === finalGenotype
                     );

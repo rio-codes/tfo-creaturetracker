@@ -1,6 +1,7 @@
 import type { EnrichedResearchGoal } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { InfoDisplay } from '@/components/misc-custom-components/info-display';
+import { Info } from 'lucide-react';
 
 type Props = {
     goal: EnrichedResearchGoal;
@@ -33,6 +34,12 @@ export function SharedGoalHeader({ goal }: Props) {
                 Goal: {goal.name}
             </h1>
             <div className="mt-5">
+                <InfoDisplay
+                    trigger={
+                        <Info className="h-5 w-5 dark:text-barely-lilac text-pompaca-purple cursor-pointer" />
+                    }
+                    content={goalModeInfoContent}
+                />
                 <Badge
                     className={
                         goal.goalMode === 'genotype'

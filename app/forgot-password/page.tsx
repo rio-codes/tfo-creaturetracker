@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default function ForgotPasswordPage() {
-    const [email, setEmail] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+    const [email, setEmail] = useState('');
+    const [_isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError("");
-        setMessage("");
+        setError('');
+        setMessage('');
 
         try {
-            const response = await fetch("/api/password-reset/request", {
-                method: "POST",
+            const response = await fetch('/api/password-reset/request', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email }),
             });
@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
 
             if (!response.ok) {
                 // If the API returns an error, display it to the user
-                throw new Error(data.error || "Something went wrong.");
+                throw new Error(data.error || 'Something went wrong.');
             }
 
             // Display the success message from the API

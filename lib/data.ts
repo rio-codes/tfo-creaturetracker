@@ -15,14 +15,12 @@ import type {
     DbCreature,
     DbBreedingLogEntry,
     DbBreedingPair,
-    DbResearchGoal,
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
 } from '@/types';
 import {
     checkForInbreeding,
-    validatePairing,
     getPossibleOffspringSpecies,
 } from '@/lib/breeding-rules';
 import {

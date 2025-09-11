@@ -202,13 +202,8 @@ function getAncestorsRecursive(
 
 export function findSuitableMates(
     baseCreature: EnrichedCreature,
-    allCreatures: EnrichedCreature[],
-    allPairs: any[]
+    allCreatures: EnrichedCreature[]
 ): EnrichedCreature[] {
-    const pairedCreatureIds = new Set(
-        allPairs.flatMap((p) => [p.maleParent.id, p.femaleParent.id])
-    );
-
     return allCreatures.filter((potentialMate) => {
         if (potentialMate?.id === baseCreature?.id) {
             return false;

@@ -2,15 +2,14 @@ import type {
     DbCreature,
     DbBreedingLogEntry,
     DbBreedingPair,
-    DbResearchGoal,
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
-} from "@/types";
-import * as Sentry from "@sentry/nextjs";
-import { checkForInbreeding } from "@/lib/breeding-rules";
-import { calculateGeneProbability } from "@/lib/genetics";
-import { enrichAndSerializeCreature } from "@/lib/serialization";
+} from '@/types';
+import * as Sentry from '@sentry/nextjs';
+import { checkForInbreeding } from '@/lib/breeding-rules';
+import { calculateGeneProbability } from '@/lib/genetics';
+import { enrichAndSerializeCreature } from '@/lib/serialization';
 
 export const enrichAndSerializeBreedingPair = (
     pair: DbBreedingPair & {
@@ -24,7 +23,9 @@ export const enrichAndSerializeBreedingPair = (
     allRawPairs: DbBreedingPair[]
 ): EnrichedBreedingPair | null => {
     if (!pair.maleParent || !pair.femaleParent) {
-        Sentry.logger.warn(`Skipping pair ${pair.id} due to missing parent data.`);
+        Sentry.logger.warn(
+            `Skipping pair ${pair.id} due to missing parent data.`
+        );
         return null;
     }
 
@@ -38,7 +39,10 @@ export const enrichAndSerializeBreedingPair = (
     });
 
     const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
-    const serializedLogs = relevantLogs.map(log => ({ ...log, createdAt: log.createdAt.toISOString() }));
+    const serializedLogs = relevantLogs.map((log) => ({
+        ...log,
+        createdAt: log.createdAt.toISOString(),
+    }));
 
     const progenyCount = progeny.length;
 
@@ -62,7 +66,13 @@ export const enrichAndSerializeBreedingPair = (
 
         for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
             const targetGene = targetGeneInfo as any;
-            const chance = calculateGeneProbability(enrichAndSerializeCreature(pair.maleParent!), enrichAndSerializeCreature(pair.femaleParent!), category, targetGene, goalMode);
+            const chance = calculateGeneProbability(
+                enrichAndSerializeCreature(pair.maleParent!),
+                enrichAndSerializeCreature(pair.femaleParent!),
+                category,
+                targetGene,
+                goalMode
+            );
             if (!targetGene.isOptional) {
                 if (chance === 0) isPossible = false;
                 totalChance += chance;
@@ -74,7 +84,24 @@ export const enrichAndSerializeBreedingPair = (
         return { ...goal, isAchieved, isPossible, averageChance };
     });
 
-    const isInbred = checkForInbreeding(pair.maleParentId, pair.femaleParentId, allLogEntries, allRawPairs);
+    const isInbred = checkForInbreeding(
+        pair.maleParentId,
+        pair.femaleParentId,
+        allLogEntries,
+        allRawPairs
+    );
 
-    return { ...pair, timesBred, progenyCount, progeny, logs: serializedLogs, isInbred, createdAt: pair.createdAt.toISOString(), updatedAt: pair.updatedAt.toISOString(), maleParent: enrichAndSerializeCreature(pair.maleParent), femaleParent: enrichAndSerializeCreature(pair.femaleParent), assignedGoals: assignedGoals };
+    return {
+        ...pair,
+        timesBred,
+        progenyCount,
+        progeny,
+        logs: serializedLogs,
+        isInbred,
+        createdAt: pair.createdAt.toISOString(),
+        updatedAt: pair.updatedAt.toISOString(),
+        maleParent: enrichAndSerializeCreature(pair.maleParent),
+        femaleParent: enrichAndSerializeCreature(pair.femaleParent),
+        assignedGoals: assignedGoals,
+    };
 };

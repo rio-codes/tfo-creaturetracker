@@ -85,7 +85,7 @@ export async function syncTfoTab(
     let added = 0;
     let updated = 0;
 
-    var imageUrl = '';
+    let imageUrl = '';
 
     for (const tfoCreature of tfoCreatures) {
         const existingCreature = existingCreatureMap.get(tfoCreature.code);

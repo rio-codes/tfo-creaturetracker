@@ -48,7 +48,6 @@ type LogAsProgenyDialogProps = {
     allEnrichedPairs: EnrichedBreedingPair[];
     allLogs: DbBreedingLogEntry[];
 };
-type MoveAction = 'delete' | 'keep';
 
 export function LogAsProgenyDialog({
     children,

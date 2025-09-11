@@ -1,35 +1,35 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import type React from 'react';
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 export default function LoginPage() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [_isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
+        setError('');
         setIsLoading(true);
 
         try {
-            const result = await signIn("credentials", {
+            const result = await signIn('credentials', {
                 username,
                 password,
                 redirect: false,
@@ -38,16 +38,16 @@ export default function LoginPage() {
             setIsLoading(false);
 
             if (result?.error) {
-                console.error("Sign-in failed:", result.error);
-                setError("Invalid username or password. Please try again.");
+                console.error('Sign-in failed:', result.error);
+                setError('Invalid username or password. Please try again.');
             } else if (result?.ok) {
-                router.push("/collection");
+                router.push('/collection');
                 router.refresh();
             }
         } catch (error) {
             setIsLoading(false);
-            console.error("Sign-in function error:", error);
-            setError("An unexpected error occurred. Please try again later.");
+            console.error('Sign-in function error:', error);
+            setError('An unexpected error occurred. Please try again later.');
         }
     };
 
@@ -132,7 +132,7 @@ export default function LoginPage() {
 
                         <div className="mt-6 text-center">
                             <p className="text-pompaca-purple">
-                                Don't have an account?{" "}
+                                Don't have an account?{' '}
                                 <Link
                                     href="/register"
                                     className="text-pompaca-purple font-medium hover:underline"

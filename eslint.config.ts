@@ -1,43 +1,51 @@
-import next from 'eslint-config-next';
-import prettier from 'eslint-plugin-prettier/recommended';
-import drizzle from 'eslint-plugin-drizzle';
-import ts from 'typescript-eslint';
-import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import nextPlugin from '@next/eslint-plugin-next';
+import prettierConfig from 'eslint-config-prettier';
 
-const { defineConfig } = require('eslint/config');
-
-/**
- * ESLint Flat Configuration
- * @see https://eslint.org/docs/latest/use/configure/configuration-files-new
- */
-module.exports = defineConfig([
+export default tseslint.config(
+    {
+        // Global ignores for files that shouldn't be linted
+        ignores: [
+            '.next/',
+            'node_modules/',
+            'build/',
+            'out/',
+            'drizzle.config.ts',
+            'postcss.config.mjs',
+            'sentry.*.config.ts',
+            'instrumentation.ts',
+            'instrumentation-client.ts',
+            'next-env.d.ts',
+        ],
+    },
+    ...tseslint.configs.recommended,
     {
         files: ['**/*.ts', '**/*.tsx'],
-        parser: '@typescript-eslint/parser',
-        parserOptions: {
-            project: './tsconfig.json',
+        plugins: {
+            '@next/next': nextPlugin,
         },
-    },
-    {
-        ignores: ['.next/**', 'node_modules/**'],
-    },
-    // Custom rule overrides
-    {
         rules: {
+            ...nextPlugin.configs.recommended.rules,
+            ...nextPlugin.configs['core-web-vitals'].rules,
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@next/next/no-html-link-for-pages': 'off',
+            '@next/next/no-img-element': 'off',
+            '@next/next/no-page-custom-font': 'off',
+            '@next/next/no-page-files': 'off',
+            '@next/next/no-server-import-in-page': 'off',
+            '@next/next/no-title-in-document-head': 'off',
+            '@next/next/no-typos': 'off',
+            '@next/next/no-duplicate-head': 'off',
+            '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
-                { argsIgnorePattern: '^_' },
+                {
+                    argsIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
+                    ignoreRestSiblings: true,
+                },
             ],
-            '@typescript-eslint/no-explicit-any': 'off',
         },
     },
-    {
-        configs: {
-            ts,
-            js,
-            next,
-            drizzle,
-            prettier,
-        },
-    },
-]);
+    prettierConfig
+);

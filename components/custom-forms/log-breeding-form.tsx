@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
-import type { EnrichedCreature, EnrichedBreedingPair } from "@/types";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2 } from 'lucide-react';
+import type { EnrichedCreature } from '@/types';
 
 type LogBreedingFormProps = {
     pair: { id: string | undefined; species: string };
@@ -28,9 +28,9 @@ export function LogBreedingForm({
     const router = useRouter();
     const [progeny1Id, setProgeny1Id] = useState<string | undefined>(undefined);
     const [progeny2Id, setProgeny2Id] = useState<string | undefined>(undefined);
-    const [notes, setNotes] = useState("");
+    const [notes, setNotes] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
 
     // Filter for potential offspring: same species, growth level 1 (capsule)
     const potentialProgeny = useMemo(() => {
@@ -40,11 +40,11 @@ export function LogBreedingForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
-            const response = await fetch("/api/breeding-log", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const response = await fetch('/api/breeding-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairId: pair!.id,
                     progeny1Id: progeny1Id || null,
@@ -54,7 +54,7 @@ export function LogBreedingForm({
             });
             const data = await response.json();
             if (!response.ok)
-                throw new Error(data.error || "Failed to log event.");
+                throw new Error(data.error || 'Failed to log event.');
 
             router.refresh();
             onSuccess();
@@ -74,16 +74,11 @@ export function LogBreedingForm({
                         <SelectValue placeholder="Select first offspring..." />
                     </SelectTrigger>
                     <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectItem value="none">
-                            None
-                        </SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {potentialProgeny
                             .filter((p) => p?.id !== progeny2Id)
                             .map((c) => (
-                                <SelectItem
-                                    key={c?.id}
-                                    value={c!.id}
-                                >
+                                <SelectItem key={c?.id} value={c!.id}>
                                     {c?.creatureName} ({c?.code})
                                 </SelectItem>
                             ))}
@@ -98,9 +93,7 @@ export function LogBreedingForm({
                         <SelectValue placeholder="Select second offspring..." />
                     </SelectTrigger>
                     <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectItem value="none">
-                            None
-                        </SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {potentialProgeny
                             .filter((p) => p?.id !== progeny1Id)
                             .map((c) => (
@@ -127,11 +120,15 @@ export function LogBreedingForm({
                 <Button type="button" variant="ghost" onClick={onSuccess}>
                     Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading} className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                >
                     {isLoading ? (
                         <Loader2 className="animate-spin" />
                     ) : (
-                        "Save Log Entry"
+                        'Save Log Entry'
                     )}
                 </Button>
             </div>

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -23,12 +22,7 @@ import {
 } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    EnrichedBreedingPair,
-} from '@/types';
-import { findSuitableMates } from '@/lib/breeding-rules';
+import { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { useMemo } from 'react';
 
 const formSchema = z.object({
@@ -45,7 +39,6 @@ const formSchema = z.object({
 type BreedingPairFormProps = {
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
-    allPairs: EnrichedBreedingPair[];
     onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
     onDelete?: () => Promise<void>;
     isSubmitting: boolean;
@@ -57,7 +50,6 @@ type BreedingPairFormProps = {
 export function BreedingPairForm({
     allCreatures,
     allGoals,
-    allPairs,
     onSubmit,
     onDelete,
     isSubmitting,
@@ -83,7 +75,7 @@ export function BreedingPairForm({
     });
 
     const selectedMaleId = form.watch('maleParentId');
-    const selectedFemaleId = form.watch('femaleParentId');
+    const _selectedFemaleId = form.watch('femaleParentId');
 
     const { suitableMales, suitableFemales } = useMemo(() => {
         const males = allCreatures.filter(

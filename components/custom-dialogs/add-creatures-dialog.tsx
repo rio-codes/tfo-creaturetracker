@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { alertService } from '@/services/alert.service';
-import { useTutorial } from '@/context/tutorial-context';
 import * as Sentry from '@sentry/nextjs';
 
 type DialogProps = {
@@ -36,7 +35,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [showAddForm, setShowAddForm] = useState(false);
 
     const router = useRouter();
-    const { completeStep } = useTutorial();
 
     const fetchUserTabs = async () => {
         setIsLoadingTabs(true);
@@ -102,8 +100,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
-            // Assuming step 1 of the tutorial is to sync creatures.
-            await completeStep(1);
             router.refresh();
         } catch (error: any) {
             Sentry.captureException(error);

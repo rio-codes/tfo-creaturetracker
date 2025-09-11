@@ -52,6 +52,7 @@ export const users = pgTable('user', {
     goalsItemsPerPage: integer('goals_items_per_page').default(9).notNull(),
     pairsItemsPerPage: integer('pairs_items_per_page').default(10).notNull(),
     apiKey: text('api_key').unique(),
+    tutorialProgress: integer('tutorial_progress').default(-1).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

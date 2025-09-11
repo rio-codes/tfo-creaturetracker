@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
+import { TutorialProvider } from '@/context/tutorial-context';
+import { TutorialOverlay } from '@/context/tutorial/tutorial-overlay';
 
 export const metadata: Metadata = {
     title: 'TFO.creaturetracker',
@@ -30,7 +32,12 @@ export default async function RootLayout({
                 />
             </head>
             <body className={`${tektur.className} flex flex-col min-h-screen`}>
-                <ClientProviders>{children}</ClientProviders>
+                <ClientProviders>
+                    <TutorialProvider>
+                        <TutorialOverlay />
+                        {children}
+                    </TutorialProvider>
+                </ClientProviders>
             </body>
         </html>
     );

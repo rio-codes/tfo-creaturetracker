@@ -85,11 +85,14 @@ export async function POST(req: Request) {
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
             Sentry.logger.warn('Zod validation failed for new goal');
-            const errorMessage = validatedFields.error.flatten().fieldErrors;
-            console.log(errorMessage);
+            const { fieldErrors } = validatedFields.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flat()
+                .join(' ');
+            console.log(validatedFields.error.flatten());
             return NextResponse.json(
                 {
-                    error: `Invalid data provided: ${errorMessage}`,
+                    error: errorMessage || 'Invalid data provided.',
                 },
                 { status: 400 }
             );

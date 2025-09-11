@@ -158,7 +158,7 @@ export async function PATCH(
     try {
         const body = await req.json();
         const validatedFields = editGoalSchema.safeParse(body);
-        const { fieldErrors } = validatedFields.error?.flatten();
+        const fieldErrors = validatedFields.error?.flatten();
         const errorMessage = Object.values(fieldErrors)
             .flat()
             .join(' ');

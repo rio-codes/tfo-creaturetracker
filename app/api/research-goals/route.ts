@@ -12,7 +12,10 @@ import { fetchAndUploadWithRetry } from '@/lib/data';
 import * as Sentry from '@sentry/nextjs';
 
 const goalSchema = z.object({
-    name: z.string().min(3, 'Name must be at least 3 characters.'),
+    name: z
+        .string()
+        .min(3, 'Name must be at least 3 characters.')
+        .max(32, 'Name must be less than 32 characters.'),
     species: z.string().min(1, 'Species is required.'),
     genes: z.record(
         z.string(),

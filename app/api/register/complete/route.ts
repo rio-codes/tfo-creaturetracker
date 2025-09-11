@@ -3,6 +3,7 @@ import { db } from "@/src/db";
 import { users, pendingRegistrations } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 
 const completeSchema = z.object({
     email: z.string().email("A valid email is required."),
@@ -45,6 +46,16 @@ export async function POST(req: Request) {
             );
         }
 
+        if (!process.env.TFO_API_KEY) {
+            const errorMessage = "Server configuration error: TFO_API_KEY is not set.";
+            Sentry.captureException(new Error(errorMessage));
+            console.error(errorMessage);
+            return NextResponse.json(
+                { error: "An internal error occurred. Cannot verify registration." },
+                { status: 500 }
+            );
+        }
+
         const tfoApiUrl = `https://finaloutpost.net/api/v1/creature/${pending.creatureCode}`;
         const response = await fetch(tfoApiUrl, {
             method: "GET",
@@ -67,16 +78,18 @@ export async function POST(req: Request) {
         const currentCreatureName = tfoData.name;
 
         if (currentCreatureName === pending.verificationToken) {
-            await db.insert(users).values({
-                id: crypto.randomUUID(),
-                email: pending.email,
-                username: pending.tfoUsername,
-                password: pending.hashedPassword,
-                isTfoVerified: true,
+            // Use a transaction to ensure both operations succeed or fail together
+            await db.transaction(async (tx) => {
+                await tx.insert(users).values({
+                    id: crypto.randomUUID(),
+                    email: pending.email,
+                    username: pending.tfoUsername,
+                    password: pending.hashedPassword,
+                });
+                await tx
+                    .delete(pendingRegistrations)
+                    .where(eq(pendingRegistrations.email, email));
             });
-            await db
-                .delete(pendingRegistrations)
-                .where(eq(pendingRegistrations.email, email));
 
             return NextResponse.json({
                 message: "Account created successfully! You can now log in.",
@@ -91,7 +104,7 @@ export async function POST(req: Request) {
             );
         }
     } catch (error) {
-        console.error("Registration completion failed:", error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: "An internal error occurred." },
             { status: 500 }

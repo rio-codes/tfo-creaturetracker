@@ -10,6 +10,25 @@ import { structuredGeneData } from '@/constants/creature-data';
 import { and, eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/nextjs';
 
+// Define robust types for gene data to avoid using `any`
+interface GeneInfo {
+    genotype: string;
+    phenotype: string;
+}
+
+type GeneCategory = GeneInfo[];
+
+interface SpeciesGeneData {
+    [category: string]: GeneCategory;
+}
+
+interface GoalGene {
+    genotype: string;
+    phenotype: string;
+    isMultiGenotype: boolean;
+    isOptional: boolean;
+}
+
 const createGoalSchema = z.object({
     pairId: z.string().uuid(),
     goalName: z.string().min(3, 'Goal name must be at least 3 characters.'),
@@ -39,20 +58,23 @@ export async function POST(req: Request) {
         const { pairId, goalName, species, selectedGenotypes } = validated.data;
 
         // 1. Construct the full `genes` object for the new goal
-        const speciesGeneData = structuredGeneData[species];
+        const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
         if (!speciesGeneData) {
             return NextResponse.json(
                 { error: `Invalid species: ${species}` },
                 { status: 400 }
             );
         }
-        const goalGenes: { [key: string]: any } = {};
+        const goalGenes: { [key: string]: GoalGene } = {};
         for (const [category, genotype] of Object.entries(selectedGenotypes)) {
-            const categoryData = speciesGeneData[category] as {
-                genotype: string;
-                phenotype: string;
-            }[];
-            const geneInfo = categoryData?.find((g) => g.genotype === genotype);
+            const categoryData = speciesGeneData[category];
+            if (!categoryData) {
+                return NextResponse.json(
+                    { error: `Invalid gene category: ${category}` },
+                    { status: 400 }
+                );
+            }
+            const geneInfo = categoryData.find((g) => g.genotype === genotype);
 
             if (!geneInfo) {
                 return NextResponse.json(

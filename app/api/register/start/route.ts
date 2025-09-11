@@ -5,6 +5,7 @@ import { eq, or } from "drizzle-orm";
 import { hash } from "bcrypt-ts";
 import crypto from "crypto";
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 
 const startSchema = z.object({
     email: z.email(),
@@ -62,6 +63,16 @@ export async function POST(req: Request) {
                     { status: 409 }
                 );
             }
+        }
+
+        if (!process.env.TFO_API_KEY) {
+            const errorMessage = "Server configuration error: TFO_API_KEY is not set.";
+            Sentry.captureException(new Error(errorMessage));
+            console.error(errorMessage);
+            return NextResponse.json(
+                { error: "An internal error occurred. Cannot verify registration." },
+                { status: 500 }
+            );
         }
 
         const labCheckUrl = `https://finaloutpost.net/api/v1/lab/${tfoUsername}`;

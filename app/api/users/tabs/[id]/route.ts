@@ -5,9 +5,13 @@ import { userTabs } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
+import * as Sentry from '@sentry/nextjs';
 
 // PATCH to update a tab
-export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -58,6 +62,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
     } catch (error) {
+        Sentry.captureException(error);
         console.log(error);
         return NextResponse.json(
             { error: 'Failed to update tab.' },
@@ -67,7 +72,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
 }
 
 // DELETE a tab
-export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -88,6 +96,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Tab deleted successfully.' });
     } catch (error) {
+        Sentry.captureException(error);
+        console.log(error);
         return NextResponse.json(
             { error: 'Failed to delete tab.' },
             { status: 500 }

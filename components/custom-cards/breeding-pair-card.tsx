@@ -53,7 +53,6 @@ import {
     Trash2,
     Loader2,
     Info,
-    Dna,
     BookText,
     ChevronDown,
 } from 'lucide-react';
@@ -69,7 +68,7 @@ type BreedingPairCardProps = {
     allGoals: EnrichedResearchGoal[];
     allPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
-    isAdminView?: boolean;
+    _isAdminView?: boolean;
 };
 
 const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
@@ -133,7 +132,7 @@ export function BreedingPairCard({
     allGoals,
     allPairs,
     allLogs,
-    isAdminView = false,
+    _isAdminView = false,
 }: BreedingPairCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);

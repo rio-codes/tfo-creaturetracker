@@ -79,7 +79,7 @@ export function GoalDetailClient({
             .filter((p) => assignedPairIds.has(p.id))
             .flatMap((p) =>
                 (p.progeny || [])
-                    .filter((prog) => prog.growthLevel === 3)
+                    .filter((prog) => prog && prog.growthLevel === 3)
                     .map((prog) => ({
                         ...prog,
                         parentPairName: p.pairName || 'Unnamed Pair',
@@ -91,7 +91,10 @@ export function GoalDetailClient({
             new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
         );
 
-        return uniqueProgeny;
+        // Final type guard to ensure all items are valid creatures
+        return uniqueProgeny.filter(
+            (p): p is EnrichedCreature & { parentPairName: string } => !!p.id
+        );
     }, [allPairs, goal?.assignedPairIds]);
 
     const getMatchScoreStyle = (score: number): React.CSSProperties => {
@@ -108,9 +111,7 @@ export function GoalDetailClient({
             .sort((a, b) => b.analysis.score - a.analysis.score);
     }, [allAssignedProgeny, goal, excludeGender]);
 
-    const getCacheBustedImageUrl = (
-        creature: EnrichedCreature | null | undefined
-    ) => {
+    const getCacheBustedImageUrl = (creature: EnrichedCreature) => {
         if (!creature?.imageUrl) {
             return '';
         }

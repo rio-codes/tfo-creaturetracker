@@ -37,7 +37,6 @@ export function AddBreedingPairDialog({
     children,
 }: AddBreedingPairDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const renderId = Math.random().toString(36).substring(7);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

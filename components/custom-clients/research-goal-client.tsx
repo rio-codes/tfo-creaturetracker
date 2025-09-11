@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedResearchGoal } from '@/types';
@@ -20,22 +19,17 @@ import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog';
 import { speciesList } from '@/constants/creature-data';
 
 type ResearchGoalClientProps = {
-    goals: EnrichedResearchGoal[];
+    initialGoals: EnrichedResearchGoal[];
     totalPages: number;
 };
 
-export function ResearchGoalClient({ initialGoals, totalPages }) {
+export function ResearchGoalClient({
+    initialGoals: initialGoals,
+    totalPages,
+}: ResearchGoalClientProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-
-    const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
-    const handleOpenGoalDialog = () => {
-        setIsGoalDialogOpen(true);
-    };
-    const handleCloseDialog = () => {
-        setIsGoalDialogOpen(false);
-    };
 
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string) => {

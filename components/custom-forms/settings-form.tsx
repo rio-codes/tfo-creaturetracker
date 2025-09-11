@@ -6,55 +6,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import { useSession } from 'next-auth/react';
-import { structuredGeneData } from '@/constants/creature-data';
-import { User, ResearchGoal } from '@/types';
+import { User } from '@/types';
 
-export function SettingsForm({
-    user,
-    goals,
-}: {
-    user: User;
-    goals: ResearchGoal[];
-}) {
+export function SettingsForm({ user }: { user: User }) {
     const router = useRouter();
     const { update: updateSession } = useSession();
 
     const [mounted, setMounted] = useState(false);
     const { theme, setTheme } = useTheme();
-    // Form state
     const [email, setEmail] = useState(user.email);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [goalMode, setGoalMode] = useState(user.goalMode);
     const [collectionItems, setCollectionItems] = useState(
         user.collectionItemsPerPage
     );
     const [goalsItems, setGoalsItems] = useState(user.goalsItemsPerPage);
     const [pairsItems, setPairsItems] = useState(user.pairsItemsPerPage);
-    // State for the conversion flow
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [isConversionDialogOpen, setIsConversionDialogOpen] = useState(false);
-    const [goalsToConvert, setGoalsToConvert] = useState<any[]>([]);
-    const [conversionSelections, setConversionSelections] = useState<{
-        [key: string]: any;
-    }>({});
 
     // useEffect only runs on the client, so now we can safely show the UI
     useEffect(() => {
@@ -70,99 +42,20 @@ export function SettingsForm({
         setIsLoading(true);
         setError('');
         setSuccessMessage('');
-
-        if (user.goalMode === 'phenotype' && goalMode === 'genotype') {
-            const ambiguousGoals = [];
-            for (const goal of goals) {
-                const ambiguousCategories = [];
-                const speciesGeneData = structuredGeneData[goal.species];
-
-                for (const [category, geneSelection] of Object.entries(
-                    goal.genes
-                )) {
-                    let targetPhenotype: string | undefined;
-
-                    // Intelligently determine the phenotype based on the data structure.
-                    if (
-                        typeof geneSelection === 'object' &&
-                        geneSelection.phenotype
-                    ) {
-                        targetPhenotype = geneSelection.phenotype;
-                    } else if (typeof geneSelection === 'string') {
-                        const categoryData = speciesGeneData[category] as {
-                            genotype: string;
-                            phenotype: string;
-                        }[];
-                        const matchedGene = categoryData?.find(
-                            (g) => g.genotype === geneSelection
-                        );
-                        targetPhenotype = matchedGene?.phenotype;
-                    }
-
-                    if (!targetPhenotype) {
-                        continue;
-                    }
-
-                    const allGenesForPhenotype = speciesGeneData[
-                        category
-                    ]?.filter((g) => g.phenotype === targetPhenotype);
-
-                    const matchCount = allGenesForPhenotype?.length || 0;
-
-                    if (matchCount > 1) {
-                        ambiguousCategories.push({
-                            category,
-                            phenotype: targetPhenotype,
-                            options: allGenesForPhenotype,
-                        });
-                    }
-                }
-                if (ambiguousCategories.length > 0) {
-                    ambiguousGoals.push({ ...goal, ambiguousCategories });
-                }
-            }
-
-            if (ambiguousGoals.length > 0) {
-                setGoalsToConvert(ambiguousGoals);
-                setIsConversionDialogOpen(true);
-                setIsLoading(false);
-                return;
-            }
-        }
-
-        // If no conversion is needed, proceed with the normal save
         await saveSettings();
     };
 
-    const handleConversionSelection = (
-        goalId: string,
-        category: string,
-        genotype: string,
-        phenotype: string
-    ) => {
-        setConversionSelections((prev) => ({
-            ...prev,
-            [goalId]: {
-                ...prev[goalId],
-                [category]: { genotype, phenotype },
-            },
-        }));
-    };
-
-    const saveSettings = async (goalConversions?: any) => {
+    const saveSettings = async () => {
         setIsLoading(true);
         try {
             const payload: any = {
-                // Add theme to the payload
                 theme,
-                goalMode,
                 collectionItemsPerPage: collectionItems,
                 goalsItemsPerPage: goalsItems,
                 pairsItemsPerPage: pairsItems,
             };
             if (email !== user.email) payload.email = email;
             if (password) payload.password = password;
-            if (goalConversions) payload.goalConversions = goalConversions;
 
             const response = await fetch('/api/settings', {
                 method: 'PATCH',
@@ -180,7 +73,6 @@ export function SettingsForm({
             setError(err.message);
         } finally {
             setIsLoading(false);
-            setIsConversionDialogOpen(false);
         }
     };
 
@@ -360,74 +252,6 @@ export function SettingsForm({
                     </Button>
                 </div>
             </form>
-
-            {/* Goal Mode Conversion Dialog */}
-            <Dialog
-                open={isConversionDialogOpen}
-                onOpenChange={setIsConversionDialogOpen}
-            >
-                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
-                    <DialogHeader>
-                        <DialogTitle className="text-pompaca-purple dark:text-purple-300">
-                            Resolve Ambiguous Goals
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
-                        <p className="text-sm text-dusk-purple">...</p>
-                        {goalsToConvert.map((goal) => (
-                            <div
-                                key={goal.id}
-                                className="p-4 border rounded-md bg-ebena-lavender dark:bg-midnight-purple"
-                            >
-                                <h3 className="font-bold text-pompaca-purple dark:text-purple-300">
-                                    {goal.name}
-                                </h3>
-                                {goal.ambiguousCategories.map((cat: any) => (
-                                    <div key={cat.category} className="mt-2">
-                                        <Label>
-                                            {cat.category} ({cat.phenotype})
-                                        </Label>
-
-                                        <Select
-                                            onValueChange={(value) =>
-                                                handleConversionSelection(
-                                                    goal.id,
-                                                    cat.category,
-                                                    value,
-                                                    cat.phenotype
-                                                )
-                                            }
-                                        >
-                                            <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
-                                                <SelectValue placeholder="Select a specific genotype..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                                                {cat.options.map((opt: any) => (
-                                                    <SelectItem
-                                                        key={opt.genotype}
-                                                        value={opt.genotype}
-                                                    >
-                                                        {opt.genotype}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                    <Button
-                        onClick={() => saveSettings(conversionSelections)}
-                        className="bg-pompaca-purple text-barely-lilac"
-                        disabled={isLoading}
-                    >
-                        {isLoading
-                            ? 'Saving...'
-                            : 'Confirm Selections & Save Settings'}
-                    </Button>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }

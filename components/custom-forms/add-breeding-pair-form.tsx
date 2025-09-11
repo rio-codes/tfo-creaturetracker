@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,10 +121,10 @@ export function AddPairForm({
 
     const { availableMales, availableFemales } = useMemo(() => {
         let males = allCreatures.filter(
-            (c) => c.gender === 'male' && c.growthLevel === 3
+            (c) => c?.gender === 'male' && c.growthLevel === 3
         );
         let females = allCreatures.filter(
-            (c) => c.gender === 'female' && c.growthLevel === 3
+            (c) => c?.gender === 'female' && c.growthLevel === 3
         );
 
         if (isHybridMode) {
@@ -133,21 +133,21 @@ export function AddPairForm({
                 males = males.filter(
                     (male) =>
                         validatePairing(male, selectedFemale).isValid ||
-                        male.id === selectedMaleId
+                        male?.id === selectedMaleId
                 );
             }
             if (selectedMale) {
                 females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
-                        female.id === selectedFemaleId
+                        female?.id === selectedFemaleId
                 );
             }
         } else {
             // Standard mode: filter by selected species
             if (selectedSpecies) {
-                males = males.filter((c) => c.species === selectedSpecies);
-                females = females.filter((c) => c.species === selectedSpecies);
+                males = males.filter((c) => c?.species === selectedSpecies);
+                females = females.filter((c) => c?.species === selectedSpecies);
             } else {
                 males = [];
                 females = [];
@@ -165,13 +165,13 @@ export function AddPairForm({
     ]);
 
     const assignableGoals = useMemo(() => {
-        if (!selectedMale || !selectedFemale) return [];
+        if (!selectedMale?.species || !selectedFemale?.species) return [];
         const possibleOffspring = getPossibleOffspringSpecies(
-            selectedMale.species!,
-            selectedFemale.species!
+            selectedMale.species,
+            selectedFemale.species
         );
         return allGoals.filter(
-            (g) => g && possibleOffspring.includes(g.species!)
+            (g) => g?.species && possibleOffspring.includes(g.species)
         );
     }, [selectedMale, selectedFemale, allGoals]);
     useEffect(() => {
@@ -181,7 +181,7 @@ export function AddPairForm({
         }
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
-            const goalIds = assignableGoals.map((g) => g?.id);
+            const goalIds = assignableGoals.map((g) => g.id);
             try {
                 const response = await fetch('/api/breeding-predictions', {
                     method: 'POST',
@@ -251,9 +251,9 @@ export function AddPairForm({
         setError('');
         setMessage('');
 
-        const selectedMale = allCreatures.find((c) => c.id === selectedMaleId);
+        const selectedMale = allCreatures.find((c) => c?.id === selectedMaleId);
         const selectedFemale = allCreatures.find(
-            (c) => c.id === selectedFemaleId
+            (c) => c?.id === selectedFemaleId
         );
 
         if (!selectedMale || !selectedFemale) {
@@ -262,9 +262,15 @@ export function AddPairForm({
             return;
         }
 
+        if (!selectedMale.species || !selectedFemale.species) {
+            setError('Selected parents have missing species data.');
+            setIsLoading(false);
+            return;
+        }
+
         const possibleOffspring = getPossibleOffspringSpecies(
-            selectedMale.species!,
-            selectedFemale.species!
+            selectedMale.species,
+            selectedFemale.species
         );
         const pairSpecies =
             possibleOffspring.length === 1
@@ -343,7 +349,9 @@ export function AddPairForm({
                     {selectedMale && (
                         <div className="flex flex-col items-center w-36">
                             <img
-                                src={selectedMale.imageUrl!}
+                                src={
+                                    selectedMale.imageUrl || '/placeholder.png'
+                                }
                                 alt={selectedMale.code}
                                 className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                             />
@@ -369,7 +377,10 @@ export function AddPairForm({
                     {selectedFemale && (
                         <div className="flex flex-col items-center w-36">
                             <img
-                                src={selectedFemale.imageUrl!}
+                                src={
+                                    selectedFemale.imageUrl ||
+                                    '/placeholder.png'
+                                }
                                 alt={selectedFemale.code}
                                 className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
                             />
@@ -424,7 +435,7 @@ export function AddPairForm({
                     {availableMales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c.species}
+                            {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -441,7 +452,7 @@ export function AddPairForm({
                     {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c.species}
+                            {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -492,32 +503,32 @@ export function AddPairForm({
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
                         {assignableGoals.map((goal) => (
                             <div
-                                key={goal?.id}
+                                key={goal.id}
                                 className="flex items-center space-x-2"
                             >
                                 <Checkbox
-                                    id={goal!.id}
-                                    checked={selectedGoalIds.includes(goal!.id)}
+                                    id={goal.id}
+                                    checked={selectedGoalIds.includes(goal.id)}
                                     onCheckedChange={(checked) => {
                                         if (checked) {
                                             setSelectedGoalIds((prev) => [
                                                 ...prev,
-                                                goal!.id,
+                                                goal.id,
                                             ]);
                                         } else {
                                             setSelectedGoalIds((prev) =>
                                                 prev.filter(
-                                                    (id) => id !== goal!.id
+                                                    (id) => id !== goal.id
                                                 )
                                             );
                                         }
                                     }}
                                 />
                                 <Label
-                                    htmlFor={goal!.id}
+                                    htmlFor={goal.id}
                                     className="font-normal"
                                 >
-                                    {goal!.name}
+                                    {goal.name}
                                 </Label>
                             </div>
                         ))}

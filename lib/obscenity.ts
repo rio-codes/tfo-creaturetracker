@@ -4,10 +4,6 @@ import {
     DataSet,
     englishDataset,
     pattern,
-    resolveConfusablesTransformer,
-    resolveLeetSpeakTransformer,
-    toAsciiLowerCaseTransformer,
-    collapseDuplicatesTransformer,
 } from 'obscenity';
 import { OBSCENITY_BLACKLIST } from '@/constants/obscenity-blacklist';
 

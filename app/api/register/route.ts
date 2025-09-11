@@ -2,7 +2,7 @@ import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt-ts";
 import { z } from "zod";
 
 // Define the schema for the request body

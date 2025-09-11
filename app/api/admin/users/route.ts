@@ -3,10 +3,11 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
+import * as Sentry from '@sentry/nextjs';
 
 export async function GET(req: Request) {
     const session = await auth();
-    // @ts-expect-error session will be typed correctly in a later update
+
     if (!session?.user?.id || session.user.role !== 'admin') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -62,6 +63,8 @@ export async function GET(req: Request) {
             },
         });
     } catch (error) {
+        Sentry.captureException(error);
+        console.error('Failed to fetch users:', error);
         return NextResponse.json(
             { error: 'Failed to fetch users' },
             { status: 500 }

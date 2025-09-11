@@ -3,7 +3,7 @@ import { AdminDataTable } from '@/components/custom-tables/admin-data-table';
 import { columns } from './columns';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
-import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
+import { and, ilike, or, desc, count, SQL } from 'drizzle-orm';
 import {
     Card,
     CardContent,

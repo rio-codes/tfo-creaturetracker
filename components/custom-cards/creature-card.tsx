@@ -11,7 +11,6 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ViewLogsDialog } from '@/components/custom-dialogs/view-logs-dialog';
 import {
     Tooltip,
     TooltipContent,
@@ -40,7 +39,11 @@ interface CreatureCardProps {
     isAdminView?: boolean;
 }
 
-const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
+const ParentGeneSummary = ({
+    creature,
+}: {
+    creature: EnrichedCreature | null;
+}) => {
     if (!creature?.geneData || creature.geneData.length === 0) {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
@@ -85,15 +88,19 @@ export function CreatureCard({
     allGoals,
     isAdminView = false,
 }: CreatureCardProps) {
+    if (!creature) {
+        return null;
+    }
+
     const router = useRouter();
-    const [isPinned, setIsPinned] = useState(creature!.isPinned);
+    const [isPinned, setIsPinned] = useState(creature.isPinned);
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const parentPair = useMemo(() => {
         if (isAdminView || !allEnrichedPairs) return undefined;
         return allEnrichedPairs.find((p) =>
-            p.progeny.some((prog) => prog.id === creature.id)
+            p?.progeny?.some((prog) => prog?.id === creature.id)
         );
     }, [allEnrichedPairs, creature.id, isAdminView]);
 
@@ -101,7 +108,7 @@ export function CreatureCard({
         setIsPinning(true);
         const newPinState = !isPinned;
         try {
-            const response = await fetch(`/api/creatures/${creature!.id}/pin`, {
+            const response = await fetch(`/api/creatures/${creature.id}/pin`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPinned: newPinState }),
@@ -123,7 +130,7 @@ export function CreatureCard({
         if (
             !window.confirm(
                 `Are you sure you want to remove "${
-                    creature!.creatureName || creature!.code
+                    creature.creatureName || creature.code
                 }" from your collection? This cannot be undone.`
             )
         ) {
@@ -132,8 +139,8 @@ export function CreatureCard({
         setIsDeleting(true);
         try {
             const apiUrl = isAdminView
-                ? `/api/admin/creatures/${creature!.id}`
-                : `/api/creatures/${creature!.id}`;
+                ? `/api/admin/creatures/${creature.id}`
+                : `/api/creatures/${creature.id}`;
 
             const response = await fetch(apiUrl, {
                 method: 'DELETE',
@@ -173,23 +180,23 @@ export function CreatureCard({
                 {/* Creature Image */}
                 <div className="rounded-lg p-4 mb-4 flex justify-center">
                     <img
-                        src={creature!.imageUrl || '/placeholder.png'}
-                        alt={creature!.code + ', ' + creature!.species}
+                        src={creature.imageUrl || '/placeholder.png'}
+                        alt={creature.code + ', ' + creature.species}
                         className="w-35 h-35 object-scale-down"
                     />
                 </div>
                 <div className="flex-col text-sm h-30">
                     <div>
-                        <strong>Name:</strong> {creature!.creatureName}
+                        <strong>Name:</strong> {creature.creatureName}
                     </div>
                     <div>
-                        <strong>Code:</strong> {creature!.code}
+                        <strong>Code:</strong> {creature.code}
                     </div>
                     <div>
-                        <strong>Species:</strong> {creature!.species}
+                        <strong>Species:</strong> {creature.species}
                     </div>
                     <div>
-                        <strong>Gender:</strong> {creature!.gender}
+                        <strong>Gender:</strong> {creature.gender}
                     </div>
                     {!isAdminView && (
                         <div className="text-sm">
@@ -228,7 +235,7 @@ export function CreatureCard({
                                                                 )}
                                                                 alt={
                                                                     parentPair
-                                                                        .maleParent
+                                                                        .maleParent!
                                                                         .code
                                                                 }
                                                                 className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
@@ -240,7 +247,7 @@ export function CreatureCard({
                                                                 )}
                                                                 alt={
                                                                     parentPair
-                                                                        .femaleParent
+                                                                        .femaleParent!
                                                                         .code
                                                                 }
                                                                 className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
@@ -259,13 +266,13 @@ export function CreatureCard({
                                                                             M:
                                                                         </span>{' '}
                                                                         {parentPair
-                                                                            .maleParent
+                                                                            .maleParent!
                                                                             .creatureName ||
                                                                             'Unnamed'}{' '}
                                                                         (
                                                                         {
                                                                             parentPair
-                                                                                .maleParent
+                                                                                .maleParent!
                                                                                 .code
                                                                         }
                                                                         )
@@ -287,13 +294,13 @@ export function CreatureCard({
                                                                             F:
                                                                         </span>{' '}
                                                                         {parentPair
-                                                                            .femaleParent
+                                                                            .femaleParent!
                                                                             .creatureName ||
                                                                             'Unnamed'}{' '}
                                                                         (
                                                                         {
                                                                             parentPair
-                                                                                .femaleParent
+                                                                                .femaleParent!
                                                                                 .code
                                                                         }
                                                                         )
@@ -328,7 +335,7 @@ export function CreatureCard({
                                             allGoals={allGoals!}
                                             allPairs={allRawPairs!}
                                             allLogs={allLogs!}
-                                            isAdminView={isAdminView}
+                                            _isAdminView={isAdminView}
                                         />
                                     </DialogContent>
                                 </Dialog>
@@ -345,25 +352,29 @@ export function CreatureCard({
                     <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
                         <div className="text-sm space-y-1 ">
                             <div className="whitespace-pre-line pr-4">
-                                {creature!.geneData ? (
+                                {creature.geneData &&
+                                creature.geneData.length > 0 ? (
                                     <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
-                                        {creature!.geneData.map((gene) => (
-                                            <div key={gene!.category}>
-                                                <span className="font-bold text-pompaca-purple dark:text-purple-300">
-                                                    {gene!.category}:
-                                                </span>
-                                                <div className="pl-2">
-                                                    <div>
-                                                        Phenotype:{' '}
-                                                        {gene!.phenotype}
+                                        {creature.geneData.map(
+                                            (gene) =>
+                                                gene && (
+                                                    <div key={gene.category}>
+                                                        <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                                            {gene.category}:
+                                                        </span>
+                                                        <div className="pl-2">
+                                                            <div>
+                                                                Phenotype:{' '}
+                                                                {gene.phenotype}
+                                                            </div>
+                                                            <div>
+                                                                Genotype:{' '}
+                                                                {gene.genotype}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        Genotype:{' '}
-                                                        {gene!.genotype}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                                )
+                                        )}
                                     </div>
                                 ) : (
                                     <p>Unknown</p>

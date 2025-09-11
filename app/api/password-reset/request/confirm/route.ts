@@ -2,7 +2,7 @@ import { db } from "@/src/db";
 import { users, passwordResetTokens } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { hash, compare } from "bcryptjs";
+import { hash, compare } from "bcrypt-ts";
 import { z } from "zod";
 
 const confirmSchema = z.object({

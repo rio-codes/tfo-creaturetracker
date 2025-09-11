@@ -23,10 +23,7 @@ export const enrichAndSerializeCreature = (
                 .map((genePair) => {
                     const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
-                    const categoryData = speciesGeneData[category] as {
-                        genotype: string;
-                        phenotype: string;
-                    }[];
+                    const categoryData = speciesGeneData[category];
                     const matchedGene = categoryData?.find(
                         (g) => g.genotype === genotype
                     );

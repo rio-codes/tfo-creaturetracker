@@ -50,7 +50,7 @@ export function CollectionClient({
     const { replace } = useRouter();
 
     const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
-    const handleOpenSyncDialog = (creature) => {
+    const handleOpenSyncDialog = () => {
         setIsSyncDialogOpen(true);
     };
     const handleCloseDialog = () => {
@@ -59,7 +59,7 @@ export function CollectionClient({
 
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
-            var params = new URLSearchParams();
+            let params = new URLSearchParams();
             if (filterName == 'male' || filterName == 'female') {
                 params = new URLSearchParams('genders');
             } else {
@@ -88,7 +88,7 @@ export function CollectionClient({
                     Collection
                 </h1>
                 <Button
-                    onClick={() => handleOpenSyncDialog(null)}
+                    onClick={() => handleOpenSyncDialog()}
                     className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
                 >
                     + Add or Update Creatures

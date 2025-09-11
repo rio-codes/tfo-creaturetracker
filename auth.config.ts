@@ -3,8 +3,9 @@ import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import type { User as DbUser } from '@/types';
+import type { JWT } from 'next-auth/jwt';
 import { eq } from 'drizzle-orm';
-import { compare } from 'bcryptjs';
+import { compare } from 'bcrypt-ts';
 import * as Sentry from '@sentry/nextjs';
 
 export const authConfig = {
@@ -39,7 +40,8 @@ export const authConfig = {
                         user.password as string
                     );
                     if (isPasswordValid) {
-                        return user;
+                        const { password, ...userWithoutPassword } = user;
+                        return userWithoutPassword;
                     } else {
                         return null;
                     }
@@ -55,26 +57,21 @@ export const authConfig = {
     },
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user }: { token: JWT; user: any }) {
             if (user) {
-                // Add properties from your database user model to the token.
-                token.id = user.id;
-                token.username = user.username;
-                token.role = user.role;
-                token.theme = user.theme;
-                token.image = user.image;
+                return { ...token, ...user };
             }
 
-            if (trigger === 'update' && session) {
-                // When the session is updated, merge the new data into the token.
-                return { ...token, ...session };
+            // Handle impersonation
+            if (token.impersonator && !user) {
+                // If impersonating, ensure the token data is for the impersonated user
             }
-
+            // This token is then encrypted and stored in the user's cookie.
             return token;
         },
 
         // The session callback is called whenever a session is checked.
-        session({ session, token }) {
+        session({ session, token }: { session: any; token: any }): any {
             // The token object contains the data we stored in the `jwt` callback.
             if (token && session.user) {
                 session.user.id = token.id;

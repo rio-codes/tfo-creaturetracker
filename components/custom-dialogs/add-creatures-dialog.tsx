@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { alertService } from '@/services/alert.service';
+import * as Sentry from '@sentry/nextjs';
 
 type DialogProps = {
     isOpen: boolean;
@@ -44,6 +45,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 setUserTabs(tabs);
             }
         } catch (error) {
+            Sentry.captureException(error);
             console.error('Failed to fetch user tabs', error);
         } finally {
             setIsLoadingTabs(false);
@@ -100,6 +102,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             });
             router.refresh();
         } catch (error: any) {
+            Sentry.captureException(error);
+            console.error('Failed to sync creatures', error);
             setStatus('error');
             setMessage(error.message);
             alertService.error(error.message, {
@@ -132,6 +136,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             setNewTabName('');
             setStatus('idle');
         } catch (error: any) {
+            Sentry.captureException(error);
+            console.error('Failed to add tab', error);
             setStatus('error');
             setMessage(error.message);
         }
@@ -152,6 +158,9 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 body: JSON.stringify({ isSyncEnabled: !tab.isSyncEnabled }),
             });
         } catch (error) {
+            Sentry.captureException(error);
+            console.error('Failed to update sync status', error);
+            // Rollback optimistic update
             alertService.error('Failed to update sync status.', {
                 autoClose: true,
                 keepAfterRouteChange: true,

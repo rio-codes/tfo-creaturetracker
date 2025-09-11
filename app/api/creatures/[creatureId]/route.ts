@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures, breedingPairs, researchGoals } from '@/src/db/schema';
+import { creatures } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { logAdminAction } from '@/lib/audit';
-import {
-    enrichAndSerializeCreature,
-    enrichAndSerializeGoal,
-} from '@/lib/serialization';
-import { getAllBreedingPairsForUser } from '@/lib/data';
+import { enrichAndSerializeCreature } from '@/lib/serialization';
+import * as Sentry from '@sentry/nextjs';
 
 export async function GET(
     req: Request,
@@ -43,6 +39,7 @@ export async function GET(
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
         });
     } catch (error) {
+        Sentry.captureException(error);
         console.error('Failed to fetch creature details:', error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
@@ -101,6 +98,7 @@ export async function DELETE(
             { status: 200 }
         );
     } catch (error) {
+        Sentry.captureException(error);
         console.error('Failed to delete creature:', error);
         // Handle potential foreign key constraint errors if a creature is part of a pair
         if ((error as any).code === '23503') {

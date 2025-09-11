@@ -50,7 +50,7 @@ export function ManageBreedingPairsDialog({
                     allCreatures={allCreatures}
                     allPairs={allPairs}
                     allGoals={allGoals}
-                    onActionComplete={() => setIsOpen(false)}
+                    onActionCompleteAction={() => setIsOpen(false)}
                 />
             </DialogContent>
         </Dialog>

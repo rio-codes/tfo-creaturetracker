@@ -12,7 +12,7 @@ export function ThemeSyncer() {
     useEffect(() => {
         // Only sync if we have an authenticated session and haven't synced for this session yet.
         if (status === 'authenticated' && !hasSynced.current) {
-            // @ts-expect-error session will be typed correctly in a later update
+        
             const userTheme = session?.user?.theme;
             if (userTheme) {
                 setTheme(userTheme);
@@ -23,7 +23,7 @@ export function ThemeSyncer() {
         if (status === 'unauthenticated') {
             hasSynced.current = false;
         }
-        // @ts-expect-error session will be typed correctly in a later update
+    
     }, [status, session?.user?.theme, setTheme]);
 
     return null; // This component does not render anything.

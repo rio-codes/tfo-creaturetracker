@@ -72,7 +72,7 @@ export default async function AdminAuditLogPage(props: {
                 <Suspense fallback={<div>Loading audit logs...</div>}>
                     <AdminDataTable
                         columns={columns}
-                        data={logs}
+                        data={logs as any[]}
                         pagination={pagination}
                         searchPlaceholder="Filter by admin, action, or target..."
                     />

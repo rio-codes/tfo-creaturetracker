@@ -8,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import type { EnrichedResearchGoal } from '@/types/index';
 import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
-import { SpeciesAvatar } from '@/components/misc-custom-components/species-avatar';
 import { Badge } from '@/components/ui/badge';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 

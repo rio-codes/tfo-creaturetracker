@@ -1,74 +1,87 @@
-import { NextResponse } from "next/server";
-import { db } from "@/src/db";
-import { users, pendingRegistrations } from "@/src/db/schema";
-import { eq, or } from "drizzle-orm";
-import { hash } from "bcryptjs";
-import crypto from "crypto";
-import { z } from "zod";
+import { NextResponse } from 'next/server';
+import { db } from '@/src/db';
+import { users, pendingRegistrations } from '@/src/db/schema';
+import { eq, or } from 'drizzle-orm';
+import { hash } from 'bcrypt-ts';
+import crypto from 'crypto';
+import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 const startSchema = z.object({
     email: z.email(),
     password: z
         .string()
         .min(12, {
-            message: "Password must be at least 12 characters long",
+            message: 'Password must be at least 12 characters long',
         })
         .regex(/[a-zA-Z]/, {
-            message: "Password must contain at least one letter.",
+            message: 'Password must contain at least one letter.',
         })
         .regex(/[0-9]/, {
-            message: "Password must contain at least one number.",
+            message: 'Password must contain at least one number.',
         })
         .regex(/[^a-zA-Z0-9]/, {
-            message: "Password must contain at least one special character.",
+            message: 'Password must contain at least one special character.',
         })
         .trim(),
     tfoUsername: z
         .string()
-        .min(3, "TFO Username must be at least 3 characters."),
-    tabId: z
-        .int("Tab ID must be a whole number.")
+        .min(3, 'TFO Username must be at least 3 characters.'),
+    tabId: z.int('Tab ID must be a whole number.'),
 });
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        console.log("Received ", body)
+        console.log('Received ', body);
         const validated = startSchema.safeParse(body);
 
         if (!validated.success) {
-            const fieldErrors = z.flattenError(validated.error).fieldErrors;
+            const fieldErrors = validated.error.flatten().fieldErrors;
             const allErrorArrays = Object.values(fieldErrors);
             const allErrors = allErrorArrays.flat();
-            const errorString = allErrors.join("\n");
-            console.error("Zod Validation Failed:", errorString);
-            return NextResponse.json(
-                { error: errorString }, 
-                { status: 400 }
-            );
+            const errorString = allErrors.join('\n');
+            console.error('Zod Validation Failed:', errorString);
+            return NextResponse.json({ error: errorString }, { status: 400 });
         }
 
         const { email, password, tfoUsername, tabId } = validated.data;
 
-        if (tfoUsername != "lyricism") {
+        if (tfoUsername != 'lyricism') {
             const existingUser = await db.query.users.findFirst({
-                where: or(eq(users.email, email), eq(users.username, tfoUsername)),
+                where: or(
+                    eq(users.email, email),
+                    eq(users.username, tfoUsername)
+                ),
             });
             if (existingUser) {
                 return NextResponse.json(
                     {
-                        error: "An account with that email or TFO username already exists.",
+                        error: 'An account with that email or TFO username already exists.',
                     },
                     { status: 409 }
                 );
             }
         }
 
+        if (!process.env.TFO_API_KEY) {
+            const errorMessage =
+                'Server configuration error: TFO_API_KEY is not set.';
+            Sentry.captureException(new Error(errorMessage));
+            console.error(errorMessage);
+            return NextResponse.json(
+                {
+                    error: 'An internal error occurred. Cannot verify registration.',
+                },
+                { status: 500 }
+            );
+        }
+
         const labCheckUrl = `https://finaloutpost.net/api/v1/lab/${tfoUsername}`;
         const labResponse = await fetch(labCheckUrl, {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apiKey: process.env.TFO_API_KEY,
             },
         });
@@ -77,7 +90,7 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 {
                     error: `Could not find a TFO account for username: '${tfoUsername}'. Please check the spelling.`,
-                    errorCode: "NO_ACCOUNT_FOUND"
+                    errorCode: 'NO_ACCOUNT_FOUND',
                 },
                 { status: 404 }
             );
@@ -85,10 +98,10 @@ export async function POST(req: Request) {
 
         const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/0/${tfoUsername}`; // Assuming tab 0
         const response = await fetch(tfoApiUrl, {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
-                "apiKey": process.env.TFO_API_KEY,
+                'Content-Type': 'application/json',
+                apiKey: process.env.TFO_API_KEY,
             },
         });
         const tfoData = await response.json();
@@ -100,7 +113,7 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 {
                     error: `We found your TFO account, but Tab ${tabId} is either empty, hidden, or does not exist. Please provide a different public Tab ID.`,
-                    errorCode: "EMPTY_OR_HIDDEN_TAB",
+                    errorCode: 'EMPTY_OR_HIDDEN_TAB',
                 },
                 { status: 404 }
             );
@@ -113,7 +126,7 @@ export async function POST(req: Request) {
         const creatureCode = randomCreature.code;
         const verificationToken = `verify-${crypto
             .randomBytes(4)
-            .toString("hex")}`;
+            .toString('hex')}`;
         const expiresAt = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minute expiry
 
         const hashedPassword = await hash(password, 12);
@@ -141,9 +154,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error("Registration start failed:", error);
+        console.error('Registration start failed:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

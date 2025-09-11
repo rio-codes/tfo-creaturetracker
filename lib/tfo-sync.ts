@@ -33,12 +33,10 @@ async function fetchCreaturesFromTfo(
     tabId: number
 ): Promise<TfoCreature[]> {
     const url = `https://finaloutpost.net/api/v1/tab/${tabId}/${tfoUsername}`;
+    const apiKey = process.env.TFO_API_KEY;
     const response = await fetch(url, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            apiKey: process.env.TFO_API_KEY,
-        },
+        headers: { 'Content-Type': 'application/json', apiKey: `${apiKey}` },
     });
     if (!response.ok) {
         throw new Error(
@@ -85,7 +83,7 @@ export async function syncTfoTab(
     let added = 0;
     let updated = 0;
 
-    var imageUrl = '';
+    let imageUrl = '';
 
     for (const tfoCreature of tfoCreatures) {
         const existingCreature = existingCreatureMap.get(tfoCreature.code);

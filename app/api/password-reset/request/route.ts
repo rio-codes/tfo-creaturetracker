@@ -3,7 +3,7 @@ import { users, passwordResetTokens } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { hash } from "bcryptjs";
+import { hash } from "bcrypt-ts";
 import { sendPasswordResetEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {

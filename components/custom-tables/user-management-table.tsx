@@ -17,15 +17,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
 
-export function UserManagementTable({ initialUsers }) {
+export function UserManagementTable({ initialUsers }: { initialUsers: any[] }) {
     const router = useRouter();
-    const [users, setUsers] = useState(initialUsers);
+    const [users, _setUsers] = useState(initialUsers);
     const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
-    const handleRoleChange = async (userId, newRole) => {
+    const handleRoleChange = async (userId: any, newRole: string) => {
         setIsLoading((prev) => ({ ...prev, [userId]: true }));
         try {
             const res = await fetch(`/api/admin/users/${userId}/role`, {
@@ -43,7 +41,7 @@ export function UserManagementTable({ initialUsers }) {
         }
     };
 
-    const handleStatusChange = async (userId, newStatus) => {
+    const handleStatusChange = async (userId: any, newStatus: string) => {
         setIsLoading((prev) => ({ ...prev, [userId]: true }));
         try {
             const res = await fetch(`/api/admin/users/${userId}/status`, {

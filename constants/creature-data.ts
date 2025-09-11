@@ -1,3 +1,18 @@
+type Gene = {
+    genotype: string;
+    phenotype: string;
+};
+
+type GeneCategory = Gene[];
+
+type SpeciesGeneData = {
+    [category: string]: GeneCategory;
+};
+
+export type AllSpeciesGeneData = {
+    [species: string]: SpeciesGeneData;
+};
+
 export const speciesList = [
     'Abomena Pahidermo',
     'Alta Koltuko',
@@ -4411,7 +4426,7 @@ export const speciesGenes = {
     },
 };
 
-export const structuredGeneData = {
+export const structuredGeneData: AllSpeciesGeneData = {
     'Abomena Pahidermo': {
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },

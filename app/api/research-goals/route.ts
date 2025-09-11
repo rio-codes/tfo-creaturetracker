@@ -53,7 +53,7 @@ export function validateGoalData(
             );
         }
         // ensure genotype exists for category
-        const isValidGenotype = (categoryData as { genotype: string }[]).some(
+        const isValidGenotype = categoryData.some(
             (gene) => gene.genotype === selectedGenotype
         );
         // error if genotype is not valid
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
             Sentry.logger.warn('Zod validation failed for new goal');
-            const errorMessage = z.flattenError(validatedFields.error);
+            const errorMessage = validatedFields.error.flatten().fieldErrors;
             console.log(errorMessage);
             return NextResponse.json(
                 {

@@ -1,10 +1,6 @@
 import { fetchFilteredResearchGoals } from '@/lib/data';
-import { users } from '@/src/db/schema';
 import { ResearchGoalClient } from '@/components/custom-clients/research-goal-client';
 import { Suspense } from 'react';
-import { db } from '@/src/db';
-import { auth } from '@/auth';
-import { eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +12,6 @@ export default async function ResearchGoalsPage(props: {
     }>;
 }) {
     const searchParams = await props.searchParams;
-    const session = await auth();
-    const userId = session?.user?.id;
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-    });
-
     const { goals, totalPages } =
         await fetchFilteredResearchGoals(searchParams);
 

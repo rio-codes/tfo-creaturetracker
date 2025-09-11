@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import * as Sentry from "@sentry/nextjs";
+} from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
+import * as Sentry from '@sentry/nextjs';
 
 type Step =
-    | "details"
-    | "provideTab"
-    | "challenge"
-    | "success"
-    | "error"
-    | "imageLoading"
-    | "imageError";
+    | 'details'
+    | 'provideTab'
+    | 'challenge'
+    | 'success'
+    | 'error'
+    | 'imageLoading'
+    | 'imageError';
 type Challenge = {
     creatureCode: string;
     verificationToken: string;
@@ -30,32 +30,32 @@ type Challenge = {
 
 export default function RegistrationFlow() {
     const router = useRouter();
-    const [step, setStep] = useState<Step>("details");
+    const [step, setStep] = useState<Step>('details');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [tfoUsername, setTfoUsername] = useState("");
-    const [tabId, setTabId] = useState("0");
+    const [error, setError] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [tfoUsername, setTfoUsername] = useState('');
+    const [tabId, setTabId] = useState('0');
     const [challenge, setChallenge] = useState<Challenge | null>(null);
     const [creatureImageUrl, setCreatureImageUrl] = useState<string | null>(
         null
     );
-    const [isImageLoading, setIsImageLoading] = useState(false);
-    const [feedbackMessage, setFeedbackMessage] = useState("");
+    const [_isImageLoading, setIsImageLoading] = useState(false);
+    const [feedbackMessage, _setFeedbackMessage] = useState('');
 
     useEffect(() => {
-        if (step === "challenge" && challenge?.creatureCode) {
+        if (step === 'challenge' && challenge?.creatureCode) {
             setIsImageLoading(true);
-            setError("");
+            setError('');
             const fetchImage = async () => {
                 try {
                     // It now calls OUR OWN backend proxy route
                     const response = await fetch(
-                        "/api/verification/creature-details",
+                        '/api/verification/creature-details',
                         {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 creatureCode: challenge.creatureCode,
                             }),
@@ -66,7 +66,7 @@ export default function RegistrationFlow() {
                     setCreatureImageUrl(data.imageUrl);
                 } catch (err: any) {
                     Sentry.captureException(err);
-                    setError("Failed to load creature image.");
+                    setError('Failed to load creature image.');
                 } finally {
                     setIsImageLoading(false);
                 }
@@ -79,11 +79,11 @@ export default function RegistrationFlow() {
     const handleStart = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
-            const res = await fetch("/api/register/start", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const res = await fetch('/api/register/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
                     password,
@@ -97,22 +97,22 @@ export default function RegistrationFlow() {
             // validation errors
             if (!res.ok) {
                 // special error cases
-                if (data.errorCode === "EMPTY_OR_HIDDEN_TAB") {
+                if (data.errorCode === 'EMPTY_OR_HIDDEN_TAB') {
                     setError(
                         `Your default tab did not contain creatures, please provide a different tab ID. Enter the Tab ID from your TFO tab's URL. For example, if the URL is ".../tab/username/tab_name/12345/1/...", your Tab ID is 12345.`
                     );
-                    alert("Your default tab did not contain creatures");
-                    setStep("provideTab");
-                } else if (data.errorCode === "NO_ACCOUNT_FOUND") {
-                    setError("No TFO account was located with that username");
-                    alert("No TFO account was located with that username");
+                    alert('Your default tab did not contain creatures');
+                    setStep('provideTab');
+                } else if (data.errorCode === 'NO_ACCOUNT_FOUND') {
+                    setError('No TFO account was located with that username');
+                    alert('No TFO account was located with that username');
                 }
 
                 setError(data.error);
             } else {
                 setChallenge(data);
                 setCreatureImageUrl(null);
-                setStep("challenge");
+                setStep('challenge');
             }
         } catch (err: any) {
             setError(err);
@@ -123,20 +123,20 @@ export default function RegistrationFlow() {
 
     const handleComplete = async () => {
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
-            const res = await fetch("/api/register/complete", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const res = await fetch('/api/register/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
 
-            setError("");
-            setStep("success");
-            setTimeout(() => router.push("/login"), 3000);
+            setError('');
+            setStep('success');
+            setTimeout(() => router.push('/login'), 3000);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -149,12 +149,12 @@ export default function RegistrationFlow() {
             <CardHeader>
                 <CardTitle>Create Your Account</CardTitle>
                 <CardDescription>
-                    {step === "details" && "Enter your details"}
-                    {step === "provideTab" && "Enter a tab ID"}
-                    {(step === "challenge" ||
-                        step === "imageLoading" ||
-                        step === "imageError") &&
-                        "Verify ownership of your TFO account"}
+                    {step === 'details' && 'Enter your details'}
+                    {step === 'provideTab' && 'Enter a tab ID'}
+                    {(step === 'challenge' ||
+                        step === 'imageLoading' ||
+                        step === 'imageError') &&
+                        'Verify ownership of your TFO account'}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -162,9 +162,9 @@ export default function RegistrationFlow() {
                     <p className="text-red-500 text-center mb-4">{error}</p>
                 )}
 
-                {(step === "details" || step === "provideTab") && (
+                {(step === 'details' || step === 'provideTab') && (
                     <form onSubmit={handleStart} className="space-y-4">
-                        {step === "details" ? (
+                        {step === 'details' ? (
                             <>
                                 <Input
                                     type="email"
@@ -199,7 +199,7 @@ export default function RegistrationFlow() {
                                         Note: Your password must be at least 12
                                         characters long and contain at least one
                                         letter, one number, and one special
-                                        character (e.g. !@#$%^&*){" "}
+                                        character (e.g. !@#$%^&*){' '}
                                     </p>
                                 </div>
                             </>
@@ -218,27 +218,28 @@ export default function RegistrationFlow() {
                         )}
 
                         <Button
-                            type="submit" className="w-full bg-pompaca-purple text-barely-lilac"
+                            type="submit"
+                            className="w-full bg-pompaca-purple text-barely-lilac"
                             disabled={isLoading}
                         >
                             {isLoading
-                                ? "Checking..."
-                                : "Continue to Verification"}
+                                ? 'Checking...'
+                                : 'Continue to Verification'}
                         </Button>
                     </form>
                 )}
 
-                {(step === "challenge" ||
-                    step === "imageLoading" ||
-                    step === "imageError") &&
+                {(step === 'challenge' ||
+                    step === 'imageLoading' ||
+                    step === 'imageError') &&
                     challenge && (
                         <div className="text-center space-y-4">
-                            {step === "imageLoading" && (
+                            {step === 'imageLoading' && (
                                 <Loader2 className="animate-spin mx-auto" />
                             )}
                             <p>
                                 Please go to The Final Outpost and rename this
-                                creature:{" "}
+                                creature:{' '}
                                 {creatureImageUrl && (
                                     <a
                                         href={`https://finaloutpost.net/view/${challenge.creatureCode}`}
@@ -253,13 +254,13 @@ export default function RegistrationFlow() {
                                         />
                                     </a>
                                 )}
-                                {step === "imageError" && (
+                                {step === 'imageError' && (
                                     <p className="text-yellow-500">
                                         Failed to load creature image. You can
                                         still proceed with the text instructions
                                         below.
                                     </p>
-                                )}{" "}
+                                )}{' '}
                                 with the code:
                             </p>
                             <div className="bg-ebena-lavender p-2 rounded font-mono text-lg">
@@ -279,7 +280,11 @@ export default function RegistrationFlow() {
                                 name back to what it was before or un-name it if
                                 you want.)
                             </p>
-                            <Button onClick={handleComplete} disabled={isLoading} className="bg-pompaca-purple text-barely-lilac">
+                            <Button
+                                onClick={handleComplete}
+                                disabled={isLoading}
+                                className="bg-pompaca-purple text-barely-lilac"
+                            >
                                 {isLoading ? (
                                     <Loader2 className="animate-spin mr-2" />
                                 ) : null}
@@ -288,13 +293,13 @@ export default function RegistrationFlow() {
                         </div>
                     )}
 
-                {step === "success" && (
+                {step === 'success' && (
                     <div className="text-center text-green-600 font-bold">
                         {feedbackMessage}
                     </div>
                 )}
 
-                {(step === "challenge" || step === "error") &&
+                {(step === 'challenge' || step === 'error') &&
                     feedbackMessage && (
                         <div className="text-center text-red-500 mt-4">
                             {feedbackMessage}

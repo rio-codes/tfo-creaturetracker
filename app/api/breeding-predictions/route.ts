@@ -9,11 +9,24 @@ import { structuredGeneData } from '@/constants/creature-data';
 import * as Sentry from '@sentry/nextjs';
 import type { DbCreature, EnrichedCreature } from '@/types';
 
+// Define robust types for gene data to avoid using `any`
+interface GeneInfo {
+    genotype: string;
+    phenotype: string;
+}
+
+type GeneCategory = GeneInfo[];
+
+interface SpeciesGeneData {
+    [category: string]: GeneCategory;
+}
+
 // Helper function to enrich and serialize a single creature.
 // For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.
-const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
-    if (!creature) return null;
-    const speciesGeneData = structuredGeneData[creature.species || ''];
+const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | null => {
+    if (!creature || !creature.species) return null;
+    const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[creature.species];
+
     return {
         ...creature,
         createdAt: creature.createdAt.toISOString(),
@@ -25,20 +38,13 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature => {
                 .map((genePair) => {
                     const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
-                    const categoryData = speciesGeneData[category] as {
-                        genotype: string;
-                        phenotype: string;
-                    }[];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === genotype
-                    );
-                    return {
-                        category,
-                        genotype,
-                        phenotype: matchedGene?.phenotype || 'Unknown',
-                    };
+                    const categoryData = speciesGeneData[category];
+                    if (!categoryData) return null;
+
+                    const matchedGene = categoryData.find((g) => g.genotype === genotype);
+                    return { category, genotype, phenotype: matchedGene?.phenotype || 'Unknown' };
                 })
-                .filter(Boolean) || [],
+                .filter((g): g is { category: string; genotype: string; phenotype: string } => g !== null) || [],
     };
 };
 
@@ -105,10 +111,16 @@ export async function POST(req: Request) {
         const maleParent = enrichAndSerializeCreature(maleParentRaw);
         const femaleParent = enrichAndSerializeCreature(femaleParentRaw);
 
-        // The existing goal enrichment logic is correct
+        if (!maleParent || !femaleParent) {
+            return NextResponse.json(
+                { error: 'Could not process parent creatures. They may be missing species information.' },
+                { status: 404 }
+            );
+        }
+
         const enrichedGoals = goals.map((goal) => {
             const enrichedGenes: { [key: string]: any } = {};
-            const speciesGeneData = structuredGeneData[goal.species];
+            const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[goal.species];
             if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
 
             for (const [category, selection] of Object.entries(goal.genes)) {
@@ -124,20 +136,13 @@ export async function POST(req: Request) {
                     finalPhenotype = selection.phenotype;
                 } else if (typeof selection === 'string') {
                     finalGenotype = selection;
-                    const categoryData = speciesGeneData[category] as {
-                        genotype: string;
-                        phenotype: string;
-                    }[];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === finalGenotype
-                    );
+                    const categoryData = speciesGeneData[category];
+                    const matchedGene = categoryData?.find((g) => g.genotype === finalGenotype);
                     finalPhenotype = matchedGene?.phenotype || 'Unknown';
                 } else continue;
 
                 if (goal.goalMode === 'phenotype') {
-                    const categoryData = speciesGeneData[category] as {
-                        phenotype: string;
-                    }[];
+                    const categoryData = speciesGeneData[category];
                     const genotypesForPhenotype = categoryData?.filter(
                         (g) => g.phenotype === finalPhenotype
                     );
@@ -148,7 +153,7 @@ export async function POST(req: Request) {
                     genotype: finalGenotype,
                     phenotype: finalPhenotype,
                     isMultiGenotype: isMulti,
-                    isOptional: selection.isOptional ?? false,
+                    isOptional: (selection as any).isOptional ?? false,
                 };
             }
             return { ...goal, genes: enrichedGenes };

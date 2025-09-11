@@ -1,5 +1,4 @@
 import { relations } from 'drizzle-orm';
-import type { AdapterAccount } from '@auth/core/adapters';
 import {
     pgTable,
     text,
@@ -14,6 +13,7 @@ import {
     index,
     uuid,
 } from 'drizzle-orm/pg-core';
+import type { AdapterAccount } from 'next-auth/adapters';
 
 export const auditLog = pgTable('audit_log', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -60,7 +60,7 @@ export const accounts = pgTable(
     'account',
     {
         userId: text('userId')
-            .notNull()
+            .notNull() // .notNull() is redundant here as primaryKey implies it.
             .references(() => users.id, { onDelete: 'cascade' }),
         type: text('type').$type<AdapterAccount['type']>().notNull(),
         provider: text('provider').notNull(),

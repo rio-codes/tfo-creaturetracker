@@ -19,12 +19,12 @@ import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog';
 import { speciesList } from '@/constants/creature-data';
 
 type ResearchGoalClientProps = {
-    goals: EnrichedResearchGoal[];
+    initialGoals: EnrichedResearchGoal[];
     totalPages: number;
 };
 
 export function ResearchGoalClient({
-    goals: initialGoals,
+    initialGoals: initialGoals,
     totalPages,
 }: ResearchGoalClientProps) {
     const searchParams = useSearchParams();

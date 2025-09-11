@@ -41,7 +41,8 @@ export const enrichAndSerializeBreedingPair = (
     const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
     const serializedLogs = relevantLogs.map((log) => ({
         ...log,
-        createdAt: log.createdAt.toISOString(),
+        createdAt: log.createdAt.toISOString(), // Log entries don't have an updatedAt, but SerializedBreedingLogEntry requires it.
+        updatedAt: log.createdAt.toISOString(),
     }));
 
     const progenyCount = progeny.length;

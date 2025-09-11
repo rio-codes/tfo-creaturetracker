@@ -41,7 +41,9 @@ export async function getGoalById(
 
         const finalGoal = {
             ...enrichedGoal,
-            user: goalData.user ? { username: goalData.user.username } : null,
+            user: (goalData as any).user
+                ? { username: (goalData as any).user.username }
+                : null,
         };
 
         return finalGoal as EnrichedResearchGoal;
@@ -130,6 +132,8 @@ export async function getPredictionsForGoal(
                     chancesByCategory,
                     averageChance,
                     isPossible,
+                    goalId: goal.id,
+                    goalName: goal.name,
                 };
             });
 
@@ -195,7 +199,7 @@ export async function getAssignedPairsForGoal(
             return pairs.map((p) => ({
                 ...p,
                 progeny: [],
-            })) as EnrichedBreedingPair[];
+            })) as unknown as EnrichedBreedingPair[];
         }
 
         // 4. Fetch and enrich all progeny creatures
@@ -212,10 +216,13 @@ export async function getAssignedPairsForGoal(
                 logEntries.some(
                     (log) =>
                         log.pairId === pair.id &&
-                        (log.progeny1Id === p.id || log.progeny2Id === p.id)
+                        (log.progeny1Id === p?.id || log.progeny2Id === p?.id)
                 )
             );
-            return { ...pair, progeny: progenyForPair } as EnrichedBreedingPair;
+            return {
+                ...pair,
+                progeny: progenyForPair,
+            } as unknown as EnrichedBreedingPair;
         });
     } catch (error) {
         Sentry.captureException(error, {

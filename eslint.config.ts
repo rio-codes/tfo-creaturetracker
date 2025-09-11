@@ -16,6 +16,7 @@ export default tseslint.config(
             'instrumentation.ts',
             'instrumentation-client.ts',
             'next-env.d.ts',
+            'next.config.mjs',
         ],
     },
     ...tseslint.configs.recommended,
@@ -24,18 +25,10 @@ export default tseslint.config(
         plugins: {
             '@next/next': nextPlugin,
         },
+        ...nextPlugin.configs.recommended.rules,
+        ...nextPlugin.configs['core-web-vitals'].rules,
         rules: {
-            ...nextPlugin.configs.recommended.rules,
-            ...nextPlugin.configs['core-web-vitals'].rules,
             '@typescript-eslint/no-explicit-any': 'off',
-            '@next/next/no-html-link-for-pages': 'off',
-            '@next/next/no-img-element': 'off',
-            '@next/next/no-page-custom-font': 'off',
-            '@next/next/no-page-files': 'off',
-            '@next/next/no-server-import-in-page': 'off',
-            '@next/next/no-title-in-document-head': 'off',
-            '@next/next/no-typos': 'off',
-            '@next/next/no-duplicate-head': 'off',
             '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',

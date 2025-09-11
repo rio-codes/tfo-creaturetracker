@@ -67,17 +67,17 @@ export function EditBreedingPairForm({
     const [isHybridMode, setIsHybridMode] = useState(false);
 
     const { selectedMale, selectedFemale } = useMemo(() => {
-        const male = allCreatures.find((c) => c.id === selectedMaleId);
-        const female = allCreatures.find((c) => c.id === selectedFemaleId);
+        const male = allCreatures.find((c) => c?.id === selectedMaleId);
+        const female = allCreatures.find((c) => c?.id === selectedFemaleId);
         return { selectedMale: male, selectedFemale: female };
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     const { availableMales, availableFemales } = useMemo(() => {
         let males = allCreatures.filter(
-            (c) => c.gender === 'male' && c.growthLevel === 3
+            (c) => c?.gender === 'male' && c.growthLevel === 3
         );
         let females = allCreatures.filter(
-            (c) => c.gender === 'female' && c.growthLevel === 3
+            (c) => c?.gender === 'female' && c.growthLevel === 3
         );
 
         if (editingWhichParent === 'male' && selectedFemale) {
@@ -85,34 +85,34 @@ export function EditBreedingPairForm({
                 males = males.filter(
                     (male) =>
                         validatePairing(male, selectedFemale).isValid ||
-                        male.id === selectedMaleId
+                        male?.id === selectedMaleId
                 );
             } else {
                 males = males.filter(
                     (male) =>
-                        male.species === selectedFemale.species ||
-                        male.id === selectedMaleId
+                        male?.species === selectedFemale.species ||
+                        male?.id === selectedMaleId
                 );
             }
-            females = females.filter((f) => f.id === selectedFemaleId);
+            females = females.filter((f) => f?.id === selectedFemaleId);
         } else if (editingWhichParent === 'female' && selectedMale) {
             if (isHybridMode) {
                 females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
-                        female.id === selectedFemaleId
+                        female?.id === selectedFemaleId
                 );
             } else {
                 females = females.filter(
                     (female) =>
-                        female.species === selectedMale.species ||
-                        female.id === selectedFemaleId
+                        female?.species === selectedMale.species ||
+                        female?.id === selectedFemaleId
                 );
             }
-            males = males.filter((m) => m.id === selectedMaleId);
+            males = males.filter((m) => m?.id === selectedMaleId);
         } else if (editingWhichParent === 'none') {
-            males = males.filter((m) => m.id === selectedMaleId);
-            females = females.filter((f) => f.id === selectedFemaleId);
+            males = males.filter((m) => m?.id === selectedMaleId);
+            females = females.filter((f) => f?.id === selectedFemaleId);
         }
 
         return {
@@ -132,13 +132,13 @@ export function EditBreedingPairForm({
     const assignableGoals = useMemo(() => {
         const male = allCreatures.find((c) => c?.id === selectedMaleId);
         const female = allCreatures.find((c) => c?.id === selectedFemaleId);
-        if (!male || !female) return [];
+        if (!male?.species || !female?.species) return [];
         const possibleOffspring = getPossibleOffspringSpecies(
-            male.species!,
-            female.species!
+            male.species,
+            female.species
         );
         return allGoals.filter(
-            (g) => g && possibleOffspring.includes(g.species!)
+            (g) => g?.species && possibleOffspring.includes(g.species)
         );
     }, [selectedMaleId, selectedFemaleId, allCreatures, allGoals]);
 
@@ -166,8 +166,8 @@ export function EditBreedingPairForm({
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        const newMale = allCreatures.find((c) => c.id === selectedMaleId);
-        const newFemale = allCreatures.find((c) => c.id === selectedFemaleId);
+        const newMale = allCreatures.find((c) => c?.id === selectedMaleId);
+        const newFemale = allCreatures.find((c) => c?.id === selectedFemaleId);
 
         if (!newMale || !newFemale) {
             setError('Could not find selected parents.');
@@ -175,9 +175,14 @@ export function EditBreedingPairForm({
             return;
         }
 
+        if (!newMale.species || !newFemale.species) {
+            setError('Selected parents have missing species data.');
+            setIsLoading(false);
+            return;
+        }
         const possibleOffspring = getPossibleOffspringSpecies(
-            newMale.species!,
-            newFemale.species!
+            newMale.species,
+            newFemale.species
         );
         const species =
             possibleOffspring.length === 1
@@ -308,7 +313,7 @@ export function EditBreedingPairForm({
                     {availableMales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c.species}
+                            {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -326,7 +331,7 @@ export function EditBreedingPairForm({
                     {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c.species}
+                            {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -338,31 +343,31 @@ export function EditBreedingPairForm({
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
                         {assignableGoals.map((goal) => (
                             <div
-                                key={goal?.id}
+                                key={goal.id}
                                 className="flex items-center space-x-2"
                             >
                                 <Checkbox
-                                    id={`edit-${goal?.id}`}
-                                    checked={selectedGoalIds.includes(goal!.id)}
+                                    id={`edit-${goal.id}`}
+                                    checked={selectedGoalIds.includes(goal.id)}
                                     onCheckedChange={(checked) => {
                                         if (checked)
                                             setSelectedGoalIds((prev) => [
                                                 ...prev,
-                                                goal!.id,
+                                                goal.id,
                                             ]);
                                         else
                                             setSelectedGoalIds((prev) =>
                                                 prev.filter(
-                                                    (id) => id !== goal?.id
+                                                    (id) => id !== goal.id
                                                 )
                                             );
                                     }}
                                 />
                                 <Label
-                                    htmlFor={`edit-${goal?.id}`}
+                                    htmlFor={`edit-${goal.id}`}
                                     className="font-normal"
                                 >
-                                    {goal?.name}
+                                    {goal.name}
                                 </Label>
                             </div>
                         ))}

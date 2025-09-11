@@ -64,7 +64,13 @@ export function EditLogDialog({
     }, [open, log]);
 
     const possibleProgeny = useMemo(() => {
-        if (!pair.maleParent || !pair.femaleParent) return [];
+        if (
+            !pair.maleParent ||
+            !pair.femaleParent ||
+            !pair.maleParent.species ||
+            !pair.femaleParent.species
+        )
+            return [];
         const possibleSpecies = getPossibleOffspringSpecies(
             pair.maleParent.species,
             pair.femaleParent.species
@@ -79,7 +85,7 @@ export function EditLogDialog({
 
         return allCreatures.filter(
             (c) =>
-                c.species &&
+                c?.species &&
                 possibleSpecies.includes(c.species) &&
                 !assignedCreatureIds.has(c.id)
         );
@@ -133,10 +139,10 @@ export function EditLogDialog({
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac">
                     <SelectItem value="none">None</SelectItem>
                     {possibleProgeny
-                        .filter((c) => c.id !== otherSelectedId)
+                        .filter((c) => c?.id !== otherSelectedId)
                         .map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                                {c.creatureName || 'Unnamed'} ({c.code})
+                            <SelectItem key={c?.id} value={c!.id}>
+                                {c?.creatureName || 'Unnamed'} ({c?.code})
                             </SelectItem>
                         ))}
                 </SelectContent>

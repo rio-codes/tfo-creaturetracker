@@ -79,16 +79,16 @@ export function BreedingPairForm({
 
     const { suitableMales, suitableFemales } = useMemo(() => {
         const males = allCreatures.filter(
-            (c) => c.gender === 'male' && c.growthLevel === 3
+            (c) => c?.gender === 'male' && c.growthLevel === 3
         );
         const females = allCreatures.filter(
-            (c) => c.gender === 'female' && c.growthLevel === 3
+            (c) => c?.gender === 'female' && c.growthLevel === 3
         );
         return { suitableMales: males, suitableFemales: females };
     }, [allCreatures]);
 
     const relevantGoals = useMemo(() => {
-        const male = allCreatures.find((c) => c.id === selectedMaleId);
+        const male = allCreatures.find((c) => c?.id === selectedMaleId);
         if (!male) return [];
         return allGoals.filter((g) => g.species === male.species);
     }, [allGoals, allCreatures, selectedMaleId]);
@@ -133,10 +133,10 @@ export function BreedingPairForm({
                                         <ScrollArea className="h-60">
                                             {suitableMales.map((c) => (
                                                 <SelectItem
-                                                    key={c.id}
-                                                    value={c.id}
+                                                    key={c?.id}
+                                                    value={c!.id}
                                                 >
-                                                    {c.creatureName || c.code}
+                                                    {c?.creatureName || c?.code}
                                                 </SelectItem>
                                             ))}
                                         </ScrollArea>
@@ -165,10 +165,10 @@ export function BreedingPairForm({
                                         <ScrollArea className="h-60">
                                             {suitableFemales.map((c) => (
                                                 <SelectItem
-                                                    key={c.id}
-                                                    value={c.id}
+                                                    key={c?.id}
+                                                    value={c!.id}
                                                 >
-                                                    {c.creatureName || c.code}
+                                                    {c?.creatureName || c?.code}
                                                 </SelectItem>
                                             ))}
                                         </ScrollArea>

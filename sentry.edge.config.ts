@@ -3,14 +3,14 @@
 // Note that this config is unrelated to the Vercel Edge Runtime and is also required when running locally.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
-    authToken: process.env.SENTRY_AUTH_TOKEN,
+    // authToken: process.env.SENTRY_AUTH_TOKEN,
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     tracesSampleRate: 1,
     integrations: [
-        Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+        Sentry.consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
     ],
     enableLogs: true,
     debug: false,

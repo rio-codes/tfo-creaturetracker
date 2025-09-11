@@ -88,7 +88,7 @@ export function CollectionClient({
                     Collection
                 </h1>
                 <Button
-                    onClick={() => handleOpenSyncDialog(null)}
+                    onClick={() => handleOpenSyncDialog()}
                     className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
                 >
                     + Add or Update Creatures

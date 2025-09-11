@@ -14,6 +14,8 @@ import {
     getAssignedPairsForGoal,
 } from '@/lib/api/goals';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
+import Image from 'next/image';
+import { EnrichedCreature } from '@/types';
 
 type Props = {
     params: Promise<{ goalId: string }>;
@@ -72,7 +74,7 @@ export default async function SharedGoalPage(props: Props) {
 
     const progenyWithPairInfo = assignedPairsWithProgeny.flatMap((p) =>
         (p.progeny || [])
-            .filter((prog) => prog.growthLevel === 3)
+            .filter((prog) => prog && prog.growthLevel === 3)
             .map((prog) => ({
                 ...prog,
                 parentPairName: p.pairName || 'Unnamed Pair',
@@ -82,7 +84,7 @@ export default async function SharedGoalPage(props: Props) {
     // Deduplicate progeny in case it's part of multiple assigned pairs
     const allAssignedProgeny = Array.from(
         new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
-    );
+    ).filter((p): p is EnrichedCreature & { parentPairName: string } => !!p.id);
 
     const scoredProgeny = allAssignedProgeny
         .map((p) => ({
@@ -98,8 +100,8 @@ export default async function SharedGoalPage(props: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                     <SharedGoalInfo goal={goal} />
                     <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
-                        <img
-                            src={goal.imageUrl}
+                        <Image
+                            src={goal.imageUrl || '/placeholder.png'}
                             alt={goal.name}
                             className="max-w-full max-h-48 object-contain"
                         />

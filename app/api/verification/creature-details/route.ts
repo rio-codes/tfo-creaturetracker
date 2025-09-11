@@ -18,12 +18,20 @@ export async function POST(req: Request) {
         }
         const { creatureCode } = validated.data;
 
+        if (!process.env.TFO_API_KEY) {
+            console.error('TFO_API_KEY is not set.');
+            return NextResponse.json(
+                { error: 'Server configuration error.' },
+                { status: 500 }
+            );
+        }
+
         const tfoApiUrl = `https://finaloutpost.net/api/v1/creature/${creatureCode}`;
         const response = await fetch(tfoApiUrl, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json', // This is fine
-                apiKey: process.env.TFO_API_KEY as string, // Cast to string
+                'Content-Type': 'application/json',
+                apiKey: process.env.TFO_API_KEY,
             },
         });
 

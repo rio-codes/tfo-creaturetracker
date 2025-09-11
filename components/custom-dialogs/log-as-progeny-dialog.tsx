@@ -76,15 +76,21 @@ export function LogAsProgenyDialog({
         }
     }, [open]);
 
-    const { existingLogEntry, existingPair } = useMemo(() => {
-        const log = allLogs.find(
-            (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
-        );
-        if (!log) return { existingLogEntry: null, existingPair: null };
+    let existingLogEntry: DbBreedingLogEntry | null = null;
+    let existingPair: EnrichedBreedingPair | null = null;
 
-        const pair = allEnrichedPairs.find((p) => p.id === log.pairId);
-        return { existingLogEntry: log, existingPair: pair || null };
-    }, [allLogs, creature.id, allEnrichedPairs]);
+    if (creature) {
+        ({ existingLogEntry, existingPair } = useMemo(() => {
+            const log = allLogs.find(
+                (l) =>
+                    l.progeny1Id === creature.id || l.progeny2Id === creature.id
+            );
+            if (!log) return { existingLogEntry: null, existingPair: null };
+
+            const pair = allEnrichedPairs.find((p) => p.id === log.pairId);
+            return { existingLogEntry: log, existingPair: pair || null };
+        }, [allLogs, creature.id, allEnrichedPairs]));
+    }
 
     useEffect(() => {
         if (existingPair && !selectedPairId) {
@@ -93,15 +99,18 @@ export function LogAsProgenyDialog({
     }, [existingPair, selectedPairId]);
 
     const suitablePairs = useMemo(() => {
+        if (!creature || !creature.species) return [];
         return allEnrichedPairs.filter((pair) => {
-            if (!pair.maleParent || !pair.femaleParent) return false;
+            if (!pair?.maleParent?.species || !pair?.femaleParent?.species) {
+                return false;
+            }
             const possibleOffspring = getPossibleOffspringSpecies(
                 pair.maleParent.species,
                 pair.femaleParent.species
             );
             return possibleOffspring.includes(creature.species!);
         });
-    }, [allEnrichedPairs, creature.species]);
+    }, [allEnrichedPairs, creature]);
 
     const availableLogs = useMemo(() => {
         if (!selectedPairId) return [];
@@ -114,7 +123,7 @@ export function LogAsProgenyDialog({
 
     const getProgenyName = (progenyId: string | null) => {
         if (!progenyId) return 'Empty Slot';
-        const progeny = allCreatures.find((c) => c.id === progenyId);
+        const progeny = allCreatures.find((c) => c?.id === progenyId);
         return progeny
             ? `${progeny.creatureName || 'Unnamed'} (${progeny.code})`
             : 'Unknown Progeny';
@@ -136,7 +145,7 @@ export function LogAsProgenyDialog({
                 }
                 const body = {
                     pairId: selectedPairId,
-                    progeny1Id: creature.id,
+                    progeny1Id: creature?.id,
                     notes: notes || undefined,
                     sourceLogId,
                     keepSourceOnEmpty,
@@ -154,7 +163,7 @@ export function LogAsProgenyDialog({
                 }
                 const body = {
                     logEntryId: selectedLogId,
-                    progenyId: creature.id,
+                    progenyId: creature?.id,
                     sourceLogId,
                     keepSourceOnEmpty,
                 };
@@ -205,7 +214,7 @@ export function LogAsProgenyDialog({
                 <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <DialogHeader>
                         <DialogTitle>
-                            Log "{creature.creatureName || creature.code}" as
+                            Log "{creature?.creatureName} ({creature?.code})" as
                             Progeny
                         </DialogTitle>
                     </DialogHeader>
@@ -234,8 +243,8 @@ export function LogAsProgenyDialog({
                                                 value={pair.id}
                                             >
                                                 {pair.pairName} (
-                                                {pair.maleParent.code} x{' '}
-                                                {pair.femaleParent.code})
+                                                {pair.maleParent?.code} x{' '}
+                                                {pair.femaleParent?.code})
                                             </SelectItem>
                                         ))
                                     ) : (

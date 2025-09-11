@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { accountVerifications } from "@/src/db/schema";
-import crypto from "crypto";
-import { z } from "zod";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { accountVerifications } from '@/src/db/schema';
+import crypto from 'crypto';
+import { z } from 'zod';
 
 const startSchema = z.object({
-    tabId: z.coerce.number().int().min(0, "Tab ID must be a positive number."),
+    tabId: z.coerce.number().int().min(0, 'Tab ID must be a positive number.'),
 });
 
 export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id || !session.user.username) {
         return NextResponse.json(
-            { error: "Not authenticated" },
+            { error: 'Not authenticated' },
             { status: 401 }
         );
     }
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
         if (!validated.success) {
             return NextResponse.json(
-                { error: "Invalid Tab ID provided." },
+                { error: 'Invalid Tab ID provided.' },
                 { status: 400 }
             );
         }
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
         const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${username}`;
         const response = await fetch(tfoApiUrl, {
-            headers: { "X-API-Key": process.env.TFO_API_KEY! },
+            headers: { apiKey: process.env.TFO_API_KEY! },
         });
         const data = await response.json();
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         const creatureCode = randomCreature.code;
         const verificationToken = `verify-${crypto
             .randomBytes(4)
-            .toString("hex")}`;
+            .toString('hex')}`;
         const expiresAt = new Date(new Date().getTime() + 15 * 60 * 1000);
 
         await db
@@ -75,9 +75,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error("Verification start failed:", error);
+        console.error('Verification start failed:', error);
         return NextResponse.json(
-            { error: "An internal error occurred." },
+            { error: 'An internal error occurred.' },
             { status: 500 }
         );
     }

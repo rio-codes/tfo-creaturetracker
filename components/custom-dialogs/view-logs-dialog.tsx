@@ -58,7 +58,7 @@ export function ViewLogsDialog({
 
     const getProgenyName = (progenyId: string | null) => {
         if (!progenyId) return 'N/A';
-        const progeny = pair.progeny?.find((p) => p.id === progenyId);
+        const progeny = pair.progeny?.find((p) => p?.id === progenyId);
         return progeny
             ? `${progeny.creatureName || 'Unnamed'} (${progeny.code})`
             : 'Unknown';

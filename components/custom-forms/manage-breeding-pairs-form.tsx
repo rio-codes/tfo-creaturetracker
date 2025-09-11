@@ -34,7 +34,7 @@ type ManagePairsFormProps = {
     allCreatures: EnrichedCreature[];
     allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[]; // Now needs all goals
-    onActionComplete: () => void;
+    onActionCompleteAction: () => void;
 };
 
 export function ManageBreedingPairsForm({
@@ -42,7 +42,7 @@ export function ManageBreedingPairsForm({
     allCreatures,
     allPairs,
     allGoals,
-    onActionComplete,
+    onActionCompleteAction: onActionComplete,
 }: ManagePairsFormProps) {
     const router = useRouter();
     const [newPairName, setNewPairName] = useState('');
@@ -60,24 +60,24 @@ export function ManageBreedingPairsForm({
         () =>
             allPairs.filter(
                 (p) =>
-                    p!.maleParent!.id === baseCreature!.id ||
-                    p!.femaleParent!.id === baseCreature!.id
+                    p?.maleParent?.id === baseCreature?.id ||
+                    p?.femaleParent?.id === baseCreature?.id
             ),
         [allPairs, baseCreature]
     );
 
     // Filter suitable mates and goals
     const suitableMates = useMemo(() => {
-        return findSuitableMates(baseCreature, allCreatures, allPairs);
+        return findSuitableMates(baseCreature, allCreatures);
     }, [baseCreature, allCreatures, allPairs]);
 
     const { maleParent, femaleParent } = useMemo(() => {
         if (!selectedMateId) {
             return { maleParent: null, femaleParent: null };
         }
-        const mate = allCreatures.find((c) => c.id === selectedMateId);
+        const mate = allCreatures.find((c) => c?.id === selectedMateId);
         if (!mate) return { maleParent: null, femaleParent: null };
-        if (baseCreature.gender === 'male') {
+        if (baseCreature?.gender === 'male') {
             return { maleParent: baseCreature, femaleParent: mate };
         }
         return { maleParent: mate, femaleParent: baseCreature };
@@ -85,15 +85,15 @@ export function ManageBreedingPairsForm({
 
     const relevantGoals = useMemo(() => {
         const selectedMate = allCreatures.find((c) => c?.id === selectedMateId);
-        if (!selectedMate) {
-            return allGoals.filter((g) => g?.species === baseCreature!.species);
+        if (!selectedMate?.species || !baseCreature?.species) {
+            return allGoals.filter((g) => g?.species === baseCreature?.species);
         }
         const possibleOffspring = getPossibleOffspringSpecies(
-            baseCreature.species!,
-            selectedMate.species!
+            baseCreature.species,
+            selectedMate.species
         );
         return allGoals.filter(
-            (g) => g && possibleOffspring.includes(g.species!)
+            (g) => g?.species && possibleOffspring.includes(g.species)
         );
     }, [allGoals, baseCreature, selectedMateId, allCreatures]);
 
@@ -134,14 +134,14 @@ export function ManageBreedingPairsForm({
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
             const maleParentId =
-                baseCreature!.gender === 'male'
-                    ? baseCreature!.id
+                baseCreature?.gender === 'male'
+                    ? baseCreature.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature!.gender === 'female'
-                    ? baseCreature!.id
+                baseCreature?.gender === 'female'
+                    ? baseCreature.id
                     : selectedMateId;
-            const goalIds = relevantGoals.map((g) => g?.id);
+            const goalIds = relevantGoals.map((g) => g.id);
 
             try {
                 const response = await fetch('/api/breeding-predictions', {
@@ -174,16 +174,16 @@ export function ManageBreedingPairsForm({
         setError('');
         try {
             const maleParentId =
-                baseCreature!.gender === 'male'
-                    ? baseCreature!.id
+                baseCreature?.gender === 'male'
+                    ? baseCreature.id
                     : selectedMateId;
             const femaleParentId =
-                baseCreature!.gender === 'female'
-                    ? baseCreature!.id
+                baseCreature?.gender === 'female'
+                    ? baseCreature.id
                     : selectedMateId;
 
             const selectedMate = allCreatures.find(
-                (c) => c.id === selectedMateId
+                (c) => c?.id === selectedMateId
             );
             if (!selectedMate) {
                 setError('Selected mate not found.');
@@ -191,9 +191,14 @@ export function ManageBreedingPairsForm({
                 return;
             }
 
+            if (!baseCreature?.species || !selectedMate.species) {
+                setError('Parent species data is missing.');
+                setIsLoading(false);
+                return;
+            }
             const possibleOffspring = getPossibleOffspringSpecies(
-                baseCreature.species!,
-                selectedMate.species!
+                baseCreature?.species,
+                selectedMate.species
             );
             const pairSpecies =
                 possibleOffspring.length === 1
@@ -206,7 +211,7 @@ export function ManageBreedingPairsForm({
                 body: JSON.stringify({
                     pairName:
                         newPairName ||
-                        `${baseCreature!.code} & ${selectedMate.code}`,
+                        `${baseCreature.code} & ${selectedMate.code}`,
                     species: pairSpecies,
                     maleParentId,
                     femaleParentId,
@@ -252,14 +257,14 @@ export function ManageBreedingPairsForm({
                     {existingPairs.length > 0 ? (
                         existingPairs.map((pair) => (
                             <div
-                                key={pair!.id}
+                                key={pair.id}
                                 className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple p-2 rounded-md"
                             >
-                                <span>{pair!.pairName}</span>
+                                <span>{pair.pairName}</span>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => handleRemovePair(pair!.id)}
+                                    onClick={() => handleRemovePair(pair.id)}
                                     disabled={isLoading}
                                 >
                                     <Trash2 className="h-4 w-4 text-red-500" />
@@ -297,8 +302,8 @@ export function ManageBreedingPairsForm({
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
-                                    <SelectItem key={mate.id} value={mate.id}>
-                                        {mate.creatureName} ({mate.code})
+                                    <SelectItem key={mate?.id} value={mate!.id}>
+                                        {mate?.creatureName} ({mate?.code})
                                     </SelectItem>
                                 ))
                             ) : (
@@ -315,7 +320,10 @@ export function ManageBreedingPairsForm({
                             {maleParent && (
                                 <div className="flex flex-col items-center w-36">
                                     <img
-                                        src={maleParent.imageUrl!}
+                                        src={
+                                            maleParent.imageUrl ||
+                                            '/placeholder.png'
+                                        }
                                         alt={maleParent.code}
                                         className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                                     />
@@ -342,7 +350,10 @@ export function ManageBreedingPairsForm({
                             {femaleParent && (
                                 <div className="flex flex-col items-center w-36">
                                     <img
-                                        src={femaleParent.imageUrl!}
+                                        src={
+                                            femaleParent.imageUrl ||
+                                            '/placeholder.png'
+                                        }
                                         alt={femaleParent.code}
                                         className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
                                     />

@@ -240,7 +240,13 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
         // Filter pairs that can produce the goal's species
         const relevantPairs = allUserPairs.filter((p) => {
-            if (!p.maleParent || !p.femaleParent) return false;
+            if (
+                !p.maleParent ||
+                !p.femaleParent ||
+                !p.maleParent.species ||
+                !p.femaleParent.species
+            )
+                return false;
             const possibleOffspring = getPossibleOffspringSpecies(
                 p.maleParent.species,
                 p.femaleParent.species

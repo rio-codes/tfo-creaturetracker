@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import type { EnrichedResearchGoal, Prediction } from "@/types";
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import type { EnrichedResearchGoal, Prediction } from '@/types';
 
 type AssignPairDialogProps = {
     goal: EnrichedResearchGoal;
@@ -26,20 +26,20 @@ export function AssignPairDialog({
 }: AssignPairDialogProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
 
     // Get a list of pair IDs that are already assigned to this goal
     const initiallyAssignedPairIds = new Set(goal?.assignedPairIds || []);
 
     const handleAssignmentChange = async (pairId: string, assign: boolean) => {
         setIsLoading(true);
-        setError("");
+        setError('');
         try {
             const response = await fetch(
                 `/api/breeding-pairs/${pairId}/assign-goal`,
                 {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ goalId: goal?.id, assign }),
                 }
             );
@@ -71,7 +71,7 @@ export function AssignPairDialog({
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     {predictions.map((p) => {
                         const isAssigned = initiallyAssignedPairIds.has(
-                            p.pairId
+                            p.pairId || ''
                         );
                         return (
                             <div
@@ -84,7 +84,7 @@ export function AssignPairDialog({
                                         checked={isAssigned}
                                         onCheckedChange={(checked) =>
                                             handleAssignmentChange(
-                                                p.pairId,
+                                                p.pairId || '',
                                                 !!checked
                                             )
                                         }
@@ -101,13 +101,13 @@ export function AssignPairDialog({
                                     <span
                                         className={`font-bold ${
                                             p.isPossible
-                                                ? "text-green-600"
-                                                : "text-red-500"
+                                                ? 'text-green-600'
+                                                : 'text-red-500'
                                         }`}
                                     >
                                         {p.isPossible
-                                            ? "POSSIBLE"
-                                            : "IMPOSSIBLE"}
+                                            ? 'POSSIBLE'
+                                            : 'IMPOSSIBLE'}
                                     </span>
                                     <span className="font-mono font-bold w-20 text-right">
                                         {(p.averageChance * 100).toFixed(2)}%

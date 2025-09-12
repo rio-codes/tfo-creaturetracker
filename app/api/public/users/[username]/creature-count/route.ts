@@ -49,23 +49,25 @@ export async function GET(req: Request, props: { params: Promise<{ username: str
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid parameter for public creature count: ${errorMessage}`,
-                'warning'
-            );
-            return NextResponse.json(
-                {
-                    schemaVersion: 1,
-                    label: 'error',
-                    message: errorMessage,
-                    color: 'red',
-                },
-                { status: 400 }
-            );
+            if (!errorMessage.includes('color')) {
+                console.error('Zod Validation Failed:', errorMessage);
+                Sentry.captureMessage(
+                    `Invalid parameter for public creature count: ${errorMessage}`,
+                    'warning'
+                );
+                return NextResponse.json(
+                    {
+                        schemaVersion: 1,
+                        label: 'error',
+                        message: errorMessage,
+                        color: 'red',
+                    },
+                    { status: 400 }
+                );
+            }
         }
 
-        const { species, color } = validation.data;
+        const { species, color } = validation.success ? validation.data : { species: '', color: undefined };
 
         // 2. Find the user by their public username
         const user = await db.query.users.findFirst({

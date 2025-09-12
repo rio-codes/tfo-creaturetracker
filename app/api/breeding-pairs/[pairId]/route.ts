@@ -93,6 +93,28 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
+        // Check if parents were changed and if the new combination already exists
+        const parentsHaveChanged =
+            maleParentId !== existingPair.maleParentId ||
+            femaleParentId !== existingPair.femaleParentId;
+
+        if (parentsHaveChanged) {
+            const duplicatePair = await db.query.breedingPairs.findFirst({
+                where: and(
+                    eq(breedingPairs.userId, session.user.id),
+                    eq(breedingPairs.maleParentId, maleParentId),
+                    eq(breedingPairs.femaleParentId, femaleParentId)
+                ),
+            });
+
+            if (duplicatePair) {
+                return NextResponse.json(
+                    { error: 'A breeding pair with these parents already exists.' },
+                    { status: 409 }
+                );
+            }
+        }
+
         if (assignedGoalIds && assignedGoalIds.length > 0) {
             const goals = await db
                 .select()

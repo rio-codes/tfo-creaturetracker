@@ -205,8 +205,10 @@ export function GoalDetailClient({
                                                 category !== 'Gender'
                                         )
                                         .map(([category, gene]) => (
-                                            <div key={category}>
-                                                <strong>{category}:</strong>{' '}
+                                            <div key={category} className={gene.isOptional ? 'opacity-70' : ''}>
+                                                <strong>
+                                                    {category}{gene.isOptional && ' (Optional)'}:
+                                                </strong>{' '}
                                                 {gene.genotype}
                                             </div>
                                         ))}
@@ -223,8 +225,10 @@ export function GoalDetailClient({
                                                 category !== 'Gender'
                                         )
                                         .map(([category, gene]) => (
-                                            <div key={category}>
-                                                <strong>{category}:</strong>{' '}
+                                            <div key={category} className={gene.isOptional ? 'opacity-70' : ''}>
+                                                <strong>
+                                                    {category}{gene.isOptional && ' (Optional)'}:
+                                                </strong>{' '}
                                                 {gene.phenotype}
                                             </div>
                                         ))}

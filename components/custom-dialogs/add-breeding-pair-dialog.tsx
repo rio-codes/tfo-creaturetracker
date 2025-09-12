@@ -52,7 +52,7 @@ export function AddBreedingPairDialog({
             </DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto"
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto max-w-3/4 mx-auto"
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">

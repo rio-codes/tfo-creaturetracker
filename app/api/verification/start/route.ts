@@ -14,14 +14,8 @@ export async function POST(req: Request) {
     const session = await auth();
     Sentry.captureMessage('Starting account verification', 'log');
     if (!session?.user?.id || !session.user.username) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to start verification',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to start verification', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -29,16 +23,17 @@ export async function POST(req: Request) {
         const validated = startSchema.safeParse(body);
 
         if (!validated.success) {
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
-                'Invalid Tab ID for verification start',
+                `Invalid tab id provided for verification. ${errorMessage}`,
                 'warning'
             );
-            return NextResponse.json(
-                { error: 'Invalid Tab ID provided.' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-
         const { tabId } = validated.data;
         const username = session.user.username;
         const userId = session.user.id;
@@ -62,12 +57,9 @@ export async function POST(req: Request) {
             );
         }
 
-        const randomCreature =
-            data.creatures[Math.floor(Math.random() * data.creatures.length)];
+        const randomCreature = data.creatures[Math.floor(Math.random() * data.creatures.length)];
         const creatureCode = randomCreature.code;
-        const verificationToken = `verify-${crypto
-            .randomBytes(4)
-            .toString('hex')}`;
+        const verificationToken = `verify-${crypto.randomBytes(4).toString('hex')}`;
         const expiresAt = new Date(new Date().getTime() + 15 * 60 * 1000);
 
         await db
@@ -87,17 +79,11 @@ export async function POST(req: Request) {
                 },
             });
 
-        Sentry.captureMessage(
-            `Verification started for user ${userId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Verification started for user ${userId}`, 'info');
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
         console.error('Verification start failed:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

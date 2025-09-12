@@ -13,25 +13,13 @@ const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
 });
 
-export async function POST(
-    req: Request,
-    props: { params: Promise<{ pairId: string }> }
-) {
+export async function POST(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(
-        `Generating outcomes preview for pair ${params.pairId}`,
-        'log'
-    );
+    Sentry.captureMessage(`Generating outcomes preview for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to generate outcomes preview',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to generate outcomes preview', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -39,14 +27,16 @@ export async function POST(
         const validated = previewSchema.safeParse(body);
 
         if (!validated.success) {
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
-                'Invalid input for outcomes preview',
+                `Invalid genetic data for previewing outcome. ${errorMessage}`,
                 'warning'
             );
-            return NextResponse.json(
-                { error: 'Invalid input.' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { selectedGenotypes } = validated.data;
@@ -63,19 +53,10 @@ export async function POST(
                 `Breeding pair not found for outcomes preview: ${params.pairId}`,
                 'warning'
             );
-            return NextResponse.json(
-                { error: 'Breeding pair not found.' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
-        const tfoImageUrl = constructTfoImageUrl(
-            pair.species,
-            selectedGenotypes
-        );
-        // Add a cache-busting parameter to the TFO URL to ensure we get a fresh image
-        // from their server and not a stale cached version. This complements the
-        // `cache: 'no-store'` setting in the fetch call for defense-in-depth.
+        const tfoImageUrl = constructTfoImageUrl(pair.species, selectedGenotypes);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         // The reference ID is prefixed to distinguish it from creature codes in fetchAndUploadWithRetry
         const blobUrl = await fetchAndUploadWithRetry(
@@ -100,9 +81,6 @@ export async function POST(
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

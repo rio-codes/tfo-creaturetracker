@@ -136,15 +136,12 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
         if (!validatedFields.success) {
             const { fieldErrors } = validatedFields.error.flatten();
-            const errorMessage = Object.values(fieldErrors).flat().join(' ');
-            Sentry.captureMessage(`Invalid data for editing goal ${errorMessage}`, 'warning');
-            console.log(errorMessage);
-            return NextResponse.json(
-                {
-                    error: errorMessage || 'Invalid data provided.',
-                },
-                { status: 400 }
-            );
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { name, species, genes, goalMode } = validatedFields.data;

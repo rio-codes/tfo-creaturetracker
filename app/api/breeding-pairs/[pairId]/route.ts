@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import {
-    breedingPairs,
-    creatures,
-    researchGoals,
-    breedingLogEntries,
-} from '@/src/db/schema';
+import { breedingPairs, creatures, researchGoals, breedingLogEntries } from '@/src/db/schema';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -26,42 +21,31 @@ const editPairSchema = z.object({
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
-export async function PATCH(
-    req: Request,
-    props: { params: Promise<{ pairId: string }> }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Editing pair ${params.pairId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to edit pair',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to edit pair', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
         const body = await req.json();
         console.log(body);
         const validatedFields = editPairSchema.safeParse(body);
+
         if (!validatedFields.success) {
-            Sentry.captureMessage('Invalid data for editing pair', 'warning', {
-                extra: { details: validatedFields.error.flatten() },
-            });
-            return NextResponse.json(
-                {
-                    error: 'Invalid data provided.',
-                    details: validatedFields.error.flatten(),
-                },
-                { status: 400 }
-            );
+            const { fieldErrors } = validatedFields.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for editing pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-        const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
-            validatedFields.data;
+
+        const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
             Sentry.captureMessage('Obscene language in pair name', 'warning');
@@ -82,28 +66,16 @@ export async function PATCH(
         });
 
         if (!existingPair) {
-            Sentry.captureMessage(
-                `Pair not found for editing: ${params.pairId}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Breeding pair not found.' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Pair not found for editing: ${params.pairId}`, 'warning');
+            return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, maleParentId),
-                    eq(creatures.userId, session.user.id)
-                ),
+                where: and(eq(creatures.id, maleParentId), eq(creatures.userId, session.user.id)),
             }),
             db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, femaleParentId),
-                    eq(creatures.userId, session.user.id)
-                ),
+                where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, session.user.id)),
             }),
         ]);
 
@@ -118,10 +90,7 @@ export async function PATCH(
 
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
-            return NextResponse.json(
-                { error: pairingValidation.error },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
         if (assignedGoalIds && assignedGoalIds.length > 0) {
@@ -143,10 +112,7 @@ export async function PATCH(
                 );
             }
             for (const goal of goals) {
-                if (
-                    goal.species !== maleParent.species ||
-                    goal.species !== femaleParent.species
-                ) {
+                if (goal.species !== maleParent.species || goal.species !== femaleParent.species) {
                     return NextResponse.json(
                         {
                             error: `The goal "${goal.name}" cannot be assigned to a ${maleParent.species} pair.`,
@@ -167,10 +133,7 @@ export async function PATCH(
                 updatedAt: new Date(),
             })
             .where(
-                and(
-                    eq(breedingPairs.id, params.pairId),
-                    eq(breedingPairs.userId, session.user.id)
-                )
+                and(eq(breedingPairs.id, params.pairId), eq(breedingPairs.userId, session.user.id))
             )
             .returning();
 
@@ -200,9 +163,7 @@ export async function PATCH(
         const newGoalIds = new Set(assignedGoalIds || []);
 
         const goalsAdded = [...newGoalIds].filter((id) => !oldGoalIds.has(id));
-        const goalsRemoved = [...oldGoalIds].filter(
-            (id) => !newGoalIds.has(id)
-        );
+        const goalsRemoved = [...oldGoalIds].filter((id) => !newGoalIds.has(id));
 
         // Update goals that had this pair added
         if (goalsAdded.length > 0) {
@@ -245,10 +206,7 @@ export async function PATCH(
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(
-            `Pair ${params.pairId} updated successfully`,
-            'info'
-        );
+        Sentry.captureMessage(`Pair ${params.pairId} updated successfully`, 'info');
         return NextResponse.json({
             message: 'Breeding pair updated successfully!',
         });
@@ -261,22 +219,13 @@ export async function PATCH(
     }
 }
 
-export async function DELETE(
-    req: Request,
-    props: { params: Promise<{ pairId: string }> }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
     Sentry.captureMessage(`Deleting from pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to delete from pair',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to delete from pair', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
     const { searchParams } = new URL(req.url);
@@ -293,10 +242,7 @@ export async function DELETE(
                         eq(breedingLogEntries.userId, userId),
                         eq(breedingLogEntries.pairId, params.pairId),
                         or(
-                            eq(
-                                breedingLogEntries.progeny1Id,
-                                progenyIdToRemove
-                            ),
+                            eq(breedingLogEntries.progeny1Id, progenyIdToRemove),
                             eq(breedingLogEntries.progeny2Id, progenyIdToRemove)
                         )
                     )
@@ -343,12 +289,7 @@ export async function DELETE(
             // Original logic to delete the entire pair
             const result = await db
                 .delete(breedingPairs)
-                .where(
-                    and(
-                        eq(breedingPairs.id, params.pairId),
-                        eq(breedingPairs.userId, userId)
-                    )
-                )
+                .where(and(eq(breedingPairs.id, params.pairId), eq(breedingPairs.userId, userId)))
                 .returning();
 
             if (result.length === 0) {
@@ -370,10 +311,7 @@ export async function DELETE(
             }
 
             revalidatePath('/breeding-pairs');
-            Sentry.captureMessage(
-                `Pair ${params.pairId} deleted successfully`,
-                'info'
-            );
+            Sentry.captureMessage(`Pair ${params.pairId} deleted successfully`, 'info');
             return NextResponse.json({
                 message: 'Breeding pair deleted successfully.',
             });

@@ -15,20 +15,19 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Confirming password reset', 'log');
     try {
         const body = await req.json();
-        const result = confirmSchema.safeParse(body);
+        const validatedFields = confirmSchema.safeParse(body);
 
-        if (!result.success) {
-            Sentry.captureMessage(
-                'Invalid input for password reset confirmation',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Invalid input.' },
-                { status: 400 }
-            );
+        if (!validatedFields.success) {
+            const { fieldErrors } = validatedFields.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for password reset. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { token, password } = result.data;
+        const { token, password } = validatedFields.data;
 
         const allTokens = await db.select().from(passwordResetTokens);
         let tokenRecord = null;
@@ -41,14 +40,8 @@ export async function POST(req: Request) {
         }
 
         if (!tokenRecord) {
-            Sentry.captureMessage(
-                'Invalid or expired token for password reset',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Invalid or expired token.' },
-                { status: 400 }
-            );
+            Sentry.captureMessage('Invalid or expired token for password reset', 'warning');
+            return NextResponse.json({ error: 'Invalid or expired token.' }, { status: 400 });
         }
 
         if (new Date() > tokenRecord.expires) {
@@ -56,14 +49,8 @@ export async function POST(req: Request) {
             await db
                 .delete(passwordResetTokens)
                 .where(eq(passwordResetTokens.email, tokenRecord.email));
-            Sentry.captureMessage(
-                'Expired token used for password reset',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Token has expired.' },
-                { status: 400 }
-            );
+            Sentry.captureMessage('Expired token used for password reset', 'warning');
+            return NextResponse.json({ error: 'Token has expired.' }, { status: 400 });
         }
 
         const newHashedPassword = await hash(password, 12);
@@ -89,9 +76,6 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error('Password reset confirmation failed:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

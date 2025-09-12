@@ -21,14 +21,8 @@ export async function PATCH(req: Request) {
     Sentry.captureMessage('Updating user settings', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to update settings',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to update settings', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
@@ -37,15 +31,13 @@ export async function PATCH(req: Request) {
         const validated = settingsSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage(
-                'Invalid input for settings update',
-                'warning',
-                { extra: { details: validated.error.flatten() } }
-            );
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { password, ...updateData } = validated.data;
@@ -62,22 +54,13 @@ export async function PATCH(req: Request) {
         }
 
         if (Object.keys(dataToUpdate).length > 0) {
-            await db
-                .update(users)
-                .set(dataToUpdate)
-                .where(eq(users.id, userId));
+            await db.update(users).set(dataToUpdate).where(eq(users.id, userId));
         }
 
-        Sentry.captureMessage(
-            `Settings updated successfully for user ${userId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Settings updated successfully for user ${userId}`, 'info');
         return NextResponse.json({ message: 'Settings updated successfully!' });
     } catch (error) {
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

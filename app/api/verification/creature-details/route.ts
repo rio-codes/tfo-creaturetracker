@@ -8,32 +8,25 @@ const creatureSchema = z.object({
 
 export async function POST(req: Request) {
     try {
-        Sentry.captureMessage(
-            'Fetching creature details for verification',
-            'log'
-        );
+        Sentry.captureMessage('Fetching creature details for verification', 'log');
         const body = await req.json();
         const validated = creatureSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage(
-                'Invalid input for fetching creature details',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Invalid input.' },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { creatureCode } = validated.data;
 
         if (!process.env.TFO_API_KEY) {
             console.error('TFO_API_KEY is not set.');
             Sentry.captureException(new Error('TFO_API_KEY is not set.'));
-            return NextResponse.json(
-                { error: 'Server configuration error.' },
-                { status: 500 }
-            );
+            return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 });
         }
 
         const tfoApiUrl = `https://finaloutpost.net/api/v1/creature/${creatureCode}`;
@@ -41,7 +34,7 @@ export async function POST(req: Request) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                apiKey: process.env.TFO_API_KEY,
+                'apiKey': process.env.TFO_API_KEY,
             },
         });
 

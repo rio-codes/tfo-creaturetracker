@@ -74,7 +74,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        // validate received data with zod schema
+
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
             Sentry.logger.warn('Zod validation failed for new goal');

@@ -19,20 +19,14 @@ const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
     progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
     progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
-    notes: z
-        .string()
-        .max(500, 'Notes cannot exceed 500 characters.')
-        .optional(),
+    notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional(),
     sourceLogId: z.string().uuid().optional(),
     keepSourceOnEmpty: z.boolean().optional(),
 });
 
 const editLogSchema = z.object({
     logId: z.string().uuid('Invalid log ID'),
-    notes: z
-        .string()
-        .max(500, 'Notes cannot exceed 500 characters.')
-        .optional(),
+    notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional(),
     progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
     progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
 });
@@ -57,10 +51,7 @@ async function checkAndRecordAchievements(
     if (progenyIds.length === 0) return;
 
     const pair = await db.query.breedingPairs.findFirst({
-        where: and(
-            eq(breedingPairs.id, pairId),
-            eq(breedingPairs.userId, userId)
-        ),
+        where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
     });
 
     if (pair && pair.assignedGoalIds && pair.assignedGoalIds.length > 0) {
@@ -71,10 +62,7 @@ async function checkAndRecordAchievements(
             ),
         });
         const progenyCreatures = await db.query.creatures.findMany({
-            where: and(
-                inArray(creatures.id, progenyIds),
-                eq(creatures.userId, userId)
-            ),
+            where: and(inArray(creatures.id, progenyIds), eq(creatures.userId, userId)),
         });
 
         for (const progeny of progenyCreatures) {
@@ -83,13 +71,12 @@ async function checkAndRecordAchievements(
 
                 const isAchieved = checkGoalAchieved(progeny, goal);
                 if (isAchieved) {
-                    const existingAchievement =
-                        await db.query.achievedGoals.findFirst({
-                            where: and(
-                                eq(achievedGoals.goalId, goal.id),
-                                eq(achievedGoals.matchingProgenyId, progeny.id)
-                            ),
-                        });
+                    const existingAchievement = await db.query.achievedGoals.findFirst({
+                        where: and(
+                            eq(achievedGoals.goalId, goal.id),
+                            eq(achievedGoals.matchingProgenyId, progeny.id)
+                        ),
+                    });
                     if (!existingAchievement) {
                         await db.insert(achievedGoals).values({
                             userId,
@@ -110,43 +97,30 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Logging breeding event', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to log breeding event',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to log breeding event', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
         const validated = createLogSchema.safeParse(body);
+
         if (!validated.success) {
-            Sentry.captureMessage('Invalid input for breeding log', 'warning', {
-                extra: { details: validated.error.flatten() },
-            });
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-        const {
-            pairId,
-            progeny1Id,
-            progeny2Id,
-            notes,
-            sourceLogId,
-            keepSourceOnEmpty,
-        } = validated.data;
+
+        const { pairId, progeny1Id, progeny2Id, notes, sourceLogId, keepSourceOnEmpty } =
+            validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage(
-                'Obscene language in breeding log notes',
-                'warning'
-            );
+            Sentry.captureMessage('Obscene language in breeding log notes', 'warning');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -176,9 +150,7 @@ export async function POST(req: Request) {
                     .where(eq(breedingLogEntries.id, sourceLogId));
 
                 const updatedSourceLog = { ...sourceLog, ...updateData };
-                const isSourceEmpty =
-                    !updatedSourceLog.progeny1Id &&
-                    !updatedSourceLog.progeny2Id;
+                const isSourceEmpty = !updatedSourceLog.progeny1Id && !updatedSourceLog.progeny2Id;
 
                 if (isSourceEmpty && !keepSourceOnEmpty) {
                     await tx
@@ -201,20 +173,10 @@ export async function POST(req: Request) {
         });
 
         // --- Check for achieved goals ---
-        const newProgenyIds = [progeny1Id, progeny2Id].filter(
-            (id): id is string => !!id
-        );
-        await checkAndRecordAchievements(
-            userId,
-            pairId,
-            newProgenyIds,
-            newLogEntry.id
-        );
+        const newProgenyIds = [progeny1Id, progeny2Id].filter((id): id is string => !!id);
+        await checkAndRecordAchievements(userId, pairId, newProgenyIds, newLogEntry.id);
 
-        Sentry.captureMessage(
-            `Breeding event logged successfully for pair ${pairId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Breeding event logged successfully for pair ${pairId}`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -227,10 +189,7 @@ export async function POST(req: Request) {
         Sentry.captureException(error);
         return NextResponse.json(
             {
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'An internal error occurred.',
+                error: error instanceof Error ? error.message : 'An internal error occurred.',
             },
             { status: 500 }
         );
@@ -241,40 +200,32 @@ export async function PUT(req: Request) {
     Sentry.captureMessage('Updating breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to update breeding log',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to update breeding log', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
         const validated = editLogSchema.safeParse(body);
+
         if (!validated.success) {
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
-                'Invalid input for updating breeding log',
-                'warning',
-                {
-                    extra: { details: validated.error.flatten() },
-                }
+                `Invalid data for updating breeding log. ${errorMessage}`,
+                'warning'
             );
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
+
         const { logId, notes, progeny1Id, progeny2Id } = validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage(
-                'Obscene language in breeding log notes update',
-                'warning'
-            );
+            Sentry.captureMessage('Obscene language in breeding log notes update', 'warning');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -283,27 +234,19 @@ export async function PUT(req: Request) {
 
         await db.transaction(async (tx) => {
             const existingLog = await tx.query.breedingLogEntries.findFirst({
-                where: and(
-                    eq(breedingLogEntries.id, logId),
-                    eq(breedingLogEntries.userId, userId)
-                ),
+                where: and(eq(breedingLogEntries.id, logId), eq(breedingLogEntries.userId, userId)),
             });
 
             if (!existingLog) {
                 throw new Error('Log entry not found.');
             }
 
-            const oldProgenyIds = [
-                existingLog.progeny1Id,
-                existingLog.progeny2Id,
-            ].filter(Boolean) as string[];
-            const newProgenyIds = [progeny1Id, progeny2Id].filter(
+            const oldProgenyIds = [existingLog.progeny1Id, existingLog.progeny2Id].filter(
                 Boolean
             ) as string[];
+            const newProgenyIds = [progeny1Id, progeny2Id].filter(Boolean) as string[];
 
-            const removedProgenyIds = oldProgenyIds.filter(
-                (id) => !newProgenyIds.includes(id)
-            );
+            const removedProgenyIds = oldProgenyIds.filter((id) => !newProgenyIds.includes(id));
 
             // Delete achievements for removed progeny from this log
             if (removedProgenyIds.length > 0) {
@@ -312,10 +255,7 @@ export async function PUT(req: Request) {
                     .where(
                         and(
                             eq(achievedGoals.logEntryId, logId),
-                            inArray(
-                                achievedGoals.matchingProgenyId,
-                                removedProgenyIds
-                            )
+                            inArray(achievedGoals.matchingProgenyId, removedProgenyIds)
                         )
                     );
             }
@@ -331,34 +271,20 @@ export async function PUT(req: Request) {
                 .where(eq(breedingLogEntries.id, logId));
 
             // Check for new achievements
-            await checkAndRecordAchievements(
-                userId,
-                existingLog.pairId,
-                newProgenyIds,
-                logId
-            );
+            await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyIds, logId);
         });
 
-        Sentry.captureMessage(
-            `Log entry ${logId} updated successfully`,
-            'info'
-        );
+        Sentry.captureMessage(`Log entry ${logId} updated successfully`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
-        return NextResponse.json(
-            { message: 'Log entry updated successfully!' },
-            { status: 200 }
-        );
+        return NextResponse.json({ message: 'Log entry updated successfully!' }, { status: 200 });
     } catch (error) {
         console.error('Failed to update breeding log:', error);
         Sentry.captureException(error);
         return NextResponse.json(
             {
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'An internal error occurred.',
+                error: error instanceof Error ? error.message : 'An internal error occurred.',
             },
             { status: 500 }
         );
@@ -369,80 +295,54 @@ export async function DELETE(req: Request) {
     Sentry.captureMessage('Deleting breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to delete breeding log',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to delete breeding log', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
         const validated = deleteLogSchema.safeParse(body);
+
         if (!validated.success) {
-            Sentry.captureMessage(
-                'Invalid input for deleting breeding log',
-                'warning',
-                {
-                    extra: { details: validated.error.flatten() },
-                }
-            );
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid log id for deletion. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
+
         const { logId } = validated.data;
 
         await db.transaction(async (tx) => {
             const logToDelete = await tx.query.breedingLogEntries.findFirst({
-                where: and(
-                    eq(breedingLogEntries.id, logId),
-                    eq(breedingLogEntries.userId, userId)
-                ),
+                where: and(eq(breedingLogEntries.id, logId), eq(breedingLogEntries.userId, userId)),
             });
 
             if (!logToDelete) {
-                throw new Error(
-                    'Log entry not found or you do not have permission to delete it.'
-                );
+                throw new Error('Log entry not found or you do not have permission to delete it.');
             }
 
             // Delete associated achievements
-            await tx
-                .delete(achievedGoals)
-                .where(eq(achievedGoals.logEntryId, logId));
+            await tx.delete(achievedGoals).where(eq(achievedGoals.logEntryId, logId));
 
             // Delete the log entry
-            await tx
-                .delete(breedingLogEntries)
-                .where(eq(breedingLogEntries.id, logId));
+            await tx.delete(breedingLogEntries).where(eq(breedingLogEntries.id, logId));
         });
 
-        Sentry.captureMessage(
-            `Log entry ${logId} deleted successfully`,
-            'info'
-        );
+        Sentry.captureMessage(`Log entry ${logId} deleted successfully`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
-        return NextResponse.json(
-            { message: 'Log entry deleted successfully!' },
-            { status: 200 }
-        );
+        return NextResponse.json({ message: 'Log entry deleted successfully!' }, { status: 200 });
     } catch (error) {
         console.error('Failed to delete breeding log:', error);
         Sentry.captureException(error);
         return NextResponse.json(
             {
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'An internal error occurred.',
+                error: error instanceof Error ? error.message : 'An internal error occurred.',
             },
             { status: 500 }
         );
@@ -453,35 +353,29 @@ export async function PATCH(req: Request) {
     Sentry.captureMessage('Patching breeding log (moving progeny)', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to patch breeding log',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to patch breeding log', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
         const validated = updateLogSchema.safeParse(body);
+
         if (!validated.success) {
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
-                'Invalid input for patching breeding log',
-                'warning',
-                {
-                    extra: { details: validated.error.flatten() },
-                }
+                `Invalid data to update breeding log. ${errorMessage}`,
+                'warning'
             );
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-        const { logEntryId, progenyId, sourceLogId, keepSourceOnEmpty } =
-            validated.data;
+
+        const { logEntryId, progenyId, sourceLogId, keepSourceOnEmpty } = validated.data;
 
         if (sourceLogId && sourceLogId === logEntryId) {
             return NextResponse.json(
@@ -512,9 +406,7 @@ export async function PATCH(req: Request) {
                     .where(eq(breedingLogEntries.id, sourceLogId));
 
                 const updatedSourceLog = { ...sourceLog, ...updateData };
-                const isSourceEmpty =
-                    !updatedSourceLog.progeny1Id &&
-                    !updatedSourceLog.progeny2Id;
+                const isSourceEmpty = !updatedSourceLog.progeny1Id && !updatedSourceLog.progeny2Id;
 
                 if (isSourceEmpty && !keepSourceOnEmpty) {
                     await tx
@@ -578,10 +470,7 @@ export async function PATCH(req: Request) {
         Sentry.captureException(error);
         return NextResponse.json(
             {
-                error:
-                    error instanceof Error
-                        ? error.message
-                        : 'An internal error occurred.',
+                error: error instanceof Error ? error.message : 'An internal error occurred.',
             },
             { status: 500 }
         );

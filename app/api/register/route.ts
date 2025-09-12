@@ -31,34 +31,37 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Legacy registration attempt', 'log');
     try {
         const body = await req.json();
-        const { username, email, password } = registerUserSchema.parse(body);
+        const validatedFields = registerUserSchema.safeParse(body);
+
+        if (!validatedFields.success) {
+            const { fieldErrors } = validatedFields.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(
+                `Invalid input for legacy registration. ${errorMessage}`,
+                'warning'
+            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
+        }
+
+        const { username, email, password } = validatedFields.data;
 
         // Check if a user with this username OR email already exists
         const existingUserByUsername = await db.query.users.findFirst({
             where: eq(users.username, username),
         });
         if (existingUserByUsername) {
-            Sentry.captureMessage(
-                `Registration with existing username: ${username}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { message: 'Username is already taken' },
-                { status: 409 }
-            );
+            Sentry.captureMessage(`Registration with existing username: ${username}`, 'warning');
+            return NextResponse.json({ message: 'Username is already taken' }, { status: 409 });
         }
         const existingUserByEmail = await db.query.users.findFirst({
             where: eq(users.email, email),
         });
         if (existingUserByEmail) {
-            Sentry.captureMessage(
-                `Registration with existing email: ${email}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { message: 'Email is already in use' },
-                { status: 409 }
-            );
+            Sentry.captureMessage(`Registration with existing email: ${email}`, 'warning');
+            return NextResponse.json({ message: 'Email is already in use' }, { status: 409 });
         }
 
         // Hash the password
@@ -72,30 +75,31 @@ export async function POST(req: Request) {
             password: hashedPassword,
         });
 
-        Sentry.captureMessage(
-            `User created successfully (legacy): ${username}`,
-            'info'
-        );
+        Sentry.captureMessage(`User created successfully (legacy): ${username}`, 'info');
         return NextResponse.json(
             { user: { username }, message: 'User created successfully' },
             { status: 201 } // 201 Created
         );
     } catch (error) {
         if (error instanceof z.ZodError) {
+            const { fieldErrors } = error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', errorMessage);
             Sentry.captureMessage(
-                'Zod validation failed for legacy registration',
-                'warning',
-                { extra: { details: error.flatten().fieldErrors } }
+                `Zod validation failed for legacy registration: ${errorMessage}`,
+                'warning'
             );
             return NextResponse.json(
-                { message: error.flatten().fieldErrors },
+                { message: errorMessage || 'Invalid input.' },
                 { status: 400 }
             );
         }
 
         Sentry.captureException(error);
         return NextResponse.json(
-            { message: 'An unexpected error occurred.' },
+            { message: `An unexpected error occurred. ${error}` },
             { status: 500 }
         );
     }

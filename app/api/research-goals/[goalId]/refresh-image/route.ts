@@ -8,22 +8,13 @@ import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 import * as Sentry from '@sentry/nextjs';
 
-export async function POST(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function POST(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
     Sentry.captureMessage(`Refreshing image for goal ${params.goalId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to refresh goal image',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to refresh goal image', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -35,14 +26,8 @@ export async function POST(
         });
 
         if (!goal) {
-            Sentry.captureMessage(
-                `Goal not found for image refresh: ${params.goalId}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Goal not found.' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Goal not found for image refresh: ${params.goalId}`, 'warning');
+            return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
         }
 
         if (!goal.genes || typeof goal.genes !== 'object') {
@@ -65,11 +50,7 @@ export async function POST(
 
         const tfoImageUrl = constructTfoImageUrl(goal.species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        const blobUrl = await fetchAndUploadWithRetry(
-            bustedTfoImageUrl,
-            `goal-${goal.id}`,
-            3
-        );
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, `goal-${goal.id}`, 3);
 
         await db
             .update(researchGoals)
@@ -79,16 +60,10 @@ export async function POST(
         revalidatePath(`/research-goals/${goal.id}`);
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(
-            `Successfully refreshed image for goal ${goal.id}`,
-            'info'
-        );
+        Sentry.captureMessage(`Successfully refreshed image for goal ${goal.id}`, 'info');
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -12,14 +12,8 @@ export async function POST(req: Request) {
     try {
         const { email } = await req.json();
         if (!email) {
-            Sentry.captureMessage(
-                'Email not provided for password reset request',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Email is required.' },
-                { status: 400 }
-            );
+            Sentry.captureMessage('Email not provided for password reset request', 'warning');
+            return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
         }
 
         const user = await db.query.users.findFirst({
@@ -34,9 +28,7 @@ export async function POST(req: Request) {
             const expires = new Date(new Date().getTime() + 3600 * 1000); // Expires in 1 hour
 
             // Delete any existing tokens for this email to invalidate old ones
-            await db
-                .delete(passwordResetTokens)
-                .where(eq(passwordResetTokens.email, email));
+            await db.delete(passwordResetTokens).where(eq(passwordResetTokens.email, email));
 
             // Insert the new token
             await db.insert(passwordResetTokens).values({
@@ -47,10 +39,7 @@ export async function POST(req: Request) {
 
             // Send the email with the RAW, un-hashed token
             await sendPasswordResetEmail(email, token);
-            Sentry.captureMessage(
-                `Password reset email sent for: ${email}`,
-                'info'
-            );
+            Sentry.captureMessage(`Password reset email sent for: ${email}`, 'info');
         } else {
             Sentry.captureMessage(
                 `Password reset requested for non-existent email: ${email}`,
@@ -68,9 +57,6 @@ export async function POST(req: Request) {
     } catch (error) {
         console.error('Password reset request failed:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

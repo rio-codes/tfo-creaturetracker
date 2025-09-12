@@ -7,14 +7,8 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Syncing all TFO tabs', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to sync all tabs',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to sync all tabs', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
     const tfoUsername = session.user.username;
@@ -22,18 +16,9 @@ export async function POST(req: Request) {
     try {
         const { tabIds } = await req.json();
         console.log(tabIds);
-        if (
-            !Array.isArray(tabIds) ||
-            tabIds.some((id) => typeof id !== 'number')
-        ) {
-            Sentry.captureMessage(
-                'Invalid tab IDs provided for sync-all',
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Invalid tab IDs provided.' },
-                { status: 400 }
-            );
+        if (!Array.isArray(tabIds) || tabIds.some((id) => typeof id !== 'number')) {
+            Sentry.captureMessage('Invalid tab IDs provided for sync-all', 'warning');
+            return NextResponse.json({ error: 'Invalid tab IDs provided.' }, { status: 400 });
         }
 
         const results = await Promise.allSettled(
@@ -47,14 +32,8 @@ export async function POST(req: Request) {
             .filter((r) => r.status === 'rejected')
             .map((r) => (r as PromiseRejectedResult).reason.message);
 
-        const totalAdded = successfulSyncs.reduce(
-            (sum, result) => sum + result.added,
-            0
-        );
-        const totalUpdated = successfulSyncs.reduce(
-            (sum, result) => sum + result.updated,
-            0
-        );
+        const totalAdded = successfulSyncs.reduce((sum, result) => sum + result.added, 0);
+        const totalUpdated = successfulSyncs.reduce((sum, result) => sum + result.updated, 0);
 
         let message = `Sync complete. Added: ${totalAdded}, Updated: ${totalUpdated}.`;
         if (failedSyncs.length > 0) {

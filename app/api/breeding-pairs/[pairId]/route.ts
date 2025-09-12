@@ -25,7 +25,10 @@ const editPairSchema = z.object({
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
-export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function PATCH(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
@@ -240,7 +243,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
     }
 }
 
-export async function DELETE(req: Request, props: { params: Promise<{ pairId: string }> }) {
+export async function DELETE(
+    req: Request,
+    props: { params: Promise<{ pairId: string }> }
+) {
     const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {

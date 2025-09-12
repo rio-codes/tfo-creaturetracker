@@ -6,10 +6,10 @@
     "insert_final_newline": false,
     "endOfLine": "lf",
     "arrowParens": "always",
+    "quoteProps": "consistent",
     "bracketSpacing": true,
     "bracketSameLine": false,
-    "quoteProps": "as-needed",
     "indent_style": "space",
     "indent_size": 4,
-    "printWidth": 80
+    "printWidth": 100
 }

@@ -315,8 +315,9 @@ export function AddPairForm({
     return (
         <form
             onSubmit={handleSubmit}
-            className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple dark"
+            
         >
+            <div className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple">
             <Input
                 placeholder="Pair Name (e.g., Silver Project)"
                 value={pairName}
@@ -345,7 +346,7 @@ export function AddPairForm({
 
             {/* Pair Preview */}
             {(selectedMale || selectedFemale) && (
-                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
+                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border text-xs">
                     {selectedMale && (
                         <div className="flex flex-col items-center w-36">
                             <img
@@ -357,7 +358,7 @@ export function AddPairForm({
                             />
                             <Collapsible className="w-full">
                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                    <p className="truncate">
+                                    <p className="wrap">
                                         {selectedMale.creatureName || 'Unnamed'}{' '}
                                         ({selectedMale.code})
                                     </p>
@@ -386,7 +387,7 @@ export function AddPairForm({
                             />
                             <Collapsible className="w-full">
                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                    <p className="truncate">
+                                    <p className="wrap">
                                         {selectedFemale.creatureName ||
                                             'Unnamed'}{' '}
                                         ({selectedFemale.code})
@@ -410,12 +411,12 @@ export function AddPairForm({
                 required={!isHybridMode}
                 disabled={isHybridMode}
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-xs">
                     <SelectValue placeholder="Select Species..." />
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {speciesList.map((s) => (
-                        <SelectItem key={s} value={s}>
+                        <SelectItem key={s} value={s}                 className="w-3/4">
                             {s}
                         </SelectItem>
                     ))}
@@ -428,12 +429,12 @@ export function AddPairForm({
                 onValueChange={setSelectedMaleId}
                 disabled={!isHybridMode && !selectedSpecies}
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-xs">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectContent className='bg-ebena-lavender dark:bg-midnight-purple max-w-3/4 '>
                     {availableMales.map((c) => (
-                        <SelectItem key={c?.id} value={c!.id}>
+                        <SelectItem key={c?.id} value={c!.id} >
                             {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
                             {c?.species}
                         </SelectItem>
@@ -445,7 +446,7 @@ export function AddPairForm({
                 onValueChange={setSelectedFemaleId}
                 disabled={!isHybridMode && !selectedSpecies}
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-xs">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
@@ -535,16 +536,18 @@ export function AddPairForm({
                     </div>
                 </div>
             )}
-
             {error && <p className="text-sm text-red-500">{error}</p>}
             {message && <p className="text-sm text-green-600">{error}</p>}
+            </div>
+            <div className='mt-3 flex justify-center gap-2'>
             <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-pompaca-purple text-barely-lilac"
+                className="w-1/3 bg-pompaca-purple text-barely-lilac dark:bg-purple-300 dark:text-pompaca-purple object-right"
             >
                 {isLoading ? 'Saving...' : 'Create Pair'}
             </Button>
+            </div>
         </form>
     );
 }

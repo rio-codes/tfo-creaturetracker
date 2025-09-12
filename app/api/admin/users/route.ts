@@ -6,9 +6,14 @@ import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
 import * as Sentry from '@sentry/nextjs';
 
 export async function GET(req: Request) {
+    Sentry.captureMessage('Admin: fetching users', 'log');
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage(
+            'Forbidden access to admin fetch users',
+            'warning'
+        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -53,6 +58,10 @@ export async function GET(req: Request) {
         const totalUsers = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUsers / limit);
 
+        Sentry.captureMessage(
+            `Admin: successfully fetched users page ${page}`,
+            'info'
+        );
         return NextResponse.json({
             users: userList,
             pagination: {

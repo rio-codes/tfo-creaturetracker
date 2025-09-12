@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { db } from "@/src/db";
-import { breedingPairs } from "@/src/db/schema";
-import { and, eq } from "drizzle-orm";
-import { z } from "zod";
-import { constructTfoImageUrl } from "@/lib/tfo-utils";
-import { fetchAndUploadWithRetry } from "@/lib/data";
-import { revalidatePath } from "next/cache";
-import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { breedingPairs } from '@/src/db/schema';
+import { and, eq } from 'drizzle-orm';
+import { z } from 'zod';
+import { constructTfoImageUrl } from '@/lib/tfo-utils';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+import { revalidatePath } from 'next/cache';
+import * as Sentry from '@sentry/nextjs';
 
 const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
@@ -16,8 +16,10 @@ const previewSchema = z.object({
 export async function POST(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
+    Sentry.captureMessage(`Generating outcomes preview for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+        Sentry.captureMessage('Unauthenticated attempt to generate outcomes preview', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -25,7 +27,16 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
         const validated = previewSchema.safeParse(body);
 
         if (!validated.success) {
-            return NextResponse.json({ error: "Invalid input." }, { status: 400 });
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(
+                `Invalid genetic data for previewing outcome. ${errorMessage}`,
+                'warning'
+            );
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { selectedGenotypes } = validated.data;
@@ -38,28 +49,38 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
         });
 
         if (!pair) {
-            return NextResponse.json({ error: "Breeding pair not found." }, { status: 404 });
+            Sentry.captureMessage(
+                `Breeding pair not found for outcomes preview: ${params.pairId}`,
+                'warning'
+            );
+            return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
         const tfoImageUrl = constructTfoImageUrl(pair.species, selectedGenotypes);
-        // Add a cache-busting parameter to the TFO URL to ensure we get a fresh image
-        // from their server and not a stale cached version. This complements the
-        // `cache: 'no-store'` setting in the fetch call for defense-in-depth.
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         // The reference ID is prefixed to distinguish it from creature codes in fetchAndUploadWithRetry
-        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, `pair-preview-${pair.id}`, 3);
+        const blobUrl = await fetchAndUploadWithRetry(
+            bustedTfoImageUrl,
+            `pair-preview-${pair.id}`,
+            3
+        );
 
         // Update the default preview URL on the pair itself.
         // This will be used as the cached image on the dialog's first open.
-        await db.update(breedingPairs)
+        await db
+            .update(breedingPairs)
             .set({ outcomesPreviewUrl: blobUrl })
             .where(eq(breedingPairs.id, pair.id));
-        
-        revalidatePath("/breeding-pairs");
 
+        revalidatePath('/breeding-pairs');
+
+        Sentry.captureMessage(
+            `Successfully generated outcomes preview for pair ${params.pairId}`,
+            'info'
+        );
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
         Sentry.captureException(error);
-        return NextResponse.json({ error: "An internal error occurred." }, { status: 500 });
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -29,78 +29,61 @@ const editGoalSchema = z.object({
     goalMode: z.enum(goalModeEnum.enumValues),
 });
 
-export async function GET(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
+    Sentry.captureMessage(`Fetching goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to fetch goal', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
     const goalId = params.goalId;
     console.log(goalId);
 
     if (!goalId) {
-        return NextResponse.json(
-            { error: 'Goal ID is required' },
-            { status: 400 }
-        );
+        Sentry.captureMessage('Goal ID not provided for fetch', 'warning');
+        return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 });
     }
 
     try {
         const goal = await db.query.researchGoals.findFirst({
-            where: and(
-                eq(researchGoals.id, goalId),
-                eq(researchGoals.userId, userId)
-            ),
+            where: and(eq(researchGoals.id, goalId), eq(researchGoals.userId, userId)),
         });
 
         if (!goal) {
-            return NextResponse.json(
-                { error: 'Goal not found' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Goal not found: ${goalId}`, 'warning');
+            return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
+        Sentry.captureMessage(`Successfully fetched goal ${goalId}`, 'info');
         return NextResponse.json(goal);
     } catch (error) {
         console.error('Failed to fetch goal:', error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        Sentry.captureException(error);
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 
-export async function PUT(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function PUT(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
+    Sentry.captureMessage(`Admin pinning/unpinning goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage('Forbidden access to admin pin goal', 'warning');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     const goalId = params.goalId;
     if (!goalId) {
-        return NextResponse.json(
-            { error: 'Goal ID is required' },
-            { status: 400 }
-        );
+        Sentry.captureMessage('Goal ID not provided for admin pin', 'warning');
+        return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 });
     }
 
     const { isPinned } = await req.json();
 
     if (typeof isPinned !== 'boolean') {
-        return NextResponse.json(
-            { error: 'Invalid value for isPinned' },
-            { status: 400 }
-        );
+        Sentry.captureMessage('Invalid isPinned value for admin pin goal', 'warning');
+        return NextResponse.json({ error: 'Invalid value for isPinned' }, { status: 400 });
     }
 
     try {
@@ -111,10 +94,8 @@ export async function PUT(
             .returning();
 
         if (!updatedGoal) {
-            return NextResponse.json(
-                { error: 'Goal not found' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Goal not found for admin pin: ${goalId}`, 'warning');
+            return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
 
         await logAdminAction({
@@ -127,6 +108,7 @@ export async function PUT(
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${goalId}`);
 
+        Sentry.captureMessage(`Admin ${isPinned ? 'pinned' : 'unpinned'} goal ${goalId}`, 'info');
         return NextResponse.json({
             message: `Goal ${isPinned ? 'pinned' : 'unpinned'} successfully`,
             goal: updatedGoal,
@@ -134,48 +116,38 @@ export async function PUT(
     } catch (error) {
         Sentry.captureException(error);
         console.error('Failed to update goal pin status:', error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 
-export async function PATCH(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
+    Sentry.captureMessage(`Editing goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to edit goal', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
         const validatedFields = editGoalSchema.safeParse(body);
-            
+
         if (!validatedFields.success) {
             const { fieldErrors } = validatedFields.error.flatten();
             const errorMessage = Object.values(fieldErrors)
-                .flat()
+                .flatMap((errors) => errors)
                 .join(' ');
-            console.log(validatedFields.error.flatten());
-            return NextResponse.json(
-                {
-                    error: errorMessage || 'Invalid data provided.',
-                },
-                { status: 400 }
-            );
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { name, species, genes, goalMode } = validatedFields.data;
 
         if (hasObscenity(name)) {
+            Sentry.captureMessage('Obscene language in goal name', 'warning');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -183,13 +155,11 @@ export async function PATCH(
         }
 
         const existingGoal = await db.query.researchGoals.findFirst({
-            where: and(
-                eq(researchGoals.id, params.goalId),
-                eq(researchGoals.userId, userId)
-            ),
+            where: and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)),
         });
 
         if (!existingGoal) {
+            Sentry.captureMessage(`Goal not found for editing: ${params.goalId}`, 'warning');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',
@@ -199,8 +169,7 @@ export async function PATCH(
         }
 
         let newImageUrl = existingGoal.imageUrl;
-        const genesChanged =
-            JSON.stringify(existingGoal.genes) !== JSON.stringify(genes);
+        const genesChanged = JSON.stringify(existingGoal.genes) !== JSON.stringify(genes);
 
         if (genesChanged || existingGoal.species !== species) {
             try {
@@ -210,10 +179,7 @@ export async function PATCH(
                         return [category, geneSelection.genotype];
                     })
                 );
-                const tfoApiUrl = constructTfoImageUrl(
-                    species,
-                    genotypesForUrl
-                );
+                const tfoApiUrl = constructTfoImageUrl(species, genotypesForUrl);
                 const imageResponse = await fetch(tfoApiUrl);
                 if (imageResponse.ok) {
                     const imageBlob = await imageResponse.blob();
@@ -245,12 +211,7 @@ export async function PATCH(
                 imageUrl: newImageUrl,
                 updatedAt: new Date(),
             })
-            .where(
-                and(
-                    eq(researchGoals.id, params.goalId),
-                    eq(researchGoals.userId, userId)
-                )
-            )
+            .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
             .returning();
 
         if (session.user.role === 'admin') {
@@ -268,43 +229,33 @@ export async function PATCH(
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${params.goalId}`);
 
+        Sentry.captureMessage(`Goal ${params.goalId} updated successfully`, 'info');
         return NextResponse.json({ message: 'Goal updated successfully!' });
     } catch (error: any) {
         Sentry.captureException(error);
         console.error('Failed to update research goal:', error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 
-export async function DELETE(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
+    Sentry.captureMessage(`Deleting goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to delete goal', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const [deletedGoal] = await db
             .delete(researchGoals)
-            .where(
-                and(
-                    eq(researchGoals.id, params.goalId),
-                    eq(researchGoals.userId, userId)
-                )
-            )
+            .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
             .returning();
 
         if (!deletedGoal) {
+            Sentry.captureMessage(`Goal not found for deletion: ${params.goalId}`, 'warning');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to delete it.',
@@ -324,13 +275,11 @@ export async function DELETE(
 
         revalidatePath('/research-goals');
 
+        Sentry.captureMessage(`Goal ${params.goalId} deleted successfully`, 'info');
         return NextResponse.json({ message: 'Goal deleted successfully.' });
     } catch (error: any) {
         Sentry.captureException(error);
         console.error('Failed to delete research goal:', error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

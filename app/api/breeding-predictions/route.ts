@@ -25,7 +25,9 @@ interface SpeciesGeneData {
 // For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.
 const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | null => {
     if (!creature || !creature.species) return null;
-    const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[creature.species];
+    const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[
+        creature.species
+    ];
 
     return {
         ...creature,
@@ -42,9 +44,21 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | nu
                     if (!categoryData) return null;
 
                     const matchedGene = categoryData.find((g) => g.genotype === genotype);
-                    return { category, genotype, phenotype: matchedGene?.phenotype || 'Unknown' };
+                    return {
+                        category,
+                        genotype,
+                        phenotype: matchedGene?.phenotype || 'Unknown',
+                    };
                 })
-                .filter((g): g is { category: string; genotype: string; phenotype: string } => g !== null) || [],
+                .filter(
+                    (
+                        g
+                    ): g is {
+                        category: string;
+                        genotype: string;
+                        phenotype: string;
+                    } => g !== null
+                ) || [],
     };
 };
 
@@ -55,12 +69,11 @@ const predictionSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Calculating breeding predictions', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to get breeding predictions', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
@@ -68,10 +81,13 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validated = predictionSchema.safeParse(body);
         if (!validated.success) {
-            return NextResponse.json(
-                { error: 'Invalid input.' },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { maleParentId, femaleParentId, goalIds } = validated.data;
 
@@ -80,16 +96,10 @@ export async function POST(req: Request) {
             where: eq(users.id, userId),
         });
         const maleParentRaw = await db.query.creatures.findFirst({
-            where: and(
-                eq(creatures.id, maleParentId),
-                eq(creatures.userId, userId)
-            ),
+            where: and(eq(creatures.id, maleParentId), eq(creatures.userId, userId)),
         });
         const femaleParentRaw = await db.query.creatures.findFirst({
-            where: and(
-                eq(creatures.id, femaleParentId),
-                eq(creatures.userId, userId)
-            ),
+            where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, userId)),
         });
         const goals =
             goalIds && goalIds.length > 0
@@ -102,6 +112,7 @@ export async function POST(req: Request) {
                 : [];
 
         if (!user || !maleParentRaw || !femaleParentRaw) {
+            Sentry.captureMessage('Could not find user or parents for prediction', 'warning');
             return NextResponse.json(
                 { error: 'Could not find user or parent creatures.' },
                 { status: 404 }
@@ -112,26 +123,27 @@ export async function POST(req: Request) {
         const femaleParent = enrichAndSerializeCreature(femaleParentRaw);
 
         if (!maleParent || !femaleParent) {
+            Sentry.captureMessage('Could not process parent creatures for prediction', 'warning');
             return NextResponse.json(
-                { error: 'Could not process parent creatures. They may be missing species information.' },
+                {
+                    error: 'Could not process parent creatures. They may be missing species information.',
+                },
                 { status: 404 }
             );
         }
 
         const enrichedGoals = goals.map((goal) => {
             const enrichedGenes: { [key: string]: any } = {};
-            const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[goal.species];
+            const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[
+                goal.species
+            ];
             if (!speciesGeneData || !goal.genes) return { ...goal, genes: {} };
 
             for (const [category, selection] of Object.entries(goal.genes)) {
                 let finalGenotype: string,
                     finalPhenotype: string,
                     isMulti = false;
-                if (
-                    typeof selection === 'object' &&
-                    selection?.phenotype &&
-                    selection?.genotype
-                ) {
+                if (typeof selection === 'object' && selection?.phenotype && selection?.genotype) {
                     finalGenotype = selection.genotype;
                     finalPhenotype = selection.phenotype;
                 } else if (typeof selection === 'string') {
@@ -163,9 +175,7 @@ export async function POST(req: Request) {
             let totalChance = 0;
             let geneCount = 0;
             let isPossible = true;
-            for (const [category, targetGeneInfo] of Object.entries(
-                goal.genes
-            )) {
+            for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
                 const targetGene = targetGeneInfo as any;
                 const chance = calculateGeneProbability(
                     maleParent,
@@ -192,12 +202,10 @@ export async function POST(req: Request) {
             };
         });
 
+        Sentry.captureMessage('Successfully calculated breeding predictions', 'info');
         return NextResponse.json({ predictions });
     } catch (error) {
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

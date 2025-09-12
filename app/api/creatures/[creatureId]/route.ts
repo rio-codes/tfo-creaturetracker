@@ -12,8 +12,13 @@ export async function GET(
     props: { params: Promise<{ creatureId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Fetching creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage(
+            `Forbidden access to fetch creature ${params.creatureId}`,
+            'warning'
+        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -23,6 +28,10 @@ export async function GET(
         });
 
         if (!creature) {
+            Sentry.captureMessage(
+                `Creature not found: ${params.creatureId}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Creature not found' },
                 { status: 404 }
@@ -34,6 +43,10 @@ export async function GET(
             where: eq(creatures.userId, creature.userId),
         });
 
+        Sentry.captureMessage(
+            `Successfully fetched creature ${params.creatureId}`,
+            'info'
+        );
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
@@ -54,8 +67,13 @@ export async function DELETE(
     props: { params: Promise<{ creatureId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Deleting creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage(
+            'Unauthenticated attempt to delete creature',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -64,6 +82,10 @@ export async function DELETE(
 
     const { creatureId } = params;
     if (!creatureId) {
+        Sentry.captureMessage(
+            'Creature ID not provided for deletion',
+            'warning'
+        );
         return NextResponse.json(
             { error: 'Creature ID is required.' },
             { status: 400 }
@@ -82,6 +104,10 @@ export async function DELETE(
             .returning(); // .returning() gives us back the row that was deleted
 
         if (result.length === 0) {
+            Sentry.captureMessage(
+                `Creature not found for deletion: ${creatureId}`,
+                'warning'
+            );
             return NextResponse.json(
                 {
                     error: 'Creature not found or you do not have permission to delete it.',
@@ -93,6 +119,10 @@ export async function DELETE(
         // Clear the cache for the collection page so the grid updates immediately
         revalidatePath('/collection');
 
+        Sentry.captureMessage(
+            `Creature ${creatureId} deleted successfully`,
+            'info'
+        );
         return NextResponse.json(
             { message: 'Creature deleted successfully.' },
             { status: 200 }
@@ -102,6 +132,10 @@ export async function DELETE(
         console.error('Failed to delete creature:', error);
         // Handle potential foreign key constraint errors if a creature is part of a pair
         if ((error as any).code === '23503') {
+            Sentry.captureMessage(
+                `Attempted to delete creature in a pair: ${creatureId}`,
+                'warning'
+            );
             // PostgreSQL foreign key violation error code
             return NextResponse.json(
                 {

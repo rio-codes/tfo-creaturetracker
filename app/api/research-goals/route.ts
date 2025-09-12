@@ -51,44 +51,35 @@ export function validateGoalData(
         const selectedGenotype = selectedGene.genotype;
         const categoryData = speciesData[category];
         if (!categoryData) {
-            throw new Error(
-                `Invalid gene category "${category}" for species "${species}".`
-            );
+            throw new Error(`Invalid gene category "${category}" for species "${species}".`);
         }
         // ensure genotype exists for category
-        const isValidGenotype = categoryData.some(
-            (gene) => gene.genotype === selectedGenotype
-        );
+        const isValidGenotype = categoryData.some((gene) => gene.genotype === selectedGenotype);
         // error if genotype is not valid
         if (!isValidGenotype) {
-            throw new Error(
-                `Invalid genotype "${selectedGenotype}" for category "${category}".`
-            );
+            throw new Error(`Invalid genotype "${selectedGenotype}" for category "${category}".`);
         }
     }
 }
 
 // add new research goal
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating new research goal', 'log');
     console.log('Received', req.body);
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to create research goal', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
         const body = await req.json();
-        // validate received data with zod schema
+
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
             Sentry.logger.warn('Zod validation failed for new goal');
             const { fieldErrors } = validatedFields.error.flatten();
-            const errorMessage = Object.values(fieldErrors)
-                .flat()
-                .join(' ');
+            const errorMessage = Object.values(fieldErrors).flat().join(' ');
             console.log(validatedFields.error.flatten());
             return NextResponse.json(
                 {
@@ -100,6 +91,7 @@ export async function POST(req: Request) {
         const { name, species, genes } = validatedFields.data;
 
         if (hasObscenity(name)) {
+            Sentry.captureMessage('Obscene language in new goal name', 'warning');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -111,8 +103,7 @@ export async function POST(req: Request) {
 
         // ensure species is valid
         const speciesCode = TFO_SPECIES_CODES[species];
-        if (!speciesCode)
-            throw new Error(`Invalid species provided: ${species}`);
+        if (!speciesCode) throw new Error(`Invalid species provided: ${species}`);
 
         // get genotype to construct image url
         const genotypesForUrl = Object.fromEntries(
@@ -125,11 +116,7 @@ export async function POST(req: Request) {
         // fetch new image from tfo and store it in vercel blob
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        const blobUrl = await fetchAndUploadWithRetry(
-            bustedTfoImageUrl,
-            null,
-            3
-        );
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
         // insert new research goal into db
         await db.insert(researchGoals).values({
@@ -143,6 +130,7 @@ export async function POST(req: Request) {
 
         revalidatePath('/research-goals');
 
+        Sentry.captureMessage(`Research goal "${name}" created successfully`, 'info');
         return NextResponse.json(
             { message: 'Research Goal created successfully!' },
             { status: 201 }

@@ -15,6 +15,7 @@ import {
     enrichAndSerializeGoal,
 } from '@/lib/serialization';
 import { enrichAndSerializeBreedingPair } from '@/lib/data-helpers'; // We'll create this helper
+import * as Sentry from '@sentry/nextjs';
 
 export async function GET(
     req: Request,
@@ -22,7 +23,15 @@ export async function GET(
 ) {
     const params = await props.params;
     const session = await auth();
+    Sentry.captureMessage(
+        `Admin: fetching breeding pair ${params.pairId}`,
+        'log'
+    );
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage(
+            `Forbidden access to admin fetch breeding pair ${params.pairId}`,
+            'warning'
+        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -33,6 +42,10 @@ export async function GET(
         });
 
         if (!pair || !pair.maleParent || !pair.femaleParent) {
+            Sentry.captureMessage(
+                `Admin: breeding pair not found ${params.pairId}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Breeding pair not found' },
                 { status: 404 }
@@ -73,6 +86,10 @@ export async function GET(
             allRawPairs
         );
 
+        Sentry.captureMessage(
+            `Admin: successfully fetched breeding pair ${params.pairId}`,
+            'info'
+        );
         return NextResponse.json({
             pair: enrichedPair,
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
@@ -87,6 +104,7 @@ export async function GET(
         });
     } catch (error) {
         console.error('Failed to fetch breeding pair details:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }
@@ -100,8 +118,16 @@ export async function DELETE(
 ) {
     const params = await props.params;
     const session = await auth();
+    Sentry.captureMessage(
+        `Admin: deleting breeding pair ${params.pairId}`,
+        'log'
+    );
 
     if (!session?.user?.id || session.user.role !== 'admin') {
+        Sentry.captureMessage(
+            `Forbidden access to admin delete breeding pair ${params.pairId}`,
+            'warning'
+        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -112,6 +138,10 @@ export async function DELETE(
         });
 
         if (!targetPair) {
+            Sentry.captureMessage(
+                `Admin: breeding pair to delete not found ${params.pairId}`,
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Breeding pair not found.' },
                 { status: 404 }
@@ -131,11 +161,16 @@ export async function DELETE(
             },
         });
 
+        Sentry.captureMessage(
+            `Admin: successfully deleted breeding pair ${params.pairId}`,
+            'info'
+        );
         return NextResponse.json({
             message: 'Breeding pair deleted successfully.',
         });
     } catch (error) {
         console.error('Failed to delete breeding pair:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: 'An internal error occurred.' },
             { status: 500 }

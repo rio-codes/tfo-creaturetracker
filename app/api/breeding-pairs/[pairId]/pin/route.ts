@@ -11,8 +11,10 @@ export async function PATCH(
     props: { params: Promise<{ pairId: string }> }
 ) {
     const params = await props.params;
+    Sentry.captureMessage(`Pinning/unpinning pair ${params.pairId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
+        Sentry.captureMessage('Unauthenticated attempt to pin pair', 'warning');
         return NextResponse.json(
             { error: 'Not authenticated' },
             { status: 401 }
@@ -33,6 +35,10 @@ export async function PATCH(
                 )
             );
 
+        Sentry.captureMessage(
+            `Pair ${pairId} pin status set to ${isPinned}`,
+            'info'
+        );
         revalidatePath('/breeding-pairs');
         return NextResponse.json({ success: true, isPinned: isPinned });
     } catch (error) {

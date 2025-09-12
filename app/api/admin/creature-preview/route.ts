@@ -18,9 +18,14 @@ const previewCreatureSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Admin: creature preview', 'log');
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
+        Sentry.captureMessage(
+            'Forbidden access to admin creature preview',
+            'warning'
+        );
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -29,6 +34,10 @@ export async function POST(req: Request) {
         const validated = previewCreatureSchema.safeParse(body);
 
         if (!validated.success) {
+            Sentry.captureMessage(
+                'Invalid input for admin creature preview',
+                'warning'
+            );
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -52,6 +61,10 @@ export async function POST(req: Request) {
             3
         );
 
+        Sentry.captureMessage(
+            'Admin: creature preview generated successfully',
+            'info'
+        );
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
         Sentry.captureException(error);

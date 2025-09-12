@@ -37,12 +37,11 @@ const createGoalSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating goal from outcomes', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to create goal from outcomes', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
@@ -50,20 +49,20 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validated = createGoalSchema.safeParse(body);
         if (!validated.success) {
-            return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
-                { status: 400 }
-            );
+            const { fieldErrors } = validated.error.flatten();
+            const errorMessage = Object.values(fieldErrors)
+                .flatMap((errors) => errors)
+                .join(' ');
+            console.error('Zod Validation Failed:', fieldErrors);
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { pairId, goalName, species, selectedGenotypes } = validated.data;
 
         // 1. Construct the full `genes` object for the new goal
         const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
         if (!speciesGeneData) {
-            return NextResponse.json(
-                { error: `Invalid species: ${species}` },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: `Invalid species: ${species}` }, { status: 400 });
         }
         const goalGenes: { [key: string]: GoalGene } = {};
         for (const [category, genotype] of Object.entries(selectedGenotypes)) {
@@ -99,11 +98,7 @@ export async function POST(req: Request) {
         const tfoImageUrl = constructTfoImageUrl(species, selectedGenotypes);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         // A new goal won't have a predictable ID yet, so pass null to generate a new UUID filename
-        const blobUrl = await fetchAndUploadWithRetry(
-            bustedTfoImageUrl,
-            null,
-            3
-        );
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
         // 3. Create the researchGoal record
         const newGoalResult = await db
@@ -124,10 +119,7 @@ export async function POST(req: Request) {
 
         // 4. Update the breedingPair record to include the new goal
         const pair = await db.query.breedingPairs.findFirst({
-            where: and(
-                eq(breedingPairs.id, pairId),
-                eq(breedingPairs.userId, userId)
-            ),
+            where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
         });
         if (pair) {
             const existingGoalIds = new Set(pair.assignedGoalIds || []);
@@ -143,6 +135,10 @@ export async function POST(req: Request) {
         revalidatePath('/breeding-pairs');
         revalidatePath(`/research-goals/${newGoalId}`);
 
+        Sentry.captureMessage(
+            `Goal ${newGoalId} created from outcomes and assigned to pair ${pairId}`,
+            'info'
+        );
         return NextResponse.json(
             {
                 message: 'Goal created and assigned successfully!',
@@ -152,9 +148,6 @@ export async function POST(req: Request) {
         );
     } catch (error: any) {
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

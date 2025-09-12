@@ -7,6 +7,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { validatePairing } from '@/lib/breeding-rules';
+import * as Sentry from '@sentry/nextjs';
 
 const createPairSchema = z.object({
     pairName: z
@@ -20,12 +21,11 @@ const createPairSchema = z.object({
 });
 
 export async function POST(req: Request) {
+    Sentry.captureMessage('Creating breeding pair', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to create pair', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
@@ -39,16 +39,14 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            return NextResponse.json(
-                { error: errorMessage || 'Invalid input.' },
-                { status: 400 }
-            );
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { pairName, maleParentId, femaleParentId, assignedGoalIds } =
-            validatedFields.data;
+        const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
+            Sentry.captureMessage('Obscene language in new pair name', 'warning');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -57,16 +55,10 @@ export async function POST(req: Request) {
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, maleParentId),
-                    eq(creatures.userId, userId)
-                ),
+                where: and(eq(creatures.id, maleParentId), eq(creatures.userId, userId)),
             }),
             db.query.creatures.findFirst({
-                where: and(
-                    eq(creatures.id, femaleParentId),
-                    eq(creatures.userId, userId)
-                ),
+                where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, userId)),
             }),
         ]);
 
@@ -79,9 +71,23 @@ export async function POST(req: Request) {
 
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
+            return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
+        }
+
+        // Check if a pair with these exact parents already exists
+        const existingPair = await db.query.breedingPairs.findFirst({
+            where: and(
+                eq(breedingPairs.userId, userId),
+                eq(breedingPairs.maleParentId, maleParentId),
+                eq(breedingPairs.femaleParentId, femaleParentId)
+            ),
+        });
+
+        if (existingPair) {
+            Sentry.captureMessage('Duplicate breeding pair found', 'warning');
             return NextResponse.json(
-                { error: pairingValidation.error },
-                { status: 400 }
+                { error: 'A breeding pair with these parents already exists.' },
+                { status: 409 }
             );
         }
 
@@ -118,12 +124,14 @@ export async function POST(req: Request) {
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');
 
+        Sentry.captureMessage(`Breeding pair ${newPair.id} created successfully`, 'info');
         return NextResponse.json(
             { message: 'Breeding pair created successfully!', pair: newPair },
             { status: 201 }
         );
     } catch (error: any) {
         console.error('Failed to create breeding pair:', error);
+        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

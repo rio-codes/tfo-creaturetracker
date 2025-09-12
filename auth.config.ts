@@ -57,9 +57,14 @@ export const authConfig = {
     },
     callbacks: {
         // The jwt callback is called when a JWT is created or updated.
-        async jwt({ token, user }: { token: JWT; user: any }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 return { ...token, ...user };
+            }
+
+            // This is called when the user updates their session, e.g., by calling `update()`
+            if (trigger === 'update' && session?.image) {
+                token.image = session.image;
             }
 
             // Handle impersonation

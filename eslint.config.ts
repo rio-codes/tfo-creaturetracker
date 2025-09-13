@@ -25,9 +25,9 @@ export default tseslint.config(
         plugins: {
             '@next/next': nextPlugin,
         },
-        ...nextPlugin.configs.recommended.rules,
-        ...nextPlugin.configs['core-web-vitals'].rules,
         rules: {
+            ...(nextPlugin.configs.recommended.rules as any),
+            ...(nextPlugin.configs['core-web-vitals'].rules as any),
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
             '@typescript-eslint/no-unused-vars': [
@@ -38,7 +38,7 @@ export default tseslint.config(
                     ignoreRestSiblings: true,
                 },
             ],
-        },
+        } as any,
     },
     prettierConfig
 );

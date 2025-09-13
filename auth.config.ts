@@ -3,7 +3,6 @@ import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import type { User as DbUser } from '@/types';
-import type { JWT } from 'next-auth/jwt';
 import { eq } from 'drizzle-orm';
 import { compare } from 'bcrypt-ts';
 import * as Sentry from '@sentry/nextjs';

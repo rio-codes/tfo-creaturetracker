@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata } from 'next';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
 import { SharedPredictionsAccordion } from '@/components/shared-views/shared-predictions-accordion';
@@ -17,10 +17,7 @@ type Props = {
     params: Promise<{ goalId: string }>;
 };
 
-export async function generateMetadata(
-    { params }: Props,
-    parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const goalId = (await params).goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),

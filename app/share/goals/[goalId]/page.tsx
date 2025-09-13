@@ -95,6 +95,8 @@ export default async function SharedGoalPage(props: Props) {
                     <SharedGoalInfo goal={goal} />
                     <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
                         <Image
+                            width={150}
+                            height={150}
                             src={goal.imageUrl || '/placeholder.png'}
                             alt={goal.name}
                             className="max-w-full max-h-48 object-contain"

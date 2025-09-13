@@ -3,18 +3,25 @@ import { AdminDataTable } from '@/components/custom-tables/admin-data-table';
 import { columns } from './columns';
 import { db } from '@/src/db';
 import { auditLog } from '@/src/db/schema';
-import { and, ilike, or, desc, count, SQL, ne } from 'drizzle-orm';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { and, ilike, or, desc, count, SQL } from 'drizzle-orm';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
 
-async function fetchAdminAuditLogs(searchParams: { page?: string; query?: string }) {
+async function fetchAdminAuditLogs(searchParams: {
+    page?: string;
+    query?: string;
+}) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
     const query = searchParams.query;
     const offset = (page - 1) * limit;
 
     const whereConditions: (SQL | undefined)[] = [
-        // Exclude logs where an admin is acting on their own user account
-        or(ne(auditLog.targetType, 'user'), ne(auditLog.adminId, auditLog.targetId)),
         query
             ? or(
                   ilike(auditLog.adminUsername, `%${query}%`),
@@ -25,7 +32,8 @@ async function fetchAdminAuditLogs(searchParams: { page?: string; query?: string
             : undefined,
     ].filter(Boolean);
 
-    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where =
+        whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const logList = await db.query.auditLog.findMany({
         where,
@@ -34,7 +42,10 @@ async function fetchAdminAuditLogs(searchParams: { page?: string; query?: string
         offset,
     });
 
-    const totalCountResult = await db.select({ count: count() }).from(auditLog).where(where);
+    const totalCountResult = await db
+        .select({ count: count() })
+        .from(auditLog)
+        .where(where);
     const totalLogs = totalCountResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalLogs / limit);
 

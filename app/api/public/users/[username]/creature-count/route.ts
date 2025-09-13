@@ -62,9 +62,6 @@ export async function GET(
         else {
             ({ species, color } = validation.data);
         }
-
-        
-
         
 
         const user = await db.query.users.findFirst({

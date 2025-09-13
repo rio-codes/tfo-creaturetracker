@@ -65,9 +65,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const handleSyncAll = async () => {
         setStatus('loading');
         setMessage('');
-        const tabsToSync = userTabs
-            .filter((tab) => tab.isSyncEnabled)
-            .map((tab) => tab.tabId);
+        const tabsToSync = userTabs.filter((tab) => tab.isSyncEnabled).map((tab) => tab.tabId);
 
         if (tabsToSync.length === 0) {
             setStatus('idle');
@@ -88,9 +86,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(
-                    data.error || 'Something went wrong during sync.'
-                );
+                throw new Error(data.error || 'Something went wrong during sync.');
             }
 
             setStatus('success');
@@ -127,8 +123,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
-                throw new Error(data.error || 'Failed to add tab.');
+            if (!response.ok) throw new Error(data.error || 'Failed to add tab.');
 
             await fetchUserTabs(); // Refresh the list
             setShowAddForm(false);
@@ -143,12 +138,45 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         }
     };
 
+    const handleToggleAll = async () => {
+        const isAllChecked = userTabs.length > 0 && userTabs.every((t) => t.isSyncEnabled);
+        const newState = !isAllChecked;
+
+        const originalTabs = userTabs;
+        setUserTabs((prev) => prev.map((t) => ({ ...t, isSyncEnabled: newState })));
+
+        try {
+            await Promise.all(
+                originalTabs.map((tab) => {
+                    if (tab.isSyncEnabled !== newState) {
+                        return fetch(`/api/users/tabs/${tab.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ isSyncEnabled: newState }),
+                        }).then((res) => {
+                            if (!res.ok) {
+                                throw new Error(`Failed to update tab ${tab.tabId}`);
+                            }
+                        });
+                    }
+                    return Promise.resolve();
+                })
+            );
+        } catch (error) {
+            Sentry.captureException(error);
+            console.error('Failed to update all tabs sync status', error);
+            alertService.error('Failed to update all tabs.', {
+                autoClose: true,
+                keepAfterRouteChange: true,
+            });
+            setUserTabs(originalTabs); // Revert on error
+        }
+    };
+
     const handleToggleSync = async (tab: UserTab) => {
         // Optimistically update UI
         setUserTabs((prevTabs) =>
-            prevTabs.map((t) =>
-                t.id === tab.id ? { ...t, isSyncEnabled: !t.isSyncEnabled } : t
-            )
+            prevTabs.map((t) => (t.id === tab.id ? { ...t, isSyncEnabled: !t.isSyncEnabled } : t))
         );
 
         try {
@@ -170,8 +198,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     };
 
     const handleDeleteTab = async (tabId: number) => {
-        if (!window.confirm('Are you sure you want to remove this saved tab?'))
-            return;
+        if (!window.confirm('Are you sure you want to remove this saved tab?')) return;
         setUserTabs((prev) => prev.filter((t) => t.id !== tabId));
         await fetch(`/api/users/tabs/${tabId}`, { method: 'DELETE' });
     };
@@ -205,8 +232,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 <div>
                     <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 mb-4">
                         <span>
-                            Enter the Tab ID from your TFO tab's URL. For
-                            example, if the URL is
+                            Enter the Tab ID from your TFO tab's URL. For example, if the URL is
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
                                 .../tab/username/tab_name/12345/1/...
                             </code>
@@ -222,8 +248,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                         </span>
                         <br></br>
                         <span className="font-semibold text-sm py-1 mt-1">
-                            NOTE: The tab must be set to "Public" in TFO to
-                            fetch your creatures.
+                            NOTE: The tab must be set to "Public" in TFO to fetch your creatures.
                         </span>
                     </p>
                 </div>
@@ -233,6 +258,26 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     <Label className="text-pompaca-purple dark:text-purple-300 font-medium text-lg">
                         Saved Tabs
                     </Label>
+                    <div className="flex items-center space-x-2 pl-1 pt-1">
+                        <Checkbox
+                            id="select-all-tabs"
+                            checked={
+                                userTabs.length > 0 && userTabs.every((t) => t.isSyncEnabled)
+                                    ? true
+                                    : userTabs.some((t) => t.isSyncEnabled)
+                                      ? 'indeterminate'
+                                      : false
+                            }
+                            onCheckedChange={handleToggleAll}
+                            disabled={userTabs.length === 0}
+                        />
+                        <Label
+                            htmlFor="select-all-tabs"
+                            className="text-sm font-medium text-pompaca-purple dark:text-purple-300"
+                        >
+                            Select/Deselect All
+                        </Label>
+                    </div>
                     <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-2">
                         {isLoadingTabs ? (
                             <div className="flex justify-center items-center h-full">
@@ -240,17 +285,12 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                             </div>
                         ) : userTabs.length > 0 ? (
                             userTabs.map((tab) => (
-                                <div
-                                    key={tab.id}
-                                    className="flex items-center justify-between p-1"
-                                >
+                                <div key={tab.id} className="flex items-center justify-between p-1">
                                     <div className="flex items-center space-x-2">
                                         <Checkbox
                                             id={`tab-${tab.id}`}
                                             checked={tab.isSyncEnabled}
-                                            onCheckedChange={() =>
-                                                handleToggleSync(tab)
-                                            }
+                                            onCheckedChange={() => handleToggleSync(tab)}
                                         />
                                         <Label
                                             htmlFor={`tab-${tab.id}`}
@@ -333,9 +373,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
                 {/* Error Display */}
                 {status === 'error' && message && (
-                    <p className="text-sm text-red-500 text-center">
-                        {message}
-                    </p>
+                    <p className="text-sm text-red-500 text-center">{message}</p>
                 )}
 
                 <div className="flex justify-end gap-4 pt-4">

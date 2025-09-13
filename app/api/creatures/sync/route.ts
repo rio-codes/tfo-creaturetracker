@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 import { and, eq, sql } from 'drizzle-orm';

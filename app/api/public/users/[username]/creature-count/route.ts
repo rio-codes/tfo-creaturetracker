@@ -11,7 +11,6 @@ const querySchema = z.object({
     color: z.string().optional(),
 });
 
-// The color you provided for the badge!
 const BADGE_COLOR = 'D0BCFF';
 
 export async function GET(
@@ -34,6 +33,7 @@ export async function GET(
         if (!validation.success) {
             const { fieldErrors } = validation.error.flatten();
             // Since `color` is optional, the only expected validation error is for a missing `species`.
+            if (fieldErrors.color !== undefined) {
             const errorMessage =
                 fieldErrors.species?.join(' ') ??
                 'Invalid or missing species parameter.';
@@ -53,8 +53,19 @@ export async function GET(
                 { status: 400 }
             );
         }
+        }
 
-        const { species, color } = validation.data;
+        let species: string, color: string;
+        if (!validation.data?.color) {
+            ({ species, color } = { species: validation.data!.species, color: BADGE_COLOR });
+        }
+        else {
+            ({ species, color } = validation.data);
+        }
+
+        
+
+        
 
         const user = await db.query.users.findFirst({
             where: eq(users.username, username),

@@ -42,13 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title,
             description,
-            images: [
-                {
-                    url: `/share/goals/${goalId}/opengraph-image`,
-                    width: 1200,
-                    height: 630,
-                },
-            ],
+            images: [],
         },
     };
 }

@@ -11,9 +11,7 @@ type Props = {
     predictions: Prediction[];
 };
 
-const getCacheBustedImageUrl = (
-    creature: EnrichedCreature | null | undefined
-) => {
+const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
     if (!creature?.imageUrl) return '';
     if (creature.updatedAt) {
         return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
@@ -36,35 +34,26 @@ export function SharedPredictionsAccordion({ predictions }: Props) {
     }
 
     return (
-        <Accordion type="single" collapsible className="w-full space-y-2 mr-5">
+        <Accordion type="single" collapsible className="w-full space-y-2">
             {predictions.map((p, index) => (
                 <AccordionItem
                     key={p.pairId}
                     value={`item-${index}`}
-                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple"
+                    className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple w-90% mx-auto"
                 >
                     <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
-                            <div className="flex flex-1 items-center gap-4 min-w-0 mr-2">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                            <div className="flex flex-1 items-center gap-4 min-w-0 mr-1 ml-1">
                                 <div className="flex flex-shrink-0 items-center gap-1">
                                     <img
-                                        src={getCacheBustedImageUrl(
-                                            p.maleParent
-                                        )}
-                                        alt={
-                                            p.maleParent?.code || 'Male Parent'
-                                        }
+                                        src={getCacheBustedImageUrl(p.maleParent)}
+                                        alt={p.maleParent?.code || 'Male Parent'}
                                         className="w-10 h-10 object-contain bg-blue-100 p-1 border border-pompaca-purple rounded-md"
                                     />
                                     <X className="h-4 w-4 text-dusk-purple" />
                                     <img
-                                        src={getCacheBustedImageUrl(
-                                            p.femaleParent
-                                        )}
-                                        alt={
-                                            p.femaleParent?.code ||
-                                            'Female Parent'
-                                        }
+                                        src={getCacheBustedImageUrl(p.femaleParent)}
+                                        alt={p.femaleParent?.code || 'Female Parent'}
                                         className="w-10 h-10 object-contain bg-pink-100 p-1 border border-pompaca-purple rounded-md"
                                     />
                                 </div>
@@ -73,24 +62,19 @@ export function SharedPredictionsAccordion({ predictions }: Props) {
                                         {p.pairName}
                                     </div>
                                     <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
-                                        {p.maleParent?.creatureName ||
-                                            'Unnamed'}{' '}
-                                        ({p.maleParent?.code}) x{' '}
-                                        {p.femaleParent?.creatureName ||
-                                            'Unnamed'}{' '}
-                                        ({p.femaleParent?.code})
+                                        {p.maleParent?.creatureName || 'Unnamed'} (
+                                        {p.maleParent?.code}) x{' '}
+                                        {p.femaleParent?.creatureName || 'Unnamed'} (
+                                        {p.femaleParent?.code})
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-end-safe px-2 ml-2 flex-1 justify-end gap-y-3 md:flex-row md:items-center md:gap-x-6">
+                            <div className="flex items-end-safe ml-2 flex-1 justify-end-safe gap-y-3 mr-5 md:flex-row md:items-center md:gap-x-6">
                                 <div className="flex w-full md:justify-center">
                                     <div className="flex text-center">
                                         <div>
                                             <div className="font-mono text-lg">
-                                                {(
-                                                    p.averageChance * 100
-                                                ).toFixed(2)}
-                                                %
+                                                {(p.averageChance * 100).toFixed(2)}%
                                             </div>
                                             <div className="text-xs text-dusk-purple dark:text-purple-400">
                                                 Match Score
@@ -108,18 +92,16 @@ export function SharedPredictionsAccordion({ predictions }: Props) {
                     </AccordionTrigger>
                     <AccordionContent className="p-4 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-4">
-                            {Object.entries(p.chancesByCategory || {}).map(
-                                ([category, chance]) => (
-                                    <div key={category}>
-                                        <div className="font-bold text-pompaca-purple dark:text-purple-300">
-                                            {category}
-                                        </div>
-                                        <div className="font-mono text-lg text-dusk-purple dark:text-purple-400">
-                                            {(chance * 100).toFixed(2)}%
-                                        </div>
+                            {Object.entries(p.chancesByCategory || {}).map(([category, chance]) => (
+                                <div key={category}>
+                                    <div className="font-bold text-pompaca-purple dark:text-purple-300">
+                                        {category}
                                     </div>
-                                )
-                            )}
+                                    <div className="font-mono text-lg text-dusk-purple dark:text-purple-400">
+                                        {(chance * 100).toFixed(2)}%
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </AccordionContent>
                 </AccordionItem>

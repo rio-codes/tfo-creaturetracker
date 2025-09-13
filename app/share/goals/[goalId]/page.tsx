@@ -14,11 +14,11 @@ import Image from 'next/image';
 import { EnrichedCreature } from '@/types';
 
 type Props = {
-    params: Promise<{ goalId: string }>;
+    params: { goalId: string };
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const goalId = (await params).goalId;
+    const goalId = params.goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),
     });
@@ -44,11 +44,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description,
             images: [],
         },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [],
+        },
     };
 }
 
-export default async function SharedGoalPage(props: Props) {
-    const params = await props.params;
+export default async function SharedGoalPage({ params }: Props) {
     const goal = await getGoalById(params.goalId);
 
     if (!goal) {

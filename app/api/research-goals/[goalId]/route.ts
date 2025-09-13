@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { researchGoals, goalModeEnum } from '@/src/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { researchGoals, goalModeEnum, breedingPairs } from '@/src/db/schema';
+import { and, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/lib/audit';
@@ -249,31 +249,60 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
     const userId = session.user.id;
 
     try {
-        const [deletedGoal] = await db
-            .delete(researchGoals)
-            .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
-            .returning();
+        const deletedGoal = await db.transaction(async (tx) => {
+            // Find the goal first to get its data before deleting
+            const goalToDelete = await tx.query.researchGoals.findFirst({
+                where: and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)),
+                columns: {
+                    id: true,
+                    name: true,
+                    assignedPairIds: true,
+                },
+            });
+
+            if (!goalToDelete) {
+                return null; // Will be handled outside the transaction
+            }
+
+            // Now, delete the goal
+            await tx.delete(researchGoals).where(eq(researchGoals.id, params.goalId));
+
+            // If the goal was assigned to any pairs, update them
+            if (goalToDelete.assignedPairIds && goalToDelete.assignedPairIds.length > 0) {
+                // Fetch all pairs that were assigned this goal
+                const assignedPairs = await tx.query.breedingPairs.findMany({
+                    where: and(
+                        eq(breedingPairs.userId, userId),
+                        inArray(breedingPairs.id, goalToDelete.assignedPairIds)
+                    ),
+                    columns: { id: true, assignedGoalIds: true },
+                });
+
+                // For each pair, remove the deleted goal's ID from its list
+                for (const pair of assignedPairs) {
+                    const updatedGoalIds = (pair.assignedGoalIds || []).filter(
+                        (id) => id !== params.goalId
+                    );
+                    await tx
+                        .update(breedingPairs)
+                        .set({ assignedGoalIds: updatedGoalIds })
+                        .where(eq(breedingPairs.id, pair.id));
+                }
+            }
+
+            return goalToDelete;
+        });
 
         if (!deletedGoal) {
             Sentry.captureMessage(`Goal not found for deletion: ${params.goalId}`, 'warning');
             return NextResponse.json(
-                {
-                    error: 'Goal not found or you do not have permission to delete it.',
-                },
+                { error: 'Goal not found or you do not have permission to delete it.' },
                 { status: 404 }
             );
         }
 
-        if (session.user.role === 'admin') {
-            await logAdminAction({
-                action: 'research_goal.delete',
-                targetType: 'research_goal',
-                targetId: params.goalId,
-                details: { deletedGoalName: deletedGoal.name },
-            });
-        }
-
         revalidatePath('/research-goals');
+        revalidatePath('/breeding-pairs');
 
         Sentry.captureMessage(`Goal ${params.goalId} deleted successfully`, 'info');
         return NextResponse.json({ message: 'Goal deleted successfully.' });

@@ -7,18 +7,12 @@ import { revalidatePath } from 'next/cache';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import * as Sentry from '@sentry/nextjs';
 
-export async function GET(
-    req: Request,
-    props: { params: Promise<{ creatureId: string }> }
-) {
+export async function GET(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Fetching creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to fetch creature ${params.creatureId}`,
-            'warning'
-        );
+        Sentry.captureMessage(`Forbidden access to fetch creature ${params.creatureId}`, 'warning');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -28,14 +22,8 @@ export async function GET(
         });
 
         if (!creature) {
-            Sentry.captureMessage(
-                `Creature not found: ${params.creatureId}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Creature not found' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Creature not found: ${params.creatureId}`, 'warning');
+            return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
         }
 
         // For the card, we need the owner's other creatures for the "Manage Pairs" dialog.
@@ -43,10 +31,7 @@ export async function GET(
             where: eq(creatures.userId, creature.userId),
         });
 
-        Sentry.captureMessage(
-            `Successfully fetched creature ${params.creatureId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Successfully fetched creature ${params.creatureId}`, 'info');
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
@@ -54,60 +39,34 @@ export async function GET(
     } catch (error) {
         Sentry.captureException(error);
         console.error('Failed to fetch creature details:', error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 
 // This function handles DELETE requests to /api/creatures/[creatureId]
-export async function DELETE(
-    req: Request,
-    props: { params: Promise<{ creatureId: string }> }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Deleting creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to delete creature',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to delete creature', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     const { creatureId } = params;
     if (!creatureId) {
-        Sentry.captureMessage(
-            'Creature ID not provided for deletion',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Creature ID is required.' },
-            { status: 400 }
-        );
+        Sentry.captureMessage('Creature ID not provided for deletion', 'warning');
+        return NextResponse.json({ error: 'Creature ID is required.' }, { status: 400 });
     }
 
     try {
         const result = await db
             .delete(creatures)
-            .where(
-                and(
-                    eq(creatures.id, creatureId),
-                    eq(creatures.userId, session.user.id)
-                )
-            )
+            .where(and(eq(creatures.id, creatureId), eq(creatures.userId, session.user.id)))
             .returning(); // .returning() gives us back the row that was deleted
 
         if (result.length === 0) {
-            Sentry.captureMessage(
-                `Creature not found for deletion: ${creatureId}`,
-                'warning'
-            );
+            Sentry.captureMessage(`Creature not found for deletion: ${creatureId}`, 'warning');
             return NextResponse.json(
                 {
                     error: 'Creature not found or you do not have permission to delete it.',
@@ -119,14 +78,8 @@ export async function DELETE(
         // Clear the cache for the collection page so the grid updates immediately
         revalidatePath('/collection');
 
-        Sentry.captureMessage(
-            `Creature ${creatureId} deleted successfully`,
-            'info'
-        );
-        return NextResponse.json(
-            { message: 'Creature deleted successfully.' },
-            { status: 200 }
-        );
+        Sentry.captureMessage(`Creature ${creatureId} deleted successfully`, 'info');
+        return NextResponse.json({ message: 'Creature deleted successfully.' }, { status: 200 });
     } catch (error) {
         Sentry.captureException(error);
         console.error('Failed to delete creature:', error);
@@ -144,9 +97,6 @@ export async function DELETE(
                 { status: 409 }
             );
         }
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

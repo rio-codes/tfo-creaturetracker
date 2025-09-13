@@ -27,11 +27,9 @@ export async function POST() {
 
         const currentAvatar = user.image || getRandomCapsuleAvatar(userId);
 
-        // Create a pool of avatars to choose from, excluding the current one.
         const allAvatarPaths = capsuleAvatars.map((name) => `/${name}`);
         const potentialAvatars = allAvatarPaths.filter((path) => path !== currentAvatar);
 
-        // If all avatars are the same as the current one (or list is empty), use the full list.
         const selectionPool = potentialAvatars.length > 0 ? potentialAvatars : allAvatarPaths;
 
         const randomIndex = Math.floor(Math.random() * selectionPool.length);

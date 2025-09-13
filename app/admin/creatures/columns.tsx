@@ -63,8 +63,7 @@ export const columns: ColumnDef<AdminCreature>[] = [
     {
         accessorKey: 'createdAt',
         header: 'Created',
-        cell: ({ row }) =>
-            new Date(row.original.createdAt).toLocaleDateString(),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
         id: 'actions',
@@ -93,9 +92,7 @@ export const columns: ColumnDef<AdminCreature>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
-                            onClick={() =>
-                                handleDeleteCreature(creature.id, creature.code)
-                            }
+                            onClick={() => handleDeleteCreature(creature.id, creature.code)}
                         >
                             Delete Creature
                         </DropdownMenuItem>

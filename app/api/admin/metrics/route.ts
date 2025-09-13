@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import {
-    users,
-    creatures,
-    breedingPairs,
-    researchGoals,
-} from '@/src/db/schema';
+import { users, creatures, breedingPairs, researchGoals } from '@/src/db/schema';
 import { count, gte } from 'drizzle-orm';
 import { subDays } from 'date-fns';
 import * as Sentry from '@sentry/nextjs';
@@ -21,22 +16,17 @@ export async function GET() {
     }
 
     try {
-        const [
-            totalUsers,
-            newUsersLastWeek,
-            totalCreatures,
-            totalPairs,
-            totalGoals,
-        ] = await Promise.all([
-            db.select({ value: count() }).from(users),
-            db
-                .select({ value: count() })
-                .from(users)
-                .where(gte(users.createdAt, subDays(new Date(), 7))),
-            db.select({ value: count() }).from(creatures),
-            db.select({ value: count() }).from(breedingPairs),
-            db.select({ value: count() }).from(researchGoals),
-        ]);
+        const [totalUsers, newUsersLastWeek, totalCreatures, totalPairs, totalGoals] =
+            await Promise.all([
+                db.select({ value: count() }).from(users),
+                db
+                    .select({ value: count() })
+                    .from(users)
+                    .where(gte(users.createdAt, subDays(new Date(), 7))),
+                db.select({ value: count() }).from(creatures),
+                db.select({ value: count() }).from(breedingPairs),
+                db.select({ value: count() }).from(researchGoals),
+            ]);
 
         Sentry.captureMessage('Admin: successfully fetched metrics', 'info');
         return NextResponse.json({
@@ -49,9 +39,6 @@ export async function GET() {
     } catch (error) {
         console.error('Failed to fetch admin metrics:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'Failed to fetch metrics' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
     }
 }

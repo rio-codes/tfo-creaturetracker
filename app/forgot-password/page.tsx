@@ -7,13 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -39,11 +33,9 @@ export default function ForgotPasswordPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                // If the API returns an error, display it to the user
                 throw new Error(data.error || 'Something went wrong.');
             }
 
-            // Display the success message from the API
             setMessage(data.message);
         } catch (err: any) {
             setError(err.message);
@@ -64,8 +56,7 @@ export default function ForgotPasswordPage() {
                         </h1>
                     </div>
                     <p className="text-pompaca-purple">
-                        Enter your email and we'll send you a link to reset your
-                        password.
+                        Enter your email and we'll send you a link to reset your password.
                     </p>
                 </div>
 
@@ -90,18 +81,15 @@ export default function ForgotPasswordPage() {
                             Reset Password
                         </CardTitle>
                         <CardDescription className="text-dusk-purple">
-                            Enter your email address and we'll send you a link
-                            to reset your password
+                            Enter your email address and we'll send you a link to reset your
+                            password
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {/* Hide the form after a successful submission */}
                         {!message && (
                             <>
-                                <form
-                                    onSubmit={handleSubmit}
-                                    className="space-y-4"
-                                >
+                                <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="space-y-2">
                                         <Label
                                             htmlFor="email"
@@ -114,9 +102,7 @@ export default function ForgotPasswordPage() {
                                             type="email"
                                             placeholder="Enter your email"
                                             value={email}
-                                            onChange={(e) =>
-                                                setEmail(e.target.value)
-                                            }
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                                             required
                                         />
@@ -125,16 +111,13 @@ export default function ForgotPasswordPage() {
                                         type="submit"
                                         className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
                                     >
-                                        Send Reset Link
+                                        Send Password Reset Link
                                     </Button>
                                 </form>
                             </>
                         )}
                         <div className="mt-6 text-center">
-                            <Link
-                                href="/login"
-                                className="text-pompaca-purple hover:underline"
-                            >
+                            <Link href="/login" className="text-pompaca-purple hover:underline">
                                 Back to Login
                             </Link>
                         </div>

@@ -58,15 +58,12 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
 
         const tfoImageUrl = constructTfoImageUrl(pair.species, selectedGenotypes);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        // The reference ID is prefixed to distinguish it from creature codes in fetchAndUploadWithRetry
         const blobUrl = await fetchAndUploadWithRetry(
             bustedTfoImageUrl,
             `pair-preview-${pair.id}`,
             3
         );
 
-        // Update the default preview URL on the pair itself.
-        // This will be used as the cached image on the dialog's first open.
         await db
             .update(breedingPairs)
             .set({ outcomesPreviewUrl: blobUrl })

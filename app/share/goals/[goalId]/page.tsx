@@ -2,17 +2,13 @@ import { notFound } from 'next/navigation';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
 import { SharedPredictionsAccordion } from '@/components/shared-views/shared-predictions-accordion';
 import { SharedProgenyAnalysis } from '@/components/shared-views/shared-progeny-analysis';
 import { Card } from '@/components/ui/card';
-import {
-    getGoalById,
-    getPredictionsForGoal,
-    getAssignedPairsForGoal,
-} from '@/lib/api/goals';
+import { getGoalById, getPredictionsForGoal, getAssignedPairsForGoal } from '@/lib/api/goals';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 import Image from 'next/image';
 import { EnrichedCreature } from '@/types';
@@ -21,7 +17,10 @@ type Props = {
     params: Promise<{ goalId: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(
+    { params }: Props,
+    parent: ResolvingMetadata
+): Promise<Metadata> {
     const goalId = (await params).goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),
@@ -39,7 +38,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = `Research Goal: ${goal.name}`;
     const description = `View the research goal "${goal.name}" for the species ${goal.species} on tfo.creaturetracker. Shared by ${owner?.username || 'a user'}.`;
-    const altText = `An image of the creature for the research goal: ${goal.name}.`;
 
     return {
         title,
@@ -49,10 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description,
             images: [
                 {
-                    url: `/share/goals/${goalId}/opengraph-image`, // Next.js will handle the absolute URL
+                    url: `/share/goals/${goalId}/opengraph-image`,
                     width: 1200,
                     height: 630,
-                    alt: altText,
                 },
             ],
         },
@@ -68,9 +65,7 @@ export default async function SharedGoalPage(props: Props) {
     }
 
     const predictions = await getPredictionsForGoal(params.goalId);
-    const assignedPairsWithProgeny = await getAssignedPairsForGoal(
-        params.goalId
-    );
+    const assignedPairsWithProgeny = await getAssignedPairsForGoal(params.goalId);
 
     const progenyWithPairInfo = assignedPairsWithProgeny.flatMap((p) =>
         (p.progeny || [])
@@ -81,7 +76,6 @@ export default async function SharedGoalPage(props: Props) {
             }))
     );
 
-    // Deduplicate progeny in case it's part of multiple assigned pairs
     const allAssignedProgeny = Array.from(
         new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
     ).filter((p): p is EnrichedCreature & { parentPairName: string } => !!p.id);

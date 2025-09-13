@@ -21,8 +21,6 @@ interface SpeciesGeneData {
     [category: string]: GeneCategory;
 }
 
-// Helper function to enrich and serialize a single creature.
-// For long-term maintainability, this could be moved to a shared file like `lib/data.ts`.
 const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | null => {
     if (!creature || !creature.species) return null;
     const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[

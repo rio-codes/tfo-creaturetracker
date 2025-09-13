@@ -27,13 +27,7 @@ export default async function GoalDetailPage(props: PageProps) {
     return (
         <div className="bg-barely-lilac dark:bg-midnight-purple min-h-screen">
             <div className="container mx-auto px-4 py-8">
-                <Suspense
-                    fallback={
-                        <div className="text-center">
-                            Loading goal details...
-                        </div>
-                    }
-                >
+                <Suspense fallback={<div className="text-center">Loading goal details...</div>}>
                     <GoalDetailClient
                         goal={goal!}
                         initialPredictions={predictions!}

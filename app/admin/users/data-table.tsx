@@ -1,14 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
+import * as React from 'react';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
 
 import {
     Table,
@@ -17,9 +12,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -37,7 +32,7 @@ export function UserDataTable<TData, TValue>({
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const currentPage = Number(searchParams.get("page")) || 1;
+    const currentPage = Number(searchParams.get('page')) || 1;
 
     const table = useReactTable({
         data,
@@ -49,18 +44,18 @@ export function UserDataTable<TData, TValue>({
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
-        params.set("page", "1");
+        params.set('page', '1');
         if (term) {
-            params.set("query", term);
+            params.set('query', term);
         } else {
-            params.delete("query");
+            params.delete('query');
         }
         router.replace(`${pathname}?${params.toString()}`);
     }, 300);
 
     const createPageURL = (pageNumber: number | string) => {
         const params = new URLSearchParams(searchParams);
-        params.set("page", pageNumber.toString());
+        params.set('page', pageNumber.toString());
         return `${pathname}?${params.toString()}`;
     };
 
@@ -69,7 +64,7 @@ export function UserDataTable<TData, TValue>({
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter by username or email..."
-                    defaultValue={searchParams.get("query")?.toString()}
+                    defaultValue={searchParams.get('query')?.toString()}
                     onChange={(event) => handleSearch(event.target.value)}
                     className="max-w-sm bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple"
                 />
@@ -84,8 +79,7 @@ export function UserDataTable<TData, TValue>({
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
+                                                  header.column.columnDef.header,
                                                   header.getContext()
                                               )}
                                     </TableHead>
@@ -98,9 +92,7 @@ export function UserDataTable<TData, TValue>({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={
-                                        row.getIsSelected() && "selected"
-                                    }
+                                    data-state={row.getIsSelected() && 'selected'}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -114,10 +106,7 @@ export function UserDataTable<TData, TValue>({
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
                                     No results.
                                 </TableCell>
                             </TableRow>

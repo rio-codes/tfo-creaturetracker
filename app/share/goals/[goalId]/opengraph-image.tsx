@@ -1,13 +1,18 @@
 import { ImageResponse } from 'next/og';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { db } from '@/src/db';
-import { researchGoals } from '@/src/db/schema';
+import { researchGoals, users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 
-export default async function Image({
-    params,
-}: {
-    params: { goalId: string };
-}) {
+export const size = {
+    width: 1200,
+    height: 630,
+};
+
+export const contentType = 'image/png';
+
+export default async function Image({ params }: { params: { goalId: string } }) {
     const goalId = params.goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),
@@ -17,61 +22,100 @@ export default async function Image({
         return new Response('Goal not found', { status: 404 });
     }
 
-    const altText = `An image of the creature for the TFO research goal: ${goal.name}.`;
+    const username = await db.query.users.findFirst({
+        where: eq(users.id, goal.userId),
+        columns: { username: true },
+    });
+
+    const altText = `TFO research goal created by ${username?.username}: ${goal.name}.`;
+
+    const tekturRegular = readFile(join(process.cwd(), 'assets/fonts/Tektur-Regular.ttf'));
 
     let imageUrl = goal.imageUrl;
     if (!imageUrl) {
-        // Using an absolute URL for the placeholder is safer for OG images.
-        const baseUrl =
-            process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
         imageUrl = new URL('/placeholder.png', baseUrl).toString();
+    } else if (!imageUrl.startsWith('http')) {
+        imageUrl = new URL(
+            imageUrl,
+            process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net'
+        ).toString();
     }
 
     return new ImageResponse(
         (
             <div
                 style={{
-                    width: '100%',
-                    height: '100%',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    flexDirection: 'column',
-                    backgroundColor: '#f0eafc', // barely-lilac
-                    color: '#3C2D63', // pompaca-purple
-                    fontFamily: '"Tektur"',
+                    width: '100%',
+                    height: '100%',
+                    background: '#D0BCFF',
+                    color: '#3C2D63',
                 }}
             >
-                <img
-                    src={imageUrl}
-                    alt={altText}
-                    width="400"
-                    height="400"
-                    style={{ objectFit: 'contain', borderRadius: '10px' }}
-                />
-                <h1
-                    style={{ fontSize: 60, marginTop: 20, textAlign: 'center' }}
-                >
-                    {goal.name}
-                </h1>
-                <p style={{ fontSize: 30, textAlign: 'center' }}>
-                    Species: {goal.species}
-                </p>
-                <p
+                <div
                     style={{
-                        fontSize: 24,
-                        position: 'absolute',
-                        bottom: 20,
-                        right: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexGrow: 1,
+                        padding: '20px',
                     }}
                 >
-                    tfo.creaturetracker
-                </p>
+                    <img
+                        src={imageUrl}
+                        alt={altText}
+                        width="400"
+                        height="400"
+                        style={{
+                            objectFit: 'contain',
+                        }}
+                    />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            marginLeft: '40px',
+                            maxWidth: '600px',
+                        }}
+                    >
+                        <h1
+                            style={{
+                                fontSize: 60,
+                                textAlign: 'left',
+                                lineHeight: '1.2',
+                            }}
+                        >
+                            {goal.name}
+                        </h1>
+                        {goal.species && (
+                            <p
+                                style={{
+                                    fontSize: 30,
+                                    textAlign: 'left',
+                                    marginTop: '10px',
+                                }}
+                            >
+                                Species: {goal.species}
+                            </p>
+                        )}
+                    </div>
+                </div>
             </div>
         ),
         {
-            width: 1200,
-            height: 630,
+            ...size,
+            fonts: [
+                {
+                    name: 'Tektur',
+                    data: await tekturRegular,
+                    style: 'normal',
+                    weight: 400,
+                },
+            ],
         }
     );
 }

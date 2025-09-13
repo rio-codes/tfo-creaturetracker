@@ -20,14 +20,11 @@ export async function POST(req: Request) {
             where: eq(users.email, email),
         });
 
-        // IMPORTANT: For security, always return a success message, even if the user
-        // is not found. This prevents "email enumeration" attacks.
         if (user) {
             const token = crypto.randomBytes(32).toString('hex');
             const hashedToken = await hash(token, 12);
-            const expires = new Date(new Date().getTime() + 3600 * 1000); // Expires in 1 hour
+            const expires = new Date(new Date().getTime() + 3600 * 1000);
 
-            // Delete any existing tokens for this email to invalidate old ones
             await db.delete(passwordResetTokens).where(eq(passwordResetTokens.email, email));
 
             // Insert the new token

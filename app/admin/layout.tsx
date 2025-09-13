@@ -1,11 +1,7 @@
 import { NavLink } from '@/components/custom-layout-elements/nav-link';
 import { Separator } from '@/components/ui/separator';
 
-export default function AdminLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="space-y-6 p-10 pb-16 bg-barely-lilac dark:bg-deep-purple min-h-screen">
             <div className="space-y-0.5">
@@ -23,16 +19,10 @@ export default function AdminLayout({
                         <NavLink href="/admin">Metrics</NavLink>
                         <NavLink href="/admin/users">Users</NavLink>
                         <NavLink href="/admin/creatures">Creatures</NavLink>
-                        <NavLink href="/admin/breeding-pairs">
-                            Breeding Pairs
-                        </NavLink>
-                        <NavLink href="/admin/research-goals">
-                            Research Goals
-                        </NavLink>
+                        <NavLink href="/admin/breeding-pairs">Breeding Pairs</NavLink>
+                        <NavLink href="/admin/research-goals">Research Goals</NavLink>
                         <NavLink href="/admin/audit-log">Audit Log</NavLink>
-                        <NavLink href="/admin/create-creature">
-                            Create Test Creature
-                        </NavLink>
+                        <NavLink href="/admin/create-creature">Create Test Creature</NavLink>
                     </nav>
                 </aside>
                 <div className="flex-1 lg:max-w-4xl">{children}</div>

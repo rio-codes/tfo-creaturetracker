@@ -57,7 +57,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             );
         }
 
-        // Fetch the existing pair to compare assigned goals
         const existingPair = await db.query.breedingPairs.findFirst({
             where: and(
                 eq(breedingPairs.id, params.pairId),
@@ -93,7 +92,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
-        // Check if parents were changed and if the new combination already exists
         const parentsHaveChanged =
             maleParentId !== existingPair.maleParentId ||
             femaleParentId !== existingPair.femaleParentId;

@@ -10,10 +10,7 @@ export async function GET(req: Request) {
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            'Forbidden access to admin fetch users',
-            'warning'
-        );
+        Sentry.captureMessage('Forbidden access to admin fetch users', 'warning');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -28,17 +25,13 @@ export async function GET(req: Request) {
 
     const whereConditions: (SQL | undefined)[] = [
         query
-            ? or(
-                  ilike(users.username, `%${query}%`),
-                  ilike(users.email, `%${query}%`)
-              )
+            ? or(ilike(users.username, `%${query}%`), ilike(users.email, `%${query}%`))
             : undefined,
         role ? eq(users.role, role as any) : undefined,
         status ? eq(users.status, status as any) : undefined,
     ].filter(Boolean);
 
-    const where =
-        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     try {
         const userList = await db.query.users.findMany({
@@ -51,17 +44,11 @@ export async function GET(req: Request) {
             },
         });
 
-        const totalCountResult = await db
-            .select({ count: count() })
-            .from(users)
-            .where(where);
+        const totalCountResult = await db.select({ count: count() }).from(users).where(where);
         const totalUsers = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUsers / limit);
 
-        Sentry.captureMessage(
-            `Admin: successfully fetched users page ${page}`,
-            'info'
-        );
+        Sentry.captureMessage(`Admin: successfully fetched users page ${page}`, 'info');
         return NextResponse.json({
             users: userList,
             pagination: {
@@ -74,9 +61,6 @@ export async function GET(req: Request) {
     } catch (error) {
         Sentry.captureException(error);
         console.error('Failed to fetch users:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch users' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
     }
 }

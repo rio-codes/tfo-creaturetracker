@@ -2,19 +2,10 @@ import { Suspense } from 'react';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
 import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ResearchGoalsPageClient } from './research-goals-page-client';
 
-async function fetchAdminResearchGoals(searchParams: {
-    page?: string;
-    query?: string;
-}) {
+async function fetchAdminResearchGoals(searchParams: { page?: string; query?: string }) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
     const query = searchParams.query;
@@ -30,8 +21,7 @@ async function fetchAdminResearchGoals(searchParams: {
             : undefined,
     ].filter(Boolean);
 
-    const where =
-        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const goalList = await db
         .select({
@@ -59,11 +49,9 @@ async function fetchAdminResearchGoals(searchParams: {
     return { goals: goalList, pagination: { totalPages } };
 }
 
-export default async function AdminResearchGoalsPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
+export default async function AdminResearchGoalsPage(props: {
+    searchParams: Promise<{ page?: string; query?: string }>;
+}) {
     const searchParams = await props.searchParams;
     const { goals, pagination } = await fetchAdminResearchGoals(searchParams);
 
@@ -79,10 +67,7 @@ export default async function AdminResearchGoalsPage(
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading research goals...</div>}>
-                    <ResearchGoalsPageClient
-                        goals={goals}
-                        pagination={pagination}
-                    />
+                    <ResearchGoalsPageClient goals={goals} pagination={pagination} />
                 </Suspense>
             </CardContent>
         </Card>

@@ -10,7 +10,6 @@ import { structuredGeneData } from '@/constants/creature-data';
 import { and, eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/nextjs';
 
-// Define robust types for gene data to avoid using `any`
 interface GeneInfo {
     genotype: string;
     phenotype: string;
@@ -59,7 +58,6 @@ export async function POST(req: Request) {
         }
         const { pairId, goalName, species, selectedGenotypes } = validated.data;
 
-        // 1. Construct the full `genes` object for the new goal
         const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
         if (!speciesGeneData) {
             return NextResponse.json({ error: `Invalid species: ${species}` }, { status: 400 });
@@ -94,13 +92,10 @@ export async function POST(req: Request) {
             };
         }
 
-        // 2. Create the image
         const tfoImageUrl = constructTfoImageUrl(species, selectedGenotypes);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        // A new goal won't have a predictable ID yet, so pass null to generate a new UUID filename
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
-        // 3. Create the researchGoal record
         const newGoalResult = await db
             .insert(researchGoals)
             .values({
@@ -109,15 +104,14 @@ export async function POST(req: Request) {
                 species: species,
                 imageUrl: blobUrl,
                 genes: goalGenes,
-                goalMode: 'genotype', // Default to genotype mode as we are saving exact genotypes
-                assignedPairIds: [pairId], // Assign the current pair
+                goalMode: 'genotype',
+                assignedPairIds: [pairId],
                 updatedAt: new Date(),
             })
             .returning({ id: researchGoals.id });
 
         const newGoalId = newGoalResult[0].id;
 
-        // 4. Update the breedingPair record to include the new goal
         const pair = await db.query.breedingPairs.findFirst({
             where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
         });

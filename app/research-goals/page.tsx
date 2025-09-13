@@ -12,17 +12,13 @@ export default async function ResearchGoalsPage(props: {
     }>;
 }) {
     const searchParams = await props.searchParams;
-    const { goals, totalPages } =
-        await fetchFilteredResearchGoals(searchParams);
+    const { goals, totalPages } = await fetchFilteredResearchGoals(searchParams);
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading goals...</div>}>
-                    <ResearchGoalClient
-                        initialGoals={goals}
-                        totalPages={totalPages}
-                    />
+                    <ResearchGoalClient initialGoals={goals} totalPages={totalPages} />
                 </Suspense>
             </div>
         </div>

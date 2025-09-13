@@ -93,7 +93,6 @@ export async function POST(req: Request) {
         const currentCreatureName = tfoData.name;
 
         if (currentCreatureName === pending.verificationToken) {
-            // Use a transaction to ensure both operations succeed or fail together
             await db.transaction(async (tx) => {
                 await tx.insert(users).values({
                     id: crypto.randomUUID(),

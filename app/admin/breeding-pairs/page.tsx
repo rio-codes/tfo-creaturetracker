@@ -2,19 +2,10 @@ import { Suspense } from 'react';
 import { db } from '@/src/db';
 import { breedingPairs, users } from '@/src/db/schema';
 import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BreedingPairsPageClient } from './breeding-pairs-page-client';
 
-async function fetchAdminBreedingPairs(searchParams: {
-    page?: string;
-    query?: string;
-}) {
+async function fetchAdminBreedingPairs(searchParams: { page?: string; query?: string }) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
     const query = searchParams.query;
@@ -22,15 +13,11 @@ async function fetchAdminBreedingPairs(searchParams: {
 
     const whereConditions: (SQL | undefined)[] = [
         query
-            ? or(
-                  ilike(breedingPairs.pairName, `%${query}%`),
-                  ilike(users.username, `%${query}%`)
-              )
+            ? or(ilike(breedingPairs.pairName, `%${query}%`), ilike(users.username, `%${query}%`))
             : undefined,
     ].filter(Boolean);
 
-    const where =
-        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const pairList = await db
         .select({
@@ -58,11 +45,9 @@ async function fetchAdminBreedingPairs(searchParams: {
     return { pairs: pairList, pagination: { totalPages } };
 }
 
-export default async function AdminBreedingPairsPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
+export default async function AdminBreedingPairsPage(props: {
+    searchParams: Promise<{ page?: string; query?: string }>;
+}) {
     const searchParams = await props.searchParams;
     const { pairs, pagination } = await fetchAdminBreedingPairs(searchParams);
 
@@ -78,10 +63,7 @@ export default async function AdminBreedingPairsPage(
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading breeding pairs...</div>}>
-                    <BreedingPairsPageClient
-                        pairs={pairs}
-                        pagination={pagination}
-                    />
+                    <BreedingPairsPageClient pairs={pairs} pagination={pagination} />
                 </Suspense>
             </CardContent>
         </Card>

@@ -1,11 +1,5 @@
 import { CreateCreatureForm } from '@/components/custom-forms/create-creature-form';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function CreateCreaturePage() {
     return (

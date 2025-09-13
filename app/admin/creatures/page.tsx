@@ -2,19 +2,10 @@ import { Suspense } from 'react';
 import { db } from '@/src/db';
 import { creatures, users } from '@/src/db/schema';
 import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CreaturesPageClient } from './creatures-page-client';
 
-async function fetchAdminCreatures(searchParams: {
-    page?: string;
-    query?: string;
-}) {
+async function fetchAdminCreatures(searchParams: { page?: string; query?: string }) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
     const query = searchParams.query;
@@ -30,8 +21,7 @@ async function fetchAdminCreatures(searchParams: {
             : undefined,
     ].filter(Boolean);
 
-    const where =
-        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const creatureList = await db
         .select({
@@ -61,11 +51,9 @@ async function fetchAdminCreatures(searchParams: {
     return { creatures: creatureList, pagination: { totalPages } };
 }
 
-export default async function AdminCreaturesPage(
-    props: {
-        searchParams: Promise<{ page?: string; query?: string }>;
-    }
-) {
+export default async function AdminCreaturesPage(props: {
+    searchParams: Promise<{ page?: string; query?: string }>;
+}) {
     const searchParams = await props.searchParams;
     const { creatures, pagination } = await fetchAdminCreatures(searchParams);
 
@@ -81,10 +69,7 @@ export default async function AdminCreaturesPage(
             </CardHeader>
             <CardContent>
                 <Suspense fallback={<div>Loading creatures...</div>}>
-                    <CreaturesPageClient
-                        creatures={creatures}
-                        pagination={pagination}
-                    />
+                    <CreaturesPageClient creatures={creatures} pagination={pagination} />
                 </Suspense>
             </CardContent>
         </Card>

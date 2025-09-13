@@ -50,22 +50,20 @@ export async function POST(req: Request) {
 
         const { email, password, tfoUsername, tabId } = validated.data;
 
-        if (tfoUsername != 'koda_curvata' && email != 'bunnyhouse02@gmail.com') {
-            const existingUser = await db.query.users.findFirst({
-                where: or(eq(users.email, email), eq(users.username, tfoUsername)),
-            });
-            if (existingUser) {
-                Sentry.captureMessage(
-                    `Registration attempt with existing email/username: ${email}/${tfoUsername}`,
-                    'warning'
-                );
-                return NextResponse.json(
-                    {
-                        error: 'An account with that email or TFO username already exists.',
-                    },
-                    { status: 409 }
-                );
-            }
+        const existingUser = await db.query.users.findFirst({
+            where: or(eq(users.email, email), eq(users.username, tfoUsername)),
+        });
+        if (existingUser) {
+            Sentry.captureMessage(
+                `Registration attempt with existing email/username: ${email}/${tfoUsername}`,
+                'warning'
+            );
+            return NextResponse.json(
+                {
+                    error: 'An account with that email or TFO username already exists.',
+                },
+                { status: 409 }
+            );
         }
 
         if (!process.env.TFO_API_KEY) {

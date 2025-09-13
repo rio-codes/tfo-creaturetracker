@@ -6,7 +6,7 @@ import { z } from 'zod';
 import * as Sentry from '@sentry/nextjs';
 
 const completeSchema = z.object({
-    email: z.string().email('A valid email is required.'),
+    email: z.email('A valid email is required.'),
 });
 
 export async function POST(req: Request) {

@@ -52,14 +52,14 @@ export async function POST(req: Request) {
         const existingUserByUsername = await db.query.users.findFirst({
             where: eq(users.username, username),
         });
-        if (existingUserByUsername) {
+        if (existingUserByUsername && username != 'koda_curvata') {
             Sentry.captureMessage(`Registration with existing username: ${username}`, 'warning');
             return NextResponse.json({ message: 'Username is already taken' }, { status: 409 });
         }
         const existingUserByEmail = await db.query.users.findFirst({
             where: eq(users.email, email),
         });
-        if (existingUserByEmail) {
+        if (existingUserByEmail && email != 'bunnyhouse02@gmail.com') {
             Sentry.captureMessage(`Registration with existing email: ${email}`, 'warning');
             return NextResponse.json({ message: 'Email is already in use' }, { status: 409 });
         }

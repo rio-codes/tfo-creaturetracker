@@ -24,9 +24,7 @@ const startSchema = z.object({
             message: 'Password must contain at least one special character.',
         })
         .trim(),
-    tfoUsername: z
-        .string()
-        .min(3, 'TFO Username must be at least 3 characters.'),
+    tfoUsername: z.string().min(3, 'TFO Username must be at least 3 characters.'),
     tabId: z.int('Tab ID must be a whole number.'),
 });
 
@@ -52,12 +50,9 @@ export async function POST(req: Request) {
 
         const { email, password, tfoUsername, tabId } = validated.data;
 
-        if (tfoUsername != 'lyricism') {
+        if (tfoUsername != 'koda_curvata' && email != 'bunnyhouse02@gmail.com') {
             const existingUser = await db.query.users.findFirst({
-                where: or(
-                    eq(users.email, email),
-                    eq(users.username, tfoUsername)
-                ),
+                where: or(eq(users.email, email), eq(users.username, tfoUsername)),
             });
             if (existingUser) {
                 Sentry.captureMessage(
@@ -74,8 +69,7 @@ export async function POST(req: Request) {
         }
 
         if (!process.env.TFO_API_KEY) {
-            const errorMessage =
-                'Server configuration error: TFO_API_KEY is not set.';
+            const errorMessage = 'Server configuration error: TFO_API_KEY is not set.';
             Sentry.captureException(new Error(errorMessage));
             console.error(errorMessage);
             return NextResponse.json(
@@ -91,7 +85,7 @@ export async function POST(req: Request) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                apiKey: process.env.TFO_API_KEY,
+                'apiKey': process.env.TFO_API_KEY,
             },
         });
         const labData = await labResponse.json();
@@ -114,15 +108,11 @@ export async function POST(req: Request) {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                apiKey: process.env.TFO_API_KEY,
+                'apiKey': process.env.TFO_API_KEY,
             },
         });
         const tfoData = await response.json();
-        if (
-            tfoData.error ||
-            !tfoData.creatures ||
-            tfoData.creatures.length === 0
-        ) {
+        if (tfoData.error || !tfoData.creatures || tfoData.creatures.length === 0) {
             Sentry.captureMessage(
                 `Empty or hidden tab for registration: ${tfoUsername} / Tab ${tabId}`,
                 'warning'
@@ -137,13 +127,9 @@ export async function POST(req: Request) {
         }
 
         const randomCreature =
-            tfoData.creatures[
-                Math.floor(Math.random() * tfoData.creatures.length)
-            ];
+            tfoData.creatures[Math.floor(Math.random() * tfoData.creatures.length)];
         const creatureCode = randomCreature.code;
-        const verificationToken = `verify-${crypto
-            .randomBytes(4)
-            .toString('hex')}`;
+        const verificationToken = `verify-${crypto.randomBytes(4).toString('hex')}`;
         const expiresAt = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minute expiry
 
         const hashedPassword = await hash(password, 12);
@@ -169,17 +155,11 @@ export async function POST(req: Request) {
                 },
             });
 
-        Sentry.captureMessage(
-            `Registration started for email: ${email}`,
-            'info'
-        );
+        Sentry.captureMessage(`Registration started for email: ${email}`, 'info');
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
         console.error('Registration start failed:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

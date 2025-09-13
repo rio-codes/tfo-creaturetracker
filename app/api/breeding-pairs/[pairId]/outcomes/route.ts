@@ -7,25 +7,13 @@ import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateAllPossibleOutcomes } from '@/lib/genetics';
 import * as Sentry from '@sentry/nextjs';
 
-export async function GET(
-    req: Request,
-    props: { params: Promise<{ pairId: string }> }
-) {
+export async function GET(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(
-        `Calculating outcomes for pair ${params.pairId}`,
-        'log'
-    );
+    Sentry.captureMessage(`Calculating outcomes for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to calculate outcomes',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to calculate outcomes', 'warning');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -56,17 +44,11 @@ export async function GET(
 
         const outcomes = calculateAllPossibleOutcomes(maleParent, femaleParent);
 
-        Sentry.captureMessage(
-            `Successfully calculated outcomes for pair ${params.pairId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Successfully calculated outcomes for pair ${params.pairId}`, 'info');
         return NextResponse.json({ outcomes });
     } catch (error: any) {
         console.error('Failed to calculate breeding outcomes:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -8,13 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -62,17 +56,13 @@ export default function LoginPage() {
                             TFO.creaturetracker
                         </h1>
                     </div>
-                    <p className="text-pompaca-purple">
-                        a breeding tracker for The Final Oupost
-                    </p>
+                    <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
                 </div>
 
                 {/* Login Form */}
                 <Card className="bg-ebena-lavender border-pompaca-purple shadow-lg">
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl text-pompaca-purple">
-                            Welcome Back
-                        </CardTitle>
+                        <CardTitle className="text-2xl text-pompaca-purple">Welcome Back</CardTitle>
                         <CardDescription className="text-pompaca-purple">
                             Sign in to your account to continue
                         </CardDescription>
@@ -96,9 +86,7 @@ export default function LoginPage() {
                                     type="text"
                                     placeholder="Enter your username"
                                     value={username}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
+                                    onChange={(e) => setUsername(e.target.value)}
                                     className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                                     required
                                 />
@@ -115,9 +103,7 @@ export default function LoginPage() {
                                     type="password"
                                     placeholder="Enter your password"
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="bg-barely-lilac border-pompaca-purple text-pompaca-purple placeholder:text-dusk-purple"
                                     required
                                 />

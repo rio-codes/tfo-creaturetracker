@@ -79,9 +79,7 @@ export const columns: ColumnDef<User>[] = [
         header: ({ column }) => (
             <Button
                 variant="ghost"
-                onClick={() =>
-                    column.toggleSorting(column.getIsSorted() === 'asc')
-                }
+                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
                 Email
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -106,17 +104,14 @@ export const columns: ColumnDef<User>[] = [
         cell: ({ row }) => {
             const status = row.original.status;
             const className =
-                status === 'suspended'
-                    ? 'bg-red-500/80 text-white'
-                    : 'bg-green-500/80 text-white';
+                status === 'suspended' ? 'bg-red-500/80 text-white' : 'bg-green-500/80 text-white';
             return <Badge className={className}>{status}</Badge>;
         },
     },
     {
         accessorKey: 'createdAt',
         header: 'Registered',
-        cell: ({ row }) =>
-            new Date(row.original.createdAt).toLocaleDateString(),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
         id: 'actions',
@@ -140,20 +135,14 @@ export const columns: ColumnDef<User>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={() =>
-                                handleSuspendUser(user.id, user.status)
-                            }
+                            onClick={() => handleSuspendUser(user.id, user.status)}
                             className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
                         >
-                            {user.status === 'active'
-                                ? 'Suspend User'
-                                : 'Unsuspend User'}
+                            {user.status === 'active' ? 'Suspend User' : 'Unsuspend User'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
-                            onClick={() =>
-                                handleDeleteUser(user.id, user.username)
-                            }
+                            onClick={() => handleDeleteUser(user.id, user.username)}
                         >
                             Delete User
                         </DropdownMenuItem>

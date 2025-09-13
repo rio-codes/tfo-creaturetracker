@@ -24,16 +24,11 @@ export function CreaturesPageClient({
                 data={creatures}
                 pagination={pagination}
                 searchPlaceholder="Filter by name, code, or owner..."
-                onRowClick={(row: any) =>
-                    setSelectedItem({ type: 'creature', id: row.id })
-                }
+                onRowClick={(row: any) => setSelectedItem({ type: 'creature', id: row.id })}
             />
             <Suspense>
                 {selectedItem && (
-                    <ViewItemDialog
-                        item={selectedItem}
-                        onClose={() => setSelectedItem(null)}
-                    />
+                    <ViewItemDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
                 )}
             </Suspense>
         </>

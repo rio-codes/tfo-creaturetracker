@@ -10,12 +10,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type AdminBreedingPair = {
     id: string;
@@ -53,9 +48,7 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="max-w-xs truncate cursor-default">
-                                {name}
-                            </div>
+                            <div className="max-w-xs truncate cursor-default">{name}</div>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>{name}</p>
@@ -76,8 +69,7 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
     {
         accessorKey: 'createdAt',
         header: 'Created',
-        cell: ({ row }) =>
-            new Date(row.original.createdAt).toLocaleDateString(),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
         id: 'actions',
@@ -98,9 +90,7 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
                             className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
-                            onClick={() =>
-                                handleDeleteBreedingPair(pair.id, pair.pairName)
-                            }
+                            onClick={() => handleDeleteBreedingPair(pair.id, pair.pairName)}
                         >
                             Delete Pair
                         </DropdownMenuItem>

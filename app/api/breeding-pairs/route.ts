@@ -74,7 +74,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
-        // Check if a pair with these exact parents already exists
         const existingPair = await db.query.breedingPairs.findFirst({
             where: and(
                 eq(breedingPairs.userId, userId),

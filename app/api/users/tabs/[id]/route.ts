@@ -13,7 +13,6 @@ const updateTabSchema = z.object({
     tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
 });
 
-// PATCH to update a tab
 export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Updating user tab ${params.id}`, 'log');
@@ -86,7 +85,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
     }
 }
 
-// DELETE a tab
 export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Deleting user tab ${params.id}`, 'log');

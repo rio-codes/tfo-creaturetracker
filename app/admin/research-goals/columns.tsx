@@ -10,12 +10,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type AdminResearchGoal = {
     id: string;
@@ -53,9 +48,7 @@ export const columns: ColumnDef<AdminResearchGoal>[] = [
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="max-w-xs truncate cursor-default">
-                                {name}
-                            </div>
+                            <div className="max-w-xs truncate cursor-default">{name}</div>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>{name}</p>
@@ -76,8 +69,7 @@ export const columns: ColumnDef<AdminResearchGoal>[] = [
     {
         accessorKey: 'createdAt',
         header: 'Created',
-        cell: ({ row }) =>
-            new Date(row.original.createdAt).toLocaleDateString(),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
     },
     {
         id: 'actions',
@@ -98,9 +90,7 @@ export const columns: ColumnDef<AdminResearchGoal>[] = [
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
                             className=" bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
-                            onClick={() =>
-                                handleDeleteResearchGoal(goal.id, goal.name)
-                            }
+                            onClick={() => handleDeleteResearchGoal(goal.id, goal.name)}
                         >
                             Delete Goal
                         </DropdownMenuItem>

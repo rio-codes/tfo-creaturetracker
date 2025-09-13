@@ -7,16 +7,10 @@ import { logAdminAction } from '@/lib/audit';
 import { enrichAndSerializeGoal } from '@/lib/serialization';
 import * as Sentry from '@sentry/nextjs';
 
-export async function GET(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(
-        `Admin: fetching research goal ${params.goalId}`,
-        'log'
-    );
+    Sentry.captureMessage(`Admin: fetching research goal ${params.goalId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
@@ -32,43 +26,25 @@ export async function GET(
         });
 
         if (!goal) {
-            Sentry.captureMessage(
-                `Admin: research goal not found ${params.goalId}`,
-                'warning'
-            );
-            return NextResponse.json(
-                { error: 'Research goal not found' },
-                { status: 404 }
-            );
+            Sentry.captureMessage(`Admin: research goal not found ${params.goalId}`, 'warning');
+            return NextResponse.json({ error: 'Research goal not found' }, { status: 404 });
         }
 
-        Sentry.captureMessage(
-            `Admin: successfully fetched research goal ${params.goalId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Admin: successfully fetched research goal ${params.goalId}`, 'info');
         return NextResponse.json({
             enrichedGoal: enrichAndSerializeGoal(goal, goal.goalMode),
         });
     } catch (error) {
         console.error('Failed to fetch research goal details:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 
-export async function DELETE(
-    req: Request,
-    props: { params: Promise<{ goalId: string }> }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(
-        `Admin: deleting research goal ${params.goalId}`,
-        'log'
-    );
+    Sentry.captureMessage(`Admin: deleting research goal ${params.goalId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
@@ -89,15 +65,10 @@ export async function DELETE(
                 `Admin: research goal to delete not found ${params.goalId}`,
                 'warning'
             );
-            return NextResponse.json(
-                { error: 'Research goal not found.' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Research goal not found.' }, { status: 404 });
         }
 
-        await db
-            .delete(researchGoals)
-            .where(eq(researchGoals.id, params.goalId));
+        await db.delete(researchGoals).where(eq(researchGoals.id, params.goalId));
 
         await logAdminAction({
             action: 'research_goal.delete',
@@ -108,19 +79,13 @@ export async function DELETE(
             },
         });
 
-        Sentry.captureMessage(
-            `Admin: successfully deleted research goal ${params.goalId}`,
-            'info'
-        );
+        Sentry.captureMessage(`Admin: successfully deleted research goal ${params.goalId}`, 'info');
         return NextResponse.json({
             message: 'Research goal deleted successfully.',
         });
     } catch (error) {
         console.error('Failed to delete research goal:', error);
         Sentry.captureException(error);
-        return NextResponse.json(
-            { error: 'An internal error occurred.' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

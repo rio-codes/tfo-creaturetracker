@@ -5,7 +5,6 @@ import { and, eq, count } from 'drizzle-orm';
 import { z } from 'zod';
 import * as Sentry from '@sentry/nextjs';
 
-// Schema for query validation
 const querySchema = z.object({
     species: z.string().min(1, { message: 'Species parameter is required.' }),
     color: z.string().optional(),
@@ -32,7 +31,6 @@ export async function GET(
 
         if (!validation.success) {
             const { fieldErrors } = validation.error.flatten();
-            // Since `color` is optional, the only expected validation error is for a missing `species`.
             if (fieldErrors.color !== undefined) {
             const errorMessage =
                 fieldErrors.species?.join(' ') ??
@@ -66,7 +64,7 @@ export async function GET(
 
         const user = await db.query.users.findFirst({
             where: eq(users.username, username),
-            columns: { id: true }, // We only need the user's ID
+            columns: { id: true },
         });
 
         if (!user) {

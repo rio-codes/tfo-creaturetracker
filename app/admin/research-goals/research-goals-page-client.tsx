@@ -24,16 +24,11 @@ export function ResearchGoalsPageClient({
                 data={goals}
                 pagination={pagination}
                 searchPlaceholder="Filter by name, species, or owner..."
-                onRowClick={(row: any) =>
-                    setSelectedItem({ type: 'research-goal', id: row.id })
-                }
+                onRowClick={(row: any) => setSelectedItem({ type: 'research-goal', id: row.id })}
             />
             <Suspense>
                 {selectedItem && (
-                    <ViewItemDialog
-                        item={selectedItem}
-                        onClose={() => setSelectedItem(null)}
-                    />
+                    <ViewItemDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
                 )}
             </Suspense>
         </>

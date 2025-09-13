@@ -4,18 +4,9 @@ import { columns } from './columns';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { and, ilike, or, desc, count, SQL } from 'drizzle-orm';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-async function fetchAdminUsers(searchParams: {
-    page?: string;
-    query?: string;
-}) {
+async function fetchAdminUsers(searchParams: { page?: string; query?: string }) {
     const page = Number(searchParams.page) || 1;
     const limit = 50;
     const query = searchParams.query;
@@ -23,15 +14,11 @@ async function fetchAdminUsers(searchParams: {
 
     const whereConditions: (SQL | undefined)[] = [
         query
-            ? or(
-                  ilike(users.username, `%${query}%`),
-                  ilike(users.email, `%${query}%`)
-              )
+            ? or(ilike(users.username, `%${query}%`), ilike(users.email, `%${query}%`))
             : undefined,
     ].filter(Boolean);
 
-    const where =
-        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const userList = await db.query.users.findMany({
         where,
@@ -41,10 +28,7 @@ async function fetchAdminUsers(searchParams: {
         columns: { password: false },
     });
 
-    const totalCountResult = await db
-        .select({ count: count() })
-        .from(users)
-        .where(where);
+    const totalCountResult = await db.select({ count: count() }).from(users).where(where);
     const totalUsers = totalCountResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalUsers / limit);
 

@@ -8,7 +8,6 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, sql } from 'drizzle-orm';
 import * as Sentry from '@sentry/nextjs';
 
-// get type of creatures array for inserting
 type CreatureInsert = typeof creatures.$inferInsert;
 
 const syncSchema = z.object({
@@ -19,7 +18,6 @@ const syncSchema = z.object({
         .max(99999, 'Tab ID must be 5 digits long or fewer'),
 });
 
-// TFO API error code mapping for user-friendly messages
 const tfoErrorMap: { [key: number]: string } = {
     1: 'User does not exist.',
     2: "User's lab is hidden.",
@@ -28,7 +26,6 @@ const tfoErrorMap: { [key: number]: string } = {
     8: 'Tab is hidden.',
 };
 
-// request to fetch creatures for a given tab
 export async function POST(req: Request) {
     Sentry.captureMessage('Syncing creatures from TFO tab', 'log');
     const session = await auth();
@@ -49,7 +46,6 @@ export async function POST(req: Request) {
     }
 
     try {
-        // construct TFO URL and fetch creatures for tab
         const body = await req.json();
         const validated = syncSchema.safeParse(body);
 
@@ -78,14 +74,12 @@ export async function POST(req: Request) {
         }
         const data = await response.json();
         console.log(data);
-        // handle errors
         if (data.error === true) {
             const errorMessage =
                 tfoErrorMap[data.errorCode] || 'An unknown error occurred with the TFO API.';
             Sentry.captureMessage(`TFO API error during sync: ${errorMessage}`, 'error');
             return NextResponse.json({ error: errorMessage }, { status: 400 });
         }
-        // response if no creatures are found
         if (data.error || !data.creatures || data.creatures.length === 0) {
             Sentry.captureMessage('No creatures found in TFO tab during sync.', 'info');
             return NextResponse.json(
@@ -99,15 +93,12 @@ export async function POST(req: Request) {
         const creatureValuesToUpdate: CreatureInsert[] = [];
         let updatedImageCount = 0;
 
-        // loop through fetched creatures
         for (const tfoCreature of data.creatures) {
-            // check if we already have this creature in our database
             const existingCreature = await db.query.creatures.findFirst({
                 where: and(eq(creatures.code, tfoCreature.code), eq(creatures.userId, userId)),
             });
             let newImageUrl = existingCreature?.imageUrl || tfoCreature.imgsrc;
 
-            // determine if creature has grown and we need to update the image
             const hasGrown =
                 existingCreature && existingCreature.growthLevel !== tfoCreature.growthLevel;
             const isOldTfoUrl = newImageUrl && !newImageUrl.includes('vercel-storage.com');
@@ -131,7 +122,6 @@ export async function POST(req: Request) {
                     newImageUrl = tfoCreature.imgsrc;
                 }
             }
-            // add newly grown creature to array to update
             creatureValuesToUpdate.push({
                 userId: userId,
                 code: tfoCreature.code,
@@ -146,7 +136,6 @@ export async function POST(req: Request) {
                 updatedAt: new Date(),
             });
         }
-        // insert updated creatures with new image
         if (creatureValuesToUpdate.length > 0) {
             await db
                 .insert(creatures)

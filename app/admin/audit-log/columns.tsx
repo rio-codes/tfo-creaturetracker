@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from '@tanstack/react-table';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 type AuditLogEntry = {
     id: string;
@@ -24,8 +24,8 @@ type AuditLogEntry = {
 
 export const columns: ColumnDef<AuditLogEntry>[] = [
     {
-        accessorKey: "timestamp",
-        header: "Timestamp",
+        accessorKey: 'timestamp',
+        header: 'Timestamp',
         cell: ({ row }) => {
             const date = new Date(row.original.timestamp);
             return (
@@ -39,39 +39,34 @@ export const columns: ColumnDef<AuditLogEntry>[] = [
         },
     },
     {
-        accessorKey: "adminUsername",
-        header: "Admin",
+        accessorKey: 'adminUsername',
+        header: 'Admin',
         cell: ({ row }) =>
             row.original.adminUsername || (
                 <span className="italic text-dusk-purple">System/Unknown</span>
             ),
     },
     {
-        accessorKey: "action",
-        header: "Action",
-        cell: ({ row }) => (
-            <Badge variant="secondary">{row.original.action}</Badge>
-        ),
+        accessorKey: 'action',
+        header: 'Action',
+        cell: ({ row }) => <Badge variant="secondary">{row.original.action}</Badge>,
     },
     {
-        accessorKey: "targetType",
-        header: "Target Type",
+        accessorKey: 'targetType',
+        header: 'Target Type',
     },
     {
-        accessorKey: "targetId",
-        header: "Target ID",
+        accessorKey: 'targetId',
+        header: 'Target ID',
         cell: ({ row }) => (
-            <div
-                className="max-w-xs truncate"
-                title={row.original.targetId || ""}
-            >
+            <div className="max-w-xs truncate" title={row.original.targetId || ''}>
                 {row.original.targetId}
             </div>
         ),
     },
     {
-        accessorKey: "details",
-        header: "Details",
+        accessorKey: 'details',
+        header: 'Details',
         cell: ({ row }) => {
             const details = row.original.details;
             if (!details) return null;

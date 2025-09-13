@@ -39,6 +39,10 @@ export async function POST(req: Request) {
         });
 
         if (!response.ok) {
+            Sentry.captureMessage(
+                `Failed to fetch creature details from TFO API for verification: ${creatureCode}`,
+                'warning'
+            );
             throw new Error('Failed to fetch creature details from TFO API.');
         }
 

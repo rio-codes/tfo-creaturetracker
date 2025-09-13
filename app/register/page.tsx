@@ -1,4 +1,4 @@
-import RegistrationFlow from "@/components/custom-forms/registration-flow";
+import RegistrationFlow from '@/components/custom-forms/registration-flow';
 
 export default function RegisterPage() {
     return (
@@ -12,9 +12,7 @@ export default function RegisterPage() {
                             TFO.creaturetracker
                         </h1>
                     </div>
-                    <p className="text-pompaca-purple">
-                        a breeding tracker for The Final Oupost
-                    </p>
+                    <p className="text-pompaca-purple">a breeding tracker for The Final Oupost</p>
                 </div>
                 <RegistrationFlow />
             </div>

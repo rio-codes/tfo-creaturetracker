@@ -1,12 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users } from 'lucide-react';
 import { db } from '@/src/db';
-import {
-    users,
-    creatures,
-    breedingPairs,
-    researchGoals,
-} from '@/src/db/schema';
+import { users, creatures, breedingPairs, researchGoals } from '@/src/db/schema';
 import { count, gte } from 'drizzle-orm';
 import { subDays } from 'date-fns';
 

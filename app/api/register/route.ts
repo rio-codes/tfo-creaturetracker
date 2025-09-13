@@ -48,26 +48,23 @@ export async function POST(req: Request) {
 
         const { username, email, password } = validatedFields.data;
 
-        // Check if a user with this username OR email already exists
         const existingUserByUsername = await db.query.users.findFirst({
             where: eq(users.username, username),
         });
-        if (existingUserByUsername && username != 'koda_curvata') {
+        if (existingUserByUsername) {
             Sentry.captureMessage(`Registration with existing username: ${username}`, 'warning');
             return NextResponse.json({ message: 'Username is already taken' }, { status: 409 });
         }
         const existingUserByEmail = await db.query.users.findFirst({
             where: eq(users.email, email),
         });
-        if (existingUserByEmail && email != 'bunnyhouse02@gmail.com') {
+        if (existingUserByEmail) {
             Sentry.captureMessage(`Registration with existing email: ${email}`, 'warning');
             return NextResponse.json({ message: 'Email is already in use' }, { status: 409 });
         }
 
-        // Hash the password
         const hashedPassword = await hash(password, 12);
 
-        // Create the new user
         await db.insert(users).values({
             id: crypto.randomUUID(), // Generate a UUID for the user id
             username: username,

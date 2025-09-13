@@ -28,10 +28,7 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage(
-            'Forbidden access to admin create creature',
-            'warning'
-        );
+        Sentry.captureMessage('Forbidden access to admin create creature', 'warning');
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const userId = session.user.id;
@@ -43,14 +40,10 @@ export async function POST(req: Request) {
         if (!validated.success) {
             const flattenedError = validated.error.flatten();
             const validatedError =
-                'Could not create creature: ' +
-                flattenedError.fieldErrors.toString();
+                'Could not create creature: ' + flattenedError.fieldErrors.toString();
             console.error(validatedError);
             Sentry.captureException(validatedError);
-            return NextResponse.json(
-                { error: validatedError },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
         const { creatureName, creatureCode, species, genes } = validated.data;
@@ -63,11 +56,7 @@ export async function POST(req: Request) {
         for (const [category, geneInfo] of Object.entries(genes)) {
             genotypesForUrl[category] = geneInfo.genotype;
             geneParts.push(`${category}:${geneInfo.genotype}`);
-            if (
-                geneInfo &&
-                category === 'Gender' &&
-                typeof geneInfo.genotype === 'string'
-            ) {
+            if (geneInfo && category === 'Gender' && typeof geneInfo.genotype === 'string') {
                 gender = geneInfo.genotype;
             }
         }
@@ -76,11 +65,7 @@ export async function POST(req: Request) {
         // 2. Create image
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-        const blobUrl = await fetchAndUploadWithRetry(
-            bustedTfoImageUrl,
-            creatureCode,
-            3
-        );
+        const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, creatureCode, 3);
 
         // 3. Insert into database
         await db.insert(creatures).values({
@@ -96,15 +81,9 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
         });
 
-        Sentry.captureMessage(
-            `Admin: creature ${creatureCode} created successfully`,
-            'info'
-        );
+        Sentry.captureMessage(`Admin: creature ${creatureCode} created successfully`, 'info');
         revalidatePath('/collection');
-        return NextResponse.json(
-            { message: 'Creature created successfully!' },
-            { status: 201 }
-        );
+        return NextResponse.json({ message: 'Creature created successfully!' }, { status: 201 });
     } catch (error: any) {
         Sentry.captureException(error.message);
         return NextResponse.json(

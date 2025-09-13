@@ -13,7 +13,6 @@ const createTabSchema = z.object({
     tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
 });
 
-// GET all tabs for a user
 export async function GET() {
     Sentry.captureMessage('Fetching user tabs', 'log');
     const session = await auth();
@@ -37,7 +36,6 @@ export async function GET() {
     }
 }
 
-// POST a new tab for a user
 export async function POST(req: Request) {
     Sentry.captureMessage('Creating user tab', 'log');
     const session = await auth();

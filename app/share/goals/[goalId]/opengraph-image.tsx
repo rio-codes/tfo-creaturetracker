@@ -32,14 +32,9 @@ export default async function Image({ params }: { params: { goalId: string } }) 
     const tekturRegular = readFile(join(process.cwd(), 'assets/fonts/Tektur-Regular.ttf'));
 
     let imageUrl = goal.imageUrl;
-    if (!imageUrl) {
+    if (!imageUrl || !imageUrl.startsWith('http')) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
         imageUrl = new URL('/placeholder.png', baseUrl).toString();
-    } else if (!imageUrl.startsWith('http')) {
-        imageUrl = new URL(
-            imageUrl,
-            process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net'
-        ).toString();
     }
 
     return new ImageResponse(

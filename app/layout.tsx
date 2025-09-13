@@ -6,23 +6,23 @@ import ClientProviders from './ClientProviders';
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
     title: {
-        default: 'TFO Creature Tracker',
-        template: '%s | TFO Creature Tracker',
+        default: 'TFO.creaturetracker',
+        template: '%s | TFO.creaturetracker',
     },
     description:
         'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
     openGraph: {
-        title: 'TFO Creature Tracker',
+        title: 'TFO.creaturetracker',
         description:
             'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
         url: 'https://tfo.creaturetracker.net',
-        siteName: 'TFO Creature Tracker',
+        siteName: 'TFO.creaturetracker',
         images: [
             {
                 url: 'https://github.com/user-attachments/assets/ef9b624e-8c48-4721-980e-4531b21563f0',
                 width: 750,
                 height: 750,
-                alt: 'TFO Creature Tracker Logo',
+                alt: 'TFO.creaturetracker Logo',
             },
         ],
         locale: 'en_US',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'TFO Creature Tracker',
+        title: 'TFO.creaturetracker',
         description:
             'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
         images: ['https://github.com/user-attachments/assets/ef9b624e-8c48-4721-980e-4531b21563f0'],

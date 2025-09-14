@@ -179,6 +179,7 @@ export function FindPotentialPairsDialog({
                     femaleParentId: female?.id,
                     pairName,
                     assignedGoalIds: [goal.id],
+                    species: goal.species,
                 }),
             });
 

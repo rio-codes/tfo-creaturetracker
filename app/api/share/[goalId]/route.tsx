@@ -6,15 +6,7 @@ import * as Sentry from '@sentry/nextjs';
 
 export const runtime = 'nodejs';
 
-export const alt = 'TFO.creaturetracker Research Goal';
-export const size = {
-    width: 1200,
-    height: 630,
-};
-
-export const contentType = 'image/png';
-
-export default async function Image({ params }: { params: { goalId: string } }) {
+export async function GET(req: Request, { params }: { params: { goalId: string } }) {
     const goalId = params.goalId;
 
     try {
@@ -40,7 +32,7 @@ export default async function Image({ params }: { params: { goalId: string } }) 
                         Goal Not Found
                     </div>
                 ),
-                { ...size }
+                { width: 1200, height: 630 }
             );
         }
 
@@ -49,7 +41,7 @@ export default async function Image({ params }: { params: { goalId: string } }) 
             columns: { username: true },
         });
 
-        const altText = `TFO research goal created by ${username?.username}: ${goal.name}.`;
+        const altText = `TFO research goal by ${username?.username || 'a user'}: ${goal.name}.`;
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
         let imageUrl = goal.imageUrl;
@@ -59,8 +51,6 @@ export default async function Image({ params }: { params: { goalId: string } }) 
             imageUrl = new URL(imageUrl, baseUrl).toString();
         }
 
-        // Fetch font and image data concurrently.
-        // This ensures all network I/O is handled within the try/catch block.
         const fontUrl = new URL('/fonts/Tektur-Regular.ttf', baseUrl).toString();
 
         const [imageResponse, fontResponse] = await Promise.all([fetch(imageUrl), fetch(fontUrl)]);
@@ -79,7 +69,6 @@ export default async function Image({ params }: { params: { goalId: string } }) 
             fontResponse.arrayBuffer(),
         ]);
 
-        // Convert image to a data URI
         const imageBase64 = Buffer.from(imageBuffer).toString('base64');
         const imageSrc = `data:${imageResponse.headers.get('content-type')};base64,${imageBase64}`;
 
@@ -158,15 +147,9 @@ export default async function Image({ params }: { params: { goalId: string } }) 
                 </div>
             ),
             {
-                ...size,
-                fonts: [
-                    {
-                        name: 'Tektur',
-                        data: fontData,
-                        style: 'normal',
-                        weight: 400,
-                    },
-                ],
+                width: 1200,
+                height: 630,
+                fonts: [{ name: 'Tektur', data: fontData, style: 'normal', weight: 400 }],
             }
         );
     } catch (e: any) {

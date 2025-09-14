@@ -36,12 +36,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = `Research Goal: ${goal.name}`;
     const description = `View the research goal "${goal.name}" for the species ${goal.species} on tfo.creaturetracker. Shared by ${owner?.username || 'a user'}.`;
 
+    const imageUrl = `/api/share/${goalId}`;
+
     return {
         title,
         description,
         openGraph: {
             title,
             description,
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                },
+            ],
             locale: 'en_US',
             type: 'website',
         },
@@ -49,6 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             card: 'summary_large_image',
             title,
             description,
+            images: [imageUrl],
         },
     };
 }

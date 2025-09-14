@@ -158,18 +158,16 @@ export function GoalDetailClient({
                     <h1 className="min-w-0 text-4xl font-bold text-pompaca-purple dark:text-purple-300">
                         Goal: {goal?.name}
                     </h1>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                        <ShareGoalButton goal={goal} />
-                        <EditGoalDialog goal={goal} isAdminView={false} />
-                    </div>
+                    <ShareGoalButton goal={goal} />
                 </div>
                 <div className="mt-5">
                     {/* Desktop: Info on the badge itself */}
-                    <div className="hidden md:block">
+                    <div className="hidden md:flex items-center gap-2">
                         <InfoDisplay
                             trigger={<GoalModeSwitcher goal={goal} />}
                             content={goalModeInfoContent}
                         />
+                        <EditGoalDialog goal={goal} isAdminView={false}></EditGoalDialog>
                     </div>
 
                     {/* Mobile: Badge + separate info icon */}

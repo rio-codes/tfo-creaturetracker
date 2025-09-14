@@ -140,6 +140,31 @@ export default async function SharedGoalPage({ params }: Props) {
         <div className="shared-goal-page-container bg-barely-lilac dark:bg-deep-purple min-h-screen">
             <main className="container mx-auto px-4 py-8">
                 <SharedGoalHeader goal={goal} />
+                <div className="text-center my-6">
+                    <p className="text-sm md:text-base text-pompaca-purple dark:text-purple-300 max-w-3xl mx-auto">
+                        This is a research goal from{' '}
+                        <a
+                            href="https://tfo.creaturetracker.net"
+                            className="font-bold underline hover:text-deep-purple dark:hover:text-barely-lilac"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            TFO.creaturetracker.net
+                        </a>
+                        , a tool for the collectible creature game{' '}
+                        <a
+                            href="https://finaloutpost.net"
+                            className="font-bold underline hover:text-deep-purple dark:hover:text-barely-lilac"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            The Final Outpost
+                        </a>
+                        , or TFO. This page shows the desired traits for a creature breeding goal,
+                        along with potential breeding pairs and their offspring that match those
+                        traits.
+                    </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                     <SharedGoalInfo goal={goal} />
                     <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">

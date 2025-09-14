@@ -32,11 +32,7 @@ export default function Header() {
         icon: '🧑🏾‍💻',
     };
 
-    const renderMenuItem = (item: {
-        href: string;
-        label: string;
-        icon: string;
-    }) => (
+    const renderMenuItem = (item: { href: string; label: string; icon: string }) => (
         <DropdownMenuItem
             key={item.href}
             className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple h-10"
@@ -92,14 +88,13 @@ export default function Header() {
                         className="w-56 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple"
                     >
                         {menuItems.map(renderMenuItem)}
-                        {session?.user?.role === 'admin' &&
-                            renderMenuItem(adminMenuItem)}
+                        {session?.user?.role === 'admin' && renderMenuItem(adminMenuItem)}
                     </DropdownMenuContent>
                 </DropdownMenu>
 
                 <Link href="/" className="flex items-center gap-3">
                     <Image
-                        src="/icon.svg"
+                        src="/images/icons/icon.svg"
                         alt="TFO.creaturetracker logo"
                         // Use aspect ratio from SVG's viewBox for correct rendering
                         width={260}
@@ -174,11 +169,7 @@ export default function Header() {
                                 ) : (
                                     <RefreshCw className="mr-2 h-4 w-4" />
                                 )}
-                                <span>
-                                    {isChangingAvatar
-                                        ? 'Changing...'
-                                        : 'Change Avatar'}
-                                </span>
+                                <span>{isChangingAvatar ? 'Changing...' : 'Change Avatar'}</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onSelect={() => signOut({ callbackUrl: '/' })}

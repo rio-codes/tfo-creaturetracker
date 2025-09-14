@@ -120,11 +120,7 @@ export function ResearchGoalCard({
             <CardContent className="p-4">
                 {/* Goal Image */}
                 <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
-                    <img
-                        src={goal?.imageUrl || '/placeholder.png'}
-                        alt={goal?.name}
-                        className="w-35 h-35 object-scale-down"
-                    />
+                    <img src={goal?.imageUrl || '/images/misc/placeholder.png'} alt={goal?.name} className="w-35 h-35 object-scale-down" />
                 </div>
                 <div className="h-20">
                     <div>

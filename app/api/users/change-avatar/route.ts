@@ -27,7 +27,7 @@ export async function POST() {
 
         const currentAvatar = user.image || getRandomCapsuleAvatar(userId);
 
-        const allAvatarPaths = capsuleAvatars.map((name) => `/${name}`);
+        const allAvatarPaths = capsuleAvatars.map((name) => `/images/capsules/${name}`);
         const potentialAvatars = allAvatarPaths.filter((path) => path !== currentAvatar);
 
         const selectionPool = potentialAvatars.length > 0 ? potentialAvatars : allAvatarPaths;

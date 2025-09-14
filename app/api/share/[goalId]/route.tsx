@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/nextjs';
 export const runtime = 'nodejs';
 
 async function getPlaceholderImage(baseUrl: string): Promise<Response> {
-    const placeholderUrl = new URL('/placeholder.png', baseUrl).toString();
+    const placeholderUrl = new URL('/images/misc/placeholder.png', baseUrl).toString();
     const response = await fetch(placeholderUrl);
     // Re-create the response to ensure headers are correctly set for the client
     return new Response(response.body, {

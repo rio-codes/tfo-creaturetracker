@@ -6,17 +6,8 @@ import { ChevronUp, ChevronDown, Pin, PinOff, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import type {
     EnrichedBreedingPair,
@@ -39,20 +30,13 @@ interface CreatureCardProps {
     isAdminView?: boolean;
 }
 
-const ParentGeneSummary = ({
-    creature,
-}: {
-    creature: EnrichedCreature | null;
-}) => {
+const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature | null }) => {
     if (!creature?.geneData || creature.geneData.length === 0) {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
     const summary = creature.geneData
         .filter((g) => g.category !== 'Gender')
-        .map(
-            (gene) =>
-                `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`
-        )
+        .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
         .join(', ');
 
     return (
@@ -64,17 +48,13 @@ const ParentGeneSummary = ({
     );
 };
 
-const getCacheBustedImageUrl = (
-    creature: EnrichedCreature | null | undefined
-) => {
+const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
     if (!creature?.imageUrl) {
         return '';
     }
 
     if (creature.updatedAt) {
-        return `${creature.imageUrl}?v=${new Date(
-            creature.updatedAt
-        ).getTime()}`;
+        return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
     }
     return creature.imageUrl;
 };
@@ -99,9 +79,7 @@ export function CreatureCard({
 
     const parentPair = useMemo(() => {
         if (isAdminView || !allEnrichedPairs) return undefined;
-        return allEnrichedPairs.find((p) =>
-            p?.progeny?.some((prog) => prog?.id === creature.id)
-        );
+        return allEnrichedPairs.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id));
     }, [allEnrichedPairs, creature.id, isAdminView]);
 
     const handlePinToggle = async () => {
@@ -180,7 +158,7 @@ export function CreatureCard({
                 {/* Creature Image */}
                 <div className="rounded-lg p-4 mb-4 flex justify-center">
                     <img
-                        src={creature.imageUrl || '/placeholder.png'}
+                        src={creature.imageUrl || '/images/misc/placeholder.png'}
                         alt={creature.code + ', ' + creature.species}
                         className="w-35 h-35 object-scale-down"
                     />
@@ -219,13 +197,9 @@ export function CreatureCard({
                                                         {/* Title */}
                                                         <h3
                                                             className="text-xl font-bold text-center"
-                                                            title={
-                                                                parentPair.pairName
-                                                            }
+                                                            title={parentPair.pairName}
                                                         >
-                                                            {
-                                                                parentPair.pairName
-                                                            }
+                                                            {parentPair.pairName}
                                                         </h3>
                                                         {/* Parent Images */}
                                                         <div className="flex justify-center items-center gap-2 mt-2">
@@ -233,11 +207,7 @@ export function CreatureCard({
                                                                 src={getCacheBustedImageUrl(
                                                                     parentPair.maleParent
                                                                 )}
-                                                                alt={
-                                                                    parentPair
-                                                                        .maleParent!
-                                                                        .code
-                                                                }
+                                                                alt={parentPair.maleParent!.code}
                                                                 className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                                                             />
                                                             <X className="text-dusk-purple" />
@@ -245,11 +215,7 @@ export function CreatureCard({
                                                                 src={getCacheBustedImageUrl(
                                                                     parentPair.femaleParent
                                                                 )}
-                                                                alt={
-                                                                    parentPair
-                                                                        .femaleParent!
-                                                                        .code
-                                                                }
+                                                                alt={parentPair.femaleParent!.code}
                                                                 className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
                                                             />
                                                         </div>
@@ -265,14 +231,12 @@ export function CreatureCard({
                                                                         <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                                                             M:
                                                                         </span>{' '}
-                                                                        {parentPair
-                                                                            .maleParent!
+                                                                        {parentPair.maleParent!
                                                                             .creatureName ||
                                                                             'Unnamed'}{' '}
                                                                         (
                                                                         {
-                                                                            parentPair
-                                                                                .maleParent!
+                                                                            parentPair.maleParent!
                                                                                 .code
                                                                         }
                                                                         )
@@ -293,14 +257,12 @@ export function CreatureCard({
                                                                         <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                                                             F:
                                                                         </span>{' '}
-                                                                        {parentPair
-                                                                            .femaleParent!
+                                                                        {parentPair.femaleParent!
                                                                             .creatureName ||
                                                                             'Unnamed'}{' '}
                                                                         (
                                                                         {
-                                                                            parentPair
-                                                                                .femaleParent!
+                                                                            parentPair.femaleParent!
                                                                                 .code
                                                                         }
                                                                         )
@@ -317,11 +279,7 @@ export function CreatureCard({
                                                             </Collapsible>
                                                         </div>
                                                         <div className="text-center text-sm text-pompaca-purple">
-                                                            Bred{' '}
-                                                            {
-                                                                parentPair.timesBred
-                                                            }{' '}
-                                                            times
+                                                            Bred {parentPair.timesBred} times
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -352,8 +310,7 @@ export function CreatureCard({
                     <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
                         <div className="text-sm space-y-1 ">
                             <div className="whitespace-pre-line pr-4">
-                                {creature.geneData &&
-                                creature.geneData.length > 0 ? (
+                                {creature.geneData && creature.geneData.length > 0 ? (
                                     <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
                                         {creature.geneData.map(
                                             (gene) =>
@@ -363,14 +320,8 @@ export function CreatureCard({
                                                             {gene.category}:
                                                         </span>
                                                         <div className="pl-2">
-                                                            <div>
-                                                                Phenotype:{' '}
-                                                                {gene.phenotype}
-                                                            </div>
-                                                            <div>
-                                                                Genotype:{' '}
-                                                                {gene.genotype}
-                                                            </div>
+                                                            <div>Phenotype: {gene.phenotype}</div>
+                                                            <div>Genotype: {gene.genotype}</div>
                                                         </div>
                                                     </div>
                                                 )
@@ -391,38 +342,34 @@ export function CreatureCard({
             </CardContent>
             <CardFooter className="flex flex-col items-center justify-center p-2 pt-0">
                 <div className="flex w-full gap-2 justify-center text-sm">
-                    {!isAdminView &&
-                        allCreatures &&
-                        allEnrichedPairs &&
-                        allLogs &&
-                        allGoals && (
-                            <>
-                                <ManageBreedingPairsDialog
-                                    baseCreature={creature}
-                                    allCreatures={allCreatures}
-                                    allPairs={allEnrichedPairs}
-                                    allGoals={allGoals}
-                                >
-                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
-                                        <span className="text-wrap wrap-normal text-sm/tight">
-                                            Manage Breeding Pairs
-                                        </span>
-                                    </Button>
-                                </ManageBreedingPairsDialog>
-                                <LogAsProgenyDialog
-                                    creature={creature}
-                                    allCreatures={allCreatures}
-                                    allEnrichedPairs={allEnrichedPairs}
-                                    allLogs={allLogs}
-                                >
-                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
-                                        <span className="text-wrap wrap-normal text-sm/tight">
-                                            Log as Progeny
-                                        </span>
-                                    </Button>
-                                </LogAsProgenyDialog>
-                            </>
-                        )}
+                    {!isAdminView && allCreatures && allEnrichedPairs && allLogs && allGoals && (
+                        <>
+                            <ManageBreedingPairsDialog
+                                baseCreature={creature}
+                                allCreatures={allCreatures}
+                                allPairs={allEnrichedPairs}
+                                allGoals={allGoals}
+                            >
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                        Manage Breeding Pairs
+                                    </span>
+                                </Button>
+                            </ManageBreedingPairsDialog>
+                            <LogAsProgenyDialog
+                                creature={creature}
+                                allCreatures={allCreatures}
+                                allEnrichedPairs={allEnrichedPairs}
+                                allLogs={allLogs}
+                            >
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                        Log as Progeny
+                                    </span>
+                                </Button>
+                            </LogAsProgenyDialog>
+                        </>
+                    )}
                     <Button
                         onClick={handleRemoveFromCollection}
                         className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"

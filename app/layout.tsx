@@ -49,8 +49,21 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <link rel="icon" href="/favicon.ico" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="icon" href="/images/icons/favicon.ico" />
+                <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="32x32"
+                    href="/images/icons/favicon-32x32.png"
+                />
+                <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="16x16"
+                    href="/images/icons/favicon-16x16.png"
+                />
+
+                <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" />
                 <link rel="manifest" href="/site.webmanifest" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

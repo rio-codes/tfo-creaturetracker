@@ -81,19 +81,19 @@ export default function Page() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <ActionButton
                                 href="/collection"
-                                imgSrc="/collection_button_home.png"
+                                imgSrc="/images/navigation/collection_button_home.png"
                                 title="My Collection"
                                 description="View and manage all your creatures."
                             />
                             <ActionButton
                                 href="/breeding-pairs"
-                                imgSrc="/breeding_pairs_button_home.png"
+                                imgSrc="/images/navigation/breeding_pairs_button_home.png"
                                 title="Breeding Pairs"
                                 description="Create and track your breeding projects."
                             />
                             <ActionButton
                                 href="/research-goals"
-                                imgSrc="/research_goals_button_home.png"
+                                imgSrc="/images/navigation/research_goals_button_home.png"
                                 title="Research Goals"
                                 description="Define and pursue specific genetic goals."
                             />

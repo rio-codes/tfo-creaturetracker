@@ -93,8 +93,8 @@ function simpleHash(str: string): number {
 }
 
 export function getRandomCapsuleAvatar(userId: string): string {
-    if (!userId) return '/pompaca_floro_capsule.png'; // A default fallback
+    if (!userId) return '/images/capsules/pompaca_floro_capsule.png'; // A default fallback
     const hash = simpleHash(userId);
     const index = hash % capsuleAvatars.length;
-    return `/${capsuleAvatars[index]}`;
+    return `/images/capsules/${capsuleAvatars[index]}`;
 }

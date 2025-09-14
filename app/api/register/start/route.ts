@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Starting registration', 'log');
     try {
         const body = await req.json();
-        console.log('Received ', body);
         const validated = startSchema.safeParse(body);
 
         if (!validated.success) {

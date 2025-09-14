@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
 
         // This logic mirrors the API route to determine which image will be served.
-        let sourceImageUrl = goal.imageUrl || '/placeholder.png';
+        let sourceImageUrl = goal.imageUrl || '/images/misc/placeholder.png';
         if (!sourceImageUrl.startsWith('http')) {
             sourceImageUrl = new URL(sourceImageUrl, baseUrl).toString();
         }
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         } else {
             // If the primary image fails, we know the API will serve the placeholder.
             // So, we get the dimensions of the placeholder.
-            const placeholderUrl = new URL('/placeholder.png', baseUrl).toString();
+            const placeholderUrl = new URL('/images/misc/placeholder.png', baseUrl).toString();
             const placeholderResponse = await fetch(placeholderUrl);
             if (placeholderResponse.ok) {
                 const placeholderBuffer = await placeholderResponse.arrayBuffer();
@@ -171,7 +171,7 @@ export default async function SharedGoalPage({ params }: Props) {
                         <Image
                             width={150}
                             height={150}
-                            src={goal.imageUrl || '/placeholder.png'}
+                            src={goal.imageUrl || '/images/misc/placeholder.png'}
                             alt={goal.name}
                             className="max-w-full max-h-48 object-contain"
                         />

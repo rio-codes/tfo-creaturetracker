@@ -166,17 +166,15 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             );
         }
 
-        if (session.user.role === 'admin') {
-            await logAdminAction({
-                action: 'breeding_pair.edit',
-                targetType: 'breeding_pair',
-                targetId: params.pairId,
-                details: {
-                    updatedFields: Object.keys(validatedFields.data),
-                    pairName: result[0].pairName,
-                },
-            });
-        }
+        await logAdminAction({
+            action: 'breeding_pair.edit',
+            targetType: 'breeding_pair',
+            targetId: params.pairId,
+            targetUserId: existingPair.userId,
+            details: {
+                updatedFields: Object.keys(validatedFields.data),
+            },
+        });
 
         // --- Synchronize Goal Assignments ---
         const oldGoalIds = new Set(existingPair.assignedGoalIds || []);
@@ -321,14 +319,13 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
                 );
             }
 
-            if (session.user.role === 'admin') {
-                await logAdminAction({
-                    action: 'breeding_pair.delete',
-                    targetType: 'breeding_pair',
-                    targetId: params.pairId,
-                    details: { pairName: result[0].pairName },
-                });
-            }
+            await logAdminAction({
+                action: 'breeding_pair.delete',
+                targetType: 'breeding_pair',
+                targetId: params.pairId,
+                targetUserId: result[0].userId,
+                details: { pairName: result[0].pairName, deletedByAdmin: true },
+            });
 
             revalidatePath('/breeding-pairs');
             Sentry.captureMessage(`Pair ${params.pairId} deleted successfully`, 'info');

@@ -97,10 +97,10 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
             Sentry.captureMessage(`Goal not found for admin pin: ${goalId}`, 'warning');
             return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
-
         await logAdminAction({
-            action: isPinned ? 'research_goal.pin' : 'research_goal.unpin',
+            action: isPinned ? 'research_goal.admin_pin' : 'research_goal.admin_unpin',
             targetType: 'research_goal',
+            targetUserId: updatedGoal.userId,
             targetId: goalId,
             details: { goalName: updatedGoal.name, isPinned },
         });
@@ -214,17 +214,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
             .returning();
 
-        if (session.user.role === 'admin') {
-            await logAdminAction({
-                action: 'research_goal.edit',
-                targetType: 'research_goal',
-                targetId: params.goalId,
-                details: {
-                    updatedFields: Object.keys(validatedFields.data),
-                    goalName: name,
-                },
-            });
-        }
+        await logAdminAction({
+            action: 'research_goal.admin_edit',
+            targetType: 'research_goal',
+            targetUserId: existingGoal.userId,
+            targetId: params.goalId,
+            details: { updatedFields: Object.keys(validatedFields.data), goalName: name },
+        });
 
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${params.goalId}`);
@@ -257,6 +253,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
                     id: true,
                     name: true,
                     assignedPairIds: true,
+                    userId: true,
                 },
             });
 
@@ -289,6 +286,14 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
                         .where(eq(breedingPairs.id, pair.id));
                 }
             }
+
+            await logAdminAction({
+                action: 'research_goal.admin_edit',
+                targetType: 'research_goal',
+                targetUserId: goalToDelete.userId,
+                targetId: params.goalId,
+                details: { goalName: goalToDelete.name, action: 'delete' },
+            });
 
             return goalToDelete;
         });

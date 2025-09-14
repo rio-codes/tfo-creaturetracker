@@ -6,12 +6,15 @@ import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import * as Sentry from '@sentry/nextjs';
+import { logAdminAction } from '@/lib/audit';
+
+// This function handles GET requests to /api/creatures/[creatureId]
 
 export async function GET(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
     Sentry.captureMessage(`Fetching creature ${params.creatureId}`, 'log');
     const session = await auth();
-    if (!session?.user?.id || session.user.role !== 'admin') {
+    if (!session?.user?.id) {
         Sentry.captureMessage(`Forbidden access to fetch creature ${params.creatureId}`, 'warning');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -59,11 +62,23 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
         return NextResponse.json({ error: 'Creature ID is required.' }, { status: 400 });
     }
 
+    const creatureOwner = await db.query.creatures.findFirst({
+        where: eq(creatures.id, creatureId),
+        columns: { userId: true },
+    });
+
     try {
-        const result = await db
-            .delete(creatures)
-            .where(and(eq(creatures.id, creatureId), eq(creatures.userId, session.user.id)))
-            .returning(); // .returning() gives us back the row that was deleted
+        let result;
+        if (session.user.role === 'admin') {
+            // Admin deleting another user's creature
+            result = await db.delete(creatures).where(eq(creatures.id, creatureId)).returning();
+        } else {
+            // User deleting their own creature
+            result = await db
+                .delete(creatures)
+                .where(and(eq(creatures.id, creatureId), eq(creatures.userId, session.user.id)))
+                .returning(); // .returning() gives us back the row that was deleted
+        }
 
         if (result.length === 0) {
             Sentry.captureMessage(`Creature not found for deletion: ${creatureId}`, 'warning');
@@ -74,6 +89,16 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
                 { status: 404 }
             );
         }
+
+        await logAdminAction({
+            action: 'creature.delete',
+            targetType: 'creature',
+            targetId: creatureId,
+            targetUserId: creatureOwner?.userId,
+            details: {
+                adminId: session.user.id,
+            },
+        });
 
         // Clear the cache for the collection page so the grid updates immediately
         revalidatePath('/collection');

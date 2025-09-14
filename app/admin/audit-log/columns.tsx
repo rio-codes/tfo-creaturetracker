@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-type AuditLogEntry = {
+export type EnrichedAuditLogEntry = {
     id: string;
     timestamp: Date;
     adminId: string | null;
@@ -19,10 +19,12 @@ type AuditLogEntry = {
     action: string;
     targetType: string | null;
     targetId: string | null;
+    targetUserId: string | null;
+    targetUsername: string | null;
     details: Record<string, any> | null;
 };
 
-export const columns: ColumnDef<AuditLogEntry>[] = [
+export const columns: ColumnDef<EnrichedAuditLogEntry>[] = [
     {
         accessorKey: 'timestamp',
         header: 'Timestamp',
@@ -41,10 +43,10 @@ export const columns: ColumnDef<AuditLogEntry>[] = [
     {
         accessorKey: 'adminUsername',
         header: 'Admin',
-        cell: ({ row }) =>
-            row.original.adminUsername || (
-                <span className="italic text-dusk-purple">System/Unknown</span>
-            ),
+        cell: ({ row }) => {
+            const username = row.original.adminUsername;
+            return username || <span className="italic text-dusk-purple">System/Unknown</span>;
+        },
     },
     {
         accessorKey: 'action',
@@ -54,6 +56,18 @@ export const columns: ColumnDef<AuditLogEntry>[] = [
     {
         accessorKey: 'targetType',
         header: 'Target Type',
+    },
+    {
+        accessorKey: 'targetUsername',
+        header: 'Target Username',
+        cell: ({ row }) => {
+            const username = row.original.targetUsername;
+            return (
+                <div className="max-w-xs truncate" title={username || ''}>
+                    {username}
+                </div>
+            );
+        },
     },
     {
         accessorKey: 'targetId',

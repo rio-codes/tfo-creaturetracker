@@ -38,6 +38,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
             action: 'user.delete',
             targetType: 'user',
             targetId: params.userId,
+            targetUserId: params.userId,
             details: {
                 deletedUsername: targetUser.username,
                 deletedEmail: targetUser.email,

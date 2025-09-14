@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import * as Sentry from '@sentry/nextjs';
+import { logAdminAction } from '@/lib/audit';
 
 const updateTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),
@@ -75,6 +76,17 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
             );
         }
 
+        await logAdminAction({
+            action: 'user_tab.edit',
+            targetType: 'user_tab',
+            targetUserId: updatedTab[0].userId,
+            targetId: tabIdToUpdate.toString(),
+            details: {
+                updatedFields: Object.keys(dataToUpdate),
+                tabName: updatedTab[0].tabName,
+            },
+        });
+
         Sentry.captureMessage(`Tab ${tabIdToUpdate} updated successfully`, 'info');
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
@@ -94,13 +106,32 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
-    const tabIdToDelete = parseInt(params.id, 10);
+
+    const tabToDelete = await db.query.userTabs.findFirst({
+        where: eq(userTabs.id, parseInt(params.id)),
+        columns: { userId: true },
+    });
+    if (!tabToDelete) {
+        Sentry.captureMessage(`Tab not found for deletion: ${params.id}`, 'warning');
+        return NextResponse.json({ error: 'Tab not found.' }, { status: 404 });
+    }
 
     try {
         await db
             .delete(userTabs)
-            .where(and(eq(userTabs.id, tabIdToDelete), eq(userTabs.userId, userId)));
-        Sentry.captureMessage(`Tab ${tabIdToDelete} deleted successfully`, 'info');
+            .where(
+                session.user.role === 'admin'
+                    ? eq(userTabs.id, parseInt(params.id))
+                    : and(eq(userTabs.id, parseInt(params.id)), eq(userTabs.userId, userId))
+            );
+        await logAdminAction({
+            action: 'user_tab.delete',
+            targetType: 'user_tab',
+            targetUserId: tabToDelete?.userId,
+            targetId: params.id,
+            details: { tabId: params.id, action: 'delete' },
+        });
+        Sentry.captureMessage(`Tab ${params.id} deleted successfully`, 'info');
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Tab deleted successfully.' });
     } catch (error) {

@@ -100,7 +100,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
     try {
         const targetPair = await db.query.breedingPairs.findFirst({
             where: eq(breedingPairs.id, params.pairId),
-            columns: { pairName: true },
+            columns: { pairName: true, userId: true },
         });
 
         if (!targetPair) {
@@ -117,6 +117,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
             action: 'breeding_pair.delete',
             targetType: 'breeding_pair',
             targetId: params.pairId,
+            targetUserId: targetPair.userId,
             details: {
                 deletedPairName: targetPair.pairName,
             },

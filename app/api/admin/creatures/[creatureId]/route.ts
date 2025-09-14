@@ -110,7 +110,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
     try {
         const targetCreature = await db.query.creatures.findFirst({
             where: eq(creatures.id, params.creatureId),
-            columns: { code: true, creatureName: true },
+            columns: { code: true, creatureName: true, userId: true },
         });
 
         if (!targetCreature) {
@@ -127,6 +127,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
             action: 'creature.delete',
             targetType: 'creature',
             targetId: params.creatureId,
+            targetUserId: targetCreature.userId,
             details: {
                 deletedCreatureCode: targetCreature.code,
                 deletedCreatureName: targetCreature.creatureName,

@@ -3,6 +3,7 @@ import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
+import { imageSize } from 'image-size';
 import { SharedGoalHeader } from '@/components/shared-views/shared-goal-header';
 import { SharedGoalInfo } from '@/components/shared-views/shared-goal-info';
 import { SharedPredictionsAccordion } from '@/components/shared-views/shared-predictions-accordion';
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const goalId = params.goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),
+        columns: { name: true, species: true, userId: true, imageUrl: true },
     });
 
     if (!goal) {
@@ -31,12 +33,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const owner = await db.query.users.findFirst({
         where: eq(users.id, goal.userId),
+        columns: { username: true },
     });
 
     const title = `Research Goal: ${goal.name}`;
     const description = `View the research goal "${goal.name}" for the species ${goal.species} on tfo.creaturetracker. Shared by ${owner?.username || 'a user'}.`;
 
-    const imageUrl = `/api/share/${goalId}`;
+    const ogImageUrl = `/api/share/${goalId}`;
+
+    let imageDimensions: { width: number; height: number } = { width: 500, height: 500 }; // Default fallback
+
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
+
+        // This logic mirrors the API route to determine which image will be served.
+        let sourceImageUrl = goal.imageUrl || '/placeholder.png';
+        if (!sourceImageUrl.startsWith('http')) {
+            sourceImageUrl = new URL(sourceImageUrl, baseUrl).toString();
+        }
+
+        const imageResponse = await fetch(sourceImageUrl);
+
+        if (imageResponse.ok) {
+            const imageBuffer = await imageResponse.arrayBuffer();
+            const dimensions = imageSize(Buffer.from(imageBuffer));
+            if (dimensions.width && dimensions.height) {
+                imageDimensions = { width: dimensions.width, height: dimensions.height };
+            }
+        } else {
+            // If the primary image fails, we know the API will serve the placeholder.
+            // So, we get the dimensions of the placeholder.
+            const placeholderUrl = new URL('/placeholder.png', baseUrl).toString();
+            const placeholderResponse = await fetch(placeholderUrl);
+            if (placeholderResponse.ok) {
+                const placeholderBuffer = await placeholderResponse.arrayBuffer();
+                const dimensions = imageSize(Buffer.from(placeholderBuffer));
+                if (dimensions.width && dimensions.height) {
+                    imageDimensions = { width: dimensions.width, height: dimensions.height };
+                }
+            }
+        }
+    } catch (error) {
+        console.error(
+            `Could not determine image dimensions for goal ${goalId}. Using defaults.`,
+            error
+        );
+    }
 
     return {
         title,
@@ -46,9 +88,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description,
             images: [
                 {
-                    url: imageUrl,
-                    width: 500,
-                    height: 500,
+                    url: ogImageUrl,
+                    width: imageDimensions.width,
+                    height: imageDimensions.height,
                     alt: title,
                 },
             ],
@@ -59,7 +101,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             card: 'summary_large_image',
             title,
             description,
-            images: [imageUrl],
+            images: [ogImageUrl],
         },
     };
 }

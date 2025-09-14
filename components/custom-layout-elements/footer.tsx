@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Moon, Sun } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -24,12 +25,33 @@ declare module '@mui/material/Switch' {
 
 export function Footer() {
     const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
+    const { theme, resolvedTheme, setTheme } = useTheme();
+    const { data: session } = useSession();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
+    const handleThemeChange = useCallback(
+        async (newTheme: 'light' | 'dark') => {
+            // Optimistically update the UI
+            setTheme(newTheme);
+
+            // If user is logged in, persist the setting to the database
+            if (session?.user) {
+                try {
+                    await fetch('/api/settings', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ theme: newTheme }),
+                    });
+                } catch (error) {
+                    console.error('Failed to save theme preference:', error);
+                }
+            }
+        },
+        [session, setTheme]
+    );
     const year = new Date().getFullYear();
     return (
         <footer className="items-center w-full bg-midnight-purple dark:bg-ebena-lavender text-barely-lilac dark:text-pompaca-purple px-4 py-4 mt-auto">
@@ -99,9 +121,11 @@ export function Footer() {
                             </Label>
                             <Switch
                                 id="theme-switch"
-                                defaultValue={theme === 'system' ? undefined : theme}
-                                checked={theme === 'dark'}
-                                onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                checked={resolvedTheme === 'dark' || theme === 'dark'}
+                                onChange={() => {
+                                    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+                                    handleThemeChange(newTheme);
+                                }}
                                 color="custom"
                                 size="medium"
                             />

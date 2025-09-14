@@ -48,6 +48,8 @@ export function GoalDetailClient({
     const router = useRouter();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [imageUrl, setImageUrl] = useState(goal?.imageUrl ?? '');
+    const [findPairsDialogOpen, setFindPairsDialogOpen] = useState(false);
+    const [isFindingPairs, setIsFindingPairs] = useState(false);
     const [excludeGender, setExcludeGender] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
@@ -260,12 +262,29 @@ export function GoalDetailClient({
                         Breeding Pairs
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-2">
-                        <FindPotentialPairsDialog goal={goal} allCreatures={allCreatures}>
-                            <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                        <Button
+                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                            onClick={() => {
+                                setIsFindingPairs(true);
+                                setFindPairsDialogOpen(true);
+                            }}
+                            disabled={isFindingPairs}
+                        >
+                            {isFindingPairs ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
                                 <Search className="mr-2 h-4 w-4" />
-                                Look for Pairs
-                            </Button>
-                        </FindPotentialPairsDialog>
+                            )}
+                            Look for Pairs
+                        </Button>
+                        <FindPotentialPairsDialog
+                            goal={goal}
+                            allCreatures={allCreatures}
+                            allPairs={allPairs}
+                            open={findPairsDialogOpen}
+                            onOpenChange={setFindPairsDialogOpen}
+                            onLoadingChange={setIsFindingPairs}
+                        />
                         <AssignPairDialog goal={goal} predictions={initialPredictions}>
                             <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
                                 Manage Breeding Pairs

@@ -7,11 +7,7 @@ import {
     AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import type {
-    EnrichedCreature,
-    Prediction,
-    EnrichedResearchGoal,
-} from '@/types';
+import type { EnrichedCreature, Prediction, EnrichedResearchGoal } from '@/types';
 import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dialog';
 import { X } from 'lucide-react';
 
@@ -21,9 +17,7 @@ type PredictionsAccordionProps = {
     goal?: EnrichedResearchGoal;
 };
 
-const getCacheBustedImageUrl = (
-    creature: EnrichedCreature | null | undefined
-) => {
+const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
     if (!creature?.imageUrl) {
         return '';
     }
@@ -33,10 +27,7 @@ const getCacheBustedImageUrl = (
     return creature.imageUrl;
 };
 
-export function PredictionsAccordion({
-    predictions,
-    allCreatures,
-}: PredictionsAccordionProps) {
+export function PredictionsAccordion({ predictions, allCreatures }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
             <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
@@ -44,16 +35,18 @@ export function PredictionsAccordion({
                     No Assigned Pairs Found
                 </h3>
                 <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                    No assigned breeding pairs of this species were found in
-                    your collection.
+                    No assigned breeding pairs of this species were found in your collection.
                 </p>
             </div>
         );
     }
 
+    // Sort predictions by averageChance (match score) in descending order
+    const sortedPredictions = [...predictions].sort((a, b) => b.averageChance - a.averageChance);
+
     return (
         <Accordion type="single" collapsible className="w-full space-y-2 mr-5">
-            {predictions.map((p, index) => {
+            {sortedPredictions.map((p, index) => {
                 const pairForDialog = {
                     id: p.pairId,
                     species: p?.maleParent?.species!,
@@ -70,24 +63,14 @@ export function PredictionsAccordion({
                                 <div className="flex flex-1 items-center gap-4 min-w-0 mr-2">
                                     <div className="flex flex-shrink-0 items-center gap-1">
                                         <img
-                                            src={getCacheBustedImageUrl(
-                                                p.maleParent
-                                            )}
-                                            alt={
-                                                p.maleParent?.code ||
-                                                'Male Parent'
-                                            }
+                                            src={getCacheBustedImageUrl(p.maleParent)}
+                                            alt={p.maleParent?.code || 'Male Parent'}
                                             className="w-10 h-10 object-contain bg-blue-100 p-1 border border-pompaca-purple rounded-md"
                                         />
                                         <X className="h-4 w-4 text-dusk-purple" />
                                         <img
-                                            src={getCacheBustedImageUrl(
-                                                p.femaleParent
-                                            )}
-                                            alt={
-                                                p.femaleParent?.code ||
-                                                'Female Parent'
-                                            }
+                                            src={getCacheBustedImageUrl(p.femaleParent)}
+                                            alt={p.femaleParent?.code || 'Female Parent'}
                                             className="w-10 h-10 object-contain bg-pink-100 p-1 border border-pompaca-purple rounded-md"
                                         />
                                     </div>
@@ -96,12 +79,10 @@ export function PredictionsAccordion({
                                             {p.pairName}
                                         </div>
                                         <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
-                                            {p.maleParent?.creatureName ||
-                                                'Unnamed'}{' '}
-                                            ({p.maleParent?.code}) x{' '}
-                                            {p.femaleParent?.creatureName ||
-                                                'Unnamed'}{' '}
-                                            ({p.femaleParent?.code})
+                                            {p.maleParent?.creatureName || 'Unnamed'} (
+                                            {p.maleParent?.code}) x{' '}
+                                            {p.femaleParent?.creatureName || 'Unnamed'} (
+                                            {p.femaleParent?.code})
                                         </div>
                                     </div>
                                 </div>
@@ -112,10 +93,7 @@ export function PredictionsAccordion({
                                         <div className="flex text-center">
                                             <div>
                                                 <div className="font-mono text-lg">
-                                                    {(
-                                                        p.averageChance * 100
-                                                    ).toFixed(2)}
-                                                    %
+                                                    {(p.averageChance * 100).toFixed(2)}%
                                                 </div>
                                                 <div className="text-xs text-dusk-purple dark:text-purple-400">
                                                     Match Score
@@ -123,14 +101,10 @@ export function PredictionsAccordion({
                                             </div>
                                             <div
                                                 className={`text-center text-lg font-semibold py-1 mt-6 md:mt-1 px-3 text-md ${
-                                                    p.isPossible
-                                                        ? 'text-green-600'
-                                                        : 'text-red-500'
+                                                    p.isPossible ? 'text-green-600' : 'text-red-500'
                                                 }`}
                                             >
-                                                {p.isPossible
-                                                    ? 'POSSIBLE'
-                                                    : 'IMPOSSIBLE'}
+                                                {p.isPossible ? 'POSSIBLE' : 'IMPOSSIBLE'}
                                             </div>
                                         </div>
                                     </div>

@@ -117,8 +117,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(next@15.5.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
       '@vercel/blob':
-        specifier: ^2.0.0-831c3252-20250912073217
-        version: 2.0.0-831c3252-20250912073217
+        specifier: ^1.1.1
+        version: 1.1.1
       adapters:
         specifier: link:@auth/core/adapters
         version: link:@auth/core/adapters
@@ -2696,9 +2696,9 @@ packages:
     resolution: {integrity: sha512-Im/KeFH4oPx7UsM+QiteimnE07bIUD7JK6CBafI9Z0jRFogaialTBMiZj8EKk/30ctUYsrpIIyP9iIY1YxWnUQ==}
     engines: {node: '>=16.14'}
 
-  '@vercel/blob@2.0.0-831c3252-20250912073217':
-    resolution: {integrity: sha512-wJD/AXyu9yEtMJQxvEpZmCE9paR2GuibQSQQhuLif5nbIzQjAkGzM+w8XeHKjKJJCXvDkzqsW3w/682SFpsv5Q==}
-    engines: {node: '>=20.0.0'}
+  '@vercel/blob@1.1.1':
+    resolution: {integrity: sha512-heiJGj2qt5qTv6yiShH9f6KRAoZGj+lz61GQ+lBRL4lhvUmKI9A51KYlQTnsUd9ymdFlKHBlvmPeG+yGz2Qsbg==}
+    engines: {node: '>=16.14'}
 
   '@vercel/build-utils@12.1.0':
     resolution: {integrity: sha512-yqpAh2KHm9iWUXo/aRWiLIxi8dMAwFtse2iZsg2QNEMs9W20va6L8PMFvdAa5MX9pgRwc38gbjD3V7drxSwq4g==}
@@ -7944,7 +7944,7 @@ snapshots:
       throttleit: 2.1.0
       undici: 5.29.0
 
-  '@vercel/blob@2.0.0-831c3252-20250912073217':
+  '@vercel/blob@1.1.1':
     dependencies:
       async-retry: 1.3.3
       is-buffer: 2.0.5

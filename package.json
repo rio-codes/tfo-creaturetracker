@@ -48,7 +48,7 @@
         "@sentry/nextjs": "^10.11.0",
         "@tanstack/react-table": "^8.21.3",
         "@vercel/analytics": "^1.5.0",
-        "@vercel/blob": "^2.0.0-831c3252-20250912073217",
+        "@vercel/blob": "^1.1.1",
         "adapters": "link:@auth/core/adapters",
         "bcrypt-ts": "^7.1.0",
         "class-variance-authority": "^0.7.1",

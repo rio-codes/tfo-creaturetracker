@@ -119,9 +119,6 @@ importers:
       '@vercel/blob':
         specifier: ^2.0.0-831c3252-20250912073217
         version: 2.0.0-831c3252-20250912073217
-      Switch:
-        specifier: link:@mui/material/Switch
-        version: link:@mui/material/Switch
       adapters:
         specifier: link:@auth/core/adapters
         version: link:@auth/core/adapters
@@ -200,9 +197,6 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      styles:
-        specifier: link:@mui/material/styles
-        version: link:@mui/material/styles
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1

@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/nextjs';
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: fetching research goal ${params.goalId}`, 'log');
+    Sentry.captureMessage(`Admin: fetching research goal ${params.goalId}`, 'info');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
@@ -44,7 +44,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
 export async function DELETE(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: deleting research goal ${params.goalId}`, 'log');
+    Sentry.captureMessage(`Admin: deleting research goal ${params.goalId}`, 'info');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
@@ -57,7 +57,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
     try {
         const targetGoal = await db.query.researchGoals.findFirst({
             where: eq(researchGoals.id, params.goalId),
-            columns: { name: true },
+            columns: { name: true, userId: true },
         });
 
         if (!targetGoal) {
@@ -74,6 +74,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
             action: 'research_goal.delete',
             targetType: 'research_goal',
             targetId: params.goalId,
+            targetUserId: targetGoal.userId,
             details: {
                 deletedGoalName: targetGoal.name,
             },

@@ -17,9 +17,7 @@ import type { AdapterAccount } from 'next-auth/adapters';
 
 export const auditLog = pgTable('audit_log', {
     id: uuid('id').defaultRandom().primaryKey(),
-    timestamp: timestamp('timestamp', { withTimezone: true })
-        .defaultNow()
-        .notNull(),
+    timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow().notNull(),
     adminId: text('admin_id').references(() => users.id, {
         onDelete: 'set null',
     }),
@@ -27,6 +25,8 @@ export const auditLog = pgTable('audit_log', {
     action: text('action').notNull(), // e.g., 'user.suspend', 'pair.delete'
     targetType: text('target_type'),
     targetId: text('target_id'),
+    targetUserId: text('target_user_id'),
+    targetUsername: text('target_username'),
     details: jsonb('details'), // For storing before/after states or other context
 });
 
@@ -45,9 +45,7 @@ export const users = pgTable('user', {
     role: text('role').default('user').notNull(),
     status: userStatusEnum('status').default('active').notNull(),
     theme: themeEnum('theme').default('system').notNull(),
-    collectionItemsPerPage: integer('collection_items_per_page')
-        .default(12)
-        .notNull(),
+    collectionItemsPerPage: integer('collection_items_per_page').default(12).notNull(),
     goalsItemsPerPage: integer('goals_items_per_page').default(9).notNull(),
     pairsItemsPerPage: integer('pairs_items_per_page').default(10).notNull(),
     apiKey: text('api_key').unique(),
@@ -135,12 +133,7 @@ export const pendingRegistrations = pgTable('pending_registration', {
 });
 
 // Creature Functionality
-export const creatureGenderEnum = pgEnum('gender', [
-    'male',
-    'female',
-    'genderless',
-    'unknown',
-]);
+export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'unknown']);
 
 export const creatures = pgTable(
     'creature',
@@ -232,9 +225,7 @@ export const breedingPairs = pgTable(
     (table) => ({
         userIdx: index('pair_userId_idx').on(table.userId),
         maleParentIdx: index('pair_maleParentId_idx').on(table.maleParentId),
-        femaleParentIdx: index('pair_femaleParentId_idx').on(
-            table.femaleParentId
-        ),
+        femaleParentIdx: index('pair_femaleParentId_idx').on(table.femaleParentId),
         speciesIdx: index('pair_species_idx').on(table.species),
         pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
         createdIdx: index('pair_created_at_idx').on(table.createdAt),
@@ -303,9 +294,7 @@ export const achievedGoals = pgTable(
         userIdx: index('achieved_goal_userId_idx').on(table.userId),
         goalIdx: index('achieved_goal_goalId_idx').on(table.goalId),
         logEntryIdx: index('achieved_goal_logEntryId_idx').on(table.logEntryId),
-        progenyIdx: index('achieved_goal_progenyId_idx').on(
-            table.matchingProgenyId
-        ),
+        progenyIdx: index('achieved_goal_progenyId_idx').on(table.matchingProgenyId),
     })
 );
 
@@ -324,10 +313,7 @@ export const userTabs = pgTable(
     },
     (table) => {
         return {
-            userTabUnique: uniqueIndex('user_tab_unique_idx').on(
-                table.userId,
-                table.tabId
-            ),
+            userTabUnique: uniqueIndex('user_tab_unique_idx').on(table.userId, table.tabId),
         };
     }
 );

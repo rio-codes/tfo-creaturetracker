@@ -1,6 +1,6 @@
 'use client';
-import Link from 'next/link';
 import { Switch } from '@mui/material';
+import Link from 'next/link';
 import { Moon, Sun } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
@@ -48,10 +48,7 @@ export function Footer() {
                     <br></br>
                     <span>
                         All art is the copyright of respective artists on{' '}
-                        <a
-                            href="https://finaloutpost.net/"
-                            className="underline"
-                        >
+                        <a href="https://finaloutpost.net/" className="underline">
                             The Final Outpost
                         </a>
                     </span>
@@ -84,17 +81,11 @@ export function Footer() {
                             Patreon
                         </a>
                         <span className="hidden md:inline">|</span>
-                        <a
-                            href="https://discord.gg/PMtE3jrXYR"
-                            className="hover:underline"
-                        >
+                        <a href="https://discord.gg/PMtE3jrXYR" className="hover:underline">
                             Discord
                         </a>
                         <span className="hidden md:inline">|</span>
-                        <a
-                            href="https://finaloutpost.net/lab/lyricism"
-                            className="hover:underline"
-                        >
+                        <a href="https://finaloutpost.net/lab/lyricism" className="hover:underline">
                             My Lab
                         </a>
                     </div>
@@ -108,15 +99,9 @@ export function Footer() {
                             </Label>
                             <Switch
                                 id="theme-switch"
-                                defaultValue={
-                                    theme === 'system' ? undefined : theme
-                                }
+                                defaultValue={theme === 'system' ? undefined : theme}
                                 checked={theme === 'dark'}
-                                onChange={() =>
-                                    setTheme(
-                                        theme === 'dark' ? 'light' : 'dark'
-                                    )
-                                }
+                                onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                                 color="custom"
                                 size="medium"
                             />

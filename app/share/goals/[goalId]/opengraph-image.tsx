@@ -2,8 +2,11 @@ import { ImageResponse } from 'next/og';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
+import * as Sentry from '@sentry/nextjs';
 
-export const alt = 'TFO Creature Tracker Research Goal';
+export const runtime = 'nodejs';
+
+export const alt = 'TFO.creaturetracker Research Goal';
 export const size = {
     width: 1200,
     height: 630,
@@ -167,6 +170,7 @@ export default async function Image({ params }: { params: { goalId: string } }) 
             }
         );
     } catch (e: any) {
+        Sentry.captureException(e);
         console.error(`Failed to generate image for goal ${goalId}:`, e);
         return new Response(`Failed to generate image: ${e.message}`, { status: 500 });
     }

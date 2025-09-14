@@ -38,6 +38,7 @@ export default tseslint.config(
                     ignoreRestSiblings: true,
                 },
             ],
+            '@next/next/no-img-element': 'off',
         } as any,
     },
     prettierConfig

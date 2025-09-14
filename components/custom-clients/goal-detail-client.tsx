@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useMounted } from '@/hooks/use-mounted';
 import { useRouter } from 'next/navigation';
 import type {
@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { PredictionsAccordion } from '@/components/misc-custom-components/predictions-accordion';
 import { AssignPairDialog } from '@/components/custom-dialogs/assign-breeding-pair-dialog';
 import { GoalModeSwitcher } from '@/components/custom-dialogs/goal-mode-switcher-dialog';
-import { RefreshCw, Loader2, Award, Info, Search, Edit } from 'lucide-react';
+import { RefreshCw, Loader2, Award, Info, Search } from 'lucide-react';
 import * as Sentry from '@sentry/nextjs';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';

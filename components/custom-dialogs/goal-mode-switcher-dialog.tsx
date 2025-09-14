@@ -14,12 +14,7 @@ import {
     SelectItem,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -58,9 +53,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
 
     // State for the two separate dialogs
     const [isConversionDialogOpen, setIsConversionDialogOpen] = useState(false);
-    const [ambiguousCategories, setAmbiguousCategories] = useState<
-        AmbiguousCategory[]
-    >([]);
+    const [ambiguousCategories, setAmbiguousCategories] = useState<AmbiguousCategory[]>([]);
     const [conversionSelections, setConversionSelections] = useState<{
         [key: string]: string;
     }>({});
@@ -97,10 +90,9 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
         setIsSwitchingMode(true);
         setError('');
         try {
-            const response = await fetch(
-                `/api/research-goals/${goal?.id}/toggle-mode`,
-                { method: 'PATCH' }
-            );
+            const response = await fetch(`/api/research-goals/${goal?.id}/toggle-mode`, {
+                method: 'PATCH',
+            });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error);
             router.refresh();
@@ -116,14 +108,11 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
         setIsSwitchingMode(true);
         setError('');
         try {
-            const response = await fetch(
-                `/api/research-goals/${goal?.id}/convert-to-genotype`,
-                {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ conversions: conversionSelections }),
-                }
-            );
+            const response = await fetch(`/api/research-goals/${goal?.id}/convert-to-genotype`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversions: conversionSelections }),
+            });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error);
             setIsConversionDialogOpen(false);
@@ -144,8 +133,8 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                             <Badge
                                 className={
                                     goal?.goalMode === 'genotype'
-                                        ? 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-fit mb-5'
-                                        : 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit mb-5'
+                                        ? 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-fit'
+                                        : 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit'
                                 }
                             >
                                 <span>
@@ -159,26 +148,20 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                     content={
                         <>
                             <h4 className="font-bold mb-1">
-                                {goal?.goalMode === 'genotype'
-                                    ? 'Genotype Mode'
-                                    : 'Phenotype Mode'}
+                                {goal?.goalMode === 'genotype' ? 'Genotype Mode' : 'Phenotype Mode'}
                             </h4>
                             {goal?.goalMode === 'genotype' ? (
                                 <p>
-                                    <b>Click to switch mode.</b> Genotype mode
-                                    calculates odds for achieving an exact
-                                    genetic code. Match scores will be much
-                                    lower. For advanced users aiming for
-                                    specific breeding outcomes.
+                                    <b>Click to switch mode.</b> Genotype mode calculates odds for
+                                    achieving an exact genetic code. Match scores will be much
+                                    lower. For advanced users aiming for specific breeding outcomes.
                                 </p>
                             ) : (
                                 <p>
-                                    <b>Click to switch mode.</b> Phenotype mode
-                                    calculates odds based on achieving a desired
-                                    look (e.g., "Steppes"), accepting any
-                                    genotype that produces it. Recommended for
-                                    most users. Match scores will be higher and
-                                    "possible" goals more common.
+                                    <b>Click to switch mode.</b> Phenotype mode calculates odds
+                                    based on achieving a desired look (e.g., "Steppes"), accepting
+                                    any genotype that produces it. Recommended for most users. Match
+                                    scores will be higher and "possible" goals more common.
                                 </p>
                             )}
                         </>
@@ -186,24 +169,16 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                 />
                 <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>
-                            Switch to {newMode} mode?
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>Switch to {newMode} mode?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will change how breeding predictions are
-                            calculated for this goal.
+                            This will change how breeding predictions are calculated for this goal.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleModeSwitch}
-                            disabled={isSwitchingMode}
-                        >
-                            {isSwitchingMode && (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            )}
+                        <AlertDialogAction onClick={handleModeSwitch} disabled={isSwitchingMode}>
+                            {isSwitchingMode && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Continue
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -211,10 +186,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
             </AlertDialog>
 
             {/* Conversion Dialog */}
-            <Dialog
-                open={isConversionDialogOpen}
-                onOpenChange={setIsConversionDialogOpen}
-            >
+            <Dialog open={isConversionDialogOpen} onOpenChange={setIsConversionDialogOpen}>
                 <DialogContent
                     onPointerDownOutside={(e) => e.preventDefault()}
                     className="bg-barely-lilac dark:bg-pompaca-purple"
@@ -226,8 +198,8 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                     </DialogHeader>
                     <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
                         <p className="text-sm text-dusk-purple dark:text-purple-400">
-                            To switch to Genotype Mode, please select a specific
-                            genotype for each trait.
+                            To switch to Genotype Mode, please select a specific genotype for each
+                            trait.
                         </p>
                         {ambiguousCategories.map((cat) => (
                             <div key={cat.category} className="mt-2">
@@ -247,10 +219,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                                     </SelectTrigger>
                                     <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                         {cat.options?.map((opt: any) => (
-                                            <SelectItem
-                                                key={opt.genotype}
-                                                value={opt.genotype}
-                                            >
+                                            <SelectItem key={opt.genotype} value={opt.genotype}>
                                                 {opt.genotype}
                                             </SelectItem>
                                         ))}
@@ -264,9 +233,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                         className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                         disabled={isSwitchingMode}
                     >
-                        {isSwitchingMode
-                            ? 'Saving...'
-                            : 'Confirm & Switch Mode'}
+                        {isSwitchingMode ? 'Saving...' : 'Confirm & Switch Mode'}
                     </Button>
                 </DialogContent>
             </Dialog>

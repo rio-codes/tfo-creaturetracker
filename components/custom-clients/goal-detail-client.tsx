@@ -9,17 +9,27 @@ import type {
     EnrichedBreedingPair,
 } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { PredictionsAccordion } from '@/components/misc-custom-components/predictions-accordion';
 import { AssignPairDialog } from '@/components/custom-dialogs/assign-breeding-pair-dialog';
 import { GoalModeSwitcher } from '@/components/custom-dialogs/goal-mode-switcher-dialog';
-import { RefreshCw, Loader2, Award, Info } from 'lucide-react';
+import { RefreshCw, Loader2, Award, Info, Search } from 'lucide-react';
 import * as Sentry from '@sentry/nextjs';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ShareGoalButton } from '../misc-custom-components/share-goal-button';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
+import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
+import { FindPotentialPairsDialog } from '../custom-dialogs/find-potential-pairs-dialog';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -38,6 +48,8 @@ export function GoalDetailClient({
     const router = useRouter();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [imageUrl, setImageUrl] = useState(goal?.imageUrl ?? '');
+    const [findPairsDialogOpen, setFindPairsDialogOpen] = useState(false);
+    const [isFindingPairs, setIsFindingPairs] = useState(false);
     const [excludeGender, setExcludeGender] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
@@ -50,18 +62,16 @@ export function GoalDetailClient({
                 <div>
                     <p className="font-semibold">🧬 Genotype Mode</p>
                     <p className="text-sm">
-                        Calculates odds for achieving an exact genetic code.
-                        Match scores will be much lower. For advanced users
-                        aiming for specific breeding outcomes.
+                        Calculates odds for achieving an exact genetic code. Match scores will be
+                        much lower. For advanced users aiming for specific breeding outcomes.
                     </p>
                 </div>
                 <div>
                     <p className="font-semibold">🪶 Phenotype Mode</p>
                     <p className="text-sm">
-                        Calculates odds based on achieving a desired look (e.g.,
-                        "Steppes"), accepting any genotype that produces it.
-                        Match scores will be higher and "possible" goals more
-                        common. Recommended for most users.
+                        Calculates odds based on achieving a desired look (e.g., "Steppes"),
+                        accepting any genotype that produces it. Match scores will be higher and
+                        "possible" goals more common. Recommended for most users.
                     </p>
                 </div>
             </div>
@@ -123,12 +133,9 @@ export function GoalDetailClient({
     const handleRefreshImage = async () => {
         setIsRefreshing(true);
         try {
-            const response = await fetch(
-                `/api/research-goals/${goal.id}/refresh-image`,
-                {
-                    method: 'POST',
-                }
-            );
+            const response = await fetch(`/api/research-goals/${goal.id}/refresh-image`, {
+                method: 'POST',
+            });
             if (!response.ok) {
                 throw new Error('Failed to refresh image.');
             }
@@ -155,11 +162,12 @@ export function GoalDetailClient({
                 </div>
                 <div className="mt-5">
                     {/* Desktop: Info on the badge itself */}
-                    <div className="hidden md:block">
+                    <div className="hidden md:flex items-center gap-2">
                         <InfoDisplay
                             trigger={<GoalModeSwitcher goal={goal} />}
                             content={goalModeInfoContent}
                         />
+                        <EditGoalDialog goal={goal} isAdminView={false}></EditGoalDialog>
                     </div>
 
                     {/* Mobile: Badge + separate info icon */}
@@ -181,59 +189,42 @@ export function GoalDetailClient({
                         <div className="grid grid-cols-2 gap-6">
                             <div className="text-lg font-semibold">
                                 <span>Species:</span>{' '}
-                                <span className="text-lg font-normal">
-                                    {goal?.species}
-                                </span>
+                                <span className="text-lg font-normal">{goal?.species}</span>
                             </div>
                             <div className="text-lg font-semibold">
                                 Gender:
-                                <span className="text-lg font-normal">
-                                    {' '}
-                                    {gender}
-                                </span>
+                                <span className="text-lg font-normal"> {gender}</span>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
-                                    Genotype
-                                </h3>
-                                <div className="space-y-1 text-sm">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="border-b-0">
+                                        <TableHead className="text-lg">Trait</TableHead>
+                                        <TableHead className="text-lg">Phenotype</TableHead>
+                                        <TableHead className="text-lg">Genotype</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
                                     {geneEntries
-                                        .filter(
-                                            ([category]) =>
-                                                category !== 'Gender'
-                                        )
-                                        .map(([category, gene]) => (
-                                            <div key={category} className={gene.isOptional ? 'opacity-70' : ''}>
-                                                <strong>
-                                                    {category}{gene.isOptional && ' (Optional)'}:
-                                                </strong>{' '}
-                                                {gene.genotype}
-                                            </div>
+                                        .filter(([category]) => category !== 'Gender')
+                                        .map(([category, gene], index) => (
+                                            <TableRow
+                                                key={category}
+                                                className={`${index % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : ''} ${gene.isOptional ? 'opacity-70' : ''} border-b-0`}
+                                            >
+                                                <TableCell className="font-medium">
+                                                    {category}
+                                                    {gene.isOptional && (
+                                                        <span className="text-xs"> (Opt.)</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>{gene.phenotype}</TableCell>
+                                                <TableCell>{gene.genotype}</TableCell>
+                                            </TableRow>
                                         ))}
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold mb-2 border-b border-pompaca-purple/50 dark:border-purple-400/50 pb-1">
-                                    Phenotype
-                                </h3>
-                                <div className="space-y-1 text-sm">
-                                    {geneEntries
-                                        .filter(
-                                            ([category]) =>
-                                                category !== 'Gender'
-                                        )
-                                        .map(([category, gene]) => (
-                                            <div key={category} className={gene.isOptional ? 'opacity-70' : ''}>
-                                                <strong>
-                                                    {category}{gene.isOptional && ' (Optional)'}:
-                                                </strong>{' '}
-                                                {gene.phenotype}
-                                            </div>
-                                        ))}
-                                </div>
-                            </div>
+                                </TableBody>
+                            </Table>
                         </div>
                     </CardContent>
                 </Card>
@@ -268,14 +259,36 @@ export function GoalDetailClient({
                     <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
                         Breeding Pairs
                     </h2>
-                    <AssignPairDialog
-                        goal={goal}
-                        predictions={initialPredictions}
-                    >
-                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
-                            Manage Breeding Pairs
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <Button
+                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                            onClick={() => {
+                                setIsFindingPairs(true);
+                                setFindPairsDialogOpen(true);
+                            }}
+                            disabled={isFindingPairs}
+                        >
+                            {isFindingPairs ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Search className="mr-2 h-4 w-4" />
+                            )}
+                            Look for Pairs
                         </Button>
-                    </AssignPairDialog>
+                        <FindPotentialPairsDialog
+                            goal={goal}
+                            allCreatures={allCreatures}
+                            allPairs={allPairs}
+                            open={findPairsDialogOpen}
+                            onOpenChange={setFindPairsDialogOpen}
+                            onLoadingChange={setIsFindingPairs}
+                        />
+                        <AssignPairDialog goal={goal} predictions={initialPredictions}>
+                            <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                                Manage Breeding Pairs
+                            </Button>
+                        </AssignPairDialog>
+                    </div>
                 </div>
                 {hasMounted ? (
                     <PredictionsAccordion
@@ -300,9 +313,7 @@ export function GoalDetailClient({
                         <Checkbox
                             id="excludeGender"
                             checked={excludeGender}
-                            onCheckedChange={(checked) =>
-                                setExcludeGender(!!checked)
-                            }
+                            onCheckedChange={(checked) => setExcludeGender(!!checked)}
                         />
                         <Label htmlFor="excludeGender">Exclude Gender</Label>
                     </div>
@@ -319,30 +330,22 @@ export function GoalDetailClient({
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center">
                                                 <img
-                                                    src={getCacheBustedImageUrl(
-                                                        progeny
-                                                    )}
-                                                    alt={
-                                                        progeny.creatureName ||
-                                                        progeny.code
-                                                    }
+                                                    src={getCacheBustedImageUrl(progeny)}
+                                                    alt={progeny.creatureName || progeny.code}
                                                     className="w-12 h-12 object-contain rounded-md mr-4 bg-white/10 p-1"
                                                 />
                                                 <div>
                                                     <p className="font-semibold">
-                                                        {progeny.creatureName ||
-                                                            'Unnamed'}{' '}
-                                                        ({progeny.code})
+                                                        {progeny.creatureName || 'Unnamed'} (
+                                                        {progeny.code})
                                                     </p>
                                                     <p className="text-xs text-dusk-purple dark:text-purple-400">
-                                                        From:{' '}
-                                                        {progeny.parentPairName}
+                                                        From: {progeny.parentPairName}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {progeny.analysis.score ===
-                                                    100 && (
+                                                {progeny.analysis.score === 100 && (
                                                     <Award className="h-5 w-5 text-green-500" />
                                                 )}
                                                 <span
@@ -351,15 +354,11 @@ export function GoalDetailClient({
                                                     )}
                                                     className={`text-lg ${progeny.analysis.score === 100 ? 'font-bold' : ''}`}
                                                 >
-                                                    {progeny.analysis.score.toFixed(
-                                                        0
-                                                    )}
-                                                    %
+                                                    {progeny.analysis.score.toFixed(0)}%
                                                 </span>
                                             </div>
                                         </div>
-                                        {progeny.analysis.nonMatchingGenes
-                                            .length > 0 && (
+                                        {progeny.analysis.nonMatchingGenes.length > 0 && (
                                             <div className="mt-2 pl-16 text-xs space-y-1">
                                                 <p className="font-semibold text-dusk-purple dark:text-purple-400">
                                                     Mismatched Traits:
@@ -367,23 +366,12 @@ export function GoalDetailClient({
                                                 <ul className="list-disc list-inside text-dusk-purple dark:text-purple-400">
                                                     {progeny.analysis.nonMatchingGenes.map(
                                                         (gene) => (
-                                                            <li
-                                                                key={
-                                                                    gene.category
-                                                                }
-                                                            >
+                                                            <li key={gene.category}>
                                                                 <span className="font-medium text-pompaca-purple dark:text-purple-300">
-                                                                    {
-                                                                        gene.category
-                                                                    }
-                                                                    :
+                                                                    {gene.category}:
                                                                 </span>{' '}
-                                                                {
-                                                                    gene.creatureValue
-                                                                }{' '}
-                                                                (Goal:{' '}
-                                                                {gene.goalValue}
-                                                                )
+                                                                {gene.creatureValue} (Goal:{' '}
+                                                                {gene.goalValue})
                                                             </li>
                                                         )
                                                     )}
@@ -395,8 +383,7 @@ export function GoalDetailClient({
                             </ul>
                         ) : (
                             <p className="text-center text-dusk-purple dark:text-purple-400 italic py-4">
-                                No progeny have been logged for the assigned
-                                pairs.
+                                No progeny have been logged for the assigned pairs.
                             </p>
                         )}
                     </CardContent>

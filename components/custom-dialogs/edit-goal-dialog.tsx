@@ -17,19 +17,14 @@ type EditGoalDialogProps = {
     isAdminView?: boolean;
 };
 
-export function EditGoalDialog({
-    goal,
-    isAdminView = false,
-}: EditGoalDialogProps) {
+export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-25 text-sm/tight">
-                    <span className="text-wrap wrap-normal text-sm/tight">
-                        Edit / Delete
-                    </span>
+                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-9 w-30 text-sm/tight">
+                    <span className="text-wrap wrap-normal text-xs">Edit / Delete Goal</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto">

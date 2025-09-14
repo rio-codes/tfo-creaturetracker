@@ -1,160 +1,59 @@
-import { ImageResponse } from 'next/og';
 import { db } from '@/src/db';
-import { researchGoals, users } from '@/src/db/schema';
+import { researchGoals } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/nextjs';
 
 export const runtime = 'nodejs';
 
+async function getPlaceholderImage(baseUrl: string): Promise<Response> {
+    const placeholderUrl = new URL('/placeholder.png', baseUrl).toString();
+    const response = await fetch(placeholderUrl);
+    // Re-create the response to ensure headers are correctly set for the client
+    return new Response(response.body, {
+        headers: { 'Content-Type': response.headers.get('Content-Type') || 'image/png' },
+    });
+}
+
 export async function GET(req: Request, { params }: { params: { goalId: string } }) {
     const goalId = params.goalId;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
 
     try {
         const goal = await db.query.researchGoals.findFirst({
             where: eq(researchGoals.id, goalId),
+            columns: { imageUrl: true },
         });
 
-        if (!goal) {
-            return new ImageResponse(
-                (
-                    <div
-                        style={{
-                            fontSize: 48,
-                            background: '#D0BCFF',
-                            color: '#3C2D63',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            height: '100%',
-                        }}
-                    >
-                        Goal Not Found
-                    </div>
-                ),
-                { width: 1200, height: 630 }
-            );
+        let imageUrl = goal?.imageUrl;
+
+        if (!imageUrl) {
+            // If no goal or no image URL, serve the placeholder.
+            return await getPlaceholderImage(baseUrl);
         }
 
-        const username = await db.query.users.findFirst({
-            where: eq(users.id, goal.userId),
-            columns: { username: true },
-        });
-
-        const altText = `TFO research goal by ${username?.username || 'a user'}: ${goal.name}.`;
-
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
-        let imageUrl = goal.imageUrl;
-        if (!imageUrl) {
-            imageUrl = new URL('/placeholder.png', baseUrl).toString();
-        } else if (!imageUrl.startsWith('http')) {
+        if (!imageUrl.startsWith('http')) {
             imageUrl = new URL(imageUrl, baseUrl).toString();
         }
 
-        const fontUrl = new URL('/fonts/Tektur-Regular.ttf', baseUrl).toString();
-
-        const [imageResponse, fontResponse] = await Promise.all([fetch(imageUrl), fetch(fontUrl)]);
+        // Fetch the creature's image and stream it back directly.
+        const imageResponse = await fetch(imageUrl);
 
         if (!imageResponse.ok) {
-            throw new Error(
-                `Failed to fetch image from ${imageUrl}. Status: ${imageResponse.status}`
-            );
+            // If fetching the creature's image fails, log it and return the placeholder.
+            const errorMsg = `Failed to fetch goal image from ${imageUrl}. Status: ${imageResponse.status}`;
+            console.error(errorMsg);
+            Sentry.captureMessage(errorMsg);
+            return await getPlaceholderImage(baseUrl);
         }
-        if (!fontResponse.ok) {
-            throw new Error(`Failed to fetch font from ${fontUrl}. Status: ${fontResponse.status}`);
-        }
 
-        const [imageBuffer, fontData] = await Promise.all([
-            imageResponse.arrayBuffer(),
-            fontResponse.arrayBuffer(),
-        ]);
-
-        const imageBase64 = Buffer.from(imageBuffer).toString('base64');
-        const imageSrc = `data:${imageResponse.headers.get('content-type')};base64,${imageBase64}`;
-
-        return new ImageResponse(
-            (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '100%',
-                        height: '100%',
-                        fontFamily: 'Tektur',
-                        background: '#D0BCFF',
-                        color: '#3C2D63',
-                    }}
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexGrow: 1,
-                            padding: '20px',
-                        }}
-                    >
-                        <img
-                            src={imageSrc}
-                            alt={altText}
-                            width="400"
-                            height="400"
-                            style={{ objectFit: 'contain', borderRadius: '10px' }}
-                        />
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                marginLeft: '40px',
-                                maxWidth: '600px',
-                            }}
-                        >
-                            <h1 style={{ fontSize: 60, textAlign: 'left', lineHeight: '1.2' }}>
-                                {goal.name}
-                            </h1>
-                            {goal.species && (
-                                <p style={{ fontSize: 30, textAlign: 'left', marginTop: '10px' }}>
-                                    Species: {goal.species}
-                                </p>
-                            )}
-                            {username && (
-                                <div
-                                    style={{
-                                        fontSize: 30,
-                                        textAlign: 'left',
-                                        marginTop: '20px',
-                                        color: '#6B4FBB',
-                                    }}
-                                >
-                                    Created by: {username?.username}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <p
-                        style={{
-                            fontSize: 24,
-                            position: 'absolute',
-                            bottom: 20,
-                            right: 40,
-                            color: '#6B4FBB',
-                        }}
-                    >
-                        tfo.creaturetracker.net
-                    </p>
-                </div>
-            ),
-            {
-                width: 1200,
-                height: 630,
-                fonts: [{ name: 'Tektur', data: fontData, style: 'normal', weight: 400 }],
-            }
-        );
+        // Return the fetched image.
+        return new Response(imageResponse.body, {
+            headers: { 'Content-Type': imageResponse.headers.get('Content-Type') || 'image/png' },
+        });
     } catch (e: any) {
         Sentry.captureException(e);
         console.error(`Failed to generate image for goal ${goalId}:`, e);
-        return new Response(`Failed to generate image: ${e.message}`, { status: 500 });
+        // As a final fallback, return the placeholder image.
+        return await getPlaceholderImage(baseUrl);
     }
 }

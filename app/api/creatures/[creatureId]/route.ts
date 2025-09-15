@@ -90,16 +90,17 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
             );
         }
 
-        await logAdminAction({
-            action: 'creature.delete',
-            targetType: 'creature',
-            targetId: creatureId,
-            targetUserId: creatureOwner?.userId,
-            details: {
-                adminId: session.user.id,
-            },
-        });
-
+        if (session.user.role === 'admin') {
+            await logAdminAction({
+                action: 'creature.delete',
+                targetType: 'creature',
+                targetId: creatureId,
+                targetUserId: creatureOwner?.userId,
+                details: {
+                    adminId: session.user.id,
+                },
+            });
+        }
         // Clear the cache for the collection page so the grid updates immediately
         revalidatePath('/collection');
 

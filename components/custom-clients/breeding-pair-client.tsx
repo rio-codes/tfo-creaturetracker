@@ -58,6 +58,34 @@ type BreedingPairsClientProps = {
     };
 };
 
+function SortablePairCard({
+    pair,
+    ...props
+}: {
+    pair: EnrichedBreedingPair;
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: pair.id,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 20 : undefined,
+        opacity: isDragging ? 0.8 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <BreedingPairCard pair={pair} {...props} />
+        </div>
+    );
+}
+
 function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: pair.id,
@@ -130,6 +158,10 @@ export function BreedingPairsClient({
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    useEffect(() => {
+        setPinnedPairs(initialPinnedPairs);
+    }, [initialPinnedPairs]);
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
@@ -247,9 +279,16 @@ export function BreedingPairsClient({
                                         items={pinnedPairs.map((p) => p.id)}
                                         strategy={rectSortingStrategy}
                                     >
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {pinnedPairs.map((pair) => (
-                                                <SortablePairImage key={pair.id} pair={pair} />
+                                                <SortablePairCard
+                                                    key={pair.id}
+                                                    pair={pair}
+                                                    allCreatures={allCreatures}
+                                                    allGoals={allGoals}
+                                                    allPairs={allPairs}
+                                                    allLogs={allLogs}
+                                                />
                                             ))}
                                         </div>
                                     </SortableContext>

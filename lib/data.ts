@@ -495,8 +495,7 @@ export async function fetchBreedingPairsWithStats(
             .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
             .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
             .where(and(...conditions, eq(breedingPairs.isPinned, true)))
-            .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id))
-            .limit(itemsPerPage);
+            .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id));
         // .offset((currentPage - 1) * itemsPerPage); // Pinned items are not paginated
 
         const unpinnedResults = await db

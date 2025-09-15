@@ -105,6 +105,10 @@ export function ResearchGoalClient({
         setIsMounted(true);
     }, []);
 
+    useEffect(() => {
+        setPinnedGoals(initialPinnedGoals);
+    }, [initialPinnedGoals]);
+
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();

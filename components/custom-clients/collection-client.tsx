@@ -146,6 +146,10 @@ export function CollectionClient({
         setIsMounted(true);
     }, []);
 
+    useEffect(() => {
+        setPinnedCreatures(initialPinnedCreatures);
+    }, [initialPinnedCreatures]);
+
     const handleDragEnd = async (event: any) => {
         const { active, over } = event; // Ensure 'over' is not null
         if (over && active.id !== over.id) {

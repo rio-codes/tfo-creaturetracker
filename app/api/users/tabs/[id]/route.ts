@@ -75,18 +75,18 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
                 { status: 404 }
             );
         }
-
-        await logAdminAction({
-            action: 'user_tab.edit',
-            targetType: 'user_tab',
-            targetUserId: updatedTab[0].userId,
-            targetId: tabIdToUpdate.toString(),
-            details: {
-                updatedFields: Object.keys(dataToUpdate),
-                tabName: updatedTab[0].tabName,
-            },
-        });
-
+        if (session.user.role === 'admin') {
+            await logAdminAction({
+                action: 'user_tab.edit',
+                targetType: 'user_tab',
+                targetUserId: updatedTab[0].userId,
+                targetId: tabIdToUpdate.toString(),
+                details: {
+                    updatedFields: Object.keys(dataToUpdate),
+                    tabName: updatedTab[0].tabName,
+                },
+            });
+        }
         Sentry.captureMessage(`Tab ${tabIdToUpdate} updated successfully`, 'info');
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
@@ -124,13 +124,15 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
                     ? eq(userTabs.id, parseInt(params.id))
                     : and(eq(userTabs.id, parseInt(params.id)), eq(userTabs.userId, userId))
             );
-        await logAdminAction({
-            action: 'user_tab.delete',
-            targetType: 'user_tab',
-            targetUserId: tabToDelete?.userId,
-            targetId: params.id,
-            details: { tabId: params.id, action: 'delete' },
-        });
+        if (session.user.role === 'admin') {
+            await logAdminAction({
+                action: 'user_tab.delete',
+                targetType: 'user_tab',
+                targetUserId: tabToDelete?.userId,
+                targetId: params.id,
+                details: { tabId: params.id, action: 'delete' },
+            });
+        }
         Sentry.captureMessage(`Tab ${params.id} deleted successfully`, 'info');
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Tab deleted successfully.' });

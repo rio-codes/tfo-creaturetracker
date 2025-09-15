@@ -26,7 +26,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
@@ -158,8 +164,6 @@ export function CollectionClient({
             } catch (error) {
                 console.error('Failed to save new order', error);
                 setPinnedCreatures(pinnedCreatures); // Revert on failure
-            } finally {
-                if (isReorderDialogOpen) setIsReorderDialogOpen(false);
             }
         }
     };
@@ -402,6 +406,14 @@ export function CollectionClient({
                                 </SortableContext>
                             </DndContext>
                         </div>
+                        <DialogFooter className="pt-4 sm:justify-center">
+                            <Button
+                                onClick={() => setIsReorderDialogOpen(false)}
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                            >
+                                Done
+                            </Button>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </div>

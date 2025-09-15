@@ -31,7 +31,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { speciesList } from '@/constants/creature-data';
@@ -127,7 +133,7 @@ export function BreedingPairsClient({
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
-        if (active.id !== over.id) {
+        if (over && active.id !== over.id) {
             const oldIndex = pinnedPairs.findIndex((p) => p.id === active.id);
             const newIndex = pinnedPairs.findIndex((p) => p.id === over.id);
             const newOrder = arrayMove(pinnedPairs, oldIndex, newIndex);
@@ -143,8 +149,6 @@ export function BreedingPairsClient({
             } catch (error) {
                 console.error('Failed to save new order', error);
                 setPinnedPairs(pinnedPairs); // Revert on failure
-            } finally {
-                setIsReorderDialogOpen(false); // Close dialog after reorder
             }
         }
     };
@@ -326,6 +330,14 @@ export function BreedingPairsClient({
                                     </SortableContext>
                                 </DndContext>
                             </div>
+                            <DialogFooter className="pt-4 sm:justify-center">
+                                <Button
+                                    onClick={() => setIsReorderDialogOpen(false)}
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                >
+                                    Done
+                                </Button>
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </div>

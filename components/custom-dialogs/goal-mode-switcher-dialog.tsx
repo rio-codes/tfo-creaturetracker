@@ -133,8 +133,8 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                             <Badge
                                 className={
                                     goal?.goalMode === 'genotype'
-                                        ? 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-magenta/60 rounded-md border-2 border-pompaca-purple w-fit'
-                                        : 'h-auto p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit'
+                                        ? 'h-14 p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md dark:bg-purple-400 rounded-md border-2 border-pompaca-purple w-fit'
+                                        : 'h-13 p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit'
                                 }
                             >
                                 <span>

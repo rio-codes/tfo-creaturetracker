@@ -12,17 +12,8 @@ import type {
 } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-    TooltipProvider,
-} from '@/components/ui/tooltip';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -77,10 +68,7 @@ const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
     }
     const summary = creature.geneData
         .filter((g) => g.category !== 'Gender')
-        .map(
-            (gene) =>
-                `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`
-        )
+        .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
         .join(', ');
 
     return (
@@ -109,16 +97,9 @@ const ProgenyPreview = ({
             />
             <div className="w-full text-xs space-y-1 mt-1 text-left">
                 {creature.geneData?.map((gene) => (
-                    <div
-                        key={gene.category}
-                        className="flex justify-between items-baseline"
-                    >
-                        <span className="font-semibold mr-2">
-                            {gene.category}:
-                        </span>
-                        <span className="text-right truncate">
-                            {gene.phenotype}
-                        </span>
+                    <div key={gene.category} className="flex justify-between items-baseline">
+                        <span className="font-semibold mr-2">{gene.category}:</span>
+                        <span className="text-right truncate">{gene.phenotype}</span>
                     </div>
                 ))}
             </div>
@@ -137,9 +118,7 @@ export function BreedingPairCard({
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
-    const [isRemovingProgeny, setIsRemovingProgeny] = useState<string | null>(
-        null
-    );
+    const [isRemovingProgeny, setIsRemovingProgeny] = useState<string | null>(null);
     if (!pair?.maleParent || !pair.femaleParent || !allPairs || !allLogs) {
         return null;
     }
@@ -165,12 +144,9 @@ export function BreedingPairCard({
     const handleRemoveProgeny = async (progenyId: string) => {
         setIsRemovingProgeny(progenyId);
         try {
-            const response = await fetch(
-                `/api/breeding-pairs/${pair.id}?progenyId=${progenyId}`,
-                {
-                    method: 'DELETE',
-                }
-            );
+            const response = await fetch(`/api/breeding-pairs/${pair.id}?progenyId=${progenyId}`, {
+                method: 'DELETE',
+            });
             if (!response.ok) {
                 const data = await response.json();
                 throw new Error(data.error || 'Failed to remove progeny.');
@@ -184,17 +160,13 @@ export function BreedingPairCard({
         }
     };
 
-    const getCacheBustedImageUrl = (
-        creature: EnrichedCreature | null | undefined
-    ) => {
+    const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
         if (!creature?.imageUrl) {
             return '';
         }
 
         if (creature.updatedAt) {
-            return `${creature.imageUrl}?v=${new Date(
-                creature.updatedAt
-            ).getTime()}`;
+            return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
         }
         return creature.imageUrl;
     };
@@ -207,11 +179,7 @@ export function BreedingPairCard({
         <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/*Notes Icon */}
             <div className="absolute top-2 left-2 z-10">
-                <ViewLogsDialog
-                    pair={pair}
-                    allCreatures={allCreatures}
-                    allLogs={allLogs}
-                >
+                <ViewLogsDialog pair={pair} allCreatures={allCreatures} allLogs={allLogs}>
                     <Button
                         size="icon"
                         className="h-6 w-20 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
@@ -240,10 +208,7 @@ export function BreedingPairCard({
             {/* Header Section */}
             <div className="relative p-4">
                 {/* Title */}
-                <h3
-                    className="text-xl font-bold text-center"
-                    title={pair.pairName}
-                >
+                <h3 className="text-xl font-bold text-center" title={pair.pairName}>
                     {pair.pairName}
                 </h3>
                 {/* Parent Images */}
@@ -272,8 +237,7 @@ export function BreedingPairCard({
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     M:
                                 </span>{' '}
-                                {maleParent.creatureName || 'Unnamed'} (
-                                {maleParent.code})
+                                {maleParent.creatureName || 'Unnamed'} ({maleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>
@@ -287,8 +251,7 @@ export function BreedingPairCard({
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     F:
                                 </span>{' '}
-                                {femaleParent.creatureName || 'Unnamed'} (
-                                {femaleParent.code})
+                                {femaleParent.creatureName || 'Unnamed'} ({femaleParent.code})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>
@@ -306,18 +269,13 @@ export function BreedingPairCard({
                     <div className="flex flex-col w-full">
                         <div className="flex items-center justify-between gap-2 mb-1">
                             <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-sm">
-                                    Progeny ({pair.progenyCount})
-                                </h4>
+                                <h4 className="font-bold text-sm">Progeny ({pair.progenyCount})</h4>
                                 {pair.isInbred && (
                                     <InfoDisplay
-                                        trigger={
-                                            <Network className="h-4 w-4 text-yellow-600" />
-                                        }
+                                        trigger={<Network className="h-4 w-4 text-yellow-600" />}
                                         content={
                                             <p className="dark:text-barely-lilac">
-                                                This pair is related
-                                                genetically. Offspring will be
+                                                This pair is related genetically. Offspring will be
                                                 inbred.
                                             </p>
                                         }
@@ -335,18 +293,12 @@ export function BreedingPairCard({
                                                 key={p.id}
                                                 className="flex items-center justify-between gap-1 p-1 rounded hover:bg-pompaca-purple/10"
                                             >
-                                                <TooltipProvider
-                                                    delayDuration={100}
-                                                >
-                                                    <Tooltip
-                                                        delayDuration={100}
-                                                    >
+                                                <TooltipProvider delayDuration={100}>
+                                                    <Tooltip delayDuration={100}>
                                                         <TooltipTrigger asChild>
                                                             <div className="flex items-center gap-2 cursor-default truncate">
                                                                 <SpeciesAvatar
-                                                                    species={
-                                                                        p.species!
-                                                                    }
+                                                                    species={p.species!}
                                                                     className="h-4 w-4"
                                                                 />
                                                                 <Link
@@ -354,15 +306,12 @@ export function BreedingPairCard({
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="truncate hover:underline wrap-anywhere"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) =>
+                                                                    onClick={(e) =>
                                                                         e.stopPropagation()
                                                                     }
                                                                 >
-                                                                    {p.creatureName ||
-                                                                        'Unnamed'}{' '}
-                                                                    ({p.code})
+                                                                    {p.creatureName || 'Unnamed'} (
+                                                                    {p.code})
                                                                 </Link>
                                                             </div>
                                                         </TooltipTrigger>
@@ -389,18 +338,15 @@ export function BreedingPairCard({
                                                             </Button>
                                                         </DialogTrigger>
                                                         <DialogContent
-                                                            onPointerDownOutside={(
-                                                                e
-                                                            ) =>
+                                                            onPointerDownOutside={(e) =>
                                                                 e.preventDefault()
                                                             }
                                                             className="bg-barely-lilac dark:bg-pompaca-purple"
                                                         >
                                                             <DialogHeader>
                                                                 <DialogTitle>
-                                                                    {p.creatureName ||
-                                                                        'Unnamed'}{' '}
-                                                                    ({p.code})
+                                                                    {p.creatureName || 'Unnamed'} (
+                                                                    {p.code})
                                                                 </DialogTitle>
                                                             </DialogHeader>
                                                             <ProgenyPreview
@@ -413,9 +359,7 @@ export function BreedingPairCard({
                                                     </Dialog>
 
                                                     <AlertDialog>
-                                                        <AlertDialogTrigger
-                                                            asChild
-                                                        >
+                                                        <AlertDialogTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -427,22 +371,13 @@ export function BreedingPairCard({
                                                         <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                                                             <AlertDialogHeader>
                                                                 <AlertDialogTitle>
-                                                                    Are you
-                                                                    sure?
+                                                                    Are you sure?
                                                                 </AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    This will
-                                                                    remove "
-                                                                    {
-                                                                        p.creatureName
-                                                                    }{' '}
-                                                                    ({p.code})"
-                                                                    from this
-                                                                    pair's
-                                                                    progeny log.
-                                                                    This action
-                                                                    cannot be
-                                                                    undone.
+                                                                    This will remove "
+                                                                    {p.creatureName} ({p.code})"
+                                                                    from this pair's progeny log.
+                                                                    This action cannot be undone.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
@@ -451,18 +386,14 @@ export function BreedingPairCard({
                                                                 </AlertDialogCancel>
                                                                 <AlertDialogAction
                                                                     onClick={() =>
-                                                                        handleRemoveProgeny(
-                                                                            p.id
-                                                                        )
+                                                                        handleRemoveProgeny(p.id)
                                                                     }
                                                                     disabled={
-                                                                        isRemovingProgeny ===
-                                                                        p.id
+                                                                        isRemovingProgeny === p.id
                                                                     }
                                                                     className="bg-red-600 hover:bg-red-700"
                                                                 >
-                                                                    {isRemovingProgeny ===
-                                                                    p.id ? (
+                                                                    {isRemovingProgeny === p.id ? (
                                                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                                     ) : null}
                                                                     Remove
@@ -482,12 +413,9 @@ export function BreedingPairCard({
                             )}
                         </ScrollArea>
 
-                        <h4 className="font-bold text-sm mb-1">
-                            Assigned Goals
-                        </h4>
+                        <h4 className="font-bold text-sm mb-1">Assigned Goals</h4>
                         <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
-                            {pair.assignedGoals &&
-                            pair.assignedGoals.length > 0 ? (
+                            {pair.assignedGoals && pair.assignedGoals.length > 0 ? (
                                 <ul className="text-xs space-y-1">
                                     {pair.assignedGoals.map((g) => (
                                         <li
@@ -506,24 +434,17 @@ export function BreedingPairCard({
                                                     className="truncate hover:underline wrap-anywhere"
                                                 >
                                                     {g.name.length > 26
-                                                        ? `${g.name.substring(
-                                                              0,
-                                                              26
-                                                          )}...`
+                                                        ? `${g.name.substring(0, 26)}...`
                                                         : g.name}
                                                 </Link>
                                             </div>
                                             <div
                                                 className={`text-right text-dusk-purple flex-shrink-0 font-semibold ${
-                                                    !g.isPossible
-                                                        ? 'text-red-500'
-                                                        : ''
+                                                    !g.isPossible ? 'text-red-500' : ''
                                                 }`}
                                             >
                                                 {g.isPossible
-                                                    ? `${(
-                                                          g.averageChance * 100
-                                                      ).toFixed(2)}%`
+                                                    ? `${(g.averageChance * 100).toFixed(2)}%`
                                                     : 'Impossible'}
                                             </div>
                                         </li>
@@ -541,18 +462,15 @@ export function BreedingPairCard({
 
             {/* Footer Buttons */}
             <div className="flex w-full gap-x-1 justify-center p-2">
-                <LogBreedingDialog
-                    pair={pairForDialog}
-                    allCreatures={allCreatures}
-                >
-                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
+                <LogBreedingDialog pair={pairForDialog} allCreatures={allCreatures}>
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
                         Log
                         <br />
                         Breeding
                     </Button>
                 </LogBreedingDialog>
                 <ViewOutcomesDialog pair={pair}>
-                    <Button className="h-16 text-sm/tight bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-24">
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
                         Possible
                         <br />
                         Outcomes
@@ -565,7 +483,7 @@ export function BreedingPairCard({
                     allPairs={allPairs}
                     allLogs={allLogs}
                 >
-                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-24 text-sm/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
                         Edit /
                         <br />
                         Delete

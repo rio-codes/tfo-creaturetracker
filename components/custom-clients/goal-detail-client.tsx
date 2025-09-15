@@ -167,7 +167,11 @@ export function GoalDetailClient({
                             trigger={<GoalModeSwitcher goal={goal} />}
                             content={goalModeInfoContent}
                         />
-                        <EditGoalDialog goal={goal} isAdminView={false}></EditGoalDialog>
+                        <EditGoalDialog
+                            goal={goal}
+                            isAdminView={false}
+                            variant="detail"
+                        ></EditGoalDialog>
                     </div>
 
                     {/* Mobile: Badge + separate info icon */}

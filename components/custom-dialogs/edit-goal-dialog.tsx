@@ -15,6 +15,7 @@ import type { EnrichedResearchGoal } from '@/types';
 type EditGoalDialogProps = {
     goal: EnrichedResearchGoal;
     isAdminView?: boolean;
+    variant?: 'card' | 'detail';
 };
 
 export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProps) {
@@ -23,7 +24,7 @@ export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProp
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-9 w-30 text-sm/tight">
+                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-30 text-sm/tight">
                     <span className="text-wrap wrap-normal text-xs">Edit / Delete Goal</span>
                 </Button>
             </DialogTrigger>

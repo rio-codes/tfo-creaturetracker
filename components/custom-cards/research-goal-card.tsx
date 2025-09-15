@@ -16,10 +16,7 @@ interface ResearchGoalCardProps {
     isAdminView?: boolean;
 }
 
-export function ResearchGoalCard({
-    goal,
-    isAdminView = false,
-}: ResearchGoalCardProps) {
+export function ResearchGoalCard({ goal, isAdminView = false }: ResearchGoalCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(goal?.isPinned);
     const [isPinning, setIsPinning] = useState(false);
@@ -31,14 +28,11 @@ export function ResearchGoalCard({
         const newPinState = !isPinned;
 
         try {
-            const response = await fetch(
-                `/api/research-goals/${goal?.id}/pin`,
-                {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ isPinned: newPinState }),
-                }
-            );
+            const response = await fetch(`/api/research-goals/${goal?.id}/pin`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isPinned: newPinState }),
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to update pin status.');
@@ -68,32 +62,26 @@ export function ResearchGoalCard({
                             }
                         >
                             <span>
-                                {goal?.goalMode === 'genotype'
-                                    ? '🧬 Genotype'
-                                    : '🪶 Phenotype'}
+                                {goal?.goalMode === 'genotype' ? '🧬 Genotype' : '🪶 Phenotype'}
                             </span>
                         </Badge>
                     }
                     content={
                         <>
                             <h4 className="font-bold mb-1">
-                                {goal?.goalMode === 'genotype'
-                                    ? 'Genotype Mode'
-                                    : 'Phenotype Mode'}
+                                {goal?.goalMode === 'genotype' ? 'Genotype Mode' : 'Phenotype Mode'}
                             </h4>
                             {goal?.goalMode === 'genotype' ? (
                                 <p className="dark:text-barely-lilac">
-                                    Calculates odds for achieving an exact
-                                    genetic code. Match scores will be much
-                                    lower. For advanced users aiming for
+                                    Calculates odds for achieving an exact genetic code. Match
+                                    scores will be much lower. For advanced users aiming for
                                     specific breeding outcomes.
                                 </p>
                             ) : (
                                 <p className="dark:text-barely-lilac">
-                                    Calculates odds based on achieving a desired
-                                    look (e.g., "Steppes"), accepting any
-                                    genotype that produces it. Match scores will
-                                    be higher and "possible" goals more common.
+                                    Calculates odds based on achieving a desired look (e.g.,
+                                    "Steppes"), accepting any genotype that produces it. Match
+                                    scores will be higher and "possible" goals more common.
                                     Recommended for most users.
                                 </p>
                             )}
@@ -120,7 +108,11 @@ export function ResearchGoalCard({
             <CardContent className="p-4">
                 {/* Goal Image */}
                 <div className="bg- rounded-lg p-4 mb-4 flex justify-center">
-                    <img src={goal?.imageUrl || '/images/misc/placeholder.png'} alt={goal?.name} className="w-35 h-35 object-scale-down" />
+                    <img
+                        src={goal?.imageUrl || '/images/misc/placeholder.png'}
+                        alt={goal?.name}
+                        className="w-35 h-35 object-scale-down"
+                    />
                 </div>
                 <div className="h-20">
                     <div>
@@ -143,14 +135,10 @@ export function ResearchGoalCard({
                                                 {category}:
                                             </span>
                                             <div className="pl-2">
-                                                <div>
-                                                    Phenotype:{' '}
-                                                    {geneData.phenotype}
-                                                </div>
+                                                <div>Phenotype: {geneData.phenotype}</div>
                                                 <div>
                                                     Genotype:{' '}
-                                                    {goal?.goalMode ==
-                                                        'phenotype' &&
+                                                    {goal?.goalMode == 'phenotype' &&
                                                     geneData.isMultiGenotype ? (
                                                         <span>multiple</span>
                                                     ) : (
@@ -179,13 +167,11 @@ export function ResearchGoalCard({
                 {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
                     <Link href={`/research-goals/${goal?.id}`} passHref>
-                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-25 text-sm/tight">
-                            <span className="text-wrap wrap-normal text-sm/tight">
-                                Goal Tracker
-                            </span>
+                        <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-30 text-sm/tight">
+                            <span className="text-wrap wrap-normal text-xs">Goal Tracker</span>
                         </Button>
                     </Link>
-                    <EditGoalDialog goal={goal} isAdminView={isAdminView} />
+                    <EditGoalDialog goal={goal} isAdminView={isAdminView} variant="card" />
                 </div>
             </CardContent>
         </Card>

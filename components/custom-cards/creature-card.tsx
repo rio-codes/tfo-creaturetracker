@@ -341,7 +341,7 @@ export function CreatureCard({
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col items-center justify-center p-2 pt-0">
-                <div className="flex w-full gap-2 justify-center text-sm">
+                <div className="flex min-w-0 gap-2 justify-center text-sm">
                     {!isAdminView && allCreatures && allEnrichedPairs && allLogs && allGoals && (
                         <>
                             <ManageBreedingPairsDialog
@@ -350,8 +350,8 @@ export function CreatureCard({
                                 allPairs={allEnrichedPairs}
                                 allGoals={allGoals}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
-                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight ">
+                                    <span className="w-28 text-wrap wrap-normal flex-wrap">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
@@ -362,8 +362,8 @@ export function CreatureCard({
                                 allEnrichedPairs={allEnrichedPairs}
                                 allLogs={allLogs}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
-                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
+                                    <span className="w-28 text-wrap wrap-normal">
                                         Log as Progeny
                                     </span>
                                 </Button>
@@ -372,13 +372,13 @@ export function CreatureCard({
                     )}
                     <Button
                         onClick={handleRemoveFromCollection}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight"
                         disabled={isDeleting}
                     >
                         {isDeleting ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                            <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                            <span className="w-28 text-wrap wrap-normal">
                                 Remove from Collection
                             </span>
                         )}

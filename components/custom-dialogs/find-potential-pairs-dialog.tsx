@@ -21,10 +21,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
 import { Loader2, Network } from 'lucide-react';
 import * as Sentry from '@sentry/nextjs';
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
@@ -33,7 +31,6 @@ import type {
     DbBreedingLogEntry,
 } from '@/types';
 import { calculateGeneProbability } from '@/lib/genetics';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';

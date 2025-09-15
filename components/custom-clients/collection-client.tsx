@@ -10,7 +10,8 @@ import {
     DndContext,
     closestCenter,
     KeyboardSensor,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -127,7 +128,14 @@ export function CollectionClient({
     allGoals,
 }: CollectionClientProps) {
     const sensors = useSensors(
-        useSensor(PointerSensor, {
+        useSensor(MouseSensor, {
+            // Require the mouse to move by 5 pixels before activating
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            // Press and hold for 250ms for touch devices
             activationConstraint: {
                 delay: 250,
                 tolerance: 5,
@@ -149,6 +157,17 @@ export function CollectionClient({
     useEffect(() => {
         setPinnedCreatures(initialPinnedCreatures);
     }, [initialPinnedCreatures]);
+
+    const handleDragStart = (event: any) => {
+        // Provide haptic feedback on mobile devices when a drag starts.
+        if (window.navigator.vibrate) {
+            // The `activatorEvent` tells us what originally triggered the drag.
+            // We only want to vibrate for touch events.
+            if (event.activatorEvent.type.startsWith('touch')) {
+                window.navigator.vibrate(50); // A short, crisp vibration
+            }
+        }
+    };
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event; // Ensure 'over' is not null
@@ -303,6 +322,7 @@ export function CollectionClient({
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
+                                onDragStart={handleDragStart}
                                 onDragEnd={handleDragEnd}
                             >
                                 <SortableContext
@@ -393,6 +413,7 @@ export function CollectionClient({
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
+                                onDragStart={handleDragStart}
                                 onDragEnd={handleDragEnd}
                             >
                                 <SortableContext

@@ -12,7 +12,6 @@
  * 2. Execute the script from your project root: `tsx scripts/cleanup-orphaned-goals.ts`
  */
 import 'dotenv/config';
-import postgres from 'postgres';
 import { db } from '@/src/db'; // Using path alias for robustness
 import { breedingPairs, researchGoals } from '@/src/db/schema';
 import { eq, isNotNull } from 'drizzle-orm';
@@ -21,11 +20,6 @@ const connectionString = process.env.POSTGRES_URL;
 if (!connectionString) {
     throw new Error('POSTGRES_URL environment variable is not set.');
 }
-
-const sql = postgres(connectionString, {
-    ssl: 'require',
-    max: 1, // This is a single-use script, no need for a connection pool.
-});
 
 async function cleanupOrphanedGoals() {
     console.log('Starting cleanup of orphaned research goals from breeding pairs...');

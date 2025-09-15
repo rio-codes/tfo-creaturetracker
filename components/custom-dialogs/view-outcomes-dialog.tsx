@@ -47,27 +47,6 @@ type OutcomesByCategory = {
     [category: string]: Outcome[];
 };
 
-/**
- * A helper function to reliably compare two genotype selection objects.
- * Using JSON.stringify() is unreliable because the order of keys is not guaranteed.
- * This function checks for equality regardless of key order.
- */
-function areGenotypesEqual(
-    obj1: { [key: string]: string },
-    obj2: { [key: string]: string }
-): boolean {
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) return false;
-
-    for (const key of keys1) {
-        if (obj1[key] !== obj2[key]) return false;
-    }
-
-    return true;
-}
-
 export function ViewOutcomesDialog({
     children,
     pair,
@@ -257,12 +236,6 @@ export function ViewOutcomesDialog({
             return;
         }
 
-        // If selection is the most likely, just use the default URL
-        if (areGenotypesEqual(selectedGenotypes, mostLikelyGenotypes)) {
-            setPreviewUrl(defaultPreviewUrl);
-            return;
-        }
-
         // This is the logic that runs every time a select box is changed.
         const handler = setTimeout(() => {
             updatePreviewImage(selectedGenotypes);
@@ -368,7 +341,7 @@ export function ViewOutcomesDialog({
                         </div>
                     </div>
                 )}
-                <DialogFooter className="pt-4 sm:justify-start">
+                <DialogFooter>
                     <Button
                         variant="ghost"
                         onClick={() => setIsOpen(false)}
@@ -410,7 +383,9 @@ export function ViewOutcomesDialog({
                                 </Label>
                                 <RadioGroup
                                     value={goalMode}
-                                    onValueChange={(v) => setGoalMode(v as any)}
+                                    onValueChange={(v) =>
+                                        setGoalMode(v as 'phenotype' | 'genotype')
+                                    }
                                     className="flex space-x-4 mt-1"
                                 >
                                     <div className="flex items-center space-x-2">

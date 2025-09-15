@@ -3,13 +3,19 @@
 import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type {
-    EnrichedBreedingPair,
-    EnrichedCreature,
-    EnrichedResearchGoal,
-} from '@/types';
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import type { DbBreedingPair } from '@/types';
 import type { DbBreedingLogEntry } from '@/types';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -27,7 +33,8 @@ import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-di
 import { speciesList } from '@/constants/creature-data';
 
 type CollectionClientProps = {
-    initialCreatures: EnrichedCreature[];
+    pinnedCreatures: EnrichedCreature[];
+    unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
     allCreatures: EnrichedCreature[];
     allRawPairs: DbBreedingPair[];
@@ -36,8 +43,45 @@ type CollectionClientProps = {
     allGoals: EnrichedResearchGoal[];
 };
 
+function SortableCreatureCard({
+    creature,
+    ...props
+}: {
+    creature: EnrichedCreature;
+    allCreatures: EnrichedCreature[];
+    allRawPairs: DbBreedingPair[];
+    allEnrichedPairs: EnrichedBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+    allGoals: EnrichedResearchGoal[];
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: creature!.id,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : undefined,
+        opacity: isDragging ? 0.8 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <CreatureCard
+                creature={creature}
+                allCreatures={props.allCreatures}
+                allRawPairs={props.allRawPairs}
+                allEnrichedPairs={props.allEnrichedPairs}
+                allLogs={props.allLogs}
+                allGoals={props.allGoals}
+            />
+        </div>
+    );
+}
+
 export function CollectionClient({
-    initialCreatures,
+    pinnedCreatures: initialPinnedCreatures,
+    unpinnedCreatures,
     totalPages,
     allCreatures,
     allPairs,
@@ -48,6 +92,30 @@ export function CollectionClient({
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
+    const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures);
+    const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+
+    const handleDragEnd = async (event: any) => {
+        const { active, over } = event;
+        if (active.id !== over.id) {
+            const oldIndex = pinnedCreatures.findIndex((c) => c!.id === active.id);
+            const newIndex = pinnedCreatures.findIndex((c) => c!.id === over.id);
+            const newOrder = arrayMove(pinnedCreatures, oldIndex, newIndex);
+            setPinnedCreatures(newOrder); // Optimistic update
+
+            const orderedIds = newOrder.map((c) => c!.id);
+            try {
+                await fetch('/api/reorder-pinned', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'creature', orderedIds }),
+                });
+            } catch (error) {
+                console.error('Failed to save new order', error);
+                setPinnedCreatures(pinnedCreatures); // Revert on failure
+            }
+        }
+    };
 
     const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
     const handleOpenSyncDialog = () => {
@@ -93,10 +161,7 @@ export function CollectionClient({
                 >
                     + Add or Update Creatures
                 </Button>
-                <AddCreaturesDialog
-                    isOpen={isSyncDialogOpen}
-                    onClose={handleCloseDialog}
-                />
+                <AddCreaturesDialog isOpen={isSyncDialogOpen} onClose={handleCloseDialog} />
                 {/* Search and Filters */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                     {/* Search Bar */}
@@ -106,18 +171,14 @@ export function CollectionClient({
                             placeholder="search for a creature..."
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
-                            onChange={(e) =>
-                                handleFilterChange('query', e.target.value)
-                            }
+                            onChange={(e) => handleFilterChange('query', e.target.value)}
                         />
                     </div>
 
                     {/* Gender Filters */}
                     <Select
                         defaultValue={searchParams.get('gender') || 'all'}
-                        onValueChange={(value) =>
-                            handleFilterChange('gender', value)
-                        }
+                        onValueChange={(value) => handleFilterChange('gender', value)}
                     >
                         <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
                             <SelectValue placeholder="Filter by gender..." />
@@ -148,9 +209,7 @@ export function CollectionClient({
                     {/* Species Filter */}
                     <Select
                         value={currentSpecies}
-                        onValueChange={(value) =>
-                            handleFilterChange('species', value)
-                        }
+                        onValueChange={(value) => handleFilterChange('species', value)}
                     >
                         <SelectTrigger className="w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue placeholder="Filter by species..." />
@@ -167,13 +226,49 @@ export function CollectionClient({
                         </SelectContent>
                     </Select>
                 </div>
-                {/* Creature Grid */}
-                {initialCreatures.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {initialCreatures.map((creature) => {
-                            return (
+                {/* Pinned Creatures */}
+                {pinnedCreatures.length > 0 && (
+                    <div className="mb-12">
+                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                            Pinned Creatures
+                        </h2>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={pinnedCreatures.map((c) => c!.id)}
+                                strategy={rectSortingStrategy}
+                            >
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {pinnedCreatures.map((creature) => (
+                                        <SortableCreatureCard
+                                            key={creature!.id}
+                                            creature={creature}
+                                            allCreatures={allCreatures}
+                                            allRawPairs={allRawPairs}
+                                            allEnrichedPairs={allPairs}
+                                            allLogs={allLogs}
+                                            allGoals={allGoals}
+                                        />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
+                    </div>
+                )}
+
+                {/* Unpinned Creatures */}
+                {unpinnedCreatures.length > 0 && (
+                    <div>
+                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                            All Creatures
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            {unpinnedCreatures.map((creature) => (
                                 <CreatureCard
-                                    key={creature?.id}
+                                    key={creature!.id}
                                     creature={creature}
                                     allCreatures={allCreatures}
                                     allRawPairs={allRawPairs}
@@ -181,20 +276,24 @@ export function CollectionClient({
                                     allLogs={allLogs}
                                     allGoals={allGoals}
                                 />
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
-                            No Creatures Found
-                        </h2>
-                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                            Try adjusting your filters or use the button above
-                            to sync your collection.
-                        </p>
+                            ))}
+                        </div>
                     </div>
                 )}
+
+                {pinnedCreatures.length === 0 && unpinnedCreatures.length === 0 ? (
+                    <>
+                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300"></h2>
+                            <p>Try adjusting your filters or use the button above</p> No Creatures
+                            Found
+                            <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                                Try adjusting your filters or use the button above to sync your
+                                collection.
+                            </p>
+                        </div>
+                    </>
+                ) : null}
                 {/* Pagination */}
                 <div className="flex justify-center">
                     <Pagination totalPages={totalPages} />

@@ -18,20 +18,22 @@ export default async function BreedingPairsPage(props: {
     }>;
 }) {
     const searchParams = await props.searchParams;
-    const [{ pairs, totalPages }, allCreatures, allGoals, allPairs, allLogs] = await Promise.all([
-        fetchBreedingPairsWithStats(searchParams),
-        getAllCreaturesForUser(),
-        getAllResearchGoalsForUser(),
-        getAllRawBreedingPairsForUser(),
-        getAllBreedingLogEntriesForUser(),
-    ]);
+    const [{ pinnedPairs, unpinnedPairs, totalPages }, allCreatures, allGoals, allPairs, allLogs] =
+        await Promise.all([
+            fetchBreedingPairsWithStats(searchParams),
+            getAllCreaturesForUser(),
+            getAllResearchGoalsForUser(),
+            getAllRawBreedingPairsForUser(),
+            getAllBreedingLogEntriesForUser(),
+        ]);
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen inset-shadow-sm inset-shadow-gray-700">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading pairs...</div>}>
                     <BreedingPairsClient
-                        initialPairs={pairs}
+                        pinnedPairs={pinnedPairs!}
+                        unpinnedPairs={unpinnedPairs!}
                         totalPages={totalPages}
                         allCreatures={allCreatures}
                         allGoals={allGoals}

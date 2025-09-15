@@ -18,11 +18,7 @@ type EditGoalDialogProps = {
     variant?: 'card' | 'detail';
 };
 
-export function EditGoalDialog({
-    goal,
-    isAdminView = false,
-    variant = 'card',
-}: EditGoalDialogProps) {
+export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

@@ -25,11 +25,6 @@ export function EditGoalDialog({
 }: EditGoalDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const buttonClassName =
-        variant === 'detail'
-            ? 'bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-16 w-25 text-sm/tight'
-            : 'bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-9 w-30 text-sm/tight';
-
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>

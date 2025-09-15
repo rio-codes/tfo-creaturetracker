@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
@@ -26,6 +26,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,36 @@ function SortableCreatureCard({
     );
 }
 
+function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: creature!.id,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 20 : undefined,
+        opacity: isDragging ? 0.8 : 1,
+        cursor: 'grab',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
+        >
+            <img
+                src={creature?.imageUrl || '/images/misc/placeholder.png'}
+                alt={creature?.creatureName || creature?.code}
+                className="w-full h-full object-contain"
+            />
+        </div>
+    );
+}
+
 export function CollectionClient({
     pinnedCreatures: initialPinnedCreatures,
     unpinnedCreatures,
@@ -89,10 +120,6 @@ export function CollectionClient({
     allLogs,
     allGoals,
 }: CollectionClientProps) {
-    const searchParams = useSearchParams();
-    const pathname = usePathname();
-    const { replace } = useRouter();
-    const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures);
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -102,10 +129,20 @@ export function CollectionClient({
         }),
         useSensor(KeyboardSensor)
     );
+    const [isMounted, setIsMounted] = useState(false);
+    const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
+    const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleDragEnd = async (event: any) => {
-        const { active, over } = event;
-        if (active.id !== over.id) {
+        const { active, over } = event; // Ensure 'over' is not null
+        if (over && active.id !== over.id) {
             const oldIndex = pinnedCreatures.findIndex((c) => c!.id === active.id);
             const newIndex = pinnedCreatures.findIndex((c) => c!.id === over.id);
             const newOrder = arrayMove(pinnedCreatures, oldIndex, newIndex);
@@ -121,6 +158,8 @@ export function CollectionClient({
             } catch (error) {
                 console.error('Failed to save new order', error);
                 setPinnedCreatures(pinnedCreatures); // Revert on failure
+            } finally {
+                if (isReorderDialogOpen) setIsReorderDialogOpen(false);
             }
         }
     };
@@ -237,33 +276,62 @@ export function CollectionClient({
                 {/* Pinned Creatures */}
                 {pinnedCreatures.length > 0 && (
                     <div className="mb-12">
-                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                            Pinned Creatures
-                        </h2>
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={pinnedCreatures.map((c) => c!.id)}
-                                strategy={rectSortingStrategy}
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                                Pinned Creatures
+                            </h2>
+                            {isMounted && (
+                                <Button
+                                    onClick={() => setIsReorderDialogOpen(true)}
+                                    className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                >
+                                    Reorder
+                                </Button>
+                            )}
+                        </div>
+
+                        {/* Desktop: Draggable Grid */}
+                        <div className="hidden md:block">
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {pinnedCreatures.map((creature) => (
-                                        <SortableCreatureCard
-                                            key={creature!.id}
-                                            creature={creature}
-                                            allCreatures={allCreatures}
-                                            allRawPairs={allRawPairs}
-                                            allEnrichedPairs={allPairs}
-                                            allLogs={allLogs}
-                                            allGoals={allGoals}
-                                        />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
+                                <SortableContext
+                                    items={pinnedCreatures.map((c) => c!.id)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {pinnedCreatures.map((creature) => (
+                                            <SortableCreatureCard
+                                                key={creature!.id}
+                                                creature={creature}
+                                                allCreatures={allCreatures}
+                                                allRawPairs={allRawPairs}
+                                                allEnrichedPairs={allPairs}
+                                                allLogs={allLogs}
+                                                allGoals={allGoals}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        </div>
+
+                        {/* Mobile: Static Grid */}
+                        <div className="grid grid-cols-1 gap-6 md:hidden">
+                            {pinnedCreatures.map((creature) => (
+                                <CreatureCard
+                                    key={creature!.id}
+                                    creature={creature}
+                                    allCreatures={allCreatures}
+                                    allRawPairs={allRawPairs}
+                                    allEnrichedPairs={allPairs}
+                                    allLogs={allLogs}
+                                    allGoals={allGoals}
+                                />
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -306,6 +374,36 @@ export function CollectionClient({
                 <div className="flex justify-center">
                     <Pagination totalPages={totalPages} />
                 </div>
+
+                {/* Reorder Dialog for Mobile */}
+                <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
+                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                        <DialogHeader>
+                            <DialogTitle>Reorder Pinned Creatures</DialogTitle>
+                        </DialogHeader>
+                        <div className="max-h-[80vh] overflow-y-auto p-2">
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={pinnedCreatures.map((c) => c!.id)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {pinnedCreatures.map((creature) => (
+                                            <SortableCreatureImage
+                                                key={creature!.id}
+                                                creature={creature}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

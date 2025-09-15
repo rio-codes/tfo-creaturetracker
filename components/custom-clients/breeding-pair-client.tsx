@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type {
@@ -31,6 +31,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { speciesList } from '@/constants/creature-data';
 import { Search } from 'lucide-react';
@@ -50,16 +52,7 @@ type BreedingPairsClientProps = {
     };
 };
 
-function SortablePairCard({
-    pair,
-    ...props
-}: {
-    pair: EnrichedBreedingPair;
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-}) {
+function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: pair.id,
     });
@@ -67,13 +60,38 @@ function SortablePairCard({
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition,
-        zIndex: isDragging ? 10 : undefined,
+        zIndex: isDragging ? 20 : undefined,
         opacity: isDragging ? 0.8 : 1,
+        cursor: 'grab',
+    };
+
+    const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
+        if (!creature?.imageUrl) return '';
+        if (creature.updatedAt)
+            return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
+        return creature.imageUrl;
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <BreedingPairCard pair={pair} {...props} />
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-video flex items-center justify-center"
+        >
+            <div className="flex items-center gap-1">
+                <img
+                    src={getCacheBustedImageUrl(pair.maleParent)}
+                    alt={pair.maleParent!.code}
+                    className="w-1/2 object-contain bg-blue-100 p-0.5 border border-pompaca-purple rounded-md"
+                />
+                <img
+                    src={getCacheBustedImageUrl(pair.femaleParent)}
+                    alt={pair.femaleParent!.code}
+                    className="w-1/2 object-contain bg-pink-100 p-0.5 border border-pompaca-purple rounded-md"
+                />
+            </div>
         </div>
     );
 }
@@ -88,9 +106,8 @@ export function BreedingPairsClient({
     allLogs,
     searchParams,
 }: BreedingPairsClientProps) {
+    const [isMounted, setIsMounted] = useState(false);
     const [pinnedPairs, setPinnedPairs] = useState(initialPinnedPairs);
-    const router = useRouter();
-    const pathname = usePathname();
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -100,6 +117,13 @@ export function BreedingPairsClient({
         }),
         useSensor(KeyboardSensor)
     );
+    const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
@@ -119,6 +143,8 @@ export function BreedingPairsClient({
             } catch (error) {
                 console.error('Failed to save new order', error);
                 setPinnedPairs(pinnedPairs); // Revert on failure
+            } finally {
+                setIsReorderDialogOpen(false); // Close dialog after reorder
             }
         }
     };
@@ -192,32 +218,53 @@ export function BreedingPairsClient({
                     {/* Pinned Pairs */}
                     {pinnedPairs.length > 0 && (
                         <div className="mb-12">
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                                Pinned Pairs
-                            </h2>
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={pinnedPairs.map((p) => p.id)}
-                                    strategy={rectSortingStrategy}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                                    Pinned Pairs
+                                </h2>
+                                {isMounted && (
+                                    <Button
+                                        onClick={() => setIsReorderDialogOpen(true)}
+                                        className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    >
+                                        Reorder
+                                    </Button>
+                                )}
+                            </div>
+
+                            {/* Desktop: Draggable Grid */}
+                            <div className="hidden md:block">
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
                                 >
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {pinnedPairs.map((pair) => (
-                                            <SortablePairCard
-                                                key={pair.id}
-                                                pair={pair}
-                                                allCreatures={allCreatures}
-                                                allGoals={allGoals}
-                                                allPairs={allPairs}
-                                                allLogs={allLogs}
-                                            />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
+                                    <SortableContext
+                                        items={pinnedPairs.map((p) => p.id)}
+                                        strategy={rectSortingStrategy}
+                                    >
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {pinnedPairs.map((pair) => (
+                                                <SortablePairImage key={pair.id} pair={pair} />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            </div>
+
+                            {/* Mobile: Static Grid */}
+                            <div className="grid grid-cols-1 gap-6 md:hidden">
+                                {pinnedPairs.map((pair) => (
+                                    <BreedingPairCard
+                                        key={pair.id}
+                                        pair={pair}
+                                        allCreatures={allCreatures}
+                                        allGoals={allGoals}
+                                        allPairs={allPairs}
+                                        allLogs={allLogs}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -254,6 +301,33 @@ export function BreedingPairsClient({
                     <div className="mt-8 flex justify-center">
                         <Pagination totalPages={totalPages} />
                     </div>
+
+                    {/* Reorder Dialog for Mobile */}
+                    <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
+                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle>Reorder Pinned Pairs</DialogTitle>
+                            </DialogHeader>
+                            <div className="max-h-[80vh] overflow-y-auto p-2">
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={pinnedPairs.map((p) => p.id)}
+                                        strategy={rectSortingStrategy}
+                                    >
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {pinnedPairs.map((pair) => (
+                                                <SortablePairImage key={pair.id} pair={pair} />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
         </TooltipProvider>

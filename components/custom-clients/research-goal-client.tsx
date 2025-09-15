@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedResearchGoal } from '@/types';
@@ -24,6 +24,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog';
@@ -43,7 +45,7 @@ function SortableGoalCard({ goal }: { goal: EnrichedResearchGoal }) {
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition,
-        zIndex: isDragging ? 10 : undefined,
+        zIndex: isDragging ? 20 : undefined, // Higher z-index for dragging
         opacity: isDragging ? 0.8 : 1,
     };
 
@@ -54,12 +56,49 @@ function SortableGoalCard({ goal }: { goal: EnrichedResearchGoal }) {
     );
 }
 
+function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: goal.id,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 20 : undefined,
+        opacity: isDragging ? 0.8 : 1,
+        cursor: 'grab',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
+        >
+            <img
+                src={goal.imageUrl || '/images/misc/placeholder.png'}
+                alt={goal.name}
+                className="w-full h-full object-contain"
+            />
+        </div>
+    );
+}
+
 export function ResearchGoalClient({
     pinnedGoals: initialPinnedGoals,
     unpinnedGoals,
     totalPages,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
+    const [isMounted, setIsMounted] = useState(false);
+    const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -76,7 +115,7 @@ export function ResearchGoalClient({
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
-        if (active.id !== over.id) {
+        if (over && active.id !== over.id) {
             const oldIndex = pinnedGoals.findIndex((g) => g.id === active.id);
             const newIndex = pinnedGoals.findIndex((g) => g.id === over.id);
             const newOrder = arrayMove(pinnedGoals, oldIndex, newIndex);
@@ -92,6 +131,8 @@ export function ResearchGoalClient({
             } catch (error) {
                 console.error('Failed to save new order', error);
                 setPinnedGoals(pinnedGoals); // Revert on failure
+            } finally {
+                if (isReorderDialogOpen) setIsReorderDialogOpen(false);
             }
         }
     };
@@ -150,25 +191,46 @@ export function ResearchGoalClient({
                 {/* Pinned Goals */}
                 {pinnedGoals.length > 0 && (
                     <div className="mb-12">
-                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                            Pinned Goals
-                        </h2>
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={pinnedGoals.map((g) => g.id)}
-                                strategy={rectSortingStrategy}
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                                Pinned Goals
+                            </h2>
+                            {isMounted && (
+                                <Button
+                                    onClick={() => setIsReorderDialogOpen(true)}
+                                    className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                >
+                                    Reorder
+                                </Button>
+                            )}
+                        </div>
+
+                        {/* Desktop: Draggable Grid */}
+                        <div className="hidden md:block">
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {pinnedGoals.map((goal) => (
-                                        <SortableGoalCard key={goal.id} goal={goal} />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
+                                <SortableContext
+                                    items={pinnedGoals.map((g) => g.id)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {pinnedGoals.map((goal) => (
+                                            <SortableGoalCard key={goal.id} goal={goal} />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        </div>
+
+                        {/* Mobile: Static Grid */}
+                        <div className="grid grid-cols-1 gap-6 md:hidden">
+                            {pinnedGoals.map((goal) => (
+                                <ResearchGoalCard key={goal.id} goal={goal} />
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -201,6 +263,33 @@ export function ResearchGoalClient({
                 <div className="mt-8 flex justify-center">
                     <Pagination totalPages={totalPages} />
                 </div>
+
+                {/* Reorder Dialog for Mobile */}
+                <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
+                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                        <DialogHeader>
+                            <DialogTitle>Reorder Pinned Goals</DialogTitle>
+                        </DialogHeader>
+                        <div className="max-h-[80vh] overflow-y-auto p-2">
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={pinnedGoals.map((g) => g.id)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {pinnedGoals.map((goal) => (
+                                            <SortableGoalImage key={goal.id} goal={goal} />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

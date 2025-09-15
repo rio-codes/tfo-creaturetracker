@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedResearchGoal } from '@/types';
@@ -31,19 +32,16 @@ export function ResearchGoalClient({
     const pathname = usePathname();
     const { replace } = useRouter();
 
-    const handleFilterChange = useDebouncedCallback(
-        (filterName: string, value: string) => {
-            const params = new URLSearchParams(searchParams);
-            params.set('page', '1');
-            if (value && value !== 'all') {
-                params.set(filterName, value);
-            } else {
-                params.delete(filterName);
-            }
-            replace(`${pathname}?${params.toString()}`);
-        },
-        300
-    );
+    const handleFilterChange = useDebouncedCallback((filterName: string, value: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', '1');
+        if (value && value !== 'all') {
+            params.set(filterName, value);
+        } else {
+            params.delete(filterName);
+        }
+        replace(`${pathname}?${params.toString()}`);
+    }, 300);
 
     return (
         <div className="min-h-screen">
@@ -62,18 +60,14 @@ export function ResearchGoalClient({
                             placeholder="search for a goal by name..."
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={searchParams.get('query') || ''}
-                            onChange={(e) =>
-                                handleFilterChange('query', e.target.value)
-                            }
+                            onChange={(e) => handleFilterChange('query', e.target.value)}
                         />
                     </div>
 
                     {/* Species Filter */}
                     <Select
                         defaultValue={searchParams.get('species') || 'all'}
-                        onValueChange={(value) =>
-                            handleFilterChange('species', value)
-                        }
+                        onValueChange={(value) => handleFilterChange('species', value)}
                     >
                         <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue />
@@ -102,8 +96,7 @@ export function ResearchGoalClient({
                             No Goals Found
                         </h2>
                         <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                            Try adjusting your search or filter, or create a new
-                            goal.
+                            Try adjusting your search or filter, or create a new goal.
                         </p>
                     </div>
                 )}

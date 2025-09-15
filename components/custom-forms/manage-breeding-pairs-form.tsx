@@ -58,15 +58,13 @@ export function ManageBreedingPairsForm({
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
 
-    const existingPairs = useMemo(
-        () =>
-            allPairs.filter(
-                (p) =>
-                    p?.maleParent?.id === baseCreature?.id ||
-                    p?.femaleParent?.id === baseCreature?.id
-            ),
-        [allPairs, baseCreature]
-    );
+    const existingPairs = useMemo(() => {
+        if (!allPairs) return [];
+        return allPairs.filter(
+            (p) =>
+                p?.maleParent?.id === baseCreature?.id || p?.femaleParent?.id === baseCreature?.id
+        );
+    }, [allPairs, baseCreature]);
 
     // Filter suitable mates and goals
     const suitableMates = useMemo(() => {

@@ -93,7 +93,15 @@ export function CollectionClient({
     const pathname = usePathname();
     const { replace } = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures);
-    const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor)
+    );
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;

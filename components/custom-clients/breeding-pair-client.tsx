@@ -91,7 +91,15 @@ export function BreedingPairsClient({
     const [pinnedPairs, setPinnedPairs] = useState(initialPinnedPairs);
     const router = useRouter();
     const pathname = usePathname();
-    const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor)
+    );
 
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;

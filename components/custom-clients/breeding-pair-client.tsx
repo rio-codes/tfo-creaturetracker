@@ -13,7 +13,6 @@ import type {
 import {
     DndContext,
     closestCenter,
-    KeyboardSensor,
     MouseSensor,
     TouchSensor,
     useSensor,
@@ -156,8 +155,7 @@ export function BreedingPairsClient({
                 delay: 250,
                 tolerance: 5,
             },
-        }),
-        useSensor(KeyboardSensor)
+        })
     );
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
     const router = useRouter();

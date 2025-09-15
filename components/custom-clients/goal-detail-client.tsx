@@ -161,25 +161,21 @@ export function GoalDetailClient({
                     <ShareGoalButton goal={goal} />
                 </div>
                 <div className="mt-5">
-                    {/* Desktop: Info on the badge itself */}
-                    <div className="hidden md:flex items-center gap-2">
+                    {/* Desktop: Info on the badge itself. No separate icon. */}
+                    <div className="hidden items-center gap-2 md:flex">
                         <InfoDisplay
                             trigger={<GoalModeSwitcher goal={goal} />}
                             content={goalModeInfoContent}
                         />
-                        <EditGoalDialog
-                            goal={goal}
-                            isAdminView={false}
-                            variant="detail"
-                        ></EditGoalDialog>
+                        <EditGoalDialog goal={goal} isAdminView={false} variant="detail" />
                     </div>
 
-                    {/* Mobile: Badge + separate info icon */}
+                    {/* Mobile: Badge is separate from the info icon. */}
                     <div className="flex items-center gap-2 md:hidden">
                         <GoalModeSwitcher goal={goal} />
                         <InfoDisplay
                             trigger={
-                                <Info className="h-5 w-5 dark:text-barely-lilac text-pompaca-purple cursor-pointer" />
+                                <Info className="h-5 w-5 cursor-pointer text-pompaca-purple dark:text-barely-lilac" />
                             }
                             content={goalModeInfoContent}
                         />

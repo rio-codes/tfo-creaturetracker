@@ -27,7 +27,6 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { InfoDisplay } from '../misc-custom-components/info-display';
 
 type AmbiguousCategory = {
     category: string;
@@ -127,46 +126,21 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
     return (
         <>
             <AlertDialog>
-                <InfoDisplay
-                    trigger={
-                        <AlertDialogTrigger asChild>
-                            <Badge
-                                className={
-                                    goal?.goalMode === 'genotype'
-                                        ? 'h-14 p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md dark:bg-purple-400 rounded-md border-2 border-pompaca-purple w-fit'
-                                        : 'h-13 p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit'
-                                }
-                            >
-                                <span>
-                                    {goal?.goalMode === 'genotype'
-                                        ? '🧬 Genotype Mode'
-                                        : '🪶 Phenotype Mode'}
-                                </span>
-                            </Badge>
-                        </AlertDialogTrigger>
-                    }
-                    content={
-                        <>
-                            <h4 className="font-bold mb-1">
-                                {goal?.goalMode === 'genotype' ? 'Genotype Mode' : 'Phenotype Mode'}
-                            </h4>
-                            {goal?.goalMode === 'genotype' ? (
-                                <p>
-                                    <b>Click to switch mode.</b> Genotype mode calculates odds for
-                                    achieving an exact genetic code. Match scores will be much
-                                    lower. For advanced users aiming for specific breeding outcomes.
-                                </p>
-                            ) : (
-                                <p>
-                                    <b>Click to switch mode.</b> Phenotype mode calculates odds
-                                    based on achieving a desired look (e.g., "Steppes"), accepting
-                                    any genotype that produces it. Recommended for most users. Match
-                                    scores will be higher and "possible" goals more common.
-                                </p>
-                            )}
-                        </>
-                    }
-                />
+                <AlertDialogTrigger asChild>
+                    <Badge
+                        className={
+                            goal?.goalMode === 'genotype'
+                                ? 'h-auto cursor-pointer p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md dark:bg-purple-400 rounded-md border-2 border-pompaca-purple w-fit'
+                                : 'h-auto cursor-pointer p-2 text-pompaca-purple capitalize text-center text-sm drop-shadow-md bg-dna-teal/60 rounded-md border-2 border-pompaca-purple w-fit'
+                        }
+                    >
+                        <span>
+                            {goal?.goalMode === 'genotype'
+                                ? '🧬 Genotype Mode'
+                                : '🪶 Phenotype Mode'}
+                        </span>
+                    </Badge>
+                </AlertDialogTrigger>
                 <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Switch to {newMode} mode?</AlertDialogTitle>

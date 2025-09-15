@@ -9,16 +9,23 @@ type Props = {
 
 export function SharedGoalHeader({ goal }: Props) {
     const goalModeInfoContent = (
-        <div className="p-2 max-w-xs dark:text-barely-lilac text-pompaca-purple">
+        <div className="p-2 max-w-xs text-barely-lilac">
             <h4 className="font-bold mb-2 border-b pb-1">Goal Modes</h4>
             <div className="space-y-3 mt-2">
                 <div>
                     <p className="font-semibold">🧬 Genotype Mode</p>
-                    <p className="text-sm">Calculates odds for achieving an exact genetic code.</p>
+                    <p className="text-sm">
+                        Calculates odds for achieving an exact genetic code. Match scores will be
+                        much lower. For advanced users aiming for specific breeding outcomes.
+                    </p>
                 </div>
                 <div>
                     <p className="font-semibold">🪶 Phenotype Mode</p>
-                    <p className="text-sm">Calculates odds based on achieving a desired look.</p>
+                    <p className="text-sm">
+                        Calculates odds based on achieving a desired look (e.g., "Steppes"),
+                        accepting any genotype that produces it. Match scores will be higher and
+                        "possible" goals more common. Recommended for most users.
+                    </p>
                 </div>
             </div>
         </div>

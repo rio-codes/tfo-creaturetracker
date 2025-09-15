@@ -33,11 +33,7 @@ type GoalFormProps = {
     isAdminView?: boolean;
 };
 
-export function GoalForm({
-    goal,
-    onSuccess,
-    isAdminView = false,
-}: GoalFormProps) {
+export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps) {
     const router = useRouter();
     const isEditMode = !!goal;
 
@@ -51,9 +47,7 @@ export function GoalForm({
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState('');
-    const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(
-        goal?.imageUrl || null
-    );
+    const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(goal?.imageUrl || null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [_previewError, setPreviewError] = useState('');
 
@@ -62,51 +56,38 @@ export function GoalForm({
         if (!species || !structuredGeneData[species]) return {};
         const optionsByCat: { [key: string]: GeneOption[] } = {};
 
-        for (const [category, genes] of Object.entries(
-            structuredGeneData[species]
-        )) {
+        for (const [category, genes] of Object.entries(structuredGeneData[species])) {
             if (goalMode === 'genotype') {
                 const phenotypeMap = new Map<string, string[]>();
-                (genes as { genotype: string; phenotype: string }[]).forEach(
+                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                    const existing = phenotypeMap.get(gene.phenotype) || [];
+                    phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
+                });
+
+                optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
                     (gene) => {
-                        const existing = phenotypeMap.get(gene.phenotype) || [];
-                        phenotypeMap.set(gene.phenotype, [
-                            ...existing,
-                            gene.genotype,
-                        ]);
+                        const genotypesForPhenotype = phenotypeMap.get(gene.phenotype) || [];
+                        return {
+                            value: gene.genotype,
+                            display:
+                                category === 'Gender'
+                                    ? gene.genotype
+                                    : `${gene.genotype} (${gene.phenotype})`,
+                            selection: {
+                                phenotype: gene.phenotype,
+                                genotype: gene.genotype,
+                                isMultiGenotype: genotypesForPhenotype.length > 1,
+                            },
+                        };
                     }
                 );
-
-                optionsByCat[category] = (
-                    genes as { genotype: string; phenotype: string }[]
-                ).map((gene) => {
-                    const genotypesForPhenotype =
-                        phenotypeMap.get(gene.phenotype) || [];
-                    return {
-                        value: gene.genotype,
-                        display:
-                            category === 'Gender'
-                                ? gene.genotype
-                                : `${gene.genotype} (${gene.phenotype})`,
-                        selection: {
-                            phenotype: gene.phenotype,
-                            genotype: gene.genotype,
-                            isMultiGenotype: genotypesForPhenotype.length > 1,
-                        },
-                    };
-                });
             } else {
                 // PHENOTYPE MODE
                 const phenotypeMap = new Map<string, string[]>();
-                (genes as { genotype: string; phenotype: string }[]).forEach(
-                    (gene) => {
-                        const existing = phenotypeMap.get(gene.phenotype) || [];
-                        phenotypeMap.set(gene.phenotype, [
-                            ...existing,
-                            gene.genotype,
-                        ]);
-                    }
-                );
+                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                    const existing = phenotypeMap.get(gene.phenotype) || [];
+                    phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
+                });
 
                 optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
                     ([phenotype, genotypes]) => {
@@ -157,9 +138,8 @@ export function GoalForm({
                     let defaultOption = options[0];
                     if (category === 'Gender') {
                         defaultOption =
-                            options.find(
-                                (opt) => opt.selection.genotype === 'Female'
-                            ) || options[0];
+                            options.find((opt) => opt.selection.genotype === 'Female') ||
+                            options[0];
                     }
                     // Add the missing isOptional flag
                     defaultSelections[category] = {
@@ -175,9 +155,7 @@ export function GoalForm({
 
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
-        const selectedOption = options?.find(
-            (opt) => opt.value === selectedValue
-        );
+        const selectedOption = options?.find((opt) => opt.value === selectedValue);
         if (selectedOption) {
             setSelectedGenes((prev) => ({
                 ...prev,
@@ -208,9 +186,7 @@ export function GoalForm({
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        const apiUrl = isEditMode
-            ? `/api/research-goals/${goal.id}`
-            : '/api/research-goals';
+        const apiUrl = isEditMode ? `/api/research-goals/${goal.id}` : '/api/research-goals';
         const apiMethod = isEditMode ? 'PATCH' : 'POST';
         try {
             const payload = { name, species, genes: selectedGenes, goalMode };
@@ -222,11 +198,15 @@ export function GoalForm({
             const data = await response.json();
             if (!response.ok)
                 throw new Error(
-                    data.error ||
-                        `Failed to ${isEditMode ? 'update' : 'create'} goal.`
+                    data.error || `Failed to ${isEditMode ? 'update' : 'create'} goal.`
                 );
-            router.refresh();
-            onSuccess();
+
+            onSuccess(); // Close dialog
+            router.refresh(); // Re-fetch data for current route
+
+            if (!isEditMode && data.goal?.id) {
+                router.push(`/research-goals/${data.goal.id}`);
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -236,12 +216,7 @@ export function GoalForm({
 
     // delete goal via api
     const handleDelete = async () => {
-        if (
-            !window.confirm(
-                `Are you sure you want to delete the goal "${goal?.name}"?`
-            )
-        )
-            return;
+        if (!window.confirm(`Are you sure you want to delete the goal "${goal?.name}"?`)) return;
         setIsDeleting(true);
         setError('');
         try {
@@ -291,9 +266,7 @@ export function GoalForm({
             if (newSelectedGenes[category].isOptional) {
                 const options = geneOptions[category];
                 if (options && options.length > 0) {
-                    const randomIndex = Math.floor(
-                        Math.random() * options.length
-                    );
+                    const randomIndex = Math.floor(Math.random() * options.length);
                     const randomOption = options[randomIndex];
                     newSelectedGenes[category] = {
                         ...randomOption.selection,
@@ -316,9 +289,7 @@ export function GoalForm({
                 <Label>Goal Mode</Label>
                 <RadioGroup
                     value={goalMode}
-                    onValueChange={(value) =>
-                        setGoalMode(value as 'genotype' | 'phenotype')
-                    }
+                    onValueChange={(value) => setGoalMode(value as 'genotype' | 'phenotype')}
                     className="flex space-x-4"
                 >
                     <div className="flex items-center space-x-2">
@@ -354,11 +325,7 @@ export function GoalForm({
             {/* species and gene selectors */}
             <div className="space-y-2 mb-3">
                 <Label htmlFor="species-select">Species</Label>
-                <Select
-                    value={species}
-                    onValueChange={(value) => setSpecies(value)}
-                    required
-                >
+                <Select value={species} onValueChange={(value) => setSpecies(value)} required>
                     <SelectTrigger
                         id="species-select"
                         className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-barely-lilac"
@@ -389,10 +356,8 @@ export function GoalForm({
                             {geneCategories.map((category) => {
                                 const selectedValue =
                                     goalMode === 'phenotype'
-                                        ? selectedGenes[category]?.phenotype ||
-                                          ''
-                                        : selectedGenes[category]?.genotype ||
-                                          '';
+                                        ? selectedGenes[category]?.phenotype || ''
+                                        : selectedGenes[category]?.genotype || '';
 
                                 const options = geneOptions[category] || [];
                                 return (
@@ -406,10 +371,7 @@ export function GoalForm({
                                         <Select
                                             value={selectedValue}
                                             onValueChange={(value) =>
-                                                handleGeneChange(
-                                                    category,
-                                                    value
-                                                )
+                                                handleGeneChange(category, value)
                                             }
                                         >
                                             <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
@@ -429,13 +391,8 @@ export function GoalForm({
                                             </SelectContent>
                                         </Select>
                                         <Checkbox
-                                            checked={
-                                                selectedGenes[category]
-                                                    ?.isOptional || false
-                                            }
-                                            onCheckedChange={() =>
-                                                handleOptionalToggle(category)
-                                            }
+                                            checked={selectedGenes[category]?.isOptional || false}
+                                            onCheckedChange={() => handleOptionalToggle(category)}
                                             className="mr-2"
                                         />
                                     </div>
@@ -461,9 +418,7 @@ export function GoalForm({
                         onClick={handlePreview}
                         disabled={isPreviewLoading || !species}
                     >
-                        {isPreviewLoading ? (
-                            <Loader2 className="animate-spin mr-2" />
-                        ) : null}
+                        {isPreviewLoading ? <Loader2 className="animate-spin mr-2" /> : null}
                         Preview Image
                     </Button>
                     <Button
@@ -511,11 +466,7 @@ export function GoalForm({
                         disabled={isLoading}
                         className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                     >
-                        {isLoading
-                            ? 'Saving...'
-                            : isEditMode
-                              ? 'Save Changes'
-                              : 'Create Goal'}
+                        {isLoading ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create Goal'}
                     </Button>
                 </div>
             </div>

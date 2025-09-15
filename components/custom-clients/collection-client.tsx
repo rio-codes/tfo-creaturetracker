@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
@@ -9,9 +9,9 @@ import type { DbBreedingLogEntry } from '@/types';
 import {
     DndContext,
     closestCenter,
-    KeyboardSensor,
     MouseSensor,
     TouchSensor,
+    KeyboardSensor as DndKitKeyboardSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -20,13 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import * as select from '@/components/ui/select';
 import {
     Dialog,
     DialogContent,
@@ -49,6 +43,28 @@ type CollectionClientProps = {
     allLogs: DbBreedingLogEntry[];
     allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[];
+};
+
+// Custom Keyboard Sensor to ignore events from input fields
+const CustomKeyboardSensor = (props: any) => {
+    const sensor = useSensor(DndKitKeyboardSensor, {
+        ...props,
+        keyboardCodes: {
+            start: ['Space', 'Enter'],
+            cancel: ['Escape'],
+            move: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
+        },
+        shouldHandleEvent: (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement;
+            return !(
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA' ||
+                target.tagName === 'SELECT' ||
+                target.isContentEditable
+            );
+        },
+    });
+    return sensor;
 };
 
 function SortableCreatureCard({
@@ -141,7 +157,7 @@ export function CollectionClient({
                 tolerance: 5,
             },
         }),
-        useSensor(KeyboardSensor)
+        useSensor(CustomKeyboardSensor)
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
@@ -250,55 +266,55 @@ export function CollectionClient({
                     </div>
 
                     {/* Gender Filters */}
-                    <Select
+                    <select.Select
                         defaultValue={searchParams.get('gender') || 'all'}
                         onValueChange={(value) => handleFilterChange('gender', value)}
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
-                            <SelectValue placeholder="Filter by gender..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">All Genders</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="male">Male</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        <select.SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
+                            <select.SelectValue placeholder="Filter by gender..." />
+                        </select.SelectTrigger>
+                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectItem value="all">All Genders</select.SelectItem>
+                            <select.SelectItem value="female">Female</select.SelectItem>
+                            <select.SelectItem value="male">Male</select.SelectItem>
+                        </select.SelectContent>
+                    </select.Select>
 
                     {/* Stage Filter */}
-                    <Select
+                    <select.Select
                         value={currentStage}
                         onValueChange={(e) => handleFilterChange('stage', e)}
                     >
-                        <SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                            <SelectValue placeholder="Filter by stage..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">All Stages</SelectItem>
-                            <SelectItem value="capsule">Capsule</SelectItem>
-                            <SelectItem value="juvenile">Juvenile</SelectItem>
-                            <SelectItem value="adult">Adult</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        <select.SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                            <select.SelectValue placeholder="Filter by stage..." />
+                        </select.SelectTrigger>
+                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectItem value="all">All Stages</select.SelectItem>
+                            <select.SelectItem value="capsule">Capsule</select.SelectItem>
+                            <select.SelectItem value="juvenile">Juvenile</select.SelectItem>
+                            <select.SelectItem value="adult">Adult</select.SelectItem>
+                        </select.SelectContent>
+                    </select.Select>
 
                     {/* Species Filter */}
-                    <Select
+                    <select.Select
                         value={currentSpecies}
                         onValueChange={(value) => handleFilterChange('species', value)}
                     >
-                        <SelectTrigger className="w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                            <SelectValue placeholder="Filter by species..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <SelectItem value="all">All Species</SelectItem>
+                        <select.SelectTrigger className="w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                            <select.SelectValue placeholder="Filter by species..." />
+                        </select.SelectTrigger>
+                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectItem value="all">All Species</select.SelectItem>
                             {speciesList.map((species) => {
                                 return (
-                                    <SelectItem key={species} value={species}>
+                                    <select.SelectItem key={species} value={species}>
                                         {species}
-                                    </SelectItem>
+                                    </select.SelectItem>
                                 );
                             })}
-                        </SelectContent>
-                    </Select>
+                        </select.SelectContent>
+                    </select.Select>
                 </div>
                 {/* Pinned Creatures */}
                 {pinnedCreatures.length > 0 && (

@@ -349,8 +349,6 @@ export function CreatureCard({
                                 allCreatures={allCreatures}
                                 allPairs={allEnrichedPairs}
                                 allGoals={allGoals}
-                                allRawPairs={allRawPairs as any}
-                                allLogs={allLogs}
                             >
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight ">
                                     <span className="w-28 text-wrap wrap-normal flex-wrap">
@@ -361,7 +359,7 @@ export function CreatureCard({
                             <LogAsProgenyDialog
                                 creature={creature}
                                 allCreatures={allCreatures}
-                                allEnrichedPairs={allEnrichedPairs!}
+                                allEnrichedPairs={allEnrichedPairs}
                                 allLogs={allLogs}
                             >
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">

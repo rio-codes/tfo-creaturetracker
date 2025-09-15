@@ -23,7 +23,7 @@ export default async function CollectionPage({
     };
 }) {
     const [
-        { pinnedCreatures, unpinnedCreatures, totalPages },
+        { creatures: paginatedCreatures, totalPages, pinnedCreatures, unpinnedCreatures },
         allRawPairs,
         allCreatures,
         allPairs,
@@ -43,9 +43,10 @@ export default async function CollectionPage({
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
-                        pinnedCreatures={pinnedCreatures}
-                        unpinnedCreatures={unpinnedCreatures}
                         totalPages={totalPages}
+                        initialCreatures={paginatedCreatures}
+                        pinnedCreatures={pinnedCreatures || []}
+                        unpinnedCreatures={unpinnedCreatures || []}
                         allCreatures={allCreatures}
                         allRawPairs={allRawPairs}
                         allPairs={allPairs}

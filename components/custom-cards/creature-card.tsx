@@ -22,10 +22,13 @@ import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
-    allCreatures?: EnrichedCreature[];
+    pinnedCreatures: EnrichedCreature[];
+    unpinnedCreatures: EnrichedCreature[];
+    totalPages: number;
+    allCreatures: EnrichedCreature[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     allEnrichedPairs?: EnrichedBreedingPair[];
-    allRawPairs?: DbBreedingPair[];
-    allLogs?: DbBreedingLogEntry[];
     allGoals?: EnrichedResearchGoal[];
     isAdminView?: boolean;
 }
@@ -62,7 +65,7 @@ const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) =
 export function CreatureCard({
     creature,
     allCreatures,
-    allEnrichedPairs,
+    allEnrichedPairs: allPairs,
     allRawPairs,
     allLogs,
     allGoals,
@@ -77,10 +80,10 @@ export function CreatureCard({
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const parentPair = useMemo(() => {
-        if (isAdminView || !allEnrichedPairs) return undefined;
-        return allEnrichedPairs.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id));
-    }, [allEnrichedPairs, creature.id, isAdminView]);
+    const parentPair = useMemo(
+        () => allPairs?.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id)),
+        [allPairs, creature.id]
+    );
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -340,18 +343,20 @@ export function CreatureCard({
                     </ScrollArea>
                 </div>
             </CardContent>
-            <CardFooter className="flex flex-col items-center justify-center p-2 pt-0">
-                <div className="flex min-w-0 gap-2 justify-center text-sm">
-                    {!isAdminView && allCreatures && allEnrichedPairs && allLogs && allGoals && (
+            <CardFooter className="flex-col">
+                <div className="flex w-full gap-2 justify-center text-sm">
+                    {!isAdminView && allCreatures && allPairs && allLogs && allGoals && (
                         <>
                             <ManageBreedingPairsDialog
                                 baseCreature={creature}
                                 allCreatures={allCreatures}
-                                allPairs={allEnrichedPairs}
+                                allPairs={allPairs}
                                 allGoals={allGoals}
+                                allRawPairs={allRawPairs}
+                                allLogs={allLogs}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight ">
-                                    <span className="w-28 text-wrap wrap-normal flex-wrap">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                    <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
@@ -359,11 +364,11 @@ export function CreatureCard({
                             <LogAsProgenyDialog
                                 creature={creature}
                                 allCreatures={allCreatures}
-                                allEnrichedPairs={allEnrichedPairs}
+                                allEnrichedPairs={allPairs}
                                 allLogs={allLogs}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
-                                    <span className="w-28 text-wrap wrap-normal">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                    <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny
                                     </span>
                                 </Button>
@@ -372,27 +377,29 @@ export function CreatureCard({
                     )}
                     <Button
                         onClick={handleRemoveFromCollection}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
                         disabled={isDeleting}
                     >
                         {isDeleting ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                            <span className="w-28 text-wrap wrap-normal">
+                            <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
                                 Remove from Collection
                             </span>
                         )}
                     </Button>
                 </div>
-                <Link
-                    href={`https://finaloutpost.net/view/${creature!.code}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <span className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-2 hover:underline">
-                        View on TFO
-                    </span>
-                </Link>
+                <div>
+                    <Link
+                        href={`https://finaloutpost.net/view/${creature!.code}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-2 hover:underline">
+                            View on TFO
+                        </span>
+                    </Link>
+                </div>
             </CardFooter>
         </Card>
     );

@@ -2,6 +2,8 @@ import {
     fetchGoalDetailsAndPredictions,
     getAllCreaturesForUser,
     getAllBreedingPairsForUser,
+    getAllRawBreedingPairsForUser,
+    getAllBreedingLogEntriesForUser,
 } from '@/lib/data';
 import { GoalDetailClient } from '@/components/custom-clients/goal-detail-client';
 import { Suspense } from 'react';
@@ -18,7 +20,13 @@ export default async function GoalDetailPage(props: PageProps) {
     const { goalId } = params;
     const { goal, predictions } = await fetchGoalDetailsAndPredictions(goalId);
     const allCreaturesData = await getAllCreaturesForUser();
-    const allPairsData = await getAllBreedingPairsForUser();
+
+    // Fetch all data in parallel for better performance
+    const [allPairsData, allRawPairsData, allLogsData] = await Promise.all([
+        getAllBreedingPairsForUser(),
+        getAllRawBreedingPairsForUser(),
+        getAllBreedingLogEntriesForUser(),
+    ]);
 
     if (!goal) {
         notFound();
@@ -32,7 +40,9 @@ export default async function GoalDetailPage(props: PageProps) {
                         goal={goal!}
                         initialPredictions={predictions!}
                         allCreatures={allCreaturesData}
-                        allPairs={allPairsData}
+                        allPairs={allPairsData!}
+                        allRawPairs={allRawPairsData!}
+                        allLogs={allLogsData}
                     />
                 </Suspense>
             </div>

@@ -1,6 +1,6 @@
 import {
     fetchFilteredCreatures,
-    getAllCreaturesForUser,
+    getAllEnrichedCreaturesForUser,
     getAllBreedingPairsForUser,
     getAllResearchGoalsForUser,
     getAllBreedingLogEntriesForUser,
@@ -23,20 +23,26 @@ export default async function CollectionPage({
     };
 }) {
     const [
-        { creatures: paginatedCreatures, totalPages, pinnedCreatures, unpinnedCreatures },
         allRawPairs,
-        allCreatures,
-        allPairs,
-        allGoals,
+        allEnrichedCreatures,
+        allEnrichedPairs,
+        filteredData,
+        allEnrichedGoals,
         allLogs,
     ] = await Promise.all([
-        fetchFilteredCreatures(searchParams),
         getAllRawBreedingPairsForUser(),
-        getAllCreaturesForUser(),
+        getAllEnrichedCreaturesForUser(),
         getAllBreedingPairsForUser(),
+        fetchFilteredCreatures(searchParams),
         getAllResearchGoalsForUser(),
         getAllBreedingLogEntriesForUser(),
     ]);
+
+    const { pinnedCreatures, unpinnedCreatures, totalPages } = filteredData || {
+        pinnedCreatures: [],
+        unpinnedCreatures: [],
+        totalPages: 0,
+    };
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen inset-shadow-sm inset-shadow-gray-700">
@@ -44,13 +50,12 @@ export default async function CollectionPage({
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
                         totalPages={totalPages}
-                        initialCreatures={paginatedCreatures}
                         pinnedCreatures={pinnedCreatures || []}
                         unpinnedCreatures={unpinnedCreatures || []}
-                        allCreatures={allCreatures}
                         allRawPairs={allRawPairs}
-                        allPairs={allPairs}
-                        allGoals={allGoals}
+                        allEnrichedCreatures={allEnrichedCreatures}
+                        allEnrichedPairs={allEnrichedPairs}
+                        allEnrichedGoals={allEnrichedGoals}
                         allLogs={allLogs}
                     />
                 </Suspense>

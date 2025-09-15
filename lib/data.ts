@@ -725,3 +725,19 @@ export async function fetchAndUploadWithRetry(
     }
     throw new Error('Upload failed after all retries.');
 }
+export async function getAllEnrichedCreaturesForUser(): Promise<EnrichedCreature[]> {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+    try {
+        const fetchedCreatures = await db.query.creatures.findMany({
+            where: eq(creatures.userId, userId),
+        });
+        return fetchedCreatures.map(enrichAndSerializeCreature);
+    } catch (error) {
+        Sentry.captureException(error, {
+            extra: { context: 'Failed to fetch all enriched creatures.' },
+        });
+        return [];
+    }
+}

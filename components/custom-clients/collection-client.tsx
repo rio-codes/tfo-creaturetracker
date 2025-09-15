@@ -11,7 +11,6 @@ import {
     closestCenter,
     MouseSensor,
     TouchSensor,
-    KeyboardSensor as DndKitKeyboardSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -38,46 +37,26 @@ type CollectionClientProps = {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allCreatures: EnrichedCreature[];
+    allEnrichedCreatures: EnrichedCreature[];
     allRawPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
-    allPairs: EnrichedBreedingPair[];
-    allGoals: EnrichedResearchGoal[];
+    allEnrichedPairs: EnrichedBreedingPair[];
+    allEnrichedGoals: EnrichedResearchGoal[];
 };
 
-// Custom Keyboard Sensor to ignore events from input fields
-const CustomKeyboardSensor = (props: any) => {
-    const sensor = useSensor(DndKitKeyboardSensor, {
-        ...props,
-        keyboardCodes: {
-            start: ['Space', 'Enter'],
-            cancel: ['Escape'],
-            move: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
-        },
-        shouldHandleEvent: (event: KeyboardEvent) => {
-            const target = event.target as HTMLElement;
-            return !(
-                target.tagName === 'INPUT' ||
-                target.tagName === 'TEXTAREA' ||
-                target.tagName === 'SELECT' ||
-                target.isContentEditable
-            );
-        },
-    });
-    return sensor;
-};
-
-function SortableCreatureCard({
-    creature,
-    ...props
-}: {
+function SortableCreatureCard(props: {
     creature: EnrichedCreature;
+    pinnedCreatures: EnrichedCreature[];
+    unpinnedCreatures: EnrichedCreature[];
+    totalPages: number;
     allCreatures: EnrichedCreature[];
     allRawPairs: DbBreedingPair[];
     allEnrichedPairs: EnrichedBreedingPair[];
     allLogs: DbBreedingLogEntry[];
     allGoals: EnrichedResearchGoal[];
+    _isAdminView?: boolean;
 }) {
+    const { creature, ...restProps } = props;
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: creature!.id,
     });
@@ -91,14 +70,7 @@ function SortableCreatureCard({
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <CreatureCard
-                creature={creature}
-                allCreatures={props.allCreatures}
-                allRawPairs={props.allRawPairs}
-                allEnrichedPairs={props.allEnrichedPairs}
-                allLogs={props.allLogs}
-                allGoals={props.allGoals}
-            />
+            <CreatureCard creature={creature} {...restProps} />
         </div>
     );
 }
@@ -135,13 +107,13 @@ function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
 
 export function CollectionClient({
     pinnedCreatures: initialPinnedCreatures,
-    unpinnedCreatures,
+    unpinnedCreatures: initialUnpinnedCreatures,
     totalPages,
-    allCreatures,
-    allPairs,
+    allEnrichedCreatures: allCreatures,
     allRawPairs,
     allLogs,
-    allGoals,
+    allEnrichedPairs: allPairs,
+    allEnrichedGoals: allGoals,
 }: CollectionClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -156,23 +128,19 @@ export function CollectionClient({
                 delay: 250,
                 tolerance: 5,
             },
-        }),
-        useSensor(CustomKeyboardSensor as any)
+        })
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-    const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures);
+    const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
+    const [unpinnedCreatures, _setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    useEffect(() => {
-        setPinnedCreatures(initialPinnedCreatures);
-    }, [initialPinnedCreatures]);
 
     const handleDragStart = (event: any) => {
         // Provide haptic feedback on mobile devices when a drag starts.
@@ -349,12 +317,16 @@ export function CollectionClient({
                                         {pinnedCreatures.map((creature) => (
                                             <SortableCreatureCard
                                                 key={creature!.id}
+                                                pinnedCreatures={pinnedCreatures}
+                                                unpinnedCreatures={unpinnedCreatures}
+                                                totalPages={totalPages}
                                                 creature={creature}
                                                 allCreatures={allCreatures}
                                                 allRawPairs={allRawPairs}
                                                 allEnrichedPairs={allPairs}
                                                 allLogs={allLogs}
                                                 allGoals={allGoals}
+                                                _isAdminView={false}
                                             />
                                         ))}
                                     </div>
@@ -367,6 +339,9 @@ export function CollectionClient({
                             {pinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
+                                    pinnedCreatures={pinnedCreatures}
+                                    unpinnedCreatures={unpinnedCreatures}
+                                    totalPages={totalPages}
                                     creature={creature}
                                     allCreatures={allCreatures}
                                     allRawPairs={allRawPairs}
@@ -389,6 +364,9 @@ export function CollectionClient({
                             {unpinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
+                                    pinnedCreatures={pinnedCreatures}
+                                    unpinnedCreatures={unpinnedCreatures}
+                                    totalPages={totalPages}
                                     creature={creature}
                                     allCreatures={allCreatures}
                                     allRawPairs={allRawPairs}
@@ -402,17 +380,16 @@ export function CollectionClient({
                 )}
 
                 {pinnedCreatures.length === 0 && unpinnedCreatures.length === 0 ? (
-                    <>
-                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300"></h2>
-                            <p>Try adjusting your filters or use the button above</p> No Creatures
-                            Found
-                            <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                                Try adjusting your filters or use the button above to sync your
-                                collection.
-                            </p>
-                        </div>
-                    </>
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300"></h2>
+                        <p className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
+                            No Creatures Found
+                        </p>
+                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                            Try adjusting your filters or use the button above to sync your
+                            collection.
+                        </p>
+                    </div>
                 ) : null}
                 {/* Pagination */}
                 <div className="flex justify-center">

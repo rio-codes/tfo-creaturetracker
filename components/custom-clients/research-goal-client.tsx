@@ -7,7 +7,6 @@ import type { EnrichedResearchGoal } from '@/types';
 import {
     DndContext,
     closestCenter,
-    KeyboardSensor,
     MouseSensor,
     TouchSensor,
     useSensor,
@@ -127,8 +126,7 @@ export function ResearchGoalClient({
                 delay: 250,
                 tolerance: 5,
             },
-        }),
-        useSensor(KeyboardSensor)
+        })
     );
 
     const handleDragStart = (event: any) => {

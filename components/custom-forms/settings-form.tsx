@@ -19,9 +19,7 @@ export function SettingsForm({ user }: { user: User }) {
     const [email, setEmail] = useState(user.email);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [collectionItems, setCollectionItems] = useState(
-        user.collectionItemsPerPage
-    );
+    const [collectionItems, setCollectionItems] = useState(user.collectionItemsPerPage);
     const [goalsItems, setGoalsItems] = useState(user.goalsItemsPerPage);
     const [pairsItems, setPairsItems] = useState(user.pairsItemsPerPage);
     const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +61,19 @@ export function SettingsForm({ user }: { user: User }) {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok)
-                setError('Failed to update settings. ' + data.error);
+            if (!response.ok) setError('Failed to update settings. ' + data.error);
 
             setSuccessMessage(data.message);
-            if (email !== user.email) await updateSession({ user: { email } }); // Session update for theme is not needed
+
+            // The session needs to be updated with any changed data.
+            const sessionUpdatePayload: { theme?: string; user?: { email: string } } = {};
+            sessionUpdatePayload.theme = theme; // Always update theme in session
+
+            if (email !== user.email) {
+                sessionUpdatePayload.user = { email };
+            }
+
+            await updateSession(sessionUpdatePayload);
             router.refresh();
         } catch (err: any) {
             setError(err.message);
@@ -101,24 +107,18 @@ export function SettingsForm({ user }: { user: User }) {
                                     id="password"
                                     type="password"
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Leave blank to keep current"
                                     className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">
-                                    Confirm New Password
-                                </Label>
+                                <Label htmlFor="confirmPassword">Confirm New Password</Label>
                                 <Input
                                     id="confirmPassword"
                                     type="password"
                                     value={confirmPassword}
-                                    onChange={(e) =>
-                                        setConfirmPassword(e.target.value)
-                                    }
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
                                     className="bg-barely-lilac dark:bg-midnight-purple"
                                 />
                             </div>
@@ -128,9 +128,7 @@ export function SettingsForm({ user }: { user: User }) {
 
                 {/* Preferences Section */}
                 <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
-                    <h2 className="text-2xl font-bold text-pompaca-purple mb-4">
-                        Preferences
-                    </h2>
+                    <h2 className="text-2xl font-bold text-pompaca-purple mb-4">Preferences</h2>
                     <div className="space-y-2 mb-6">
                         <Label className="text-lg">Theme</Label>
                         {!mounted ? (
@@ -143,31 +141,19 @@ export function SettingsForm({ user }: { user: User }) {
                             >
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="light" id="light" />
-                                    <Label
-                                        htmlFor="light"
-                                        className="font-normal"
-                                    >
+                                    <Label htmlFor="light" className="font-normal">
                                         Light
                                     </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="dark" id="dark" />
-                                    <Label
-                                        htmlFor="dark"
-                                        className="font-normal"
-                                    >
+                                    <Label htmlFor="dark" className="font-normal">
                                         Dark
                                     </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem
-                                        value="system"
-                                        id="system"
-                                    />
-                                    <Label
-                                        htmlFor="system"
-                                        className="font-normal"
-                                    >
+                                    <RadioGroupItem value="system" id="system" />
+                                    <Label htmlFor="system" className="font-normal">
                                         System
                                     </Label>
                                 </div>
@@ -176,57 +162,42 @@ export function SettingsForm({ user }: { user: User }) {
                     </div>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="collection-items"
-                                className="text-lg"
-                            >
+                            <Label htmlFor="collection-items" className="text-lg">
                                 Items per page in Collection
                             </Label>
                             <Input
                                 id="collection-items"
                                 type="number"
                                 value={collectionItems}
-                                onChange={(e) =>
-                                    setCollectionItems(Number(e.target.value))
-                                }
+                                onChange={(e) => setCollectionItems(Number(e.target.value))}
                                 min="3"
                                 max="30"
                                 className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="research-goal-items"
-                                className="text-lg"
-                            >
+                            <Label htmlFor="research-goal-items" className="text-lg">
                                 Items per page in Research Goals
                             </Label>
                             <Input
                                 id="research-goal-items"
                                 type="number"
                                 value={goalsItems}
-                                onChange={(e) =>
-                                    setGoalsItems(Number(e.target.value))
-                                }
+                                onChange={(e) => setGoalsItems(Number(e.target.value))}
                                 min="3"
                                 max="30"
                                 className="bg-barely-lilac dark:bg-midnight-purple"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label
-                                htmlFor="breeding-pair-items"
-                                className="text-lg"
-                            >
+                            <Label htmlFor="breeding-pair-items" className="text-lg">
                                 Items per page in Breeding Pairs
                             </Label>
                             <Input
                                 id="breeding-pair-items"
                                 type="number"
                                 value={pairsItems}
-                                onChange={(e) =>
-                                    setPairsItems(Number(e.target.value))
-                                }
+                                onChange={(e) => setPairsItems(Number(e.target.value))}
                                 min="3"
                                 max="30"
                                 className="bg-barely-lilac dark:bg-midnight-purple"
@@ -238,11 +209,7 @@ export function SettingsForm({ user }: { user: User }) {
                 {/* Form Actions */}
                 <div className="flex items-center justify-end gap-4">
                     {error && <p className="text-sm text-red-500">{error}</p>}
-                    {successMessage && (
-                        <p className="text-sm text-green-600">
-                            {successMessage}
-                        </p>
-                    )}
+                    {successMessage && <p className="text-sm text-green-600">{successMessage}</p>}
                     <Button
                         type="submit"
                         disabled={isLoading}

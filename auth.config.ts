@@ -62,8 +62,18 @@ export const authConfig = {
             }
 
             // This is called when the user updates their session, e.g., by calling `update()`
-            if (trigger === 'update' && session?.image) {
-                token.image = session.image;
+            if (trigger === 'update' && session) {
+                // The session object can contain any data passed to the `update` function.
+                if (session.image) {
+                    token.image = session.image;
+                }
+                if (session.theme) {
+                    token.theme = session.theme;
+                }
+                // This handles the existing update call for email
+                if (session.user?.email) {
+                    token.email = session.user.email;
+                }
             }
 
             // Handle impersonation
@@ -83,6 +93,7 @@ export const authConfig = {
                 session.user.role = token.role;
                 session.user.theme = token.theme;
                 session.user.image = token.image;
+                session.user.email = token.email;
             }
             // ALWAYS return the session object.
             return session;

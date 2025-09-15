@@ -10,8 +10,8 @@ import * as Sentry from '@sentry/nextjs';
 import { logAdminAction } from '@/lib/audit';
 
 const updateTabSchema = z.object({
-    tabId: z.number('Tab ID must be a number.'),
     tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
+    isSyncEnabled: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
@@ -24,15 +24,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
     }
     const userId = session.user.id;
 
-    const { tabId, tabName, isSyncEnabled } = await req.json();
+    const body = await req.json();
 
-    const validatedTabs = updateTabSchema.safeParse({ tabId, tabName });
+    const validated = updateTabSchema.safeParse(body);
 
-    if (!validatedTabs.success) {
-        const flattenedError = validatedTabs.error.flatten();
-        const fullError =
-            flattenedError.fieldErrors.tabId || '' + flattenedError.fieldErrors.tabName || '';
-        Sentry.captureMessage(`Invalid data for creating tab: ${fullError}`, 'warning');
+    if (!validated.success) {
+        const flattenedError = validated.error.flatten();
+        const fullError = Object.values(flattenedError.fieldErrors).flat().join(' ');
+        Sentry.captureMessage(`Invalid data for updating tab: ${fullError}`, 'warning');
         return NextResponse.json(
             {
                 error: `Error: ${fullError}`,
@@ -41,26 +40,33 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
         );
     }
 
+    const { tabName, isSyncEnabled } = validated.data;
     const tabIdToUpdate = parseInt(params.id, 10);
 
     try {
         const dataToUpdate: {
             tabName?: string;
             isSyncEnabled?: boolean;
-            updatedAt: Date;
-        } = { updatedAt: new Date() };
+            updatedAt?: Date;
+        } = {};
 
-        if (hasObscenity(tabName)) {
-            Sentry.captureMessage('Obscene language in tab name', 'warning');
-            return NextResponse.json(
-                { error: 'The provided name contains inappropriate language.' },
-                { status: 400 }
-            );
+        if (tabName !== undefined) {
+            if (hasObscenity(tabName)) {
+                Sentry.captureMessage('Obscene language in tab name', 'warning');
+                return NextResponse.json(
+                    { error: 'The provided name contains inappropriate language.' },
+                    { status: 400 }
+                );
+            }
+            dataToUpdate.tabName = tabName;
         }
 
-        if (tabName !== undefined) dataToUpdate.tabName = tabName;
-
         if (isSyncEnabled !== undefined) dataToUpdate.isSyncEnabled = isSyncEnabled;
+
+        if (Object.keys(dataToUpdate).length === 0) {
+            return NextResponse.json({ message: 'No fields to update.' }, { status: 200 });
+        }
+        dataToUpdate.updatedAt = new Date();
 
         const updatedTab = await db
             .update(userTabs)

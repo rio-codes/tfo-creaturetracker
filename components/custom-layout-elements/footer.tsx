@@ -26,7 +26,7 @@ declare module '@mui/material/Switch' {
 export function Footer() {
     const [mounted, setMounted] = useState(false);
     const { theme, resolvedTheme, setTheme } = useTheme();
-    const { data: session } = useSession();
+    const { data: session, update } = useSession();
 
     useEffect(() => {
         setMounted(true);
@@ -45,12 +45,14 @@ export function Footer() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ theme: newTheme }),
                     });
+                    // Also update the session JWT so it persists across reloads
+                    await update({ theme: newTheme });
                 } catch (error) {
                     console.error('Failed to save theme preference:', error);
                 }
             }
         },
-        [session, setTheme]
+        [session, setTheme, update]
     );
     const year = new Date().getFullYear();
     return (

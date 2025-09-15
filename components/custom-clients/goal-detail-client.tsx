@@ -6,6 +6,8 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     Prediction,
+    DbBreedingPair,
+    DbBreedingLogEntry,
     EnrichedBreedingPair,
 } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,6 +38,8 @@ type GoalDetailClientProps = {
     initialPredictions: Prediction[];
     allCreatures: EnrichedCreature[];
     allPairs: EnrichedBreedingPair[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
 };
 
 export function GoalDetailClient({
@@ -43,6 +47,8 @@ export function GoalDetailClient({
     initialPredictions,
     allCreatures,
     allPairs,
+    allRawPairs,
+    allLogs,
 }: GoalDetailClientProps) {
     const hasMounted = useMounted();
     const router = useRouter();
@@ -279,6 +285,8 @@ export function GoalDetailClient({
                             goal={goal}
                             allCreatures={allCreatures}
                             allPairs={allPairs}
+                            allRawPairs={allRawPairs}
+                            allLogs={allLogs}
                             open={findPairsDialogOpen}
                             onOpenChange={setFindPairsDialogOpen}
                             onLoadingChange={setIsFindingPairs}

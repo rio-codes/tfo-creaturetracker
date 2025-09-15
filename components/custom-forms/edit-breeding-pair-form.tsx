@@ -50,20 +50,16 @@ export function EditBreedingPairForm({
     // Initialize state with the existing pair's data
     const [pairName, setPairName] = useState(pair?.pairName);
     const [selectedMaleId, setSelectedMaleId] = useState(pair?.maleParentId);
-    const [selectedFemaleId, setSelectedFemaleId] = useState(
-        pair?.femaleParentId
-    );
-    const [selectedGoalIds, setSelectedGoalIds] = useState(
-        pair?.assignedGoalIds || []
-    );
+    const [selectedFemaleId, setSelectedFemaleId] = useState(pair?.femaleParentId);
+    const [selectedGoalIds, setSelectedGoalIds] = useState(pair?.assignedGoalIds || []);
     const [isInbred, setIsInbred] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState('');
-    const [editingWhichParent, setEditingWhichParent] = useState<
-        'male' | 'female' | 'none'
-    >('none');
+    const [editingWhichParent, setEditingWhichParent] = useState<'male' | 'female' | 'none'>(
+        'none'
+    );
     const [isHybridMode, setIsHybridMode] = useState(false);
 
     const { selectedMale, selectedFemale } = useMemo(() => {
@@ -73,25 +69,19 @@ export function EditBreedingPairForm({
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
     const { availableMales, availableFemales } = useMemo(() => {
-        let males = allCreatures.filter(
-            (c) => c?.gender === 'male' && c.growthLevel === 3
-        );
-        let females = allCreatures.filter(
-            (c) => c?.gender === 'female' && c.growthLevel === 3
-        );
+        let males = allCreatures.filter((c) => c?.gender === 'male' && c.growthLevel === 3);
+        let females = allCreatures.filter((c) => c?.gender === 'female' && c.growthLevel === 3);
 
         if (editingWhichParent === 'male' && selectedFemale) {
             if (isHybridMode) {
                 males = males.filter(
                     (male) =>
-                        validatePairing(male, selectedFemale).isValid ||
-                        male?.id === selectedMaleId
+                        validatePairing(male, selectedFemale).isValid || male?.id === selectedMaleId
                 );
             } else {
                 males = males.filter(
                     (male) =>
-                        male?.species === selectedFemale.species ||
-                        male?.id === selectedMaleId
+                        male?.species === selectedFemale.species || male?.id === selectedMaleId
                 );
             }
             females = females.filter((f) => f?.id === selectedFemaleId);
@@ -105,8 +95,7 @@ export function EditBreedingPairForm({
             } else {
                 females = females.filter(
                     (female) =>
-                        female?.species === selectedMale.species ||
-                        female?.id === selectedFemaleId
+                        female?.species === selectedMale.species || female?.id === selectedFemaleId
                 );
             }
             males = males.filter((m) => m?.id === selectedMaleId);
@@ -133,23 +122,13 @@ export function EditBreedingPairForm({
         const male = allCreatures.find((c) => c?.id === selectedMaleId);
         const female = allCreatures.find((c) => c?.id === selectedFemaleId);
         if (!male?.species || !female?.species) return [];
-        const possibleOffspring = getPossibleOffspringSpecies(
-            male.species,
-            female.species
-        );
-        return allGoals.filter(
-            (g) => g?.species && possibleOffspring.includes(g.species)
-        );
+        const possibleOffspring = getPossibleOffspringSpecies(male.species, female.species);
+        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species));
     }, [selectedMaleId, selectedFemaleId, allCreatures, allGoals]);
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
-            const inbred = checkForInbreeding(
-                selectedMaleId,
-                selectedFemaleId,
-                allLogs,
-                allPairs
-            );
+            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
             setIsInbred(inbred);
         } else {
             setIsInbred(false);
@@ -180,14 +159,8 @@ export function EditBreedingPairForm({
             setIsLoading(false);
             return;
         }
-        const possibleOffspring = getPossibleOffspringSpecies(
-            newMale.species,
-            newFemale.species
-        );
-        const species =
-            possibleOffspring.length === 1
-                ? possibleOffspring[0]
-                : newMale.species;
+        const possibleOffspring = getPossibleOffspringSpecies(newMale.species, newFemale.species);
+        const species = possibleOffspring.length === 1 ? possibleOffspring[0] : newMale.species;
         try {
             const response = await fetch(`/api/breeding-pairs/${pair?.id}`, {
                 method: 'PATCH',
@@ -201,8 +174,7 @@ export function EditBreedingPairForm({
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
-                throw new Error(data.error || 'Failed to update pair.');
+            if (!response.ok) throw new Error(data.error || 'Failed to update pair.');
             router.refresh();
             onSuccess();
         } catch (err: any) {
@@ -213,11 +185,7 @@ export function EditBreedingPairForm({
     };
 
     const handleDelete = async () => {
-        if (
-            !window.confirm(
-                `Are you sure you want to delete the pair "${pair?.pairName}"?`
-            )
-        )
+        if (!window.confirm(`Are you sure you want to delete the pair "${pair?.pairName}"?`))
             return;
         setIsDeleting(true);
         try {
@@ -248,8 +216,8 @@ export function EditBreedingPairForm({
                 <div className="flex items-center gap-2 rounded-md border border-yellow-500/50 bg-yellow-200/50 dark:bg-yellow-900/50 dark:text-yellow-300 p-2 text-sm text-dusk-purple">
                     <Network className="h-4 w-4 flex-shrink-0" />
                     <span>
-                        This pair is genetically related. Progeny will be
-                        inbred.
+                        This pairing will result in inbred progeny. This does not affect gameplay in
+                        TFO.
                     </span>
                 </div>
             )}
@@ -258,9 +226,7 @@ export function EditBreedingPairForm({
                 <RadioGroup
                     value={editingWhichParent}
                     onValueChange={(value) =>
-                        setEditingWhichParent(
-                            value as 'male' | 'female' | 'none'
-                        )
+                        setEditingWhichParent(value as 'male' | 'female' | 'none')
                     }
                     className="flex space-x-4"
                 >
@@ -290,9 +256,7 @@ export function EditBreedingPairForm({
                     <Checkbox
                         id="hybrid-mode-edit"
                         checked={isHybridMode}
-                        onCheckedChange={(checked) =>
-                            setIsHybridMode(!!checked)
-                        }
+                        onCheckedChange={(checked) => setIsHybridMode(!!checked)}
                     />
                     <Label htmlFor="hybrid-mode-edit" className="font-normal">
                         Allow Hybrid/Compatible Mates
@@ -312,8 +276,7 @@ export function EditBreedingPairForm({
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {availableMales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c?.species}
+                            {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -330,8 +293,7 @@ export function EditBreedingPairForm({
                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                     {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) -{' '}
-                            {c?.species}
+                            {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -342,31 +304,20 @@ export function EditBreedingPairForm({
                     <Label>Assign Research Goals</Label>
                     <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
                         {assignableGoals.map((goal) => (
-                            <div
-                                key={goal.id}
-                                className="flex items-center space-x-2"
-                            >
+                            <div key={goal.id} className="flex items-center space-x-2">
                                 <Checkbox
                                     id={`edit-${goal.id}`}
                                     checked={selectedGoalIds.includes(goal.id)}
                                     onCheckedChange={(checked) => {
                                         if (checked)
-                                            setSelectedGoalIds((prev) => [
-                                                ...prev,
-                                                goal.id,
-                                            ]);
+                                            setSelectedGoalIds((prev) => [...prev, goal.id]);
                                         else
                                             setSelectedGoalIds((prev) =>
-                                                prev.filter(
-                                                    (id) => id !== goal.id
-                                                )
+                                                prev.filter((id) => id !== goal.id)
                                             );
                                     }}
                                 />
-                                <Label
-                                    htmlFor={`edit-${goal.id}`}
-                                    className="font-normal"
-                                >
+                                <Label htmlFor={`edit-${goal.id}`} className="font-normal">
                                     {goal.name}
                                 </Label>
                             </div>

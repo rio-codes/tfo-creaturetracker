@@ -22,10 +22,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
+import { Loader2, Network } from 'lucide-react';
 import * as Sentry from '@sentry/nextjs';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from '@/types';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
@@ -34,6 +43,7 @@ type PotentialPairPrediction = {
     femaleParent: EnrichedCreature;
     averageChance: number;
     isPossible: boolean;
+    isInbred: boolean;
     existingPairName?: string;
     existingPairId?: string;
 };
@@ -42,6 +52,8 @@ type FindPotentialPairsDialogProps = {
     goal: EnrichedResearchGoal;
     allCreatures: EnrichedCreature[];
     allPairs: EnrichedBreedingPair[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onLoadingChange: (loading: boolean) => void;
@@ -51,6 +63,8 @@ export function FindPotentialPairsDialog({
     goal,
     allCreatures,
     allPairs,
+    allRawPairs,
+    allLogs,
     open,
     onOpenChange,
     onLoadingChange,
@@ -137,6 +151,8 @@ export function FindPotentialPairsDialog({
                         }
                     }
 
+                    const isInbred = checkForInbreeding(male.id, female.id, allLogs, allRawPairs);
+
                     if (isPossible) {
                         const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
                         const pairKey = `${male.id}-${female.id}`;
@@ -147,6 +163,7 @@ export function FindPotentialPairsDialog({
                             femaleParent: female,
                             averageChance: averageChance * 100,
                             isPossible: true,
+                            isInbred: isInbred,
                             existingPairName: existingPair?.name,
                             existingPairId: existingPair?.id,
                         });
@@ -161,6 +178,7 @@ export function FindPotentialPairsDialog({
         }, 50); // A small delay is enough for the UI to update.
 
         return () => clearTimeout(timer); // Cleanup the timer
+        return () => clearTimeout(timer);
     }, [open, goal, allCreatures, allPairs, onLoadingChange]);
 
     const handleCreateAndAssign = async (
@@ -248,6 +266,7 @@ export function FindPotentialPairsDialog({
                                         femaleParent,
                                         averageChance,
                                         existingPairName,
+                                        isInbred,
                                         existingPairId,
                                     }) => {
                                         const currentPairId =
@@ -272,6 +291,12 @@ export function FindPotentialPairsDialog({
                                                         <p className="text-xs text-green-600 dark:text-green-400 font-semibold">
                                                             Existing Pair: {existingPairName}
                                                         </p>
+                                                    )}
+                                                    {isInbred && (
+                                                        <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400">
+                                                            <Network className="h-3 w-3" />
+                                                            <span>Inbred Pairing</span>
+                                                        </div>
                                                     )}
                                                     <p className="text-sm">
                                                         Match Score:{' '}

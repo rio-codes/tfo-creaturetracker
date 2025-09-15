@@ -13,6 +13,8 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
+    DbBreedingPair,
+    DbBreedingLogEntry,
 } from '@/types';
 
 type ManageBreedingPairsDialogProps = {
@@ -20,6 +22,8 @@ type ManageBreedingPairsDialogProps = {
     allCreatures: EnrichedCreature[];
     allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
     children: React.ReactNode;
 };
 
@@ -28,6 +32,8 @@ export function ManageBreedingPairsDialog({
     allCreatures,
     allPairs,
     allGoals,
+    allRawPairs,
+    allLogs,
     children,
 }: ManageBreedingPairsDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +47,7 @@ export function ManageBreedingPairsDialog({
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">
-                        Manage Pairs for{' '}
-                        {baseCreature!.creatureName || baseCreature!.code}
+                        Manage Pairs for {baseCreature!.creatureName || baseCreature!.code}
                     </DialogTitle>
                 </DialogHeader>
                 <ManageBreedingPairsForm
@@ -50,6 +55,8 @@ export function ManageBreedingPairsDialog({
                     allCreatures={allCreatures}
                     allPairs={allPairs}
                     allGoals={allGoals}
+                    allRawPairs={allRawPairs}
+                    allLogs={allLogs}
                     onActionCompleteAction={() => setIsOpen(false)}
                 />
             </DialogContent>

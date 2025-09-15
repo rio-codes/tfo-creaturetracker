@@ -157,7 +157,7 @@ export function CollectionClient({
                 tolerance: 5,
             },
         }),
-        useSensor(CustomKeyboardSensor)
+        useSensor(CustomKeyboardSensor as any)
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);

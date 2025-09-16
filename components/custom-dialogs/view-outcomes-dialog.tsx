@@ -25,7 +25,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import type { EnrichedBreedingPair, GoalGene } from '@/types';
+import type { EnrichedBreedingPair } from '@/types';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';

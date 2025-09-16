@@ -147,13 +147,25 @@ export function SettingsForm({ user }: SettingsFormProps) {
             delete updateData.password;
         }
 
-        if (await hasObscenity(updateData.bio)) {
-            Sentry.captureMessage('Obscenity detected in bio', 'log');
-            toast.error('Obscenity Detected', {
-                description: 'Please remove any offensive language from your bio.',
-            });
-            setIsSubmitting(false);
-            return;
+        const fieldsToCheck = [
+            { name: 'bio', value: updateData.bio, label: 'bio' },
+            { name: 'pronouns', value: updateData.pronouns, label: 'pronouns' },
+            {
+                name: 'statusMessage',
+                value: updateData.statusMessage,
+                label: 'status message',
+            },
+        ];
+
+        for (const field of fieldsToCheck) {
+            if (await hasObscenity(field.value)) {
+                Sentry.captureMessage(`Obscenity detected in ${field.name}`, 'log');
+                toast.error('Obscenity Detected', {
+                    description: `Please remove any offensive language from your ${field.label}.`,
+                });
+                setIsSubmitting(false);
+                return;
+            }
         }
 
         try {

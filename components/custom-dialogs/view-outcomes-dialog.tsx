@@ -110,38 +110,16 @@ export function ViewOutcomesDialog({
         setIsSavingGoal(true);
 
         try {
-            const genesForGoal: { [key: string]: GoalGene } = {};
-            if (outcomes) {
-                for (const category in selectedGenotypes) {
-                    const selectedGeno = selectedGenotypes[category];
-                    const outcome = outcomes[category].find((o) => o.genotype === selectedGeno);
-                    if (!outcome) continue;
-
-                    const phenotype = outcome.phenotype;
-
-                    const genotypesForPhenotype = outcomes[category]
-                        .filter((o) => o.phenotype === phenotype)
-                        .map((o) => o.genotype);
-                    const isMultiGenotype = new Set(genotypesForPhenotype).size > 1;
-
-                    genesForGoal[category] = {
-                        genotype: selectedGeno,
-                        phenotype: phenotype,
-                        isMultiGenotype: isMultiGenotype,
-                        isOptional: optionalGenes[category] || false,
-                    };
-                }
-            }
-
-            const response = await fetch('/api/research-goals', {
+            const response = await fetch('/api/research-goals/from-outcomes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: newGoalName,
+                    goalName: newGoalName,
                     species: pair.species,
-                    genes: genesForGoal,
+                    pairId: pair.id,
+                    selectedGenotypes: selectedGenotypes,
                     goalMode: goalMode,
-                    assignedPairIds: [pair.id],
+                    optionalGenes: optionalGenes,
                 }),
             });
 
@@ -155,8 +133,8 @@ export function ViewOutcomesDialog({
             setIsOpen(false);
             router.refresh();
 
-            if (data.goal?.id) {
-                router.push(`/research-goals/${data.goal.id}`);
+            if (data.goalId) {
+                router.push(`/research-goals/${data.goalId}`);
             }
         } catch (error: any) {
             Sentry.captureException(error);

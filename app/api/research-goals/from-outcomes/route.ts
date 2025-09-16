@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { researchGoals, breedingPairs } from '@/src/db/schema';
+import { researchGoals, breedingPairs, goalModeEnum } from '@/src/db/schema';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
@@ -33,6 +33,8 @@ const createGoalSchema = z.object({
     goalName: z.string().min(3, 'Goal name must be at least 3 characters.'),
     species: z.string(),
     selectedGenotypes: z.record(z.string(), z.string()),
+    goalMode: z.enum(goalModeEnum.enumValues),
+    optionalGenes: z.record(z.string(), z.boolean()),
 });
 
 export async function POST(req: Request) {
@@ -56,7 +58,8 @@ export async function POST(req: Request) {
             Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-        const { pairId, goalName, species, selectedGenotypes } = validated.data;
+        const { pairId, goalName, species, selectedGenotypes, goalMode, optionalGenes } =
+            validated.data;
 
         const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
         if (!speciesGeneData) {
@@ -88,7 +91,7 @@ export async function POST(req: Request) {
                 genotype: genotype,
                 phenotype: geneInfo.phenotype,
                 isMultiGenotype: genotypesForPhenotype.length > 1,
-                isOptional: false,
+                isOptional: optionalGenes[category] || false,
             };
         }
 
@@ -104,7 +107,7 @@ export async function POST(req: Request) {
                 species: species,
                 imageUrl: blobUrl,
                 genes: goalGenes,
-                goalMode: 'genotype',
+                goalMode: goalMode,
                 assignedPairIds: [pairId],
                 updatedAt: new Date(),
             })

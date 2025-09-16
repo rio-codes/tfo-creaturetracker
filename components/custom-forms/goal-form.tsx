@@ -204,8 +204,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             onSuccess(); // Close dialog
             router.refresh(); // Re-fetch data for current route
 
-            if (!isEditMode && data.goal?.id) {
-                router.push(`/research-goals/${data.goal.id}`);
+            if (!isEditMode && data.goalId) {
+                router.push(`/research-goals/${data.goalId}`);
             }
         } catch (err: any) {
             setError(err.message);

@@ -1,16 +1,19 @@
 import Link from 'next/link';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import type { EnrichedResearchGoal, DbCreature } from '@/types';
+import type { FeaturedGoalProgress } from '@/app/[username]/page';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Award, ChevronUp, ChevronDown } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface FeaturedGoalCardProps {
     goal: EnrichedResearchGoal;
     achievement?: { creature: DbCreature } | null;
     username: string;
+    progress?: FeaturedGoalProgress;
 }
 
-export function FeaturedGoalCard({ goal, achievement, username }: FeaturedGoalCardProps) {
+export function FeaturedGoalCard({ goal, achievement, username, progress }: FeaturedGoalCardProps) {
     const geneEntries = Object.entries(goal.genes);
 
     return (
@@ -45,7 +48,7 @@ export function FeaturedGoalCard({ goal, achievement, username }: FeaturedGoalCa
                             <div className="text-xs font-mono space-y-1 text-barely-lilac dark:text-purple-400">
                                 {geneEntries.map(([category, geneData]) => (
                                     <div key={category}>
-                                        <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                        <span className="font-bold text-barely-lilac">
                                             {category}:
                                         </span>
                                         <div className="pl-2">
@@ -76,6 +79,108 @@ export function FeaturedGoalCard({ goal, achievement, username }: FeaturedGoalCa
                                 </Link>
                                 !
                             </p>
+                        ) : progress ? (
+                            <div className="space-y-2 text-xs">
+                                <p>
+                                    <strong>Assigned Pairs:</strong> {progress.assignedPairCount}
+                                </p>
+                                {progress.highestScoringPair && (
+                                    <div>
+                                        <p>
+                                            <strong>Top Pair:</strong>{' '}
+                                            {progress.highestScoringPair.name} (
+                                            {(progress.highestScoringPair.score * 100).toFixed(2)}%
+                                            match)
+                                        </p>
+                                        <div className="pl-2 italic text-xxs">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="underline decoration-dotted cursor-pointer">
+                                                            {
+                                                                progress.highestScoringPair
+                                                                    .maleParentName
+                                                            }
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <img
+                                                            src={
+                                                                progress.highestScoringPair
+                                                                    .maleParentImageUrl
+                                                            }
+                                                            alt={
+                                                                progress.highestScoringPair
+                                                                    .maleParentName
+                                                            }
+                                                            className="w-24 h-24 object-contain rounded-md bg-white/10 p-1"
+                                                        />
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            [{progress.highestScoringPair.maleParentCode}] x{' '}
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="underline decoration-dotted cursor-pointer">
+                                                            {
+                                                                progress.highestScoringPair
+                                                                    .femaleParentName
+                                                            }
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <img
+                                                            src={
+                                                                progress.highestScoringPair
+                                                                    .femaleParentImageUrl
+                                                            }
+                                                            alt={
+                                                                progress.highestScoringPair
+                                                                    .femaleParentName
+                                                            }
+                                                            className="w-24 h-24 object-contain rounded-md bg-white/10 p-1"
+                                                        />
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            [{progress.highestScoringPair.femaleParentCode}]
+                                        </div>
+                                    </div>
+                                )}
+                                <p>
+                                    <strong>Total Progeny:</strong> {progress.progenyCount}
+                                </p>
+                                {progress.closestProgeny && (
+                                    <div>
+                                        <strong>Closest Match: </strong>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Link
+                                                        href={`https://finaloutpost.net/view/${progress.closestProgeny.code}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="underline hover:text-pompaca-purple dark:hover:text-purple-300"
+                                                    >
+                                                        {progress.closestProgeny.name} (
+                                                        {progress.closestProgeny.code})
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <img
+                                                        src={progress.closestProgeny.imageUrl}
+                                                        alt={progress.closestProgeny.name}
+                                                        className="w-24 h-24 object-contain rounded-md bg-white/10 p-1"
+                                                    />
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>{' '}
+                                        ({(progress.closestProgeny.accuracy * 100).toFixed(2)}%
+                                        accuracy)
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <p className="italic">
                                 Breeding progress information will be shown here.

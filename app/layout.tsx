@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
@@ -77,7 +77,17 @@ export default async function RootLayout({
                 className={`${tektur.className} flex flex-col min-h-screen bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300`}
             >
                 <ClientProviders>{children}</ClientProviders>
-                <Toaster />
+                <Toaster
+                    toastOptions={{
+                        classNames: {
+                            toast: 'bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac',
+                            title: 'text-pompaca-purple dark:text-barely-lilac',
+                            description: 'text-dusk-purple dark:text-purple-400',
+                            actionButton: 'bg-pompaca-purple text-barely-lilac',
+                            cancelButton: 'bg-dusk-purple text-barely-lilac',
+                        },
+                    }}
+                />
             </body>
         </html>
     );

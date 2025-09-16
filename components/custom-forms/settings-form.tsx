@@ -9,6 +9,7 @@ import { User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -44,7 +45,6 @@ const settingsFormSchema = z
         pairsItemsPerPage: z.number().min(3).max(30),
         theme: z.enum(['light', 'dark', 'system']),
         goalConversions: z.any().optional(),
-        // Profile fields
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
         featuredCreatureIds: z
             .array(z.string())
@@ -54,6 +54,20 @@ const settingsFormSchema = z
             .array(z.string())
             .max(3, 'You can only feature up to 3 research goals.')
             .optional(),
+        pronouns: z
+            .string()
+            .max(50, 'Pronouns must be 50 characters or less.')
+            .optional()
+            .nullable(),
+        socialLinks: z.string().optional(),
+        showLabLink: z.boolean().optional(),
+        statusMessage: z
+            .string()
+            .max(80, 'Status message must be 80 characters or less.')
+            .optional()
+            .nullable(),
+        statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
+        showStats: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -87,6 +101,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
             confirmPassword: '' as string,
             featuredCreatureIds: user.featuredCreatureIds as string[],
             featuredGoalIds: user.featuredGoalIds as string[],
+            pronouns: user.pronouns,
+            socialLinks: user.socialLinks?.join('\n') || '',
+            showLabLink: user.showLabLink,
+            statusMessage: user.statusMessage,
+            statusEmoji: user.statusEmoji,
+            showStats: user.showStats,
         },
     });
 
@@ -108,7 +128,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
         setIsSubmitting(true);
 
         // Don't send password if it's empty
-        const { confirmPassword, ...updateData } = data;
+        const { confirmPassword, socialLinks: socialLinksString, ...restOfData } = data;
+        const socialLinks = socialLinksString
+            ? socialLinksString.split('\n').filter((link) => link.trim() !== '')
+            : [];
+
+        const updateData = { ...restOfData, socialLinks };
+
         if (!updateData.password) {
             delete updateData.password;
         }
@@ -229,6 +255,103 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={form.control}
+                            name="pronouns"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Pronouns
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="e.g., she/her, they/them"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="socialLinks"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Social Links
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="https://twitter.com/your_handle&#10;https://discord.com/users/your_id"
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400">
+                                        Enter up to 5 social media links, one per line.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Status
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            Set a status that will appear on your profile.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid sm:grid-cols-[auto_1fr] gap-6 pt-6">
+                        <FormField
+                            control={form.control}
+                            name="statusEmoji"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Emoji
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="✨"
+                                            className="w-20 bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            maxLength={4}
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="statusMessage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Status Message
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Breeding for shinies!"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            maxLength={80}
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                 </Card>
 
@@ -272,6 +395,48 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                 </FormItem>
                             )}
                         />
+                        <div className="flex items-center space-x-2 pt-4">
+                            <FormField
+                                control={form.control}
+                                name="showLabLink"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Show TFO Lab Link on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="showStats"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Show Statistics on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
 

@@ -58,6 +58,12 @@ export const users = pgTable('user', {
     supporterTier: text('supporter_tier'), // e.g., 'beta', 'patron'
     featuredCreatureIds: jsonb('featured_creature_ids').$type<string[]>(),
     featuredGoalIds: jsonb('featured_goal_ids').$type<string[]>(),
+    pronouns: text('pronouns'),
+    socialLinks: jsonb('social_links').$type<string[]>(),
+    showLabLink: boolean('show_lab_link').default(true).notNull(),
+    statusMessage: text('status_message'),
+    statusEmoji: text('status_emoji'),
+    showStats: boolean('show_stats').default(true).notNull(),
 });
 
 export const accounts = pgTable(

@@ -34,6 +34,12 @@ export type User = {
     supporterTier?: string | null;
     featuredCreatureIds?: string[] | null;
     featuredGoalIds?: string[] | null;
+    pronouns?: string | null;
+    socialLinks?: string[] | null;
+    showLabLink: boolean;
+    statusMessage?: string | null;
+    statusEmoji?: string | null;
+    showStats: boolean;
 };
 
 export type EnrichedCreature =

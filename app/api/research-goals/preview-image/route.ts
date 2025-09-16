@@ -18,14 +18,8 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Generating goal preview image', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(
-            'Unauthenticated attempt to generate goal preview image',
-            'warning'
-        );
-        return NextResponse.json(
-            { error: 'Not authenticated' },
-            { status: 401 }
-        );
+        Sentry.captureMessage('Unauthenticated attempt to generate goal preview image', 'log');
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
@@ -41,12 +35,9 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed:', errorString);
             Sentry.captureMessage(
                 `Zod validation failed for goal preview image: ${errorString}`,
-                'warning'
+                'log'
             );
-            return NextResponse.json(
-                { error: 'Invalid data provided.' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: 'Invalid data provided.' }, { status: 400 });
         }
         const { species, genes } = validatedFields.data;
 
@@ -60,10 +51,7 @@ export async function POST(req: Request) {
 
         const imageUrl = constructTfoImageUrl(species, genotypesForUrl);
 
-        Sentry.captureMessage(
-            'Successfully generated goal preview image URL',
-            'info'
-        );
+        Sentry.captureMessage('Successfully generated goal preview image URL', 'info');
         return NextResponse.json({ imageUrl });
     } catch (error: any) {
         console.error('Failed to generate preview URL:', error);

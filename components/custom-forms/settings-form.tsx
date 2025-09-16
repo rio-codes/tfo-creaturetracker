@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
+import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +31,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import EmojiPicker, { EmojiClickData, Theme as EmojiTheme } from 'emoji-picker-react';
+import { hasObscenity } from '@/lib/obscenity';
+import * as Sentry from '@sentry/nextjs';
 
 // This schema should align with the one in `app/api/settings/route.ts`
 const settingsFormSchema = z
@@ -68,6 +73,7 @@ const settingsFormSchema = z
             .nullable(),
         statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
         showStats: z.boolean().optional(),
+        showFriendsList: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -84,6 +90,7 @@ interface SettingsFormProps {
 export function SettingsForm({ user }: SettingsFormProps) {
     const { update } = useSession();
     const router = useRouter();
+    const { theme } = useTheme();
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,6 +114,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             statusMessage: user.statusMessage,
             statusEmoji: user.statusEmoji,
             showStats: user.showStats,
+            showFriendsList: user.showFriendsList ?? false,
         },
     });
 
@@ -137,6 +145,15 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
         if (!updateData.password) {
             delete updateData.password;
+        }
+
+        if (await hasObscenity(updateData.bio)) {
+            Sentry.captureMessage('Obscenity detected in bio', 'log');
+            toast.error('Obscenity Detected', {
+                description: 'Please remove any offensive language from your bio.',
+            });
+            setIsSubmitting(false);
+            return;
         }
 
         try {
@@ -315,18 +332,33 @@ export function SettingsForm({ user }: SettingsFormProps) {
                             name="statusEmoji"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac block">
                                         Emoji
                                     </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="✨"
-                                            className="w-20 bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
-                                            maxLength={4}
-                                            {...field}
-                                            value={field.value ?? ''}
-                                        />
-                                    </FormControl>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-20 h-10 text-2xl bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                                >
+                                                    {field.value || '✨'}
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0 border-0">
+                                            <EmojiPicker
+                                                onEmojiClick={(emojiData: EmojiClickData) => {
+                                                    field.onChange(emojiData.emoji);
+                                                }}
+                                                theme={
+                                                    theme === 'dark'
+                                                        ? EmojiTheme.DARK
+                                                        : EmojiTheme.LIGHT
+                                                }
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -431,6 +463,27 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         <div className="space-y-1 leading-none">
                                             <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
                                                 Show Statistics on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="showFriendsList"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Show Friends List on Profile
                                             </FormLabel>
                                         </div>
                                     </FormItem>

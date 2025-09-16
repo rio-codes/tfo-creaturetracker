@@ -34,7 +34,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
     Sentry.captureMessage(`Fetching goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to fetch goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to fetch goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -42,7 +42,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
     console.log(goalId);
 
     if (!goalId) {
-        Sentry.captureMessage('Goal ID not provided for fetch', 'warning');
+        Sentry.captureMessage('Goal ID not provided for fetch', 'log');
         return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 });
     }
 
@@ -52,7 +52,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found: ${goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found: ${goalId}`, 'log');
             return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
         Sentry.captureMessage(`Successfully fetched goal ${goalId}`, 'info');
@@ -69,20 +69,20 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
     Sentry.captureMessage(`Admin pinning/unpinning goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin pin goal', 'warning');
+        Sentry.captureMessage('Forbidden access to admin pin goal', 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     const goalId = params.goalId;
     if (!goalId) {
-        Sentry.captureMessage('Goal ID not provided for admin pin', 'warning');
+        Sentry.captureMessage('Goal ID not provided for admin pin', 'log');
         return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 });
     }
 
     const { isPinned } = await req.json();
 
     if (typeof isPinned !== 'boolean') {
-        Sentry.captureMessage('Invalid isPinned value for admin pin goal', 'warning');
+        Sentry.captureMessage('Invalid isPinned value for admin pin goal', 'log');
         return NextResponse.json({ error: 'Invalid value for isPinned' }, { status: 400 });
     }
 
@@ -94,7 +94,7 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
             .returning();
 
         if (!updatedGoal) {
-            Sentry.captureMessage(`Goal not found for admin pin: ${goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for admin pin: ${goalId}`, 'log');
             return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
         if (session.user.role === 'admin') {
@@ -127,7 +127,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
     Sentry.captureMessage(`Editing goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to edit goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to edit goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -142,14 +142,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { name, species, genes, goalMode } = validatedFields.data;
 
         if (hasObscenity(name)) {
-            Sentry.captureMessage('Obscene language in goal name', 'warning');
+            Sentry.captureMessage('Obscene language in goal name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -161,7 +161,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!existingGoal) {
-            Sentry.captureMessage(`Goal not found for editing: ${params.goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for editing: ${params.goalId}`, 'log');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',
@@ -242,7 +242,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
     Sentry.captureMessage(`Deleting goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to delete goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -302,7 +302,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
         });
 
         if (!deletedGoal) {
-            Sentry.captureMessage(`Goal not found for deletion: ${params.goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for deletion: ${params.goalId}`, 'log');
             return NextResponse.json(
                 { error: 'Goal not found or you do not have permission to delete it.' },
                 { status: 404 }

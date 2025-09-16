@@ -97,7 +97,7 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Logging breeding event', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to log breeding event', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to log breeding event', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
             validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage('Obscene language in breeding log notes', 'warning');
+            Sentry.captureMessage('Obscene language in breeding log notes', 'log');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -200,7 +200,7 @@ export async function PUT(req: Request) {
     Sentry.captureMessage('Updating breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to update breeding log', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to update breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -215,17 +215,14 @@ export async function PUT(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid data for updating breeding log. ${errorMessage}`,
-                'warning'
-            );
+            Sentry.captureMessage(`Invalid data for updating breeding log. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { logId, notes, progeny1Id, progeny2Id } = validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage('Obscene language in breeding log notes update', 'warning');
+            Sentry.captureMessage('Obscene language in breeding log notes update', 'log');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -295,7 +292,7 @@ export async function DELETE(req: Request) {
     Sentry.captureMessage('Deleting breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete breeding log', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to delete breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -310,7 +307,7 @@ export async function DELETE(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid log id for deletion. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid log id for deletion. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -353,7 +350,7 @@ export async function PATCH(req: Request) {
     Sentry.captureMessage('Patching breeding log (moving progeny)', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to patch breeding log', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to patch breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -368,10 +365,7 @@ export async function PATCH(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid data to update breeding log. ${errorMessage}`,
-                'warning'
-            );
+            Sentry.captureMessage(`Invalid data to update breeding log. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 

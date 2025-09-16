@@ -12,7 +12,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
     const session = await auth();
     Sentry.captureMessage(`Calculating outcomes for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to calculate outcomes', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to calculate outcomes', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -31,7 +31,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
         if (!pair || !pair.maleParent || !pair.femaleParent) {
             Sentry.captureMessage(
                 `Breeding pair not found for outcomes calculation: ${params.pairId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 { error: 'Breeding pair not found or parents are missing.' },

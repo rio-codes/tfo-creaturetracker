@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { db } from '@/src/db';
 import {
     users,
@@ -9,7 +10,7 @@ import {
     breedingLogEntries,
     breedingPairs,
 } from '@/src/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, or as drizzleOr } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FaCrown, FaStar } from 'react-icons/fa';
@@ -17,18 +18,22 @@ import { auth } from '@/auth';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
 import { FriendshipButton } from '@/components/custom-buttons/friendship-button';
 import { FeaturedCreatureCard } from '@/components/custom-cards/featured-creature-card';
+import { ReportUserButton } from '@/components/custom-buttons/report-user-button';
 import { FeaturedGoalCard } from '@/components/custom-cards/featured-goal-card';
 import { SocialLinks } from '@/components/misc-custom-components/social-links';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics'; // This function must be exported from lib/genetics.ts
 import type {
+    DbUser,
     EnrichedCreature,
     EnrichedResearchGoal,
     DbCreature,
     GoalGene,
     DbResearchGoal,
     DbBreedingPair,
-    DbAchievedGoal,
     DbBreedingLogEntry,
 } from '@/types';
 
@@ -66,18 +71,47 @@ type UserStats = {
     totalSyncedSpecies: number;
     mostNumerousSpecies: string;
     achievedGoalsCount: number;
+    achievedGoalNames: string[];
 };
 
 async function fetchUserProfile(username: string, sessionUserId?: string | null) {
-    const user = await db.query.users.findFirst({
+    const user = (await db.query.users.findFirst({
         where: eq(users.username, username),
         columns: {
             password: false, // Ensure password is not fetched
         },
-    });
+    })) as DbUser | undefined;
 
     if (!user) {
         return null;
+    }
+
+    // Fetch friends if the user has opted to show them
+    let friends: { id: string; username: string; image: string | null }[] = [];
+    if (user.showFriendsList) {
+        const friendshipsList = await db
+            .select()
+            .from(friendships)
+            .where(
+                and(
+                    drizzleOr(
+                        eq(friendships.userOneId, user.id),
+                        eq(friendships.userTwoId, user.id)
+                    ),
+                    eq(friendships.status, 'accepted')
+                )
+            );
+
+        const friendIds = friendshipsList.map((f) =>
+            f.userOneId === user.id ? f.userTwoId : f.userOneId
+        );
+
+        if (friendIds.length > 0) {
+            friends = await db
+                .select({ id: users.id, username: users.username, image: users.image })
+                .from(users)
+                .where(inArray(users.id, friendIds));
+        }
     }
 
     let friendship = null;
@@ -150,12 +184,25 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
     let stats: UserStats | null = null;
     if (user.showStats) {
         const [allCreaturesForUser, achievedGoalsForUser] = await Promise.all([
-            db.query.creatures.findMany({ where: eq(creatures.userId, user.id) }),
-            db.query.achievedGoals.findMany({
-                where: eq(achievedGoals.userId, user.id),
-            }) as Promise<DbAchievedGoal[]>,
+            db
+                .select({ species: creatures.species })
+                .from(creatures)
+                .where(eq(creatures.userId, user.id)),
+            db
+                .select({ goalId: achievedGoals.goalId })
+                .from(achievedGoals)
+                .where(eq(achievedGoals.userId, user.id)),
         ]);
 
+        let achievedGoalNames: string[] = [];
+        if (achievedGoalsForUser.length > 0) {
+            const achievedGoalIds = achievedGoalsForUser.map((g) => g.goalId);
+            const goals = await db
+                .select({ name: researchGoals.name })
+                .from(researchGoals)
+                .where(inArray(researchGoals.id, achievedGoalIds));
+            achievedGoalNames = goals.map((g) => g.name);
+        }
         const speciesCounts = allCreaturesForUser.reduce(
             (acc, creature) => {
                 if (creature.species) {
@@ -177,6 +224,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                 ? `${mostNumerousSpeciesEntry[0]} (${mostNumerousSpeciesEntry[1]})`
                 : 'N/A',
             achievedGoalsCount: achievedGoalsForUser.length,
+            achievedGoalNames,
         };
     }
 
@@ -350,6 +398,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         achievements,
         goalProgress,
         stats,
+        friends,
     };
 }
 
@@ -395,6 +444,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
         achievements,
         goalProgress,
         stats,
+        friends,
     } = data;
 
     return (
@@ -427,14 +477,20 @@ export default async function UserProfilePage({ params }: { params: { username: 
                             </div>
                         )}
                     </div>
-                    <div className="self-start sm:self-center">
-                        <FriendshipButton
-                            profileUserId={user.id}
-                            sessionUserId={session?.user?.id ?? null}
-                            initialStatus={friendship?.status ?? null}
-                            actionUserId={friendship?.actionUserId ?? null}
-                        />
-                    </div>
+                    {session?.user?.id && session.user.id !== user.id && (
+                        <div className="self-start sm:self-center flex flex-col gap-2 w-full sm:w-auto">
+                            <FriendshipButton
+                                profileUserId={user.id}
+                                sessionUserId={session.user.id}
+                                initialStatus={friendship?.status ?? null}
+                                actionUserId={friendship?.actionUserId ?? null}
+                            />
+                            <ReportUserButton
+                                reportedUserId={user.id}
+                                reportedUsername={user.username}
+                            />
+                        </div>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-wrap items-center gap-6 mt-4">
@@ -487,12 +543,49 @@ export default async function UserProfilePage({ params }: { params: { username: 
                                         Most Numerous Species
                                     </p>
                                 </Card>
-                                <Card className="bg-dusk-purple/20 p-4">
-                                    <p className="text-xl font-bold">{stats.achievedGoalsCount}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400">
-                                        Goals Achieved
-                                    </p>
-                                </Card>
+                                {stats.achievedGoalsCount > 0 ? (
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Card className="bg-dusk-purple/20 p-4 cursor-pointer hover:bg-dusk-purple/30 transition-colors">
+                                                <p className="text-xl font-bold">
+                                                    {stats.achievedGoalsCount}
+                                                </p>
+                                                <p className="text-md text-dusk-purple dark:text-purple-400">
+                                                    Goals Achieved
+                                                </p>
+                                            </Card>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <div className="grid gap-4">
+                                                <div className="space-y-2">
+                                                    <h4 className="font-medium leading-none">
+                                                        Achieved Goals
+                                                    </h4>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        A list of all research goals this user has
+                                                        completed.
+                                                    </p>
+                                                </div>
+                                                <ScrollArea className="h-40">
+                                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                                        {stats.achievedGoalNames?.map((name, i) => (
+                                                            <li key={i}>{name}</li>
+                                                        ))}
+                                                    </ul>
+                                                </ScrollArea>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                ) : (
+                                    <Card className="bg-dusk-purple/20 p-4">
+                                        <p className="text-xl font-bold">
+                                            {stats.achievedGoalsCount}
+                                        </p>
+                                        <p className="text-md text-dusk-purple dark:text-purple-400">
+                                            Goals Achieved
+                                        </p>
+                                    </Card>
+                                )}
                             </div>
                         </div>
                     )}
@@ -524,6 +617,40 @@ export default async function UserProfilePage({ params }: { params: { username: 
                                         username={user.username}
                                         progress={goalProgress[goal.id]}
                                     />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {friends && friends.length > 0 && (
+                        <div className="mt-8">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                                Friends ({friends.length})
+                            </h2>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                                {friends.map((friend) => (
+                                    <Link href={`/${friend.username}`} key={friend.id}>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Avatar className="h-16 w-16 hover:ring-2 hover:ring-pompaca-purple dark:hover:ring-purple-300 transition-all">
+                                                        <AvatarImage
+                                                            src={friend.image ?? undefined}
+                                                            alt={friend.username}
+                                                        />
+                                                        <AvatarFallback>
+                                                            {friend.username
+                                                                .charAt(0)
+                                                                .toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{friend.username}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </Link>
                                 ))}
                             </div>
                         </div>

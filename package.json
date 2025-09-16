@@ -1,6 +1,6 @@
 {
     "name": "tfo-creaturetracker",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "private": true,
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm i && pnpm dev",
@@ -62,6 +62,7 @@
         "dotenv": "^17.2.2",
         "drizzle-orm": "^0.44.5",
         "embla-carousel-react": "8.6.0",
+        "emoji-picker-react": "^4.13.3",
         "eslint-config-prettier": "^10.1.8",
         "image-size": "^2.0.2",
         "input-otp": "^1.4.2",

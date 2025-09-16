@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) {
-        Sentry.captureMessage('Unauthenticated attempt to sync creatures', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to sync creatures', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     if (!process.env.TFO_API_KEY) {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for syncing creatures. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for syncing creatures. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 

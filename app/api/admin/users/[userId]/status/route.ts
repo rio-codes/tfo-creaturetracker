@@ -19,13 +19,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ userId: str
     if (session?.user?.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin update user status for ${params.userId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     if (session.user.id === params.userId) {
-        Sentry.captureMessage(`Admin trying to change own status: ${session.user.id}`, 'warning');
+        Sentry.captureMessage(`Admin trying to change own status: ${session.user.id}`, 'log');
         return NextResponse.json(
             { error: 'Admins cannot change their own status.' },
             { status: 400 }
@@ -37,7 +37,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ userId: str
         const validated = updateStatusSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage(`Invalid status specified for user ${params.userId}`, 'warning');
+            Sentry.captureMessage(`Invalid status specified for user ${params.userId}`, 'log');
             return NextResponse.json({ error: 'Invalid status specified.' }, { status: 400 });
         }
 

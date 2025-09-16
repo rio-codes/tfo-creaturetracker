@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     console.log('Received', req.body);
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create research goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to create research goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         }
         const { name, species, genes } = validatedFields.data;
         if (hasObscenity(name)) {
-            Sentry.captureMessage('Obscene language in new goal name', 'warning');
+            Sentry.captureMessage('Obscene language in new goal name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

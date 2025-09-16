@@ -17,7 +17,7 @@ export function FeaturedCreatureCard({ creature }: FeaturedCreatureCardProps) {
             rel="noopener noreferrer"
         >
             <Card className="h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
-                <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4">
+                <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac">
                     <img
                         src={creature.imageUrl}
                         alt={creature.creatureName || creature.code}
@@ -46,7 +46,7 @@ export function FeaturedCreatureCard({ creature }: FeaturedCreatureCardProps) {
                                 Genetics:
                             </p>
                             <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple/50">
-                                <div className="text-xs font-mono space-y-1 text-barely-lilac dark:text-purple-400">
+                                <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400">
                                     {creature.geneData?.map((gene) => (
                                         <div key={gene.category}>
                                             <span className="font-bold text-pompaca-purple dark:text-purple-300">

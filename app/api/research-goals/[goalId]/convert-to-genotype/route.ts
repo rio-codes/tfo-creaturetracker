@@ -17,7 +17,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
     const session = await auth();
     Sentry.captureMessage(`Converting goal ${params.goalId} to genotype`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to convert goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to convert goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { conversions } = validated.data;
@@ -42,7 +42,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found for conversion: ${goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for conversion: ${goalId}`, 'log');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',

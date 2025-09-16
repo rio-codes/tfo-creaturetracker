@@ -22,7 +22,7 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
                 `Email invalid for completing registration. ${errorMessage}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         if (!pending) {
             Sentry.captureMessage(
                 `No pending registration found for this email. Please start over.`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
             await db.delete(pendingRegistrations).where(eq(pendingRegistrations.email, email));
             Sentry.captureMessage(
                 `Your registration attempt has expired. Please start over.`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
                 message: 'Account created successfully! You can now log in.',
             });
         } else {
-            Sentry.captureMessage(`Verification failed for email: ${email}`, 'warning');
+            Sentry.captureMessage(`Verification failed for email: ${email}`, 'log');
             return NextResponse.json(
                 {
                     error: `Verification failed. The creature's name is currently "${currentCreatureName}", but we expected "${pending.verificationToken}". Please correct the name on TFO and try again.`,

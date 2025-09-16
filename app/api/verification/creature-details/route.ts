@@ -18,7 +18,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { creatureCode } = validated.data;
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         if (!response.ok) {
             Sentry.captureMessage(
                 `Failed to fetch creature details from TFO API for verification: ${creatureCode}`,
-                'warning'
+                'log'
             );
             throw new Error('Failed to fetch creature details from TFO API.');
         }
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
             console.log(data);
             Sentry.captureMessage(
                 `Could not find creature image from TFO for verification: ${creatureCode}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 { error: 'Could not find creature image from TFO.' },

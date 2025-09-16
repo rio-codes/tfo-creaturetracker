@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin fetch users', 'warning');
+        Sentry.captureMessage('Forbidden access to admin fetch users', 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 

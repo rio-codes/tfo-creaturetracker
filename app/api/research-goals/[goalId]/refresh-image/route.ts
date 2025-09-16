@@ -13,7 +13,7 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
     const session = await auth();
     Sentry.captureMessage(`Refreshing image for goal ${params.goalId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to refresh goal image', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to refresh goal image', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -26,14 +26,14 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found for image refresh: ${params.goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for image refresh: ${params.goalId}`, 'log');
             return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
         }
 
         if (!goal.genes || typeof goal.genes !== 'object') {
             Sentry.captureMessage(
                 `Goal has no gene data for image refresh: ${params.goalId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 { error: 'Goal has no gene data to generate an image.' },

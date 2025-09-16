@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Creating goal from outcomes', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create goal from outcomes', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to create goal from outcomes', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { pairId, goalName, species, selectedGenotypes } = validated.data;

@@ -39,10 +39,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid input for legacy registration. ${errorMessage}`,
-                'warning'
-            );
+            Sentry.captureMessage(`Invalid input for legacy registration. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -52,14 +49,14 @@ export async function POST(req: Request) {
             where: eq(users.username, username),
         });
         if (existingUserByUsername) {
-            Sentry.captureMessage(`Registration with existing username: ${username}`, 'warning');
+            Sentry.captureMessage(`Registration with existing username: ${username}`, 'log');
             return NextResponse.json({ message: 'Username is already taken' }, { status: 409 });
         }
         const existingUserByEmail = await db.query.users.findFirst({
             where: eq(users.email, email),
         });
         if (existingUserByEmail) {
-            Sentry.captureMessage(`Registration with existing email: ${email}`, 'warning');
+            Sentry.captureMessage(`Registration with existing email: ${email}`, 'log');
             return NextResponse.json({ message: 'Email is already in use' }, { status: 409 });
         }
 
@@ -86,7 +83,7 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed:', errorMessage);
             Sentry.captureMessage(
                 `Zod validation failed for legacy registration: ${errorMessage}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 { message: errorMessage || 'Invalid input.' },

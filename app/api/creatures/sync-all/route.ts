@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Syncing all TFO tabs', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to sync all tabs', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to sync all tabs', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         const { tabIds } = await req.json();
         console.log(tabIds);
         if (!Array.isArray(tabIds) || tabIds.some((id) => typeof id !== 'number')) {
-            Sentry.captureMessage('Invalid tab IDs provided for sync-all', 'warning');
+            Sentry.captureMessage('Invalid tab IDs provided for sync-all', 'log');
             return NextResponse.json({ error: 'Invalid tab IDs provided.' }, { status: 400 });
         }
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
             message += ` Failed to sync ${failedSyncs.length} tabs.`;
             Sentry.captureMessage(
                 `Sync-all failed for some tabs: ${failedSyncs.join(', ')}`,
-                'warning'
+                'log'
             );
         } else {
             Sentry.captureMessage(message, 'info');

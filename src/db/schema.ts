@@ -64,6 +64,7 @@ export const users = pgTable('user', {
     statusMessage: text('status_message'),
     statusEmoji: text('status_emoji'),
     showStats: boolean('show_stats').default(true).notNull(),
+    showFriendsList: boolean('show_friends_list').default(true).notNull(),
 });
 
 export const accounts = pgTable(
@@ -128,16 +129,13 @@ export const passwordResetTokens = pgTable('password_reset_token', {
 export const friendships = pgTable(
     'friendships',
     {
-        // To simplify queries, we can enforce userOneId < userTwoId in application logic
         userOneId: text('user_one_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         userTwoId: text('user_two_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
-        // 'pending': request sent, 'accepted': friends, 'blocked': one user blocked another.
         status: friendshipStatusEnum('status').notNull(),
-        // The user who initiated the last status change (e.g., sent request, accepted, blocked)
         actionUserId: text('action_user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -356,3 +354,16 @@ export const userTabs = pgTable(
         };
     }
 );
+
+export const reports = pgTable('report', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    reporterId: text('reporter_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    reportedId: text('reported_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    reason: text('reason').notNull(),
+    status: text('status').default('open').notNull(), // e.g., 'open', 'resolved', 'dismissed'
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});

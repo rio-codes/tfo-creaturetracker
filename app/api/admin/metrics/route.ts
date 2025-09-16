@@ -11,7 +11,7 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin metrics', 'warning');
+        Sentry.captureMessage('Forbidden access to admin metrics', 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 

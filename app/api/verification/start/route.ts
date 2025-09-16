@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const session = await auth();
     Sentry.captureMessage('Starting account verification', 'log');
     if (!session?.user?.id || !session.user.username) {
-        Sentry.captureMessage('Unauthenticated attempt to start verification', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to start verification', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
                 `Invalid tab id provided for verification. ${errorMessage}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         if (data.error || !data.creatures || data.creatures.length === 0) {
             Sentry.captureMessage(
                 `Could not find creatures in tab for verification: ${username} / Tab ${tabId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {

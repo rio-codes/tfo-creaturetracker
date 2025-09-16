@@ -17,7 +17,7 @@ export async function GET() {
     Sentry.captureMessage('Fetching user tabs', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to fetch tabs', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to fetch tabs', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Creating user tab', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create tab', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to create tab', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
             const flattenedError = validatedTabs.error.flatten();
             const fullError =
                 flattenedError.fieldErrors.tabId || '' + flattenedError.fieldErrors.tabName || '';
-            Sentry.captureMessage(`Invalid data for creating tab: ${fullError}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating tab: ${fullError}`, 'log');
             return NextResponse.json(
                 {
                     error: `Error: ${fullError}`,
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         }
 
         if (hasObscenity(tabName)) {
-            Sentry.captureMessage('Obscene language in new tab name', 'warning');
+            Sentry.captureMessage('Obscene language in new tab name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

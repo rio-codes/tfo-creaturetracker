@@ -40,6 +40,7 @@ export type User = {
     statusMessage?: string | null;
     statusEmoji?: string | null;
     showStats: boolean;
+    showFriendsList: boolean;
 };
 
 export type EnrichedCreature =

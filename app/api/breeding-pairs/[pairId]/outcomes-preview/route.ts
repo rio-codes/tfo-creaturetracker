@@ -18,7 +18,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
     const session = await auth();
     Sentry.captureMessage(`Generating outcomes preview for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to generate outcomes preview', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to generate outcomes preview', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -34,7 +34,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
             console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
                 `Invalid genetic data for previewing outcome. ${errorMessage}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
@@ -51,7 +51,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
         if (!pair) {
             Sentry.captureMessage(
                 `Breeding pair not found for outcomes preview: ${params.pairId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }

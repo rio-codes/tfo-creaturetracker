@@ -92,7 +92,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
         resolver: zodResolver(settingsFormSchema),
         defaultValues: {
             email: user.email as string,
-            bio: (user.bio as string).trim() || ('' as string),
+            bio: (user.bio as string) || ('' as string),
             theme: user.theme as 'light' | 'dark' | 'system',
             collectionItemsPerPage: user.collectionItemsPerPage,
             goalsItemsPerPage: user.goalsItemsPerPage,

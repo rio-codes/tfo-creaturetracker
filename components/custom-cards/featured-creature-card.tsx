@@ -1,0 +1,74 @@
+import Link from 'next/link';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import type { EnrichedCreature } from '@/types';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ChevronUp, ChevronDown } from 'lucide-react';
+
+interface FeaturedCreatureCardProps {
+    creature: EnrichedCreature;
+}
+
+export function FeaturedCreatureCard({ creature }: FeaturedCreatureCardProps) {
+    if (!creature) return null;
+    return (
+        <Link
+            href={`https://finaloutpost.net/view/${creature.code}`}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <Card className="h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+                <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4">
+                    <img
+                        src={creature.imageUrl}
+                        alt={creature.creatureName || creature.code}
+                        className="h-32 w-32 object-contain rounded-md bg-white/10 p-3 self-center sm:self-start"
+                    />
+                    <div className="flex-1">
+                        <CardTitle
+                            className="text-lg truncate text-pompaca-purple dark:text-purple-300"
+                            title={creature.creatureName || creature.code}
+                        >
+                            {creature.creatureName || creature.code}
+                        </CardTitle>
+                        <div className="text-sm text-pompaca-purple dark:text-purple-400 mt-2 space-y-1">
+                            <p>
+                                <strong>Code:</strong> {creature.code}
+                            </p>
+                            <p>
+                                <strong>Species:</strong> {creature.species}
+                            </p>
+                            <p>
+                                <strong>Gender:</strong> {creature.gender}
+                            </p>
+                        </div>
+                        <div className="mt-2">
+                            <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">
+                                Genetics:
+                            </p>
+                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple/50">
+                                <div className="text-xs font-mono space-y-1 text-barely-lilac dark:text-purple-400">
+                                    {creature.geneData?.map((gene) => (
+                                        <div key={gene.category}>
+                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                                {gene.category}:
+                                            </span>
+                                            <div className="pl-2">
+                                                <div>Phenotype: {gene.phenotype}</div>
+                                                <div>Genotype: {gene.genotype}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <ScrollBar orientation="vertical" />
+                                <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
+                                    <ChevronUp className=" h-4 w-4 text-barely-lilac" />
+                                    <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                                </div>
+                            </ScrollArea>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </Link>
+    );
+}

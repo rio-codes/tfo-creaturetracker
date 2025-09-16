@@ -29,7 +29,11 @@ export type User = {
     updatedAt: Date;
     role: 'admin' | 'user';
     status: 'active' | 'suspended';
-    theme: 'light' | 'dark';
+    theme: 'light' | 'dark' | 'system';
+    bio?: string | null;
+    supporterTier?: string | null;
+    featuredCreatureIds?: string[] | null;
+    featuredGoalIds?: string[] | null;
 };
 
 export type EnrichedCreature =
@@ -52,10 +56,7 @@ export type GoalGene = {
     isOptional: boolean;
 };
 
-export type EnrichedResearchGoal = Omit<
-    DbResearchGoal,
-    'createdAt' | 'updatedAt' | 'genes'
-> & {
+export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt' | 'genes'> & {
     createdAt: string;
     updatedAt: string;
     genes: {
@@ -63,10 +64,7 @@ export type EnrichedResearchGoal = Omit<
     };
 };
 
-export type EnrichedBreedingPair = Omit<
-    DbBreedingPair,
-    'createdAt' | 'updatedAt'
-> & {
+export type EnrichedBreedingPair = Omit<DbBreedingPair, 'createdAt' | 'updatedAt'> & {
     createdAt: string;
     updatedAt: string;
     timesBred: number;
@@ -95,10 +93,7 @@ export type Prediction = {
     chancesByCategory?: { [key: string]: number };
 };
 
-export type SerializedBreedingLogEntry = Omit<
-    DbBreedingLogEntry,
-    'createdAt' | 'updatedAt'
-> & {
+export type SerializedBreedingLogEntry = Omit<DbBreedingLogEntry, 'createdAt' | 'updatedAt'> & {
     createdAt: string;
     updatedAt: string;
 };

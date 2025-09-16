@@ -10,11 +10,21 @@ import * as Sentry from '@sentry/nextjs';
 const settingsSchema = z.object({
     email: z.string().email().optional(),
     password: z.string().min(12).optional().or(z.literal('')),
-    collectionItemsPerPage: z.number().min(3).max(30).optional(),
-    goalsItemsPerPage: z.number().min(3).max(30).optional(),
-    pairsItemsPerPage: z.number().min(3).max(30).optional(),
+    collectionItemsPerPage: z.coerce.number().min(3).max(30).optional(),
+    goalsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
+    pairsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
     theme: z.enum(['light', 'dark', 'system']).optional(),
     goalConversions: z.any().optional(),
+    // Profile fields
+    bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
+    featuredCreatureIds: z
+        .array(z.string())
+        .max(3, 'You can only feature up to 3 creatures.')
+        .optional(),
+    featuredGoalIds: z
+        .array(z.string())
+        .max(3, 'You can only feature up to 3 research goals.')
+        .optional(),
 });
 
 export async function PATCH(req: Request) {

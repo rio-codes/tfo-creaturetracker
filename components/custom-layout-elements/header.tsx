@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogIn, LogOut, Loader2, RefreshCw } from 'lucide-react';
+import { Menu, LogIn, LogOut, Loader2, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -13,16 +13,22 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getRandomCapsuleAvatar } from '@/lib/avatars';
+import { RESERVED_USER_PATHS } from '@/constants/paths';
+
+function getProfilePath(username: string): string {
+    if (RESERVED_USER_PATHS.includes(username.toLowerCase())) {
+        return `/tfoct-${username}`;
+    }
+    return `/${username}`;
+}
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isChangingAvatar, setIsChangingAvatar] = useState(false);
-    const { data: session, status, update } = useSession();
+    const { data: session, status } = useSession();
 
     const menuItems = [
         { href: '/collection', label: 'Collection', icon: '🦋' },
         { href: '/research-goals', label: 'Research Goals', icon: '🧪' },
         { href: '/breeding-pairs', label: 'Breeding Pairs', icon: '💜' },
-        { href: '/settings', label: 'Settings', icon: '🔧' },
         { href: '/help', label: 'Help', icon: '❓' },
     ];
 
@@ -46,27 +52,6 @@ export default function Header() {
             </Link>
         </DropdownMenuItem>
     );
-
-    const handleChangeAvatar = async () => {
-        if (isChangingAvatar) return;
-        setIsChangingAvatar(true);
-        try {
-            const response = await fetch('/api/users/change-avatar', {
-                method: 'POST',
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // Directly update the session with the new image URL from the API response
-                await update({ image: data.newAvatar });
-            } else {
-                console.error('Failed to change avatar');
-            }
-        } catch (error) {
-            console.error('An error occurred while changing avatar:', error);
-        } finally {
-            setIsChangingAvatar(false);
-        }
-    };
 
     return (
         <header className="bg-pompaca-purple text-barely-lilac px-2 sm:px-4 py-2 flex items-center justify-between shadow-md">
@@ -156,20 +141,22 @@ export default function Header() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-dusk-purple" />
                             <DropdownMenuItem
-                                onSelect={(e) => {
-                                    // Prevent the menu from closing immediately
-                                    e.preventDefault();
-                                    handleChangeAvatar();
-                                }}
-                                disabled={isChangingAvatar}
+                                asChild
                                 className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
                             >
-                                {isChangingAvatar ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                )}
-                                <span>{isChangingAvatar ? 'Changing...' : 'Change Avatar'}</span>
+                                <Link href={getProfilePath(session.user.username)}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Profile</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                            >
+                                <Link href="/settings">
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onSelect={() => signOut({ callbackUrl: '/' })}

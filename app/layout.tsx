@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
@@ -72,8 +73,11 @@ export default async function RootLayout({
                     rel="stylesheet"
                 />
             </head>
-            <body className={`${tektur.className} flex flex-col min-h-screen`}>
+            <body
+                className={`${tektur.className} flex flex-col min-h-screen bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300`}
+            >
                 <ClientProviders>{children}</ClientProviders>
+                <Toaster />
             </body>
         </html>
     );

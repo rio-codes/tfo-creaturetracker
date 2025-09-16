@@ -31,7 +31,9 @@ export const auditLog = pgTable('audit_log', {
 });
 
 export const goalModeEnum = pgEnum('goal_mode', ['genotype', 'phenotype']);
+export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
+export const friendshipStatusEnum = pgEnum('friendship_status', ['pending', 'accepted', 'blocked']);
 export const themeEnum = pgEnum('theme', ['light', 'dark', 'system']);
 
 export const users = pgTable('user', {
@@ -42,7 +44,7 @@ export const users = pgTable('user', {
     emailVerified: timestamp('emailVerified', { mode: 'date' }),
     image: text('image'),
     password: text('password'),
-    role: text('role').default('user').notNull(),
+    role: userRoleEnum('role').default('user').notNull(),
     status: userStatusEnum('status').default('active').notNull(),
     theme: themeEnum('theme').default('system').notNull(),
     collectionItemsPerPage: integer('collection_items_per_page').default(12).notNull(),
@@ -52,6 +54,10 @@ export const users = pgTable('user', {
     tutorialProgress: integer('tutorial_progress').default(-1).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    bio: text('bio'),
+    supporterTier: text('supporter_tier'), // e.g., 'beta', 'patron'
+    featuredCreatureIds: jsonb('featured_creature_ids').$type<string[]>(),
+    featuredGoalIds: jsonb('featured_goal_ids').$type<string[]>(),
 });
 
 export const accounts = pgTable(
@@ -112,6 +118,30 @@ export const passwordResetTokens = pgTable('password_reset_token', {
     token: text('token').notNull(),
     expires: timestamp('expires', { mode: 'date' }).notNull(),
 });
+
+export const friendships = pgTable(
+    'friendships',
+    {
+        // To simplify queries, we can enforce userOneId < userTwoId in application logic
+        userOneId: text('user_one_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        userTwoId: text('user_two_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        // 'pending': request sent, 'accepted': friends, 'blocked': one user blocked another.
+        status: friendshipStatusEnum('status').notNull(),
+        // The user who initiated the last status change (e.g., sent request, accepted, blocked)
+        actionUserId: text('action_user_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+    },
+    (t) => ({
+        pk: primaryKey({ columns: [t.userOneId, t.userTwoId] }),
+        userOneIdx: index('friendship_userOne_idx').on(t.userOneId),
+        userTwoIdx: index('friendship_userTwo_idx').on(t.userTwoId),
+    })
+);
 
 export const accountVerifications = pgTable('account_verification', {
     userId: text('user_id')

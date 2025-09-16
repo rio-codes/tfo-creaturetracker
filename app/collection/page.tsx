@@ -8,6 +8,11 @@ import {
 } from '@/lib/data';
 import { CollectionClient } from '@/components/custom-clients/collection-client';
 import { Suspense } from 'react';
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import type { User } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +27,8 @@ export default async function CollectionPage({
         species?: string;
     };
 }) {
+    const session = await auth();
+
     const [
         allRawPairs,
         allEnrichedCreatures,
@@ -29,6 +36,7 @@ export default async function CollectionPage({
         filteredData,
         allEnrichedGoals,
         allLogs,
+        currentUser,
     ] = await Promise.all([
         getAllRawBreedingPairsForUser(),
         getAllEnrichedCreaturesForUser(),
@@ -36,6 +44,12 @@ export default async function CollectionPage({
         fetchFilteredCreatures(searchParams),
         getAllResearchGoalsForUser(),
         getAllBreedingLogEntriesForUser(),
+        session?.user?.id
+            ? (db.query.users.findFirst({
+                  where: eq(users.id, session.user.id),
+                  columns: { password: false },
+              }) as Promise<User | undefined>)
+            : Promise.resolve(undefined),
     ]);
 
     const { pinnedCreatures, unpinnedCreatures, totalPages } = filteredData || {
@@ -57,6 +71,7 @@ export default async function CollectionPage({
                         allEnrichedPairs={allEnrichedPairs}
                         allEnrichedGoals={allEnrichedGoals}
                         allLogs={allLogs}
+                        currentUser={currentUser ?? null}
                     />
                 </Suspense>
             </div>

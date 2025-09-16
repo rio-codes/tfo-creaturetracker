@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, User } from '@/types';
 import type { DbBreedingPair } from '@/types';
 import type { DbBreedingLogEntry } from '@/types';
 import {
@@ -42,6 +42,7 @@ type CollectionClientProps = {
     allLogs: DbBreedingLogEntry[];
     allEnrichedPairs: EnrichedBreedingPair[];
     allEnrichedGoals: EnrichedResearchGoal[];
+    currentUser?: User | null;
 };
 
 function SortableCreatureCard(props: {
@@ -54,6 +55,7 @@ function SortableCreatureCard(props: {
     allEnrichedPairs: EnrichedBreedingPair[];
     allLogs: DbBreedingLogEntry[];
     allGoals: EnrichedResearchGoal[];
+    currentUser?: User | null;
     _isAdminView?: boolean;
 }) {
     const { creature, ...restProps } = props;
@@ -114,6 +116,7 @@ export function CollectionClient({
     allLogs,
     allEnrichedPairs: allPairs,
     allEnrichedGoals: allGoals,
+    currentUser,
 }: CollectionClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -327,6 +330,7 @@ export function CollectionClient({
                                                 allLogs={allLogs}
                                                 allGoals={allGoals}
                                                 _isAdminView={false}
+                                                currentUser={currentUser}
                                             />
                                         ))}
                                     </div>
@@ -348,6 +352,7 @@ export function CollectionClient({
                                     allEnrichedPairs={allPairs}
                                     allLogs={allLogs}
                                     allGoals={allGoals}
+                                    currentUser={currentUser}
                                 />
                             ))}
                         </div>
@@ -373,6 +378,7 @@ export function CollectionClient({
                                     allEnrichedPairs={allPairs}
                                     allLogs={allLogs}
                                     allGoals={allGoals}
+                                    currentUser={currentUser}
                                 />
                             ))}
                         </div>

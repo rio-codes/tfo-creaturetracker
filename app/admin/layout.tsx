@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <aside className="-mx-4 lg:w-1/5">
                     <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
                         <NavLink href="/admin">Metrics</NavLink>
+                        <NavLink href="/admin/reports">Reports</NavLink>
                         <NavLink href="/admin/users">Users</NavLink>
                         <NavLink href="/admin/creatures">Creatures</NavLink>
                         <NavLink href="/admin/breeding-pairs">Breeding Pairs</NavLink>

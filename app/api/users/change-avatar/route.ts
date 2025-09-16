@@ -10,7 +10,7 @@ export async function POST() {
     Sentry.captureMessage('Changing user avatar', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to change avatar', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to change avatar', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -21,7 +21,7 @@ export async function POST() {
         });
 
         if (!user) {
-            Sentry.captureMessage(`User not found for avatar change: ${userId}`, 'warning');
+            Sentry.captureMessage(`User not found for avatar change: ${userId}`, 'log');
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 

@@ -12,12 +12,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
     Sentry.captureMessage(`Admin: deleting user ${params.userId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(`Forbidden access to admin delete user ${params.userId}`, 'warning');
+        Sentry.captureMessage(`Forbidden access to admin delete user ${params.userId}`, 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     if (params.userId === session.user.id) {
-        Sentry.captureMessage(`Admin trying to delete self: ${session.user.id}`, 'warning');
+        Sentry.captureMessage(`Admin trying to delete self: ${session.user.id}`, 'log');
         return NextResponse.json({ error: 'Admins cannot delete themselves.' }, { status: 400 });
     }
 
@@ -28,7 +28,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
         });
 
         if (!targetUser) {
-            Sentry.captureMessage(`Admin: user to delete not found ${params.userId}`, 'warning');
+            Sentry.captureMessage(`Admin: user to delete not found ${params.userId}`, 'log');
             return NextResponse.json({ error: 'User not found.' }, { status: 404 });
         }
 

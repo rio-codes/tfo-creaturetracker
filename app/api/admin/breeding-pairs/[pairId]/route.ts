@@ -21,7 +21,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin fetch breeding pair ${params.pairId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -33,7 +33,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
         });
 
         if (!pair || !pair.maleParent || !pair.femaleParent) {
-            Sentry.captureMessage(`Admin: breeding pair not found ${params.pairId}`, 'warning');
+            Sentry.captureMessage(`Admin: breeding pair not found ${params.pairId}`, 'log');
             return NextResponse.json({ error: 'Breeding pair not found' }, { status: 404 });
         }
 
@@ -92,7 +92,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin delete breeding pair ${params.pairId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -106,7 +106,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
         if (!targetPair) {
             Sentry.captureMessage(
                 `Admin: breeding pair to delete not found ${params.pairId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }

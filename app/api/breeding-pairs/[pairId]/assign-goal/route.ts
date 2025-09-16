@@ -17,7 +17,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
     const session = await auth();
     Sentry.captureMessage(`Assigning goal to pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to assign goal', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to assign goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for assigning goal. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for assigning goal. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -52,14 +52,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         if (!pair || !goal) {
             Sentry.captureMessage(
                 `Pair or Goal not found for assignment. Pair: ${pairId}, Goal: ${goalId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: 'Pair or Goal not found.' }, { status: 404 });
         }
         if (pair.species !== goal.species) {
             Sentry.captureMessage(
                 `Species mismatch on goal assignment. Pair: ${pairId}, Goal: ${goalId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 { error: 'Goal species must match pair species.' },

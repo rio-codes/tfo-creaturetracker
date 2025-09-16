@@ -11,7 +11,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
     Sentry.captureMessage(`Pinning/unpinning pair ${params.pairId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to pin pair', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to pin pair', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 

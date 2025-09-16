@@ -39,7 +39,7 @@ export async function GET(
             console.error('Zod Validation Failed:', fieldErrors);
             Sentry.captureMessage(
                 `Invalid parameter for public creature count: ${errorMessage}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {
@@ -70,7 +70,7 @@ export async function GET(
         if (!user) {
             Sentry.captureMessage(
                 `User not found for public creature count: ${username}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {

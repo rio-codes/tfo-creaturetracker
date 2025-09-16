@@ -42,7 +42,7 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed:', errorString);
             Sentry.captureMessage(
                 `Zod validation failed for registration start: ${errorString}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: errorString }, { status: 400 });
         }
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         if (existingUser) {
             Sentry.captureMessage(
                 `Registration attempt with existing email/username: ${email}/${tfoUsername}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {
@@ -87,10 +87,7 @@ export async function POST(req: Request) {
         });
         const labData = await labResponse.json();
         if (labData.error) {
-            Sentry.captureMessage(
-                `TFO account not found for registration: ${tfoUsername}`,
-                'warning'
-            );
+            Sentry.captureMessage(`TFO account not found for registration: ${tfoUsername}`, 'log');
             return NextResponse.json(
                 {
                     error: `Could not find a TFO account for username: '${tfoUsername}'. Please check the spelling.`,
@@ -112,7 +109,7 @@ export async function POST(req: Request) {
         if (tfoData.error || !tfoData.creatures || tfoData.creatures.length === 0) {
             Sentry.captureMessage(
                 `Empty or hidden tab for registration: ${tfoUsername} / Tab ${tabId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json(
                 {

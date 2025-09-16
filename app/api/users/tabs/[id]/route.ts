@@ -19,7 +19,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
     Sentry.captureMessage(`Updating user tab ${params.id}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to update tab', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to update tab', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -31,7 +31,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
     if (!validated.success) {
         const flattenedError = validated.error.flatten();
         const fullError = Object.values(flattenedError.fieldErrors).flat().join(' ');
-        Sentry.captureMessage(`Invalid data for updating tab: ${fullError}`, 'warning');
+        Sentry.captureMessage(`Invalid data for updating tab: ${fullError}`, 'log');
         return NextResponse.json(
             {
                 error: `Error: ${fullError}`,
@@ -52,7 +52,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
 
         if (tabName !== undefined) {
             if (hasObscenity(tabName)) {
-                Sentry.captureMessage('Obscene language in tab name', 'warning');
+                Sentry.captureMessage('Obscene language in tab name', 'log');
                 return NextResponse.json(
                     { error: 'The provided name contains inappropriate language.' },
                     { status: 400 }
@@ -75,7 +75,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
             .returning();
 
         if (updatedTab.length === 0) {
-            Sentry.captureMessage(`Tab not found for update: ${tabIdToUpdate}`, 'warning');
+            Sentry.captureMessage(`Tab not found for update: ${tabIdToUpdate}`, 'log');
             return NextResponse.json(
                 { error: 'Tab not found or not owned by user.' },
                 { status: 404 }
@@ -108,7 +108,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
     Sentry.captureMessage(`Deleting user tab ${params.id}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete tab', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to delete tab', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -118,7 +118,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
         columns: { userId: true },
     });
     if (!tabToDelete) {
-        Sentry.captureMessage(`Tab not found for deletion: ${params.id}`, 'warning');
+        Sentry.captureMessage(`Tab not found for deletion: ${params.id}`, 'log');
         return NextResponse.json({ error: 'Tab not found.' }, { status: 404 });
     }
 

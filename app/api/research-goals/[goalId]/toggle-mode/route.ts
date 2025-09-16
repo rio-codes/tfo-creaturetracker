@@ -11,7 +11,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
     Sentry.captureMessage(`Toggling mode for goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to toggle goal mode', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to toggle goal mode', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -25,7 +25,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found for mode toggle: ${goalId}`, 'warning');
+            Sentry.captureMessage(`Goal not found for mode toggle: ${goalId}`, 'log');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     Sentry.captureMessage('Creating breeding pair', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create pair', 'warning');
+        Sentry.captureMessage('Unauthenticated attempt to create pair', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -39,14 +39,14 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
-            Sentry.captureMessage('Obscene language in new pair name', 'warning');
+            Sentry.captureMessage('Obscene language in new pair name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         });
 
         if (existingPair) {
-            Sentry.captureMessage('Duplicate breeding pair found', 'warning');
+            Sentry.captureMessage('Duplicate breeding pair found', 'log');
             return NextResponse.json(
                 { error: 'A breeding pair with these parents already exists.' },
                 { status: 409 }

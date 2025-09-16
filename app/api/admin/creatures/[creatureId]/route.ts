@@ -23,7 +23,7 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin fetch creature ${params.creatureId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -34,7 +34,7 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
         });
 
         if (!creature) {
-            Sentry.captureMessage(`Admin: creature not found ${params.creatureId}`, 'warning');
+            Sentry.captureMessage(`Admin: creature not found ${params.creatureId}`, 'log');
             return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
         }
 
@@ -102,7 +102,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin delete creature ${params.creatureId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -116,7 +116,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
         if (!targetCreature) {
             Sentry.captureMessage(
                 `Admin: creature to delete not found ${params.creatureId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: 'Creature not found.' }, { status: 404 });
         }

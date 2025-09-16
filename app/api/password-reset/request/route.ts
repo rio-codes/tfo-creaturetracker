@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     try {
         const { email } = await req.json();
         if (!email) {
-            Sentry.captureMessage('Email not provided for password reset request', 'warning');
+            Sentry.captureMessage('Email not provided for password reset request', 'log');
             return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
         }
 

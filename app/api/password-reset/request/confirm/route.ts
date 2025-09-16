@@ -23,7 +23,7 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for password reset. ${errorMessage}`, 'warning');
+            Sentry.captureMessage(`Invalid data for password reset. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         }
 
         if (!tokenRecord) {
-            Sentry.captureMessage('Invalid or expired token for password reset', 'warning');
+            Sentry.captureMessage('Invalid or expired token for password reset', 'log');
             return NextResponse.json({ error: 'Invalid or expired token.' }, { status: 400 });
         }
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
             await db
                 .delete(passwordResetTokens)
                 .where(eq(passwordResetTokens.email, tokenRecord.email));
-            Sentry.captureMessage('Expired token used for password reset', 'warning');
+            Sentry.captureMessage('Expired token used for password reset', 'log');
             return NextResponse.json({ error: 'Token has expired.' }, { status: 400 });
         }
 

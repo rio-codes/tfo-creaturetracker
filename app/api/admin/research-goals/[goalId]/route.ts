@@ -15,7 +15,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin fetch research goal ${params.goalId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -26,7 +26,7 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Admin: research goal not found ${params.goalId}`, 'warning');
+            Sentry.captureMessage(`Admin: research goal not found ${params.goalId}`, 'log');
             return NextResponse.json({ error: 'Research goal not found' }, { status: 404 });
         }
 
@@ -49,7 +49,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
     if (!session?.user?.id || session.user.role !== 'admin') {
         Sentry.captureMessage(
             `Forbidden access to admin delete research goal ${params.goalId}`,
-            'warning'
+            'log'
         );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
@@ -63,7 +63,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
         if (!targetGoal) {
             Sentry.captureMessage(
                 `Admin: research goal to delete not found ${params.goalId}`,
-                'warning'
+                'log'
             );
             return NextResponse.json({ error: 'Research goal not found.' }, { status: 404 });
         }

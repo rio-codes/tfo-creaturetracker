@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin create creature', 'warning');
+        Sentry.captureMessage('Forbidden access to admin create creature', 'log');
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const userId = session.user.id;

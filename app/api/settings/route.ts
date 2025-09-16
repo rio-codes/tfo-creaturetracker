@@ -10,11 +10,34 @@ import * as Sentry from '@sentry/nextjs';
 const settingsSchema = z.object({
     email: z.string().email().optional(),
     password: z.string().min(12).optional().or(z.literal('')),
-    collectionItemsPerPage: z.number().min(3).max(30).optional(),
-    goalsItemsPerPage: z.number().min(3).max(30).optional(),
-    pairsItemsPerPage: z.number().min(3).max(30).optional(),
+    collectionItemsPerPage: z.coerce.number().min(3).max(30).optional(),
+    goalsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
+    pairsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
     theme: z.enum(['light', 'dark', 'system']).optional(),
     goalConversions: z.any().optional(),
+    // Profile fields
+    bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
+    featuredCreatureIds: z
+        .array(z.string())
+        .max(3, 'You can only feature up to 3 creatures.')
+        .optional(),
+    featuredGoalIds: z
+        .array(z.string())
+        .max(3, 'You can only feature up to 3 research goals.')
+        .optional(),
+    pronouns: z.string().max(50, 'Pronouns must be 50 characters or less.').optional().nullable(),
+    socialLinks: z
+        .array(z.string().url('Please provide valid URLs.'))
+        .max(5, 'You can only have up to 5 social links.')
+        .optional(),
+    showLabLink: z.boolean().optional(),
+    statusMessage: z
+        .string()
+        .max(80, 'Status message must be 80 characters or less.')
+        .optional()
+        .nullable(),
+    statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
+    showStats: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request) {

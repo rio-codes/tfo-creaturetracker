@@ -1,0 +1,17 @@
+export const RESERVED_USER_PATHS = [
+    'admin',
+    'api',
+    'breeding-pairs',
+    'collection',
+    'help',
+    'login',
+    'password-reset',
+    'register',
+    'research-goals',
+    'settings',
+    'share',
+    'terms',
+    'privacy',
+    'public',
+    'users',
+];

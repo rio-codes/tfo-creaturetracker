@@ -1,5 +1,7 @@
 'use client';
 
+import { RESERVED_USER_PATHS } from '@/constants/paths';
+import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +15,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { User } from '@/types';
+
+function getProfilePath(username: string): string {
+    if (RESERVED_USER_PATHS.includes(username.toLowerCase())) {
+        return `/tfoct-${username}`;
+    }
+    return `/${username}`;
+}
 
 async function handleSuspendUser(userId: string, currentStatus: string) {
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
@@ -73,6 +82,15 @@ export const columns: ColumnDef<User>[] = [
     {
         accessorKey: 'username',
         header: 'Username',
+        cell: ({ row }) => (
+            <Link
+                href={getProfilePath(row.original.username)}
+                className="hover:underline"
+                prefetch={false}
+            >
+                {row.original.username}
+            </Link>
+        ),
     },
     {
         accessorKey: 'email',

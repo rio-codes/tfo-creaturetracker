@@ -2,7 +2,16 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronUp, ChevronDown, Pin, PinOff, Loader2, X } from 'lucide-react';
+import {
+    ChevronUp,
+    ChevronDown,
+    Pin,
+    PinOff,
+    Loader2,
+    X,
+    UserRoundPlus,
+    UserRoundMinus,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -15,10 +24,12 @@ import type {
     EnrichedCreature,
     DbBreedingPair,
     DbBreedingLogEntry,
+    User,
 } from '@/types';
 import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
 import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
+import { toast } from 'sonner';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -31,6 +42,7 @@ interface CreatureCardProps {
     allEnrichedPairs?: EnrichedBreedingPair[];
     allGoals?: EnrichedResearchGoal[];
     isAdminView?: boolean;
+    currentUser?: User | null;
 }
 
 const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature | null }) => {
@@ -69,6 +81,7 @@ export function CreatureCard({
     allRawPairs,
     allLogs,
     allGoals,
+    currentUser,
     isAdminView = false,
 }: CreatureCardProps) {
     if (!creature) {
@@ -79,11 +92,51 @@ export function CreatureCard({
     const [isPinned, setIsPinned] = useState(creature.isPinned);
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isFeaturing, setIsFeaturing] = useState(false);
+    const [isFeatured, setIsFeatured] = useState(
+        currentUser?.featuredCreatureIds?.includes(creature.id) ?? false
+    );
 
     const parentPair = useMemo(
         () => allPairs?.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id)),
         [allPairs, creature.id]
     );
+
+    const handleFeatureToggle = async () => {
+        if (!currentUser) return;
+        setIsFeaturing(true);
+
+        const currentFeaturedIds = currentUser.featuredCreatureIds || [];
+        const newIsFeatured = !isFeatured;
+
+        const newFeaturedIds = newIsFeatured
+            ? [...currentFeaturedIds, creature.id]
+            : currentFeaturedIds.filter((id) => id !== creature.id);
+
+        if (newFeaturedIds.length > 3) {
+            toast.error('You can only feature up to 3 creatures.');
+            setIsFeaturing(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/settings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ featuredCreatureIds: newFeaturedIds }),
+            });
+            if (!response.ok) throw new Error('Failed to update featured creatures.');
+            setIsFeatured(newIsFeatured);
+            toast.success(
+                newIsFeatured ? 'Creature featured on profile!' : 'Creature un-featured.'
+            );
+            router.refresh();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+        } finally {
+            setIsFeaturing(false);
+        }
+    };
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -140,7 +193,7 @@ export function CreatureCard({
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
+        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
             <div className="absolute top-1 right-1 z-10">
                 <Button
                     variant="ghost"
@@ -157,6 +210,36 @@ export function CreatureCard({
                     )}
                 </Button>
             </div>
+            {!isAdminView && currentUser && (
+                <div className="absolute bottom-2 right-2 z-10">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleFeatureToggle}
+                                    disabled={isFeaturing}
+                                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                                >
+                                    {isFeaturing ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : isFeatured ? (
+                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                    ) : (
+                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                    )}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>
+                                    {isFeatured ? 'Un-feature from profile' : 'Feature on profile'}
+                                </p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            )}
             <CardContent className="p-4">
                 {/* Creature Image */}
                 <div className="rounded-lg p-4 mb-4 flex justify-center">

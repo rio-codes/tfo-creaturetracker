@@ -13,6 +13,7 @@ declare module 'next-auth' {
     interface User extends DefaultUser {
         role: 'user' | 'admin';
         username: string;
+        status: 'active' | 'suspended';
         theme: string;
     }
 }
@@ -20,5 +21,9 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
     interface JWT {
         role: 'user' | 'admin';
+        id: string;
+        username: string;
+        theme: string;
+        image?: string | null;
     }
 }

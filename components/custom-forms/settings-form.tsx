@@ -1,224 +1,587 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useTheme } from 'next-themes';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { User } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
-export function SettingsForm({ user }: { user: User }) {
+// This schema should align with the one in `app/api/settings/route.ts`
+const settingsFormSchema = z
+    .object({
+        email: z.string().email().optional(),
+        password: z
+            .string()
+            .min(12, 'Password must be at least 12 characters.')
+            .optional()
+            .or(z.literal('')),
+        collectionItemsPerPage: z.number().min(3).max(30),
+        goalsItemsPerPage: z.number().min(3).max(30),
+        pairsItemsPerPage: z.number().min(3).max(30),
+        theme: z.enum(['light', 'dark', 'system']),
+        goalConversions: z.any().optional(),
+        bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
+        featuredCreatureIds: z
+            .array(z.string())
+            .max(3, 'You can only feature up to 3 creatures.')
+            .optional(),
+        featuredGoalIds: z
+            .array(z.string())
+            .max(3, 'You can only feature up to 3 research goals.')
+            .optional(),
+        pronouns: z
+            .string()
+            .max(50, 'Pronouns must be 50 characters or less.')
+            .optional()
+            .nullable(),
+        socialLinks: z.string().optional(),
+        showLabLink: z.boolean().optional(),
+        statusMessage: z
+            .string()
+            .max(80, 'Status message must be 80 characters or less.')
+            .optional()
+            .nullable(),
+        statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
+        showStats: z.boolean().optional(),
+        confirmPassword: z.string().optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match.",
+        path: ['confirmPassword'],
+    });
+
+type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+
+interface SettingsFormProps {
+    user: User;
+}
+
+export function SettingsForm({ user }: SettingsFormProps) {
+    const { update } = useSession();
     const router = useRouter();
-    const { update: updateSession } = useSession();
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
-    const [email, setEmail] = useState(user.email);
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [collectionItems, setCollectionItems] = useState(user.collectionItemsPerPage);
-    const [goalsItems, setGoalsItems] = useState(user.goalsItemsPerPage);
-    const [pairsItems, setPairsItems] = useState(user.pairsItemsPerPage);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const form = useForm<SettingsFormValues>({
+        resolver: zodResolver(settingsFormSchema),
+        defaultValues: {
+            email: user.email as string,
+            bio: (user.bio as string).trim() || ('' as string),
+            theme: user.theme as 'light' | 'dark' | 'system',
+            collectionItemsPerPage: user.collectionItemsPerPage,
+            goalsItemsPerPage: user.goalsItemsPerPage,
+            pairsItemsPerPage: user.pairsItemsPerPage,
+            password: '' as string,
+            confirmPassword: '' as string,
+            featuredCreatureIds: user.featuredCreatureIds as string[],
+            featuredGoalIds: user.featuredGoalIds as string[],
+            pronouns: user.pronouns,
+            socialLinks: user.socialLinks?.join('\n') || '',
+            showLabLink: user.showLabLink,
+            statusMessage: user.statusMessage,
+            statusEmoji: user.statusEmoji,
+            showStats: user.showStats,
+        },
+    });
 
-    // useEffect only runs on the client, so now we can safely show the UI
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (password && password !== confirmPassword) {
-            setError('Passwords do not match.');
-            return;
+    const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error('File Too Large', {
+                    description: 'Please select an image smaller than 2MB.',
+                });
+                return;
+            }
+            setAvatarFile(file);
+            setAvatarPreview(URL.createObjectURL(file));
         }
-        setIsLoading(true);
-        setError('');
-        setSuccessMessage('');
-        await saveSettings();
     };
 
-    const saveSettings = async () => {
-        setIsLoading(true);
+    const onSubmit = async (data: SettingsFormValues) => {
+        setIsSubmitting(true);
+
+        // Don't send password if it's empty
+        const { confirmPassword, socialLinks: socialLinksString, ...restOfData } = data;
+        const socialLinks = socialLinksString
+            ? socialLinksString.split('\n').filter((link) => link.trim() !== '')
+            : [];
+
+        const updateData = { ...restOfData, socialLinks };
+
+        if (!updateData.password) {
+            delete updateData.password;
+        }
+
         try {
-            const payload: any = {
-                theme,
-                collectionItemsPerPage: collectionItems,
-                goalsItemsPerPage: goalsItems,
-                pairsItemsPerPage: pairsItems,
-            };
-            if (email !== user.email) payload.email = email;
-            if (password) payload.password = password;
+            // 1. Upload avatar if a new one is selected
+            let newImageUrl: string | null = null;
+            if (avatarFile) {
+                const uploadResponse = await fetch(
+                    `/api/avatar/upload?filename=${encodeURIComponent(avatarFile.name)}`,
+                    {
+                        method: 'POST',
+                        body: avatarFile,
+                    }
+                );
 
-            const response = await fetch('/api/settings', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const data = await response.json();
-            if (!response.ok) setError('Failed to update settings. ' + data.error);
-
-            setSuccessMessage(data.message);
-
-            // The session needs to be updated with any changed data.
-            const sessionUpdatePayload: { theme?: string; user?: { email: string } } = {};
-            sessionUpdatePayload.theme = theme; // Always update theme in session
-
-            if (email !== user.email) {
-                sessionUpdatePayload.user = { email };
+                if (!uploadResponse.ok) {
+                    const errorData = await uploadResponse.json();
+                    throw new Error(errorData.error || 'Failed to upload avatar.');
+                }
+                const blob = await uploadResponse.json();
+                newImageUrl = blob.url;
             }
 
-            await updateSession(sessionUpdatePayload);
+            // 2. Update other settings like bio
+            const settingsResponse = await fetch('/api/settings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData),
+            });
+
+            if (!settingsResponse.ok) {
+                const errorData = await settingsResponse.json();
+                throw new Error(errorData.error || 'Failed to update settings.');
+            }
+
+            toast.success('Settings updated successfully!');
+
+            // Manually update the session for instant UI feedback in the header
+            const sessionUpdateData: Record<string, any> = {};
+            if (newImageUrl) sessionUpdateData.image = newImageUrl;
+            if (updateData.theme && updateData.theme !== user.theme)
+                sessionUpdateData.theme = updateData.theme;
+
+            await update(Object.keys(sessionUpdateData).length > 0 ? sessionUpdateData : undefined);
+            // Refresh server components on the page
             router.refresh();
-        } catch (err: any) {
-            setError(err.message);
+        } catch (error) {
+            console.error(error);
+            toast.error('An Error Occurred', {
+                description: error instanceof Error ? error.message : 'Please try again.',
+            });
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <>
-            <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Account Settings Section */}
-                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
-                    <h2 className="text-2xl font-bold mb-4">Account</h2>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email Address</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="bg-barely-lilac dark:bg-midnight-purple"
-                                required
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="password">New Password</Label>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Public Profile
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            This information will be displayed on your public profile page.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <div className="flex items-center gap-6">
+                            <Avatar className="h-24 w-24">
+                                <AvatarImage src={avatarPreview ?? undefined} alt={user.username} />
+                                <AvatarFallback>
+                                    {user.username.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                <FormLabel
+                                    htmlFor="avatar-upload"
+                                    className="text-pompaca-purple dark:text-barely-lilac"
+                                >
+                                    Custom Avatar
+                                </FormLabel>
                                 <Input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Leave blank to keep current"
-                                    className="bg-barely-lilac dark:bg-midnight-purple"
+                                    id="avatar-upload"
+                                    type="file"
+                                    accept="image/png, image/jpeg, image/gif"
+                                    onChange={handleAvatarChange}
+                                    className="file:text-pompaca-purple dark:file:text-purple-300 cursor-pointer text-pompaca-purple dark:text-barely-lilac"
                                 />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                                <Input
-                                    id="confirmPassword"
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-barely-lilac dark:bg-midnight-purple"
-                                />
+                                <p className="text-sm text-dusk-purple dark:text-purple-400">
+                                    PNG, JPG, or GIF. 2MB max.
+                                </p>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Bio
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="Tell us a little about yourself..."
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            maxLength={500}
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400">
+                                        You can use up to 500 characters.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="pronouns"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Pronouns
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="e.g., she/her, they/them"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="socialLinks"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Social Links
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="https://twitter.com/your_handle&#10;https://discord.com/users/your_id"
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400">
+                                        Enter up to 5 social media links, one per line.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
 
-                {/* Preferences Section */}
-                <div className="p-6 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg border border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300">
-                    <h2 className="text-2xl font-bold text-pompaca-purple mb-4">Preferences</h2>
-                    <div className="space-y-2 mb-6">
-                        <Label className="text-lg">Theme</Label>
-                        {!mounted ? (
-                            <div className="h-10 w-full animate-pulse rounded-md bg-pompaca-purple/20" />
-                        ) : (
-                            <RadioGroup
-                                value={theme}
-                                onValueChange={setTheme}
-                                className="flex space-x-4"
-                            >
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="light" id="light" />
-                                    <Label htmlFor="light" className="font-normal">
-                                        Light
-                                    </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="dark" id="dark" />
-                                    <Label htmlFor="dark" className="font-normal">
-                                        Dark
-                                    </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="system" id="system" />
-                                    <Label htmlFor="system" className="font-normal">
-                                        System
-                                    </Label>
-                                </div>
-                            </RadioGroup>
-                        )}
-                    </div>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="collection-items" className="text-lg">
-                                Items per page in Collection
-                            </Label>
-                            <Input
-                                id="collection-items"
-                                type="number"
-                                value={collectionItems}
-                                onChange={(e) => setCollectionItems(Number(e.target.value))}
-                                min="3"
-                                max="30"
-                                className="bg-barely-lilac dark:bg-midnight-purple"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="research-goal-items" className="text-lg">
-                                Items per page in Research Goals
-                            </Label>
-                            <Input
-                                id="research-goal-items"
-                                type="number"
-                                value={goalsItems}
-                                onChange={(e) => setGoalsItems(Number(e.target.value))}
-                                min="3"
-                                max="30"
-                                className="bg-barely-lilac dark:bg-midnight-purple"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="breeding-pair-items" className="text-lg">
-                                Items per page in Breeding Pairs
-                            </Label>
-                            <Input
-                                id="breeding-pair-items"
-                                type="number"
-                                value={pairsItems}
-                                onChange={(e) => setPairsItems(Number(e.target.value))}
-                                min="3"
-                                max="30"
-                                className="bg-barely-lilac dark:bg-midnight-purple"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Status
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            Set a status that will appear on your profile.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid sm:grid-cols-[auto_1fr] gap-6 pt-6">
+                        <FormField
+                            control={form.control}
+                            name="statusEmoji"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Emoji
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="✨"
+                                            className="w-20 bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            maxLength={4}
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="statusMessage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Status Message
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Breeding for shinies!"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                            maxLength={80}
+                                            {...field}
+                                            value={field.value ?? ''}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
 
-                {/* Form Actions */}
-                <div className="flex items-center justify-end gap-4">
-                    {error && <p className="text-sm text-red-500">{error}</p>}
-                    {successMessage && <p className="text-sm text-green-600">{successMessage}</p>}
-                    <Button
-                        type="submit"
-                        disabled={isLoading}
-                        className="bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac"
-                    >
-                        {isLoading ? 'Saving...' : 'Save Settings'}
-                    </Button>
-                </div>
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Appearance
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            Customize the look and feel of the site.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <FormField
+                            control={form.control}
+                            name="theme"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Theme
+                                    </FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac">
+                                                <SelectValue placeholder="Select a theme" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                                            <SelectItem value="light">Light</SelectItem>
+                                            <SelectItem value="dark">Dark</SelectItem>
+                                            <SelectItem value="system">System</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400">
+                                        Choose between light, dark, or your system's default theme.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <div className="flex items-center space-x-2 pt-4">
+                            <FormField
+                                control={form.control}
+                                name="showLabLink"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Show TFO Lab Link on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="showStats"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Show Statistics on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Account Security
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            Update your password.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        New Password
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="password"
+                                            placeholder="••••••••••••"
+                                            {...field}
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                        />
+                                    </FormControl>
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400">
+                                        Leave blank to keep your current password. Must be at least
+                                        12 characters.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Confirm New Password
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="password"
+                                            placeholder="••••••••••••"
+                                            {...field}
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <CardHeader>
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                            Display Preferences
+                        </CardTitle>
+                        <CardDescription className="text-dusk-purple dark:text-purple-400">
+                            Set the number of items to display per page. You can choose between 3
+                            and 30.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid sm:grid-cols-3 gap-6 pt-6">
+                        <FormField
+                            control={form.control}
+                            name="collectionItemsPerPage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Collection Items
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="3"
+                                            max="30"
+                                            {...field}
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="goalsItemsPerPage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Research Goals
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="3"
+                                            max="30"
+                                            {...field}
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="pairsItemsPerPage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                        Breeding Pairs
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="3"
+                                            max="30"
+                                            {...field}
+                                            className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-pompaca-purple text-barely-lilac hover:bg-pompaca-purple/90 dark:bg-ebena-lavender dark:text-pompaca-purple dark:hover:bg-ebena-lavender/90"
+                >
+                    {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
             </form>
-        </>
+        </Form>
     );
 }

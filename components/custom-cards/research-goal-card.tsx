@@ -2,24 +2,43 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Pin, PinOff, ChevronUp, ChevronDown } from 'lucide-react';
+import {
+    Pin,
+    PinOff,
+    ChevronUp,
+    ChevronDown,
+    UserRoundPlus,
+    UserRoundMinus,
+    Loader2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import type { EnrichedResearchGoal } from '@/types/index';
+import type { EnrichedResearchGoal, User } from '@/types/index';
 import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
 import { Badge } from '@/components/ui/badge';
 import { InfoDisplay } from '../misc-custom-components/info-display';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 
 interface ResearchGoalCardProps {
     goal: EnrichedResearchGoal;
     isAdminView?: boolean;
+    currentUser?: User | null;
 }
 
-export function ResearchGoalCard({ goal, isAdminView = false }: ResearchGoalCardProps) {
+export function ResearchGoalCard({
+    goal,
+    isAdminView = false,
+    currentUser,
+}: ResearchGoalCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(goal?.isPinned);
     const [isPinning, setIsPinning] = useState(false);
+    const [isFeaturing, setIsFeaturing] = useState(false);
+    const [isFeatured, setIsFeatured] = useState(
+        currentUser?.featuredGoalIds?.includes(goal.id) ?? false
+    );
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 
@@ -48,8 +67,42 @@ export function ResearchGoalCard({ goal, isAdminView = false }: ResearchGoalCard
         }
     };
 
+    const handleFeatureToggle = async () => {
+        if (!currentUser) return;
+        setIsFeaturing(true);
+
+        const currentFeaturedIds = currentUser.featuredGoalIds || [];
+        const newIsFeatured = !isFeatured;
+
+        const newFeaturedIds = newIsFeatured
+            ? [...currentFeaturedIds, goal.id]
+            : currentFeaturedIds.filter((id) => id !== goal.id);
+
+        if (newFeaturedIds.length > 3) {
+            toast.error('You can only feature up to 3 research goals.');
+            setIsFeaturing(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/settings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ featuredGoalIds: newFeaturedIds }),
+            });
+            if (!response.ok) throw new Error('Failed to update featured goals.');
+            setIsFeatured(newIsFeatured);
+            toast.success(newIsFeatured ? 'Goal featured on profile!' : 'Goal un-featured.');
+            router.refresh();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+        } finally {
+            setIsFeaturing(false);
+        }
+    };
+
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
             {/* Goal Mode Badge */}
             <div className="absolute top-2 left-2 z-10">
                 <InfoDisplay
@@ -105,6 +158,36 @@ export function ResearchGoalCard({ goal, isAdminView = false }: ResearchGoalCard
                     )}
                 </Button>
             </div>
+            {!isAdminView && currentUser && (
+                <div className="absolute bottom-2 right-2 z-10">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleFeatureToggle}
+                                    disabled={isFeaturing}
+                                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                                >
+                                    {isFeaturing ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : isFeatured ? (
+                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                    ) : (
+                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                    )}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>
+                                    {isFeatured ? 'Un-feature from profile' : 'Feature on profile'}
+                                </p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            )}
             <CardContent className="p-4">
                 {/* Goal Image */}
                 <div className="bg- rounded-lg p-4 mb-4 flex justify-center">

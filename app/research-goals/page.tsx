@@ -2,6 +2,11 @@ import { fetchFilteredResearchGoals } from '@/lib/data';
 import { ResearchGoalClient } from '@/components/custom-clients/research-goal-client';
 import { Suspense } from 'react';
 
+import { auth } from '@/auth';
+import { db } from '@/src/db';
+import { users } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import type { User } from '@/types';
 export const dynamic = 'force-dynamic';
 
 export default async function ResearchGoalsPage(props: {
@@ -12,8 +17,17 @@ export default async function ResearchGoalsPage(props: {
     }>;
 }) {
     const searchParams = await props.searchParams;
-    const { pinnedGoals, unpinnedGoals, totalPages } =
-        await fetchFilteredResearchGoals(searchParams);
+    const session = await auth();
+
+    const [{ pinnedGoals, unpinnedGoals, totalPages }, currentUser] = await Promise.all([
+        fetchFilteredResearchGoals(searchParams),
+        session?.user?.id
+            ? (db.query.users.findFirst({
+                  where: eq(users.id, session.user.id),
+                  columns: { password: false },
+              }) as Promise<User | undefined>)
+            : Promise.resolve(undefined),
+    ]);
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
@@ -23,6 +37,7 @@ export default async function ResearchGoalsPage(props: {
                         pinnedGoals={pinnedGoals}
                         unpinnedGoals={unpinnedGoals}
                         totalPages={totalPages}
+                        currentUser={currentUser ?? null}
                     />
                 </Suspense>
             </div>

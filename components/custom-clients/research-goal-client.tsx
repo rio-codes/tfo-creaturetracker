@@ -36,14 +36,22 @@ import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog';
 import { speciesList } from '@/constants/creature-data';
+import { User } from '@/types';
 
 type ResearchGoalClientProps = {
     pinnedGoals: EnrichedResearchGoal[];
     unpinnedGoals: EnrichedResearchGoal[];
     totalPages: number;
+    currentUser?: User | null;
 };
 
-function SortableGoalCard({ goal }: { goal: EnrichedResearchGoal }) {
+function SortableGoalCard({
+    goal,
+    currentUser,
+}: {
+    goal: EnrichedResearchGoal;
+    currentUser?: User | null;
+}) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: goal.id,
     });
@@ -57,7 +65,7 @@ function SortableGoalCard({ goal }: { goal: EnrichedResearchGoal }) {
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <ResearchGoalCard goal={goal} />
+            <ResearchGoalCard goal={goal} currentUser={currentUser} />
         </div>
     );
 }
@@ -96,6 +104,7 @@ export function ResearchGoalClient({
     pinnedGoals: initialPinnedGoals,
     unpinnedGoals,
     totalPages,
+    currentUser,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
     const [isMounted, setIsMounted] = useState(false);
@@ -244,7 +253,11 @@ export function ResearchGoalClient({
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {pinnedGoals.map((goal) => (
-                                            <SortableGoalCard key={goal.id} goal={goal} />
+                                            <SortableGoalCard
+                                                key={goal.id}
+                                                goal={goal}
+                                                currentUser={currentUser}
+                                            />
                                         ))}
                                     </div>
                                 </SortableContext>
@@ -254,7 +267,11 @@ export function ResearchGoalClient({
                         {/* Mobile: Static Grid */}
                         <div className="grid grid-cols-1 gap-6 md:hidden">
                             {pinnedGoals.map((goal) => (
-                                <ResearchGoalCard key={goal.id} goal={goal} />
+                                <ResearchGoalCard
+                                    key={goal.id}
+                                    goal={goal}
+                                    currentUser={currentUser}
+                                />
                             ))}
                         </div>
                     </div>
@@ -268,7 +285,11 @@ export function ResearchGoalClient({
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                             {unpinnedGoals.map((goal) => (
-                                <ResearchGoalCard key={goal.id} goal={goal} />
+                                <ResearchGoalCard
+                                    key={goal.id}
+                                    goal={goal}
+                                    currentUser={currentUser}
+                                />
                             ))}
                         </div>
                     </div>

@@ -132,7 +132,7 @@ function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
 
 export function BreedingPairsClient({
     pinnedPairs: initialPinnedPairs,
-    unpinnedPairs,
+    unpinnedPairs: initialUnpinnedPairs,
     totalPages,
     allCreatures,
     allGoals,
@@ -141,6 +141,7 @@ export function BreedingPairsClient({
     searchParams,
 }: BreedingPairsClientProps) {
     const [isMounted, setIsMounted] = useState(false);
+    const [unpinnedPairs, setUnpinnedPairs] = useState(initialUnpinnedPairs);
     const [pinnedPairs, setPinnedPairs] = useState(initialPinnedPairs);
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -167,7 +168,8 @@ export function BreedingPairsClient({
 
     useEffect(() => {
         setPinnedPairs(initialPinnedPairs);
-    }, [initialPinnedPairs]);
+        setUnpinnedPairs(initialUnpinnedPairs);
+    }, [initialPinnedPairs, initialUnpinnedPairs]);
 
     const handleDragStart = (event: any) => {
         // Provide haptic feedback on mobile devices when a drag starts.
@@ -298,7 +300,7 @@ export function BreedingPairsClient({
                                         strategy={rectSortingStrategy}
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {pinnedPairs.map((pair) => (
+                                            {pinnedPairs?.map((pair) => (
                                                 <SortablePairCard
                                                     key={pair.id}
                                                     pair={pair}
@@ -315,7 +317,7 @@ export function BreedingPairsClient({
 
                             {/* Mobile: Static Grid */}
                             <div className="grid grid-cols-1 gap-6 md:hidden">
-                                {pinnedPairs.map((pair) => (
+                                {pinnedPairs?.map((pair) => (
                                     <BreedingPairCard
                                         key={pair.id}
                                         pair={pair}
@@ -336,7 +338,7 @@ export function BreedingPairsClient({
                                 All Pairs
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                {unpinnedPairs.map((pair) => (
+                                {unpinnedPairs?.map((pair) => (
                                     <BreedingPairCard
                                         key={pair.id}
                                         pair={pair}
@@ -347,7 +349,7 @@ export function BreedingPairsClient({
                         </div>
                     )}
 
-                    {pinnedPairs.length === 0 && unpinnedPairs.length === 0 ? (
+                    {pinnedPairs?.length === 0 && unpinnedPairs?.length === 0 ? (
                         <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
                             <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
                                 No Breeding Pairs Found
@@ -377,11 +379,11 @@ export function BreedingPairsClient({
                                     onDragEnd={handleDragEnd}
                                 >
                                     <SortableContext
-                                        items={pinnedPairs.map((p) => p.id)}
+                                        items={pinnedPairs?.map((p) => p.id)}
                                         strategy={rectSortingStrategy}
                                     >
                                         <div className="grid grid-cols-2 gap-2">
-                                            {pinnedPairs.map((pair) => (
+                                            {pinnedPairs?.map((pair) => (
                                                 <SortablePairImage key={pair.id} pair={pair} />
                                             ))}
                                         </div>

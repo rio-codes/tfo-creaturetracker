@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useMounted } from '@/hooks/use-mounted';
 import { useRouter } from 'next/navigation';
 import type {
@@ -57,6 +57,12 @@ export function GoalDetailClient({
     const [findPairsDialogOpen, setFindPairsDialogOpen] = useState(false);
     const [isFindingPairs, setIsFindingPairs] = useState(false);
     const [excludeGender, setExcludeGender] = useState(false);
+
+    useEffect(() => {
+        if (goal) {
+            setImageUrl(goal.imageUrl ?? '');
+        }
+    }, [goal]);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
     const gender = goal?.genes['Gender'].phenotype;

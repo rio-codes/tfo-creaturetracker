@@ -139,17 +139,19 @@ export function CollectionClient({
     const pathname = usePathname();
     const { replace } = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
-    const [unpinnedCreatures, _setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
+    const [unpinnedCreatures, setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
+    useEffect(() => {
+        setPinnedCreatures(initialPinnedCreatures || []);
+        setUnpinnedCreatures(initialUnpinnedCreatures || []);
+    }, [initialPinnedCreatures, initialUnpinnedCreatures]);
+
     const handleDragStart = (event: any) => {
-        // Provide haptic feedback on mobile devices when a drag starts.
         if (window.navigator.vibrate) {
-            // The `activatorEvent` tells us what originally triggered the drag.
-            // We only want to vibrate for touch events.
             if (event.activatorEvent.type.startsWith('touch')) {
                 window.navigator.vibrate(50); // A short, crisp vibration
             }
@@ -204,7 +206,7 @@ export function CollectionClient({
             replace(`${pathname}?${params.toString()}`);
         },
         300
-    ); // 300ms debounce delay
+    );
 
     const currentSpecies = searchParams.get('species') || 'all';
     const currentStage = searchParams.get('stage') || 'all';

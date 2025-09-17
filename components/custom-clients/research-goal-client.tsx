@@ -102,11 +102,12 @@ function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
 
 export function ResearchGoalClient({
     pinnedGoals: initialPinnedGoals,
-    unpinnedGoals,
+    unpinnedGoals: initialUnpinnedGoals,
     totalPages,
     currentUser,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
+    const [unpinnedGoals, setUnpinnedGoals] = useState(initialUnpinnedGoals);
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
 
@@ -116,7 +117,8 @@ export function ResearchGoalClient({
 
     useEffect(() => {
         setPinnedGoals(initialPinnedGoals);
-    }, [initialPinnedGoals]);
+        setUnpinnedGoals(initialUnpinnedGoals);
+    }, [initialPinnedGoals, initialUnpinnedGoals]);
 
     const searchParams = useSearchParams();
     const pathname = usePathname();

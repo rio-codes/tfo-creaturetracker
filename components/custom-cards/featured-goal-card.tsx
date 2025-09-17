@@ -3,7 +3,7 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import type { EnrichedResearchGoal, DbCreature } from '@/types';
 import type { FeaturedGoalProgress } from '@/app/[username]/page';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Award, ChevronUp, ChevronDown, ExternalLink } from 'lucide-react';
+import { Award, ChevronUp, ChevronDown } from 'lucide-react';
 import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
 
 interface FeaturedGoalCardProps {

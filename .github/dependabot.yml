@@ -1,0 +1,19 @@
+# .github/dependabot.yml
+version: 2
+updates:
+    # Enable version updates for npm (pnpm)
+    - package-ecosystem: 'npm'
+      directory: '/'
+      schedule:
+          interval: 'daily'
+      # Group updates to reduce PR noise
+      groups:
+          all-dependencies:
+              patterns:
+                  - '*'
+
+    # Enable version updates for GitHub Actions
+    - package-ecosystem: 'github-actions'
+      directory: '/'
+      schedule:
+          interval: 'daily'

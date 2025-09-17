@@ -47,17 +47,20 @@ export type FeaturedGoalProgress = {
         name: string;
         maleParentName: string;
         maleParentCode: string;
-        maleParentImageUrl: string;
+        maleParentImageUrl: string | null;
+        maleParentUpdatedAt: string | null;
         femaleParentName: string;
         femaleParentCode: string;
-        femaleParentImageUrl: string;
+        femaleParentImageUrl: string | null;
+        femaleParentUpdatedAt: string | null;
         score: number;
     } | null;
     progenyCount: number;
     closestProgeny: {
         name: string;
         code: string;
-        imageUrl: string;
+        imageUrl: string | null;
+        updatedAt: string | null;
         accuracy: number;
     } | null;
 };
@@ -365,6 +368,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                     name: closest.progeny.creatureName || 'Unnamed',
                     code: closest.progeny.code,
                     imageUrl: closest.progeny.imageUrl,
+                    updatedAt: closest.progeny.updatedAt?.toISOString() ?? null,
                     accuracy: closest.accuracy,
                 };
             }
@@ -378,10 +382,14 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                       maleParentName: highestScoringPair.pair.maleParent!.creatureName || 'Unnamed',
                       maleParentCode: highestScoringPair.pair.maleParent!.code,
                       maleParentImageUrl: highestScoringPair.pair.maleParent!.imageUrl,
+                      maleParentUpdatedAt:
+                          highestScoringPair.pair.maleParent!.updatedAt?.toISOString() ?? null,
                       femaleParentName:
                           highestScoringPair.pair.femaleParent!.creatureName || 'Unnamed',
                       femaleParentCode: highestScoringPair.pair.femaleParent!.code,
                       femaleParentImageUrl: highestScoringPair.pair.femaleParent!.imageUrl,
+                      femaleParentUpdatedAt:
+                          highestScoringPair.pair.femaleParent!.updatedAt?.toISOString() ?? null,
                       score: highestScoringPair.score,
                   }
                 : null,

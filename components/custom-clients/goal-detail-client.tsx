@@ -32,6 +32,7 @@ import { ShareGoalButton } from '../misc-custom-components/share-goal-button';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
 import { FindPotentialPairsDialog } from '../custom-dialogs/find-potential-pairs-dialog';
+import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -111,12 +112,33 @@ export function GoalDetailClient({
         // Deduplicate progeny in case it's part of multiple assigned pairs
         const uniqueProgeny = Array.from(
             new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
-        );
+        ) as (EnrichedCreature & { parentPairName: string })[];
 
         // Final type guard to ensure all items are valid creatures
         return uniqueProgeny.filter(
             (p): p is EnrichedCreature & { parentPairName: string } => !!p.id
         );
+    }, [allPairs, goal?.assignedPairIds]);
+
+    const immatureProgeny = useMemo(() => {
+        const assignedPairIds = new Set(goal?.assignedPairIds || []);
+        const progenyWithPairInfo = allPairs
+            .filter((p) => assignedPairIds.has(p.id))
+            .flatMap((p) =>
+                (p.progeny || [])
+                    .filter((prog) => prog && (prog.growthLevel === 1 || prog.growthLevel === 2))
+                    .map((prog) => ({
+                        ...prog,
+                        parentPairName: p.pairName || 'Unnamed Pair',
+                    }))
+            );
+
+        // Deduplicate progeny in case it's part of multiple assigned pairs
+        const uniqueProgeny = Array.from(
+            new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
+        ) as EnrichedCreature[];
+
+        return uniqueProgeny.filter((p): p is EnrichedCreature => !!p?.id);
     }, [allPairs, goal?.assignedPairIds]);
 
     const getMatchScoreStyle = (score: number): React.CSSProperties => {
@@ -397,8 +419,42 @@ export function GoalDetailClient({
                             </ul>
                         ) : (
                             <p className="text-center text-dusk-purple dark:text-purple-400 italic py-4">
-                                No progeny have been logged for the assigned pairs.
+                                No adult progeny have been logged for the assigned pairs.
                             </p>
+                        )}
+                        {immatureProgeny.length > 0 && (
+                            <div
+                                className={`mt-4 pt-4 ${scoredProgeny.length > 0 ? 'border-t border-pompaca-purple/20 dark:border-purple-400/30' : ''}`}
+                            >
+                                <h4 className="font-semibold text-dusk-purple dark:text-purple-400">
+                                    Immature Progeny
+                                </h4>
+                                <p className="text-xs text-dusk-purple dark:text-purple-400 italic mb-2">
+                                    The following progeny will be available for analysis once they
+                                    become adults.
+                                </p>
+                                <ul className="space-y-1 text-sm">
+                                    {immatureProgeny.map((progeny) => (
+                                        <li
+                                            key={progeny!.id}
+                                            className="flex justify-between items-center text-pompaca-purple dark:text-purple-300"
+                                        >
+                                            <ResponsiveCreatureLink
+                                                displayText={`${progeny!.creatureName || 'Unnamed'} (${progeny!.code})`}
+                                                code={progeny!.code}
+                                                imageUrl={progeny!.imageUrl}
+                                                updatedAt={progeny!.updatedAt}
+                                            />
+
+                                            <span className="text-xs font-medium bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 px-2 py-1 rounded-full">
+                                                {progeny!.growthLevel === 1
+                                                    ? 'Capsule'
+                                                    : 'Juvenile'}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         )}
                     </CardContent>
                 </Card>

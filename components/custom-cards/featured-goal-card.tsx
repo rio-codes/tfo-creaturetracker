@@ -3,75 +3,8 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import type { EnrichedResearchGoal, DbCreature } from '@/types';
 import type { FeaturedGoalProgress } from '@/app/[username]/page';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Award, ChevronUp, ChevronDown, ExternalLink } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
-function ResponsiveCreatureLink({
-    displayText,
-    code,
-    imageUrl,
-    className,
-}: {
-    displayText: string;
-    code: string;
-    imageUrl: string;
-    className?: string;
-}) {
-    return (
-        <>
-            {/* Desktop: Tooltip on a link */}
-            <span className={`hidden md:inline ${className}`}>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Link
-                                href={`https://finaloutpost.net/view/${code}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline hover:text-pompaca-purple dark:hover:text-purple-300"
-                            >
-                                {displayText}
-                            </Link>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <img
-                                src={imageUrl}
-                                alt={displayText}
-                                className="w-24 h-24 object-contain rounded-md bg-white/10 p-1"
-                            />
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </span>
-            {/* Mobile: Popover */}
-            <span className={`inline md:hidden ${className}`}>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <span className="underline cursor-pointer">{displayText}</span>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-2">
-                        <div className="flex flex-col gap-2 items-center">
-                            <img
-                                src={imageUrl}
-                                alt={displayText}
-                                className="w-24 h-24 object-contain rounded-md bg-white/10 p-1"
-                            />
-                            <Link
-                                href={`https://finaloutpost.net/view/${code}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-sm underline"
-                            >
-                                View on TFO <ExternalLink className="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </span>
-        </>
-    );
-}
+import { Award, ChevronUp, ChevronDown } from 'lucide-react';
+import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
 
 interface FeaturedGoalCardProps {
     goal: EnrichedResearchGoal;
@@ -143,6 +76,7 @@ export function FeaturedGoalCard({ goal, achievement, username, progress }: Feat
                                     }
                                     code={achievement.creature.code}
                                     imageUrl={achievement.creature.imageUrl}
+                                    updatedAt={achievement.creature.updatedAt}
                                 />
                                 !
                             </p>
@@ -168,6 +102,9 @@ export function FeaturedGoalCard({ goal, achievement, username, progress }: Feat
                                                 imageUrl={
                                                     progress.highestScoringPair.maleParentImageUrl
                                                 }
+                                                updatedAt={
+                                                    progress.highestScoringPair.maleParentUpdatedAt
+                                                }
                                             />
                                             [{progress.highestScoringPair.maleParentCode}] x{' '}
                                             <ResponsiveCreatureLink
@@ -177,6 +114,10 @@ export function FeaturedGoalCard({ goal, achievement, username, progress }: Feat
                                                 code={progress.highestScoringPair.femaleParentCode}
                                                 imageUrl={
                                                     progress.highestScoringPair.femaleParentImageUrl
+                                                }
+                                                updatedAt={
+                                                    progress.highestScoringPair
+                                                        .femaleParentUpdatedAt
                                                 }
                                             />
                                             [{progress.highestScoringPair.femaleParentCode}]
@@ -193,6 +134,7 @@ export function FeaturedGoalCard({ goal, achievement, username, progress }: Feat
                                             displayText={`${progress.closestProgeny.name} (${progress.closestProgeny.code})`}
                                             code={progress.closestProgeny.code}
                                             imageUrl={progress.closestProgeny.imageUrl}
+                                            updatedAt={progress.closestProgeny.updatedAt}
                                         />{' '}
                                         ({(progress.closestProgeny.accuracy * 100).toFixed(2)}%
                                         accuracy)

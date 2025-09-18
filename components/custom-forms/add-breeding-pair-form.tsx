@@ -463,11 +463,14 @@ export function AddPairForm({
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 {message && <p className="text-sm text-green-600">{error}</p>}
             </div>
-            <div className="mt-3 flex justify-center gap-2">
+            <div className="mt-4 flex justify-end gap-2">
+                <Button type="button" variant="ghost" onClick={onSuccess}>
+                    Cancel
+                </Button>
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-1/3 bg-pompaca-purple text-barely-lilac dark:bg-purple-300 dark:text-pompaca-purple object-right"
+                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-300 dark:text-pompaca-purple"
                 >
                     {isLoading ? 'Saving...' : 'Create Pair'}
                 </Button>

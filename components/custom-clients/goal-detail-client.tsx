@@ -194,26 +194,27 @@ export function GoalDetailClient({
                     </h1>
                     <ShareGoalButton goal={goal} />
                 </div>
-                <div className="mt-5">
-                    {/* Desktop: Info on the badge itself. No separate icon. */}
-                    <div className="hidden items-center gap-2 md:flex">
-                        <InfoDisplay
-                            trigger={<GoalModeSwitcher goal={goal} />}
-                            content={goalModeInfoContent}
-                        />
-                        <EditGoalDialog goal={goal} isAdminView={false} variant="detail" />
+                <div className="mt-5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        {/* Desktop: Info on the badge itself. No separate icon. */}
+                        <div className="hidden md:flex">
+                            <InfoDisplay
+                                trigger={<GoalModeSwitcher goal={goal} />}
+                                content={goalModeInfoContent}
+                            />
+                        </div>
+                        {/* Mobile: Badge is separate from the info icon. */}
+                        <div className="flex items-center gap-2 md:hidden">
+                            <GoalModeSwitcher goal={goal} />
+                            <InfoDisplay
+                                trigger={
+                                    <Info className="h-5 w-5 cursor-pointer text-pompaca-purple dark:text-barely-lilac" />
+                                }
+                                content={goalModeInfoContent}
+                            />
+                        </div>
                     </div>
-
-                    {/* Mobile: Badge is separate from the info icon. */}
-                    <div className="flex items-center gap-2 md:hidden">
-                        <GoalModeSwitcher goal={goal} />
-                        <InfoDisplay
-                            trigger={
-                                <Info className="h-5 w-5 cursor-pointer text-pompaca-purple dark:text-barely-lilac" />
-                            }
-                            content={goalModeInfoContent}
-                        />
-                    </div>
+                    <EditGoalDialog goal={goal} isAdminView={false} variant="detail" />
                 </div>
             </div>
             {/* Top Section: Goal Details */}

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -34,25 +35,44 @@ export function Footer() {
 
     const handleThemeChange = useCallback(
         async (newTheme: 'light' | 'dark') => {
+            const originalTheme = resolvedTheme; // Capture the theme before changing
+
             // Optimistically update the UI
             setTheme(newTheme);
 
             // If user is logged in, persist the setting to the database
             if (session?.user) {
                 try {
-                    await fetch('/api/settings', {
+                    const response = await fetch('/api/settings', {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ theme: newTheme }),
                     });
-                    // Also update the session JWT so it persists across reloads
-                    await update({ theme: newTheme });
+
+                    if (response.ok) {
+                        // Also update the session JWT so it persists across reloads
+                        await update({ theme: newTheme });
+                    } else {
+                        // Revert on failure and notify user
+                        setTheme(originalTheme as 'light' | 'dark');
+                        toast.error('Could Not Save Preference', {
+                            description:
+                                'Your theme preference could not be saved. Please try again.',
+                        });
+                        console.error('Failed to save theme preference to the database.', response);
+                    }
                 } catch (error) {
+                    // Revert on failure and notify user
+                    setTheme(originalTheme as 'light' | 'dark');
+                    toast.error('Network Error', {
+                        description:
+                            'Your theme preference could not be saved. Please check your connection.',
+                    });
                     console.error('Failed to save theme preference:', error);
                 }
             }
         },
-        [session, setTheme, update]
+        [session, setTheme, update, resolvedTheme]
     );
     const year = new Date().getFullYear();
     return (

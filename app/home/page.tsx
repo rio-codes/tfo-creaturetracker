@@ -6,22 +6,23 @@ import Image from 'next/image';
 // Placeholder for news items. You can fetch this from a CMS or a local file.
 const newsItems = [
     {
-        title: 'Welcome to the TFO.creaturetracker Launch! (This post is in the future 👀)',
-        date: 'September 18th, 2025', // Example date
+        title: 'Welcome to the TFO.creaturetracker Launch!',
+        date: 'September 19th, 2025', // Example date
         content: (
             <>
                 <p>
                     We're thrilled to have you here for the official launch of TFO.creaturetracker,
                     which we have come to affectionately call "tfoct". This is your dashboard to
-                    manage everything related to breeding creatures in The Final Outpost. Start by
-                    adding your creatures to your{' '}
+                    manage everything related to breeding creatures in The Final Outpost. Register{' '}
+                    <Link href="/register">here</Link> to get started. Then add your creatures to
+                    your{' '}
                     <Link
                         href="/collection"
                         className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
                     >
                         Collection
-                    </Link>
-                    .
+                    </Link>{' '}
+                    and enjoy the site!
                 </p>
                 <p>
                     For the latest news, behind-the-scenes content, and to support development and

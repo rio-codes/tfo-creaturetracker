@@ -76,7 +76,7 @@ export function Footer() {
     );
     const year = new Date().getFullYear();
     return (
-        <footer className="items-center w-full bg-midnight-purple dark:bg-ebena-lavender text-barely-lilac dark:text-pompaca-purple px-4 py-4 mt-auto">
+        <footer className="items-center w-full bg-ebena-lavender dark:bg-pompaca-purple dark:text-barely-lilac text-pompaca-purple px-4 py-4 mt-auto">
             <div className="flex flex-wrap justify-between text-sm max-w-full">
                 <div className="mb-4 md:mb-0">
                     <span>
@@ -137,7 +137,7 @@ export function Footer() {
                         <div className="flex items-center justify-end py-2">
                             <Label
                                 htmlFor="theme-switch"
-                                className="dark:text-pompaca-purple text-barely-lilac"
+                                className="text-pompaca-purple dark:text-barely-lilac"
                             >
                                 <Sun className="h-4 w-4" />
                             </Label>
@@ -153,7 +153,7 @@ export function Footer() {
                             />
                             <Label
                                 htmlFor="theme-switch"
-                                className="dark:text-pompaca-purple  text-barely-lilac"
+                                className="text-pompaca-purple  dark:text-barely-lilac"
                             >
                                 <Moon className="h-4 w-4" />
                             </Label>

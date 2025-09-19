@@ -45,14 +45,12 @@ export function AddBreedingPairDialog({
                 asChild
             >
                 {children || (
-                    <Button className="bg-pompaca-purple text-barely-lilac">
-                        + New Pair
-                    </Button>
+                    <Button className="bg-pompaca-purple text-barely-lilac">+ New Pair</Button>
                 )}
             </DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto max-w-3/4 mx-auto"
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-[85vh] overflow-y-auto w-full max-w-2xl [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">

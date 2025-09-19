@@ -23,11 +23,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
-import type {
-    EnrichedCreature,
-    EnrichedBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
+import type { EnrichedCreature, EnrichedBreedingPair, DbBreedingLogEntry } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 import { format } from 'date-fns';
 import {
@@ -82,8 +78,7 @@ export function LogAsProgenyDialog({
     if (creature) {
         ({ existingLogEntry, existingPair } = useMemo(() => {
             const log = allLogs.find(
-                (l) =>
-                    l.progeny1Id === creature.id || l.progeny2Id === creature.id
+                (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
             );
             if (!log) return { existingLogEntry: null, existingPair: null };
 
@@ -115,9 +110,7 @@ export function LogAsProgenyDialog({
     const availableLogs = useMemo(() => {
         if (!selectedPairId) return [];
         return allLogs.filter(
-            (log) =>
-                log.pairId === selectedPairId &&
-                (!log.progeny1Id || !log.progeny2Id)
+            (log) => log.pairId === selectedPairId && (!log.progeny1Id || !log.progeny2Id)
         );
     }, [allLogs, selectedPairId]);
 
@@ -191,8 +184,7 @@ export function LogAsProgenyDialog({
     const handleSubmit = async () => {
         const willSourceBecomeEmpty =
             existingLogEntry &&
-            (existingLogEntry.progeny1Id === null ||
-                existingLogEntry.progeny2Id === null);
+            (existingLogEntry.progeny1Id === null || existingLogEntry.progeny2Id === null);
 
         if (willSourceBecomeEmpty) {
             setShowWarningDialog(true);
@@ -203,32 +195,24 @@ export function LogAsProgenyDialog({
     };
 
     const isSubmitDisabled =
-        isLoading ||
-        !selectedPairId ||
-        (logAction === 'existing' && !selectedLogId);
+        isLoading || !selectedPairId || (logAction === 'existing' && !selectedLogId);
 
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>{children}</DialogTrigger>
-                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden">
                     <DialogHeader>
                         <DialogTitle>
-                            Log "{creature?.creatureName} ({creature?.code})" as
-                            Progeny
+                            Log "{creature?.creatureName} ({creature?.code})" as Progeny
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="pair-select">
-                                {existingPair
-                                    ? 'Change breeding pair'
-                                    : 'Select breeding pair'}
+                                {existingPair ? 'Change breeding pair' : 'Select breeding pair'}
                             </Label>
-                            <Select
-                                value={selectedPairId}
-                                onValueChange={setSelectedPairId}
-                            >
+                            <Select value={selectedPairId} onValueChange={setSelectedPairId}>
                                 <SelectTrigger
                                     id="pair-select"
                                     className="bg-ebena-lavender dark:bg-midnight-purple"
@@ -238,12 +222,8 @@ export function LogAsProgenyDialog({
                                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
                                     {suitablePairs.length > 0 ? (
                                         suitablePairs.map((pair) => (
-                                            <SelectItem
-                                                key={pair.id}
-                                                value={pair.id}
-                                            >
-                                                {pair.pairName} (
-                                                {pair.maleParent?.code} x{' '}
+                                            <SelectItem key={pair.id} value={pair.id}>
+                                                {pair.pairName} ({pair.maleParent?.code} x{' '}
                                                 {pair.femaleParent?.code})
                                             </SelectItem>
                                         ))
@@ -260,24 +240,14 @@ export function LogAsProgenyDialog({
                             <div className="space-y-4 rounded-md border p-4 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
                                 <RadioGroup
                                     value={logAction}
-                                    onValueChange={(v) =>
-                                        setLogAction(v as 'new' | 'existing')
-                                    }
+                                    onValueChange={(v) => setLogAction(v as 'new' | 'existing')}
                                 >
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem
-                                            value="new"
-                                            id="r-new"
-                                        />
-                                        <Label htmlFor="r-new">
-                                            Create a new log entry
-                                        </Label>
+                                        <RadioGroupItem value="new" id="r-new" />
+                                        <Label htmlFor="r-new">Create a new log entry</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem
-                                            value="existing"
-                                            id="r-existing"
-                                        />
+                                        <RadioGroupItem value="existing" id="r-existing" />
                                         <Label htmlFor="r-existing">
                                             Add to an existing log entry
                                         </Label>
@@ -286,15 +256,11 @@ export function LogAsProgenyDialog({
 
                                 {logAction === 'new' && (
                                     <div className="space-y-2 pl-6">
-                                        <Label htmlFor="notes">
-                                            Notes (Optional)
-                                        </Label>
+                                        <Label htmlFor="notes">Notes (Optional)</Label>
                                         <Textarea
                                             id="notes"
                                             value={notes}
-                                            onChange={(e) =>
-                                                setNotes(e.target.value)
-                                            }
+                                            onChange={(e) => setNotes(e.target.value)}
                                             placeholder="Any notes about this breeding event..."
                                             className="bg-ebena-lavender dark:bg-midnight-purple"
                                         />
@@ -303,9 +269,7 @@ export function LogAsProgenyDialog({
 
                                 {logAction === 'existing' && (
                                     <div className="space-y-2 pl-6">
-                                        <Label htmlFor="log-select">
-                                            Select Log Entry
-                                        </Label>
+                                        <Label htmlFor="log-select">Select Log Entry</Label>
                                         <Select
                                             value={selectedLogId}
                                             onValueChange={setSelectedLogId}
@@ -325,27 +289,15 @@ export function LogAsProgenyDialog({
                                                             className="whitespace-normal"
                                                         >
                                                             {format(
-                                                                new Date(
-                                                                    log.createdAt
-                                                                ),
+                                                                new Date(log.createdAt),
                                                                 'MM/dd/yy pp'
                                                             )}{' '}
-                                                            (
-                                                            {getProgenyName(
-                                                                log.progeny1Id
-                                                            )}
-                                                            ,{' '}
-                                                            {getProgenyName(
-                                                                log.progeny2Id
-                                                            )}
-                                                            )
+                                                            ({getProgenyName(log.progeny1Id)},{' '}
+                                                            {getProgenyName(log.progeny2Id)})
                                                         </SelectItem>
                                                     ))
                                                 ) : (
-                                                    <SelectItem
-                                                        value="none"
-                                                        disabled
-                                                    >
+                                                    <SelectItem value="none" disabled>
                                                         No available log entries
                                                     </SelectItem>
                                                 )}
@@ -356,9 +308,7 @@ export function LogAsProgenyDialog({
                             </div>
                         )}
 
-                        {error && (
-                            <p className="text-sm text-red-500">{error}</p>
-                        )}
+                        {error && <p className="text-sm text-red-500">{error}</p>}
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
@@ -375,25 +325,19 @@ export function LogAsProgenyDialog({
                             onClick={handleSubmit}
                             disabled={isSubmitDisabled}
                         >
-                            {isLoading && (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            )}
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Log Progeny
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <AlertDialog
-                open={showWarningDialog}
-                onOpenChange={setShowWarningDialog}
-            >
+            <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
                 <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Empty Log Entry</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Moving this progeny will leave the original log
-                            entry empty. Do you want to delete the old entry, or
-                            keep it to edit its notes?
+                            Moving this progeny will leave the original log entry empty. Do you want
+                            to delete the old entry, or keep it to edit its notes?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex-col gap-2 sm:flex-col sm:gap-2">

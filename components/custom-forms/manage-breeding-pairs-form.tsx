@@ -274,10 +274,10 @@ export function ManageBreedingPairsForm({
                         className="bg-ebena-lavender dark:bg-midnight-purple"
                     />
                     <Select value={selectedMateId} onValueChange={setSelectedMateId} required>
-                        <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                        <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
                             <SelectValue placeholder="Select a mate..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                        <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
                                     <SelectItem key={mate?.id} value={mate!.id}>
@@ -304,52 +304,54 @@ export function ManageBreedingPairsForm({
                                     </span>
                                 </div>
                             )}
-                            <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border">
-                                {maleParent && (
-                                    <div className="flex flex-col items-center w-36">
-                                        <img
-                                            src={maleParent.imageUrl || '/placeholder.png'}
-                                            alt={maleParent.code}
-                                            className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                        />
-                                        <Collapsible className="w-full">
-                                            <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                                <p className="truncate">
-                                                    {maleParent.creatureName || 'Unnamed'} (
-                                                    {maleParent.code})
-                                                </p>
-                                                <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <ParentGeneSummary creature={maleParent} />
-                                            </CollapsibleContent>
-                                        </Collapsible>
-                                    </div>
-                                )}
-                                {maleParent && femaleParent && (
-                                    <X className="text-dusk-purple mt-10" />
-                                )}
-                                {femaleParent && (
-                                    <div className="flex flex-col items-center w-36">
-                                        <img
-                                            src={femaleParent.imageUrl || '/placeholder.png'}
-                                            alt={femaleParent.code}
-                                            className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                        />
-                                        <Collapsible className="w-full">
-                                            <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                                <p className="truncate">
-                                                    {femaleParent.creatureName || 'Unnamed'} (
-                                                    {femaleParent.code})
-                                                </p>
-                                                <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <ParentGeneSummary creature={femaleParent} />
-                                            </CollapsibleContent>
-                                        </Collapsible>
-                                    </div>
-                                )}
+                            <div className="overflow-x-auto">
+                                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border min-w-max">
+                                    {maleParent && (
+                                        <div className="flex flex-col items-center w-36">
+                                            <img
+                                                src={maleParent.imageUrl || '/placeholder.png'}
+                                                alt={maleParent.code}
+                                                className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                            />
+                                            <Collapsible className="w-full">
+                                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                                    <p className="truncate">
+                                                        {maleParent.creatureName || 'Unnamed'} (
+                                                        {maleParent.code})
+                                                    </p>
+                                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                                </CollapsibleTrigger>
+                                                <CollapsibleContent>
+                                                    <ParentGeneSummary creature={maleParent} />
+                                                </CollapsibleContent>
+                                            </Collapsible>
+                                        </div>
+                                    )}
+                                    {maleParent && femaleParent && (
+                                        <X className="text-dusk-purple mt-10" />
+                                    )}
+                                    {femaleParent && (
+                                        <div className="flex flex-col items-center w-36">
+                                            <img
+                                                src={femaleParent.imageUrl || '/placeholder.png'}
+                                                alt={femaleParent.code}
+                                                className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                            />
+                                            <Collapsible className="w-full">
+                                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
+                                                    <p className="truncate">
+                                                        {femaleParent.creatureName || 'Unnamed'} (
+                                                        {femaleParent.code})
+                                                    </p>
+                                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                                </CollapsibleTrigger>
+                                                <CollapsibleContent>
+                                                    <ParentGeneSummary creature={femaleParent} />
+                                                </CollapsibleContent>
+                                            </Collapsible>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </>
                     )}

@@ -24,5 +24,17 @@ const obscenityMatcher = new RegExpMatcher({
 
 export function hasObscenity(text: string | null | undefined): boolean {
     if (!text) return false;
-    return obscenityMatcher.hasMatch(text);
+
+    if (obscenityMatcher.hasMatch(text)) {
+        return true;
+    }
+
+    const cleanedText = text
+        .split(/\s+/)
+        .map((word) => word.replace(/[^a-zA-Z0-9]/g, ''))
+        .join(' ');
+
+    if (text === cleanedText) return false;
+
+    return obscenityMatcher.hasMatch(cleanedText);
 }

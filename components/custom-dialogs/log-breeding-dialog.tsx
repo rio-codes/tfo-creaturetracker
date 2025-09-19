@@ -17,11 +17,7 @@ type LogBreedingDialogProps = {
     children: React.ReactNode; // The trigger button
 };
 
-export function LogBreedingDialog({
-    pair,
-    allCreatures,
-    children,
-}: LogBreedingDialogProps) {
+export function LogBreedingDialog({ pair, allCreatures, children }: LogBreedingDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -29,7 +25,7 @@ export function LogBreedingDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple"
+                className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">

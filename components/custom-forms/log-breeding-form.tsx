@@ -20,11 +20,7 @@ type LogBreedingFormProps = {
     allCreatures: EnrichedCreature[];
     onSuccess: () => void;
 };
-export function LogBreedingForm({
-    pair,
-    allCreatures,
-    onSuccess,
-}: LogBreedingFormProps) {
+export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFormProps) {
     const router = useRouter();
     const [progeny1Id, setProgeny1Id] = useState<string | undefined>(undefined);
     const [progeny2Id, setProgeny2Id] = useState<string | undefined>(undefined);
@@ -53,8 +49,7 @@ export function LogBreedingForm({
                 }),
             });
             const data = await response.json();
-            if (!response.ok)
-                throw new Error(data.error || 'Failed to log event.');
+            if (!response.ok) throw new Error(data.error || 'Failed to log event.');
 
             router.refresh();
             onSuccess();
@@ -70,10 +65,10 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 1 (Optional)</Label>
                 <Select value={progeny1Id} onValueChange={setProgeny1Id}>
-                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectValue placeholder="Select first offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectItem value="none">None</SelectItem>
                         {potentialProgeny
                             .filter((p) => p?.id !== progeny2Id)
@@ -89,10 +84,10 @@ export function LogBreedingForm({
             <div>
                 <Label>Progeny 2 (Optional)</Label>
                 <Select value={progeny2Id} onValueChange={setProgeny2Id}>
-                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectValue placeholder="Select second offspring..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                         <SelectItem value="none">None</SelectItem>
                         {potentialProgeny
                             .filter((p) => p?.id !== progeny1Id)
@@ -125,11 +120,7 @@ export function LogBreedingForm({
                     disabled={isLoading}
                     className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                 >
-                    {isLoading ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        'Save Log Entry'
-                    )}
+                    {isLoading ? <Loader2 className="animate-spin" /> : 'Save Log Entry'}
                 </Button>
             </div>
         </form>

@@ -227,7 +227,7 @@ export function ViewOutcomesDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto"
+                className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>

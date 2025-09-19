@@ -38,13 +38,7 @@ type EditLogDialogProps = {
     allLogs: DbBreedingLogEntry[];
 };
 
-export function EditLogDialog({
-    children,
-    log,
-    pair,
-    allCreatures,
-    allLogs,
-}: EditLogDialogProps) {
+export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: EditLogDialogProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [notes, setNotes] = useState(log.notes || '');
@@ -85,9 +79,7 @@ export function EditLogDialog({
 
         return allCreatures.filter(
             (c) =>
-                c?.species &&
-                possibleSpecies.includes(c.species) &&
-                !assignedCreatureIds.has(c.id)
+                c?.species && possibleSpecies.includes(c.species) && !assignedCreatureIds.has(c.id)
         );
     }, [allCreatures, allLogs, pair, log.id]);
 
@@ -153,7 +145,7 @@ export function EditLogDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac [&>button]:hidden">
                 <DialogHeader>
                     <DialogTitle>Edit Log Entry</DialogTitle>
                 </DialogHeader>
@@ -168,18 +160,8 @@ export function EditLogDialog({
                             className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
                         />
                     </div>
-                    {renderProgenySelect(
-                        progeny1Id,
-                        setProgeny1Id,
-                        progeny2Id,
-                        'Progeny 1'
-                    )}
-                    {renderProgenySelect(
-                        progeny2Id,
-                        setProgeny2Id,
-                        progeny1Id,
-                        'Progeny 2'
-                    )}
+                    {renderProgenySelect(progeny1Id, setProgeny1Id, progeny2Id, 'Progeny 1')}
+                    {renderProgenySelect(progeny2Id, setProgeny2Id, progeny1Id, 'Progeny 2')}
                     {error && <p className="text-sm text-red-500">{error}</p>}
                 </div>
                 <DialogFooter>
@@ -196,9 +178,7 @@ export function EditLogDialog({
                         disabled={isLoading}
                         className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
                     >
-                        {isLoading && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save Changes
                     </Button>
                 </DialogFooter>

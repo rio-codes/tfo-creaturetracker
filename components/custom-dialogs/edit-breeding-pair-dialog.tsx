@@ -1,16 +1,21 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { EditBreedingPairForm } from "@/components/custom-forms/edit-breeding-pair-form"
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, DbBreedingPair, DbBreedingLogEntry } from "@/types";
-
+} from '@/components/ui/dialog';
+import { EditBreedingPairForm } from '@/components/custom-forms/edit-breeding-pair-form';
+import type {
+    EnrichedBreedingPair,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from '@/types';
 
 type EditBreedingPairDialogProps = {
     pair: EnrichedBreedingPair;
@@ -36,7 +41,7 @@ export function EditBreedingPairDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple"
+                className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">

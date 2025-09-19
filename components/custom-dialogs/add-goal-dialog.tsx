@@ -1,12 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { GoalForm } from '@/components/custom-forms/goal-form';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 
@@ -22,7 +17,7 @@ export function AddGoalDialog() {
             </DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto"
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle>Create New Research Goal</DialogTitle>

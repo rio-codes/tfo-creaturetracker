@@ -43,7 +43,7 @@ export function ManageBreedingPairsDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-2/3 overflow-y-auto"
+                className="bg-barely-lilac dark:bg-pompaca-purple max-h-2/3 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle className="text-pompaca-purple dark:text-purple-300">

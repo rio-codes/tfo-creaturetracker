@@ -270,10 +270,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== 'male'}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Male Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                     {availableMales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
@@ -287,10 +287,10 @@ export function EditBreedingPairForm({
                 disabled={editingWhichParent !== 'female'}
                 required
             >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
                     <SelectValue placeholder="Select Female Parent..." />
                 </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                     {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id}>
                             {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}

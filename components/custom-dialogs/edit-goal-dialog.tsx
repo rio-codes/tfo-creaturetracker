@@ -28,7 +28,7 @@ export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProp
                     <span className="text-wrap wrap-normal text-xs">Edit / Delete Goal</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto [&>button]:hidden">
                 <DialogHeader>
                     <DialogTitle>Edit Research Goal</DialogTitle>
                 </DialogHeader>

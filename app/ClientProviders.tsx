@@ -41,13 +41,17 @@ function AppContent({ children }: { children: React.ReactNode }) {
             'HyperDX API Key or Service Name is not defined. HyperDX will not be initialized.'
         );
     } else {
-        HyperDX.init({
-            apiKey: apiKey,
-            service: serviceName,
-            tracePropagationTargets: [/localhost/, /tfo\.creaturetracker\.net/],
-            consoleCapture: true,
-            advancedNetworkCapture: true,
-        });
+        try {
+            HyperDX.init({
+                apiKey: apiKey,
+                service: serviceName,
+                tracePropagationTargets: [/localhost/, /tfo\.creaturetracker\.net/],
+                consoleCapture: true,
+                advancedNetworkCapture: true,
+            });
+        } catch (error) {
+            console.error('Error initializing HyperDX:', error);
+        }
     }
 
     const { data: session } = useSession();

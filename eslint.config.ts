@@ -12,7 +12,6 @@ export default tseslint.config(
             '**/out/',
             '**/drizzle.config.ts',
             '**/postcss.config.mjs',
-            '**/sentry.*.config.ts',
             '**/instrumentation.ts',
             '**/instrumentation-client.ts',
             '**/next-env.d.ts',

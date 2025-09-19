@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { hash } from 'bcrypt-ts';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
 
 // Define the schema for the request body
 const registerUserSchema = z.object({
@@ -28,7 +27,6 @@ const registerUserSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Legacy registration attempt', 'log');
     try {
         const body = await req.json();
         const validatedFields = registerUserSchema.safeParse(body);
@@ -39,7 +37,6 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid input for legacy registration. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -49,14 +46,12 @@ export async function POST(req: Request) {
             where: eq(users.username, username),
         });
         if (existingUserByUsername) {
-            Sentry.captureMessage(`Registration with existing username: ${username}`, 'log');
             return NextResponse.json({ message: 'Username is already taken' }, { status: 409 });
         }
         const existingUserByEmail = await db.query.users.findFirst({
             where: eq(users.email, email),
         });
         if (existingUserByEmail) {
-            Sentry.captureMessage(`Registration with existing email: ${email}`, 'log');
             return NextResponse.json({ message: 'Email is already in use' }, { status: 409 });
         }
 
@@ -69,7 +64,6 @@ export async function POST(req: Request) {
             password: hashedPassword,
         });
 
-        Sentry.captureMessage(`User created successfully (legacy): ${username}`, 'info');
         return NextResponse.json(
             { user: { username }, message: 'User created successfully' },
             { status: 201 } // 201 Created
@@ -81,17 +75,12 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', errorMessage);
-            Sentry.captureMessage(
-                `Zod validation failed for legacy registration: ${errorMessage}`,
-                'log'
-            );
             return NextResponse.json(
                 { message: errorMessage || 'Invalid input.' },
                 { status: 400 }
             );
         }
 
-        Sentry.captureException(error);
         return NextResponse.json(
             { message: `An unexpected error occurred. ${error}` },
             { status: 500 }

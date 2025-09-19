@@ -8,7 +8,6 @@ import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { structuredGeneData } from '@/constants/creature-data';
 import { and, eq } from 'drizzle-orm';
-import * as Sentry from '@sentry/nextjs';
 
 interface GeneInfo {
     genotype: string;
@@ -38,10 +37,8 @@ const createGoalSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Creating goal from outcomes', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create goal from outcomes', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -55,7 +52,6 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { pairId, goalName, species, selectedGenotypes, goalMode, optionalGenes } =
@@ -132,10 +128,6 @@ export async function POST(req: Request) {
         revalidatePath('/breeding-pairs');
         revalidatePath(`/research-goals/${newGoalId}`);
 
-        Sentry.captureMessage(
-            `Goal ${newGoalId} created from outcomes and assigned to pair ${pairId}`,
-            'info'
-        );
         return NextResponse.json(
             {
                 message: 'Goal created and assigned successfully!',
@@ -144,7 +136,6 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
-import * as Sentry from '@sentry/nextjs';
 
 const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
@@ -16,9 +15,7 @@ const previewSchema = z.object({
 export async function POST(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Generating outcomes preview for pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to generate outcomes preview', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -32,10 +29,6 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid genetic data for previewing outcome. ${errorMessage}`,
-                'log'
-            );
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -49,10 +42,6 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
         });
 
         if (!pair) {
-            Sentry.captureMessage(
-                `Breeding pair not found for outcomes preview: ${params.pairId}`,
-                'log'
-            );
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
@@ -71,13 +60,8 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
 
         revalidatePath('/breeding-pairs');
 
-        Sentry.captureMessage(
-            `Successfully generated outcomes preview for pair ${params.pairId}`,
-            'info'
-        );
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -7,7 +7,6 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { validatePairing } from '@/lib/breeding-rules';
-import * as Sentry from '@sentry/nextjs';
 
 const createPairSchema = z.object({
     pairName: z
@@ -21,10 +20,8 @@ const createPairSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Creating breeding pair', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create pair', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -39,14 +36,12 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
-            Sentry.captureMessage('Obscene language in new pair name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -83,7 +78,6 @@ export async function POST(req: Request) {
         });
 
         if (existingPair) {
-            Sentry.captureMessage('Duplicate breeding pair found', 'log');
             return NextResponse.json(
                 { error: 'A breeding pair with these parents already exists.' },
                 { status: 409 }
@@ -123,14 +117,12 @@ export async function POST(req: Request) {
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(`Breeding pair ${newPair.id} created successfully`, 'info');
         return NextResponse.json(
             { message: 'Breeding pair created successfully!', pair: newPair },
             { status: 201 }
         );
     } catch (error: any) {
         console.error('Failed to create breeding pair:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

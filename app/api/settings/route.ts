@@ -5,7 +5,7 @@ import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { hash } from 'bcrypt-ts';
-import * as Sentry from '@sentry/nextjs';
+import { track } from '@vercel/analytics/server';
 
 const settingsSchema = z.object({
     email: z.string().email().optional(),
@@ -41,10 +41,8 @@ const settingsSchema = z.object({
 });
 
 export async function PATCH(req: Request) {
-    Sentry.captureMessage('Updating user settings', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to update settings', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -59,7 +57,6 @@ export async function PATCH(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -80,10 +77,10 @@ export async function PATCH(req: Request) {
             await db.update(users).set(dataToUpdate).where(eq(users.id, userId));
         }
 
-        Sentry.captureMessage(`Settings updated successfully for user ${userId}`, 'info');
+        const username = session.user.username;
+        track('settings_updated', { username });
         return NextResponse.json({ message: 'Settings updated successfully!' });
     } catch (error) {
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

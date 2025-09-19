@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { z } from 'zod';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
-import * as Sentry from '@sentry/nextjs';
 
 const previewCreatureSchema = z.object({
     species: z.string().min(1),
@@ -18,11 +17,9 @@ const previewCreatureSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Admin: creature preview', 'log');
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin creature preview', 'log');
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -31,7 +28,6 @@ export async function POST(req: Request) {
         const validated = previewCreatureSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage('Invalid input for admin creature preview', 'log');
             return NextResponse.json(
                 { error: 'Invalid input.', details: validated.error.flatten() },
                 { status: 400 }
@@ -51,10 +47,8 @@ export async function POST(req: Request) {
         const referenceId = `admin-preview-${crypto.randomUUID()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, referenceId, 3);
 
-        Sentry.captureMessage('Admin: creature preview generated successfully', 'info');
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
-        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

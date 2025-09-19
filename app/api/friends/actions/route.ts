@@ -4,7 +4,6 @@ import { db } from '@/src/db';
 import { friendships } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
 
 const actionSchema = z.object({
     targetUserId: z.string(),
@@ -114,7 +113,6 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
     } catch (error) {
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

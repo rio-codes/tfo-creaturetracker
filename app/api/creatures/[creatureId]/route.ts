@@ -5,17 +5,14 @@ import { creatures } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import * as Sentry from '@sentry/nextjs';
 import { logAdminAction } from '@/lib/audit';
 
 // This function handles GET requests to /api/creatures/[creatureId]
 
 export async function GET(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
-    Sentry.captureMessage(`Fetching creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage(`Forbidden access to fetch creature ${params.creatureId}`, 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -25,7 +22,6 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
         });
 
         if (!creature) {
-            Sentry.captureMessage(`Creature not found: ${params.creatureId}`, 'log');
             return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
         }
 
@@ -34,13 +30,11 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
             where: eq(creatures.userId, creature.userId),
         });
 
-        Sentry.captureMessage(`Successfully fetched creature ${params.creatureId}`, 'info');
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
         });
     } catch (error) {
-        Sentry.captureException(error);
         console.error('Failed to fetch creature details:', error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
@@ -49,16 +43,13 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
 // This function handles DELETE requests to /api/creatures/[creatureId]
 export async function DELETE(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
-    Sentry.captureMessage(`Deleting creature ${params.creatureId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete creature', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     const { creatureId } = params;
     if (!creatureId) {
-        Sentry.captureMessage('Creature ID not provided for deletion', 'log');
         return NextResponse.json({ error: 'Creature ID is required.' }, { status: 400 });
     }
 
@@ -81,7 +72,6 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
         }
 
         if (result.length === 0) {
-            Sentry.captureMessage(`Creature not found for deletion: ${creatureId}`, 'log');
             return NextResponse.json(
                 {
                     error: 'Creature not found or you do not have permission to delete it.',
@@ -104,14 +94,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
         // Clear the cache for the collection page so the grid updates immediately
         revalidatePath('/collection');
 
-        Sentry.captureMessage(`Creature ${creatureId} deleted successfully`, 'info');
         return NextResponse.json({ message: 'Creature deleted successfully.' }, { status: 200 });
     } catch (error) {
-        Sentry.captureException(error);
         console.error('Failed to delete creature:', error);
         // Handle potential foreign key constraint errors if a creature is part of a pair
         if ((error as any).code === '23503') {
-            Sentry.captureMessage(`Attempted to delete creature in a pair: ${creatureId}`, 'log');
             // PostgreSQL foreign key violation error code
             return NextResponse.json(
                 {

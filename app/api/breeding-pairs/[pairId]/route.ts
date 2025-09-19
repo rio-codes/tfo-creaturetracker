@@ -8,7 +8,6 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
 import { validatePairing } from '@/lib/breeding-rules';
 import { logAdminAction } from '@/lib/audit';
-import * as Sentry from '@sentry/nextjs';
 
 const editPairSchema = z.object({
     pairName: z
@@ -23,10 +22,8 @@ const editPairSchema = z.object({
 
 export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
-    Sentry.captureMessage(`Editing pair ${params.pairId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to edit pair', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -41,14 +38,12 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for editing pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
-            Sentry.captureMessage('Obscene language in pair name', 'log');
             return NextResponse.json(
                 {
                     error: 'The provided name contains inappropriate language.',
@@ -65,7 +60,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         });
 
         if (!existingPair) {
-            Sentry.captureMessage(`Pair not found for editing: ${params.pairId}`, 'log');
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
@@ -226,7 +220,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(`Pair ${params.pairId} updated successfully`, 'info');
         return NextResponse.json({
             message: 'Breeding pair updated successfully!',
         });
@@ -242,9 +235,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
 export async function DELETE(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Deleting from pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete from pair', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -298,10 +289,6 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
             revalidatePath('/breeding-pairs');
             revalidatePath('/research-goals', 'layout');
 
-            Sentry.captureMessage(
-                `Progeny ${progenyIdToRemove} removed from pair ${params.pairId}`,
-                'info'
-            );
             return NextResponse.json({
                 message: 'Progeny removed successfully.',
             });
@@ -331,14 +318,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
                 });
             }
             revalidatePath('/breeding-pairs');
-            Sentry.captureMessage(`Pair ${params.pairId} deleted successfully`, 'info');
             return NextResponse.json({
                 message: 'Breeding pair deleted successfully.',
             });
         }
     } catch (error: any) {
         console.error('Failed to process DELETE request:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

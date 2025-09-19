@@ -5,7 +5,6 @@ import { breedingPairs, researchGoals } from '@/src/db/schema';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import * as Sentry from '@sentry/nextjs';
 
 const assignGoalSchema = z.object({
     goalId: z.string().uuid('A valid goal ID is required.'),
@@ -15,9 +14,7 @@ const assignGoalSchema = z.object({
 export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Assigning goal to pair ${params.pairId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to assign goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -32,7 +29,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for assigning goal. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -50,17 +46,9 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         ]);
 
         if (!pair || !goal) {
-            Sentry.captureMessage(
-                `Pair or Goal not found for assignment. Pair: ${pairId}, Goal: ${goalId}`,
-                'log'
-            );
             return NextResponse.json({ error: 'Pair or Goal not found.' }, { status: 404 });
         }
         if (pair.species !== goal.species) {
-            Sentry.captureMessage(
-                `Species mismatch on goal assignment. Pair: ${pairId}, Goal: ${goalId}`,
-                'log'
-            );
             return NextResponse.json(
                 { error: 'Goal species must match pair species.' },
                 { status: 400 }
@@ -100,16 +88,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         revalidatePath(`/research-goals/${goalId}`);
         revalidatePath('/breeding-pairs');
 
-        Sentry.captureMessage(
-            `Goal ${goalId} ${assign ? 'assigned to' : 'unassigned from'} pair ${pairId}`,
-            'info'
-        );
         return NextResponse.json({
             message: `Goal ${assign ? 'assigned' : 'unassigned'} successfully.`,
         });
     } catch (error) {
         console.error('Failed to assign goal:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

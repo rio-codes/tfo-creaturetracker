@@ -1,7 +1,6 @@
 import { db } from '@/src/db';
 import { researchGoals } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
-import * as Sentry from '@sentry/nextjs';
 
 export const runtime = 'nodejs';
 
@@ -42,7 +41,6 @@ export async function GET(req: Request, { params }: { params: { goalId: string }
             // If fetching the creature's image fails, log it and return the placeholder.
             const errorMsg = `Failed to fetch goal image from ${imageUrl}. Status: ${imageResponse.status}`;
             console.error(errorMsg);
-            Sentry.captureMessage(errorMsg);
             return await getPlaceholderImage(baseUrl);
         }
 
@@ -51,7 +49,6 @@ export async function GET(req: Request, { params }: { params: { goalId: string }
             headers: { 'Content-Type': imageResponse.headers.get('Content-Type') || 'image/png' },
         });
     } catch (e: any) {
-        Sentry.captureException(e);
         console.error(`Failed to generate image for goal ${goalId}:`, e);
         // As a final fallback, return the placeholder image.
         return await getPlaceholderImage(baseUrl);

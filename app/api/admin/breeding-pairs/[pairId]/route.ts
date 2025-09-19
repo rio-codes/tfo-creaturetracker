@@ -12,17 +12,11 @@ import { eq } from 'drizzle-orm';
 import { logAdminAction } from '@/lib/audit';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { enrichAndSerializeBreedingPair } from '@/lib/data-helpers'; // We'll create this helper
-import * as Sentry from '@sentry/nextjs';
 
 export async function GET(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: fetching breeding pair ${params.pairId}`, 'log');
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to admin fetch breeding pair ${params.pairId}`,
-            'log'
-        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -33,7 +27,6 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
         });
 
         if (!pair || !pair.maleParent || !pair.femaleParent) {
-            Sentry.captureMessage(`Admin: breeding pair not found ${params.pairId}`, 'log');
             return NextResponse.json({ error: 'Breeding pair not found' }, { status: 404 });
         }
 
@@ -66,7 +59,6 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
             allRawPairs
         );
 
-        Sentry.captureMessage(`Admin: successfully fetched breeding pair ${params.pairId}`, 'info');
         return NextResponse.json({
             pair: enrichedPair,
             allCreatures: allCreatures.map(enrichAndSerializeCreature),
@@ -79,7 +71,6 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
         });
     } catch (error) {
         console.error('Failed to fetch breeding pair details:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
@@ -87,13 +78,8 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
 export async function DELETE(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: deleting breeding pair ${params.pairId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to admin delete breeding pair ${params.pairId}`,
-            'log'
-        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -104,10 +90,6 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
         });
 
         if (!targetPair) {
-            Sentry.captureMessage(
-                `Admin: breeding pair to delete not found ${params.pairId}`,
-                'log'
-            );
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
@@ -123,13 +105,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
             },
         });
 
-        Sentry.captureMessage(`Admin: successfully deleted breeding pair ${params.pairId}`, 'info');
         return NextResponse.json({
             message: 'Breeding pair deleted successfully.',
         });
     } catch (error) {
         console.error('Failed to delete breeding pair:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

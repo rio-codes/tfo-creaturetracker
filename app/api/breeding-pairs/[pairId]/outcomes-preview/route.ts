@@ -28,7 +28,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in outcomes-preview', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -62,6 +62,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
 
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

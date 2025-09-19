@@ -93,6 +93,7 @@ export function ViewOutcomesDialog({
                     return newUrl; // Return for setting the default URL
                 }
             } catch (error) {
+                console.error(error);
             } finally {
                 setIsLoading(false);
             }
@@ -197,6 +198,7 @@ export function ViewOutcomesDialog({
                         setDefaultPreviewUrl(initialUrl);
                     }
                 } catch (error) {
+                    console.error(error);
                 } finally {
                     setIsLoading(false);
                 }

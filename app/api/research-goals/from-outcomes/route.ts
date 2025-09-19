@@ -51,7 +51,7 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in from-outcomes', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { pairId, goalName, species, selectedGenotypes, goalMode, optionalGenes } =
@@ -136,6 +136,7 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

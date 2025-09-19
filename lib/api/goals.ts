@@ -28,6 +28,7 @@ export async function getGoalById(id: string): Promise<EnrichedResearchGoal | nu
 
         return finalGoal as EnrichedResearchGoal;
     } catch (error) {
+        console.error(error);
         return null;
     }
 }
@@ -100,6 +101,7 @@ export async function getPredictionsForGoal(goalId: string): Promise<Prediction[
 
         return predictions;
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -172,6 +174,7 @@ export async function getAssignedPairsForGoal(goalId: string): Promise<EnrichedB
             } as unknown as EnrichedBreedingPair;
         });
     } catch (error) {
+        console.error(error);
         return [];
     }
 }

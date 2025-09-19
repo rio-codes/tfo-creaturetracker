@@ -38,7 +38,9 @@ export async function POST(req: Request) {
             const allErrorArrays = Object.values(fieldErrors);
             const allErrors = allErrorArrays.flat();
             const errorString = allErrors.join('\n');
-            console.error('Zod Validation Failed:', errorString);
+            console.error('Zod Validation Failed in registration start', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorString }, { status: 400 });
         }
 
@@ -137,7 +139,7 @@ export async function POST(req: Request) {
         track('registration_start', { email, tfoUsername });
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error('Registration start failed:', error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

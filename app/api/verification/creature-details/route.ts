@@ -15,7 +15,7 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in creature-details', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { creatureCode } = validated.data;
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ imageUrl: data.imgsrc });
     } catch (error: any) {
-        console.error('Fetch creature details failed:', error);
+        console.error(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

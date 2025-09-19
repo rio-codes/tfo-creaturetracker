@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { z } from 'zod';
+
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 import { and, eq, sql } from 'drizzle-orm';
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in creature sync', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Creature sync failed:', error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -54,6 +54,7 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
 
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

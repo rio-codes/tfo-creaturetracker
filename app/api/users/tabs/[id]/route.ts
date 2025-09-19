@@ -90,7 +90,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to update tab.' }, { status: 500 });
     }
 }
@@ -131,7 +131,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Tab deleted successfully.' });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to delete tab.' }, { status: 500 });
     }
 }

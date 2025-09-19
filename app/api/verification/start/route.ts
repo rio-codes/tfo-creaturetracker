@@ -24,7 +24,9 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in verification start', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { tabId } = validated.data;
@@ -70,7 +72,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error('Verification start failed:', error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

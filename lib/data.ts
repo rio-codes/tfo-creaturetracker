@@ -184,6 +184,7 @@ export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair
 
         return enrichedPairs;
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -274,6 +275,7 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
         return { goal: enrichedGoal, predictions };
     } catch (error) {
+        console.error(error);
         return { goal: null, predictions: [] };
     }
 }
@@ -353,6 +355,7 @@ export async function fetchFilteredCreatures(
 
         return { pinnedCreatures, unpinnedCreatures, totalPages };
     } catch (error) {
+        console.error(error);
         return { pinnedCreatures: [], unpinnedCreatures: [], totalPages: 0 };
     }
 }
@@ -422,6 +425,7 @@ export async function fetchFilteredResearchGoals(
 
         return { pinnedGoals, unpinnedGoals, totalPages };
     } catch (error) {
+        console.error(error);
         return { pinnedGoals: [], unpinnedGoals: [], totalPages: 0 };
     }
 }
@@ -579,6 +583,7 @@ export async function fetchBreedingPairsWithStats(
             totalPages,
         };
     } catch (error) {
+        console.error(error);
         return { pinnedPairs: [], unpinnedPairs: [], totalPages: 0 };
     }
 }
@@ -594,6 +599,7 @@ export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
         });
         return fetchedCreatures.map(enrichAndSerializeCreature);
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -609,6 +615,7 @@ export async function getAllResearchGoalsForUser(): Promise<EnrichedResearchGoal
         });
         return allUserGoals.map((goal) => enrichAndSerializeGoal(goal, goal.goalMode));
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -624,6 +631,7 @@ export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]>
         });
         return pairs;
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -639,6 +647,7 @@ export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEn
         });
         return logEntries;
     } catch (error) {
+        console.error(error);
         return [];
     }
 }
@@ -684,6 +693,7 @@ export async function fetchAndUploadWithRetry(
             // if successful, return the new URL immediately
             return blob.url;
         } catch (error) {
+            console.error(error);
             if (attempt === retries) {
                 // if this was the last attempt, re-throw the error to be caught by the main logic
                 throw new Error(`All ${retries} attempts failed for ${referenceId}.`);
@@ -704,6 +714,7 @@ export async function getAllEnrichedCreaturesForUser(): Promise<EnrichedCreature
         });
         return fetchedCreatures.map(enrichAndSerializeCreature);
     } catch (error) {
+        console.error(error);
         return [];
     }
 }

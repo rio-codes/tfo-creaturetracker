@@ -1,6 +1,6 @@
 import { db } from '@/src/db';
 import { creatures, userTabs } from '@/src/db/schema';
-import { eq, and, inArray, sql } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 
 type CreatureInsert = typeof creatures.$inferInsert;
@@ -70,17 +70,17 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
     let added = 0;
     let updated = 0;
 
-    let imageUrl = '';
-
     for (const tfoCreature of tfoCreatures) {
         const existingCreature = existingCreatureMap.get(tfoCreature.code);
+        let imageUrl = existingCreature?.imageUrl ?? ''; // Default to existing or empty string
         try {
             imageUrl = await fetchAndUploadWithRetry(tfoCreature.imgsrc, tfoCreature.code);
-        } catch (error) {}
+        } catch (error) {
+            console.error(error);
+            // If upload fails, we'll use the default value (old image or empty string)
+        }
 
-        const creatureValuesToUpdate: CreatureInsert[] = [];
-
-        creatureValuesToUpdate.push({
+        const valuesToInsert: CreatureInsert = {
             userId: userId,
             code: tfoCreature.code,
             creatureName: tfoCreature.name,
@@ -93,27 +93,27 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
             gender:
                 (tfoCreature.gender?.toLowerCase() as 'male' | 'female' | 'unknown' | null) || null,
             updatedAt: new Date(),
-        });
+        };
 
-        if (creatureValuesToUpdate.length > 0) {
-            await db
-                .insert(creatures)
-                .values(creatureValuesToUpdate)
-                .onConflictDoUpdate({
-                    target: [creatures.userId, creatures.code],
-                    set: {
-                        creatureName: sql`excluded.name`,
-                        imageUrl: sql`excluded.imgsrc`,
-                        growthLevel: sql`excluded.growth_level`,
-                        isStunted: sql`excluded.is_stunted`,
-                        species: sql`excluded.breed_name`,
-                        genetics: sql`excluded.genetics`,
-                        gender: sql`excluded.gender`,
-                        gottenAt: sql`excluded.gotten_at`,
-                        updatedAt: new Date(),
-                    },
-                });
-        }
+        // Using onConflictDoUpdate with explicit values is safer than raw SQL with `excluded`.
+        await db
+            .insert(creatures)
+            .values(valuesToInsert)
+            .onConflictDoUpdate({
+                target: [creatures.userId, creatures.code],
+                set: {
+                    creatureName: valuesToInsert.creatureName,
+                    imageUrl: valuesToInsert.imageUrl,
+                    growthLevel: valuesToInsert.growthLevel,
+                    isStunted: valuesToInsert.isStunted,
+                    species: valuesToInsert.species,
+                    genetics: valuesToInsert.genetics,
+                    gender: valuesToInsert.gender,
+                    gottenAt: valuesToInsert.gottenAt,
+                    updatedAt: new Date(),
+                },
+            });
+
         if (existingCreature) {
             updated++;
         } else {

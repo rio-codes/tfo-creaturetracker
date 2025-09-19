@@ -45,7 +45,8 @@ export default function RegisterForm() {
             } else {
                 setError(data.message || 'An error occurred.');
             }
-        } catch (err) {
+        } catch (error) {
+            console.error(error);
             setError('An unexpected error occurred. Please try again.');
         }
     };

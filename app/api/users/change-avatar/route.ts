@@ -35,6 +35,7 @@ export async function POST() {
 
         return NextResponse.json({ success: true, newAvatar });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -50,6 +50,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ userId: str
             message: 'User status updated successfully.',
         });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

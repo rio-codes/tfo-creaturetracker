@@ -52,7 +52,8 @@ export default function RegistrationFlow() {
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error);
                     setCreatureImageUrl(data.imageUrl);
-                } catch (err: any) {
+                } catch (error) {
+                    console.error(error);
                     setError('Failed to load creature image.');
                 } finally {
                     setIsImageLoading(false);
@@ -102,7 +103,9 @@ export default function RegistrationFlow() {
                 setStep('challenge');
             }
         } catch (err: any) {
-            setError(err);
+            const errorMessage = err.message || 'An unexpected network error occurred.';
+            setError(errorMessage);
+            console.log(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -125,7 +128,9 @@ export default function RegistrationFlow() {
             setStep('success');
             setTimeout(() => router.push('/login'), 3000);
         } catch (err: any) {
-            setError(err.message);
+            const errorMessage = err.message || 'An unexpected network error occurred.';
+            setError(errorMessage);
+            console.error(errorMessage);
         } finally {
             setIsLoading(false);
         }

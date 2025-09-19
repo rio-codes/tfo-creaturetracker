@@ -56,7 +56,7 @@ export async function PATCH(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error('Zod Validation Failed in settings', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -81,6 +81,7 @@ export async function PATCH(req: Request) {
         track('settings_updated', { username });
         return NextResponse.json({ message: 'Settings updated successfully!' });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

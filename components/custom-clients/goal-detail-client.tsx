@@ -176,6 +176,7 @@ export function GoalDetailClient({
             setImageUrl(data.imageUrl); // Update local state to show new image immediately
             router.refresh(); // Re-fetch server components
         } catch (error) {
+            console.error(error);
             // Optionally show a toast notification on error
         } finally {
             setIsRefreshing(false);

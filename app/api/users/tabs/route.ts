@@ -26,7 +26,7 @@ export async function GET() {
         });
         return NextResponse.json(tabs);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to fetch user tabs.' }, { status: 500 });
     }
 }
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
         revalidatePath('/collection');
         return NextResponse.json(newTab[0], { status: 201 });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to add new tab.' }, { status: 500 });
     }
 }

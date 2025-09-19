@@ -29,12 +29,19 @@ export function hasObscenity(text: string | null | undefined): boolean {
         return true;
     }
 
-    const cleanedText = text
+    const symbolCleanedText = text
         .split(/\s+/)
         .map((word) => word.replace(/[^a-zA-Z0-9]/g, ''))
         .join(' ');
 
-    if (text === cleanedText) return false;
+    if (text !== symbolCleanedText && obscenityMatcher.hasMatch(symbolCleanedText)) {
+        return true;
+    }
 
-    return obscenityMatcher.hasMatch(cleanedText);
+    const numberCleanedText = symbolCleanedText.replace(/[0-9]/g, '');
+    if (symbolCleanedText !== numberCleanedText && obscenityMatcher.hasMatch(numberCleanedText)) {
+        return true;
+    }
+
+    return false;
 }

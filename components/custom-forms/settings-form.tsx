@@ -1,11 +1,8 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useSession } from 'next-auth/react';
 import { User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +31,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import EmojiPicker, { EmojiClickData, Theme as EmojiTheme } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 // This schema should align with the one in `app/api/settings/route.ts`
 const settingsFormSchema = z
@@ -44,9 +44,18 @@ const settingsFormSchema = z
             .min(12, 'Password must be at least 12 characters.')
             .optional()
             .or(z.literal('')),
-        collectionItemsPerPage: z.coerce.number().min(3).max(30),
-        goalsItemsPerPage: z.coerce.number().min(3).max(30),
-        pairsItemsPerPage: z.coerce.number().min(3).max(30),
+        collectionItemsPerPage: z
+            .string()
+            .transform(Number)
+            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+        goalsItemsPerPage: z
+            .string()
+            .transform(Number)
+            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+        pairsItemsPerPage: z
+            .string()
+            .transform(Number)
+            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
         theme: z.enum(['light', 'dark', 'system']),
         goalConversions: z.any().optional(),
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
@@ -63,7 +72,10 @@ const settingsFormSchema = z
             .max(50, 'Pronouns must be 50 characters or less.')
             .optional()
             .nullable(),
-        socialLinks: z.string().optional(),
+        socialLinks: z
+            .string()
+            .transform((str) => str.split('\n').filter((link) => link.trim() !== ''))
+            .optional(),
         showLabLink: z.boolean().optional(),
         statusMessage: z
             .string()
@@ -90,29 +102,24 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const { update } = useSession();
     const router = useRouter();
     const { theme } = useTheme();
-    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null); // State for the selected avatar file
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const form = useForm<SettingsFormValues>({
-        resolver: zodResolver(settingsFormSchema),
+        resolver: zodResolver(settingsFormSchema) as any,
         defaultValues: {
-            email: user.email as string,
-            bio: (user.bio as string) || ('' as string),
-            theme: user.theme as 'light' | 'dark' | 'system',
-            collectionItemsPerPage: user.collectionItemsPerPage,
-            goalsItemsPerPage: user.goalsItemsPerPage,
-            pairsItemsPerPage: user.pairsItemsPerPage,
-            password: '' as string,
-            confirmPassword: '' as string,
-            featuredCreatureIds: user.featuredCreatureIds as string[],
-            featuredGoalIds: user.featuredGoalIds as string[],
-            pronouns: user.pronouns,
-            socialLinks: user.socialLinks?.join('\n') || '',
-            showLabLink: user.showLabLink,
-            statusMessage: user.statusMessage,
-            statusEmoji: user.statusEmoji,
-            showStats: user.showStats,
+            email: user.email ?? '',
+            collectionItemsPerPage: user.collectionItemsPerPage || 10,
+            goalsItemsPerPage: user.goalsItemsPerPage || 10,
+            pairsItemsPerPage: user.pairsItemsPerPage || 10,
+            theme: user.theme ?? 'system',
+            bio: user.bio ?? '',
+            pronouns: user.pronouns ?? '',
+            socialLinks: user.socialLinks!.filter((link) => link !== null).join('\n') as any,
+            statusMessage: user.statusMessage ?? '',
+            statusEmoji: user.statusEmoji ?? '✨',
+            showLabLink: user.showLabLink ?? false,
+            showStats: user.showStats ?? false,
             showFriendsList: user.showFriendsList ?? false,
         },
     });
@@ -135,12 +142,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
         setIsSubmitting(true);
 
         // Don't send password if it's empty
-        const { confirmPassword, socialLinks: socialLinksString, ...restOfData } = data;
-        const socialLinks = socialLinksString
-            ? socialLinksString.split('\n').filter((link) => link.trim() !== '')
-            : [];
-
-        const updateData = { ...restOfData, socialLinks };
+        const { confirmPassword, ...updateData } = data;
 
         if (!updateData.password) {
             delete updateData.password;

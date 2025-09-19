@@ -4,7 +4,6 @@ import { db } from '@/src/db';
 import { accountVerifications } from '@/src/db/schema';
 import crypto from 'crypto';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
 
 const startSchema = z.object({
     tabId: z.coerce.number().int().min(0, 'Tab ID must be a positive number.'),
@@ -12,9 +11,7 @@ const startSchema = z.object({
 
 export async function POST(req: Request) {
     const session = await auth();
-    Sentry.captureMessage('Starting account verification', 'log');
     if (!session?.user?.id || !session.user.username) {
-        Sentry.captureMessage('Unauthenticated attempt to start verification', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -27,11 +24,9 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid tab id provided for verification. ${errorMessage}`,
-                'log'
-            );
+            console.error('Zod Validation Failed in verification start', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { tabId } = validated.data;
@@ -45,10 +40,6 @@ export async function POST(req: Request) {
         const data = await response.json();
 
         if (data.error || !data.creatures || data.creatures.length === 0) {
-            Sentry.captureMessage(
-                `Could not find creatures in tab for verification: ${username} / Tab ${tabId}`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     error: `Could not find any creatures in Tab ${tabId} to use for verification.`,
@@ -79,11 +70,9 @@ export async function POST(req: Request) {
                 },
             });
 
-        Sentry.captureMessage(`Verification started for user ${userId}`, 'info');
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error('Verification start failed:', error);
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

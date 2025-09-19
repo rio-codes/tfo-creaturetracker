@@ -4,7 +4,6 @@ import { db } from '@/src/db';
 import { friendships } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
 
 const actionSchema = z.object({
     targetUserId: z.string(),
@@ -28,7 +27,10 @@ export async function POST(req: Request) {
         const validated = actionSchema.safeParse(body);
 
         if (!validated.success) {
-            return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+            console.error('Zod Validation Failed in friends actions', {
+                error: validated.error,
+            });
+            return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
         }
 
         const { targetUserId, action } = validated.data;
@@ -114,7 +116,7 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
         }
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { z } from 'zod';
 import { hasObscenity } from '@/lib/obscenity';
-import * as Sentry from '@sentry/nextjs';
 import { reports } from '@/src/db/schema';
 
 const reportSchema = z.object({
@@ -46,7 +45,6 @@ export async function POST(req: Request) {
         }
 
         await db.insert(reports).values({ reporterId, reportedId: reportedUserId, reason });
-        Sentry.captureMessage(`User ${reporterId} reported user ${reportedUserId}.`, 'info');
 
         return NextResponse.json(
             { message: 'Report submitted successfully. Thank you.' },
@@ -54,7 +52,6 @@ export async function POST(req: Request) {
         );
     } catch (error) {
         console.error('Failed to submit report:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -34,7 +34,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import EmojiPicker, { EmojiClickData, Theme as EmojiTheme } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
-import * as Sentry from '@sentry/nextjs';
 
 // This schema should align with the one in `app/api/settings/route.ts`
 const settingsFormSchema = z
@@ -159,7 +158,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
         for (const field of fieldsToCheck) {
             if (await hasObscenity(field.value)) {
-                Sentry.captureMessage(`Obscenity detected in ${field.name}`, 'log');
                 toast.error('Obscenity Detected', {
                     description: `Please remove any offensive language from your ${field.label}.`,
                 });

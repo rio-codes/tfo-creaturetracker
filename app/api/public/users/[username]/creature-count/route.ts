@@ -3,7 +3,7 @@ import { db } from '@/src/db';
 import { creatures, users } from '@/src/db/schema';
 import { and, eq, count } from 'drizzle-orm';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
+
 
 const querySchema = z.object({
     species: z.string().min(1, { message: 'Species parameter is required.' }),
@@ -16,10 +16,6 @@ export async function GET(
     req: Request,
     { params }: { params: { username: string } }
 ) {
-    Sentry.captureMessage(
-        `Fetching public creature count for user ${params.username}`,
-        'log'
-    );
     try {
         const { username } = params;
         const { searchParams } = new URL(req.url);
@@ -30,17 +26,13 @@ export async function GET(
         });
 
         if (!validation.success) {
-            const { fieldErrors } = validation.error.flatten();
-            if (fieldErrors.color !== undefined) {
             const errorMessage =
-                fieldErrors.species?.join(' ') ??
+                validation.error.flatten().fieldErrors.species?.join(' ') ??
                 'Invalid or missing species parameter.';
 
-            console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Invalid parameter for public creature count: ${errorMessage}`,
-                'log'
-            );
+            console.error('Zod Validation Failed in creature-count badge', {
+                error: validation.error.flatten().fieldErrors,
+            });
             return NextResponse.json(
                 {
                     schemaVersion: 1,
@@ -51,16 +43,8 @@ export async function GET(
                 { status: 400 }
             );
         }
-        }
 
-        let species: string, color: string;
-        if (!validation.data?.color) {
-            ({ species, color } = { species: validation.data!.species, color: BADGE_COLOR });
-        }
-        else {
-            ({ species, color } = validation.data);
-        }
-        
+        const { species, color } = validation.data;
 
         const user = await db.query.users.findFirst({
             where: eq(users.username, username),
@@ -68,10 +52,6 @@ export async function GET(
         });
 
         if (!user) {
-            Sentry.captureMessage(
-                `User not found for public creature count: ${username}`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     schemaVersion: 1,
@@ -92,18 +72,14 @@ export async function GET(
 
         const creatureCount = result[0]?.value ?? 0;
 
-        Sentry.captureMessage(
-            `Successfully fetched public creature count for ${username}`,
-            'info'
-        );
         return NextResponse.json({
             schemaVersion: 1,
             label: `${species}s`,
             message: `${creatureCount}`,
-            color: color || BADGE_COLOR,
+            color: color ?? BADGE_COLOR,
         });
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

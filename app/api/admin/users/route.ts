@@ -3,14 +3,11 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { and, ilike, or, eq, desc, count, SQL } from 'drizzle-orm';
-import * as Sentry from '@sentry/nextjs';
 
 export async function GET(req: Request) {
-    Sentry.captureMessage('Admin: fetching users', 'log');
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin fetch users', 'log');
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -48,7 +45,6 @@ export async function GET(req: Request) {
         const totalUsers = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUsers / limit);
 
-        Sentry.captureMessage(`Admin: successfully fetched users page ${page}`, 'info');
         return NextResponse.json({
             users: userList,
             pagination: {
@@ -59,7 +55,6 @@ export async function GET(req: Request) {
             },
         });
     } catch (error) {
-        Sentry.captureException(error);
         console.error('Failed to fetch users:', error);
         return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
     }

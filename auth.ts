@@ -6,7 +6,6 @@ import { compare } from 'bcrypt-ts';
 import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DbUser } from '@/types';
-import * as Sentry from '@sentry/nextjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: DrizzleAdapter(db),
@@ -50,7 +49,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         throw new Error('Invalid username or password.');
                     }
                 } catch (error) {
-                    Sentry.captureException(error);
                     // Re-throw the error to be handled by Auth.js
                     throw error;
                 }

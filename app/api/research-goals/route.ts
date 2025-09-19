@@ -9,7 +9,6 @@ import { TFO_SPECIES_CODES } from '@/constants/creature-data';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { structuredGeneData } from '@/constants/creature-data';
 import { fetchAndUploadWithRetry } from '@/lib/data';
-import * as Sentry from '@sentry/nextjs';
 
 const goalSchema = z.object({
     name: z
@@ -59,11 +58,9 @@ export function validateGoalData(
 }
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Creating new research goal', 'log');
     console.log('Received', req.body);
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create research goal', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -71,7 +68,6 @@ export async function POST(req: Request) {
         const body = await req.json();
         const validatedFields = goalSchema.safeParse(body);
         if (!validatedFields.success) {
-            Sentry.logger.warn('Zod validation failed for new goal');
             const { fieldErrors } = validatedFields.error.flatten();
             const errorMessage = Object.values(fieldErrors).flat().join(' ');
             console.log(validatedFields.error.flatten());
@@ -84,7 +80,6 @@ export async function POST(req: Request) {
         }
         const { name, species, genes } = validatedFields.data;
         if (hasObscenity(name)) {
-            Sentry.captureMessage('Obscene language in new goal name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -117,13 +112,11 @@ export async function POST(req: Request) {
 
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(`Research goal "${name}" created successfully`, 'info');
         return NextResponse.json(
             { message: 'Research Goal created successfully!' },
             { status: 201 }
         );
     } catch (error: any) {
-        Sentry.captureException(error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

@@ -1,28 +1,13 @@
 import 'server-only';
 
 import { db } from '@/src/db';
-import {
-    researchGoals,
-    breedingPairs,
-    breedingLogEntries,
-    creatures,
-} from '@/src/db/schema';
-import type {
-    EnrichedResearchGoal,
-    Prediction,
-    EnrichedBreedingPair,
-} from '@/types';
-import {
-    enrichAndSerializeCreature,
-    enrichAndSerializeGoal,
-} from '@/lib/serialization';
+import { researchGoals, breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
+import type { EnrichedResearchGoal, Prediction, EnrichedBreedingPair } from '@/types';
+import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics';
-import * as Sentry from '@sentry/nextjs';
 import { eq, and, inArray } from 'drizzle-orm';
 
-export async function getGoalById(
-    id: string
-): Promise<EnrichedResearchGoal | null> {
+export async function getGoalById(id: string): Promise<EnrichedResearchGoal | null> {
     try {
         const goalData = await db.query.researchGoals.findFirst({
             where: eq(researchGoals.id, id),
@@ -34,41 +19,27 @@ export async function getGoalById(
             return null;
         }
 
-        const enrichedGoal = enrichAndSerializeGoal(
-            goalData,
-            goalData.goalMode
-        );
+        const enrichedGoal = enrichAndSerializeGoal(goalData, goalData.goalMode);
 
         const finalGoal = {
             ...enrichedGoal,
-            user: (goalData as any).user
-                ? { username: (goalData as any).user.username }
-                : null,
+            user: (goalData as any).user ? { username: (goalData as any).user.username } : null,
         };
 
         return finalGoal as EnrichedResearchGoal;
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: `Failed to fetch public goal by ID ${id}` },
-        });
+        console.error(error);
         return null;
     }
 }
 
-export async function getPredictionsForGoal(
-    goalId: string
-): Promise<Prediction[]> {
+export async function getPredictionsForGoal(goalId: string): Promise<Prediction[]> {
     try {
         const goal = await db.query.researchGoals.findFirst({
             where: eq(researchGoals.id, goalId),
         });
 
-        if (
-            !goal ||
-            !goal.userId ||
-            !goal.assignedPairIds ||
-            goal.assignedPairIds.length === 0
-        ) {
+        if (!goal || !goal.userId || !goal.assignedPairIds || goal.assignedPairIds.length === 0) {
             return [];
         }
 
@@ -86,19 +57,13 @@ export async function getPredictionsForGoal(
         const predictions = assignedPairs
             .filter((p) => p.maleParent && p.femaleParent)
             .map((pair) => {
-                const enrichedMaleParent = enrichAndSerializeCreature(
-                    pair.maleParent!
-                );
-                const enrichedFemaleParent = enrichAndSerializeCreature(
-                    pair.femaleParent!
-                );
+                const enrichedMaleParent = enrichAndSerializeCreature(pair.maleParent!);
+                const enrichedFemaleParent = enrichAndSerializeCreature(pair.femaleParent!);
                 let totalChance = 0;
                 let geneCount = 0;
                 const chancesByCategory: { [key: string]: number } = {};
 
-                for (const [category, targetGeneInfo] of Object.entries(
-                    enrichedGoal!.genes
-                )) {
+                for (const [category, targetGeneInfo] of Object.entries(enrichedGoal!.genes)) {
                     const targetGene = targetGeneInfo as any;
                     const chance = calculateGeneProbability(
                         enrichedMaleParent,
@@ -115,14 +80,11 @@ export async function getPredictionsForGoal(
                     }
                 }
 
-                const averageChance =
-                    geneCount > 0 ? totalChance / geneCount : 1;
-                const isPossible = Object.entries(chancesByCategory).every(
-                    ([category, chance]) => {
-                        const targetGene = enrichedGoal!.genes[category] as any;
-                        return targetGene.isOptional || chance > 0;
-                    }
-                );
+                const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
+                const isPossible = Object.entries(chancesByCategory).every(([category, chance]) => {
+                    const targetGene = enrichedGoal!.genes[category] as any;
+                    return targetGene.isOptional || chance > 0;
+                });
 
                 return {
                     pairId: pair.id,
@@ -139,30 +101,19 @@ export async function getPredictionsForGoal(
 
         return predictions;
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: {
-                context: `Failed to fetch public predictions for goal ${goalId}`,
-            },
-        });
+        console.error(error);
         return [];
     }
 }
 
-export async function getAssignedPairsForGoal(
-    goalId: string
-): Promise<EnrichedBreedingPair[]> {
+export async function getAssignedPairsForGoal(goalId: string): Promise<EnrichedBreedingPair[]> {
     try {
         const goal = await db.query.researchGoals.findFirst({
             where: eq(researchGoals.id, goalId),
             columns: { userId: true, assignedPairIds: true },
         });
 
-        if (
-            !goal ||
-            !goal.userId ||
-            !goal.assignedPairIds ||
-            goal.assignedPairIds.length === 0
-        ) {
+        if (!goal || !goal.userId || !goal.assignedPairIds || goal.assignedPairIds.length === 0) {
             return [];
         }
 
@@ -206,9 +157,7 @@ export async function getAssignedPairsForGoal(
         const progenyCreatures = await db.query.creatures.findMany({
             where: inArray(creatures.id, Array.from(allProgenyIds)),
         });
-        const enrichedProgeny = progenyCreatures.map(
-            enrichAndSerializeCreature
-        );
+        const enrichedProgeny = progenyCreatures.map(enrichAndSerializeCreature);
 
         // 5. Attach progeny to each pair
         return pairs.map((pair) => {
@@ -225,11 +174,7 @@ export async function getAssignedPairsForGoal(
             } as unknown as EnrichedBreedingPair;
         });
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: {
-                context: `Failed to fetch public assigned pairs for goal ${goalId}`,
-            },
-        });
+        console.error(error);
         return [];
     }
 }

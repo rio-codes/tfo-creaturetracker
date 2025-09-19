@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { structuredGeneData } from '@/constants/creature-data';
-import * as Sentry from '@sentry/nextjs';
 import type { DbCreature, EnrichedCreature } from '@/types';
 
 // Define robust types for gene data to avoid using `any`
@@ -67,10 +66,8 @@ const predictionSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Calculating breeding predictions', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to get breeding predictions', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -83,8 +80,9 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
+            console.error('Zod Validation Failed in breeding-predictions', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { maleParentId, femaleParentId, goalIds } = validated.data;
@@ -110,7 +108,6 @@ export async function POST(req: Request) {
                 : [];
 
         if (!user || !maleParentRaw || !femaleParentRaw) {
-            Sentry.captureMessage('Could not find user or parents for prediction', 'log');
             return NextResponse.json(
                 { error: 'Could not find user or parent creatures.' },
                 { status: 404 }
@@ -121,7 +118,6 @@ export async function POST(req: Request) {
         const femaleParent = enrichAndSerializeCreature(femaleParentRaw);
 
         if (!maleParent || !femaleParent) {
-            Sentry.captureMessage('Could not process parent creatures for prediction', 'log');
             return NextResponse.json(
                 {
                     error: 'Could not process parent creatures. They may be missing species information.',
@@ -200,10 +196,9 @@ export async function POST(req: Request) {
             };
         });
 
-        Sentry.captureMessage('Successfully calculated breeding predictions', 'info');
         return NextResponse.json({ predictions });
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

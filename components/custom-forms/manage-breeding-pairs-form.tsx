@@ -26,7 +26,6 @@ import {
     getPossibleOffspringSpecies,
     checkForInbreeding,
 } from '@/lib/breeding-rules';
-import * as Sentry from '@sentry/nextjs';
 
 type ManagePairsFormProps = {
     baseCreature: EnrichedCreature;
@@ -143,7 +142,6 @@ export function ManageBreedingPairsForm({
                 if (!response.ok) throw new Error(data.error);
                 setPredictions(data.predictions);
             } catch (err) {
-                Sentry.captureException(err);
                 console.error(err);
             } finally {
                 setIsPredictionLoading(false);
@@ -224,7 +222,6 @@ export function ManageBreedingPairsForm({
             router.refresh();
             onActionComplete();
         } catch (err: any) {
-            Sentry.captureException(err);
             console.error(err);
             alert('Failed to remove pair.');
         } finally {

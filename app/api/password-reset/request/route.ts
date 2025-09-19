@@ -5,14 +5,12 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { hash } from 'bcrypt-ts';
 import { sendPasswordResetEmail } from '@/lib/mail';
-import * as Sentry from '@sentry/nextjs';
+import { track } from '@vercel/analytics/server';
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Requesting password reset', 'log');
     try {
         const { email } = await req.json();
         if (!email) {
-            Sentry.captureMessage('Email not provided for password reset request', 'log');
             return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
         }
 
@@ -36,12 +34,9 @@ export async function POST(req: Request) {
 
             // Send the email with the RAW, un-hashed token
             await sendPasswordResetEmail(email, token);
-            Sentry.captureMessage(`Password reset email sent for: ${email}`, 'info');
+            track('password_reset_request', { email });
         } else {
-            Sentry.captureMessage(
-                `Password reset requested for non-existent email: ${email}`,
-                'info'
-            );
+            track('password_reset_request_nonexistent', { email });
         }
 
         return NextResponse.json(
@@ -53,7 +48,6 @@ export async function POST(req: Request) {
         );
     } catch (error) {
         console.error('Password reset request failed:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -4,14 +4,11 @@ import { db } from '@/src/db';
 import { researchGoals } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import * as Sentry from '@sentry/nextjs';
 
 export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
-    Sentry.captureMessage(`Toggling mode for goal ${params.goalId}`, 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to toggle goal mode', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -25,7 +22,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found for mode toggle: ${goalId}`, 'log');
             return NextResponse.json(
                 {
                     error: 'Goal not found or you do not have permission to edit it.',
@@ -46,13 +42,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         // Revalidate the path to ensure the page re-fetches data
         revalidatePath(`/research-goals/${goalId}`);
 
-        Sentry.captureMessage(`Goal ${goalId} mode switched to ${newMode}`, 'info');
         return NextResponse.json({
             message: `Goal mode switched to ${newMode} successfully.`,
         });
     } catch (error: any) {
         console.error('Failed to switch goal mode:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

@@ -4,13 +4,10 @@ import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { capsuleAvatars, getRandomCapsuleAvatar } from '@/lib/avatars';
-import * as Sentry from '@sentry/nextjs';
 
 export async function POST() {
-    Sentry.captureMessage('Changing user avatar', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to change avatar', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -21,7 +18,6 @@ export async function POST() {
         });
 
         if (!user) {
-            Sentry.captureMessage(`User not found for avatar change: ${userId}`, 'log');
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
@@ -37,10 +33,9 @@ export async function POST() {
 
         await db.update(users).set({ image: newAvatar }).where(eq(users.id, userId));
 
-        Sentry.captureMessage(`Avatar changed successfully for user ${userId}`, 'info');
         return NextResponse.json({ success: true, newAvatar });
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

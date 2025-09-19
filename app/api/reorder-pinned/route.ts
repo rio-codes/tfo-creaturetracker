@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { researchGoals, creatures, breedingPairs } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
-import * as Sentry from '@sentry/nextjs';
 
 export async function POST(request: Request) {
     const session = await auth();
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ message: 'Order updated successfully' });
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
     }
 }

@@ -13,18 +13,12 @@ import { logAdminAction } from '@/lib/audit';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { enrichAndSerializeBreedingPair } from '@/lib/data-helpers';
 import type { EnrichedBreedingPair } from '@/types';
-import * as Sentry from '@sentry/nextjs';
 
 export async function GET(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: fetching creature ${params.creatureId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to admin fetch creature ${params.creatureId}`,
-            'log'
-        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -34,7 +28,6 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
         });
 
         if (!creature) {
-            Sentry.captureMessage(`Admin: creature not found ${params.creatureId}`, 'log');
             return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
         }
 
@@ -80,7 +73,6 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
             )
             .filter((p): p is EnrichedBreedingPair => p !== null);
 
-        Sentry.captureMessage(`Admin: successfully fetched creature ${params.creatureId}`, 'info');
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),
             allCreatures: enrichedCreatures,
@@ -89,7 +81,6 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
         });
     } catch (error) {
         console.error('Failed to fetch creature details:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
@@ -97,13 +88,8 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
 export async function DELETE(req: Request, props: { params: Promise<{ creatureId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Admin: deleting creature ${params.creatureId}`, 'log');
 
     if (!session?.user?.id || session.user.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to admin delete creature ${params.creatureId}`,
-            'log'
-        );
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
@@ -114,10 +100,6 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
         });
 
         if (!targetCreature) {
-            Sentry.captureMessage(
-                `Admin: creature to delete not found ${params.creatureId}`,
-                'log'
-            );
             return NextResponse.json({ error: 'Creature not found.' }, { status: 404 });
         }
 
@@ -134,11 +116,9 @@ export async function DELETE(req: Request, props: { params: Promise<{ creatureId
             },
         });
 
-        Sentry.captureMessage(`Admin: successfully deleted creature ${params.creatureId}`, 'info');
         return NextResponse.json({ message: 'Creature deleted successfully.' });
     } catch (error) {
         console.error('Failed to delete creature:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

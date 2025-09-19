@@ -15,7 +15,6 @@ import {
 } from 'react-icons/fa';
 import { Link as LinkIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import * as Sentry from '@sentry/nextjs';
 
 interface SocialLinksProps {
     links: string[];
@@ -65,7 +64,6 @@ export function SocialLinks({ links }: SocialLinksProps) {
                     );
                 } catch (e) {
                     console.error(`Error parsing social link:`, e, `for link:`, link);
-                    Sentry.captureException(e, { extra: { link: link } });
                     return null; // Ignore invalid URLs
                 }
             })}

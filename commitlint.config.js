@@ -23,7 +23,6 @@ module.exports = {
                 'config',
                 'deps',
                 'vercel',
-                'sentry',
                 'docs',
                 'release',
             ],

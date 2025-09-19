@@ -6,7 +6,6 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
 
 const createTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),
@@ -14,10 +13,8 @@ const createTabSchema = z.object({
 });
 
 export async function GET() {
-    Sentry.captureMessage('Fetching user tabs', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to fetch tabs', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -27,20 +24,16 @@ export async function GET() {
             where: eq(userTabs.userId, userId),
             orderBy: (userTabs, { asc }) => [asc(userTabs.createdAt)],
         });
-        Sentry.captureMessage(`Successfully fetched tabs for user ${userId}`, 'info');
         return NextResponse.json(tabs);
     } catch (error) {
-        Sentry.captureException(error);
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to fetch user tabs.' }, { status: 500 });
     }
 }
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Creating user tab', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to create tab', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -53,7 +46,6 @@ export async function POST(req: Request) {
             const flattenedError = validatedTabs.error.flatten();
             const fullError =
                 flattenedError.fieldErrors.tabId || '' + flattenedError.fieldErrors.tabName || '';
-            Sentry.captureMessage(`Invalid data for creating tab: ${fullError}`, 'log');
             return NextResponse.json(
                 {
                     error: `Error: ${fullError}`,
@@ -63,7 +55,6 @@ export async function POST(req: Request) {
         }
 
         if (hasObscenity(tabName)) {
-            Sentry.captureMessage('Obscene language in new tab name', 'log');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -75,12 +66,10 @@ export async function POST(req: Request) {
             .values({ userId, tabId, tabName: tabName || null })
             .returning();
 
-        Sentry.captureMessage(`Tab created successfully for user ${userId}`, 'info');
         revalidatePath('/collection');
         return NextResponse.json(newTab[0], { status: 201 });
     } catch (error) {
-        Sentry.captureException(error);
-        console.log(error);
+        console.error(error);
         return NextResponse.json({ error: 'Failed to add new tab.' }, { status: 500 });
     }
 }

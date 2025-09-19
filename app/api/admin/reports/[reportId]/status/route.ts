@@ -5,7 +5,6 @@ import { reports } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { logAdminAction } from '@/lib/audit';
-import * as Sentry from '@sentry/nextjs';
 import { revalidatePath } from 'next/cache';
 
 const updateStatusSchema = z.object({
@@ -15,10 +14,6 @@ const updateStatusSchema = z.object({
 export async function PATCH(req: Request, { params }: { params: { reportId: string } }) {
     const session = await auth();
     if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to update report status for ${params.reportId}`,
-            'log'
-        );
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -27,7 +22,6 @@ export async function PATCH(req: Request, { params }: { params: { reportId: stri
         const validated = updateStatusSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage(`Invalid status for report ${params.reportId}`, 'log');
             return NextResponse.json({ error: 'Invalid status provided.' }, { status: 400 });
         }
 
@@ -54,11 +48,9 @@ export async function PATCH(req: Request, { params }: { params: { reportId: stri
 
         revalidatePath('/admin/reports');
 
-        Sentry.captureMessage(`Admin updated report ${reportId} to ${status}`, 'info');
         return NextResponse.json({ message: 'Report status updated successfully.' });
     } catch (error) {
         console.error('Failed to update report status:', error);
-        Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

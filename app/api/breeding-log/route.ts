@@ -13,7 +13,6 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { hasObscenity } from '@/lib/obscenity';
-import * as Sentry from '@sentry/nextjs';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
@@ -94,10 +93,8 @@ async function checkAndRecordAchievements(
 }
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Logging breeding event', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to log breeding event', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -112,7 +109,6 @@ export async function POST(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for creating pair. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -120,7 +116,6 @@ export async function POST(req: Request) {
             validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage('Obscene language in breeding log notes', 'log');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -176,7 +171,6 @@ export async function POST(req: Request) {
         const newProgenyIds = [progeny1Id, progeny2Id].filter((id): id is string => !!id);
         await checkAndRecordAchievements(userId, pairId, newProgenyIds, newLogEntry.id);
 
-        Sentry.captureMessage(`Breeding event logged successfully for pair ${pairId}`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -186,7 +180,6 @@ export async function POST(req: Request) {
         );
     } catch (error) {
         console.error('Failed to log breeding event:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'An internal error occurred.',
@@ -197,10 +190,8 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-    Sentry.captureMessage('Updating breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to update breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -215,14 +206,12 @@ export async function PUT(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data for updating breeding log. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
         const { logId, notes, progeny1Id, progeny2Id } = validated.data;
 
         if (hasObscenity(notes)) {
-            Sentry.captureMessage('Obscene language in breeding log notes update', 'log');
             return NextResponse.json(
                 { error: 'The provided notes contain inappropriate language.' },
                 { status: 400 }
@@ -271,14 +260,12 @@ export async function PUT(req: Request) {
             await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyIds, logId);
         });
 
-        Sentry.captureMessage(`Log entry ${logId} updated successfully`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
         return NextResponse.json({ message: 'Log entry updated successfully!' }, { status: 200 });
     } catch (error) {
         console.error('Failed to update breeding log:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'An internal error occurred.',
@@ -289,10 +276,8 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-    Sentry.captureMessage('Deleting breeding log', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to delete breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -307,7 +292,6 @@ export async function DELETE(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid log id for deletion. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -329,14 +313,12 @@ export async function DELETE(req: Request) {
             await tx.delete(breedingLogEntries).where(eq(breedingLogEntries.id, logId));
         });
 
-        Sentry.captureMessage(`Log entry ${logId} deleted successfully`, 'info');
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
         return NextResponse.json({ message: 'Log entry deleted successfully!' }, { status: 200 });
     } catch (error) {
         console.error('Failed to delete breeding log:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'An internal error occurred.',
@@ -347,10 +329,8 @@ export async function DELETE(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-    Sentry.captureMessage('Patching breeding log (moving progeny)', 'log');
     const session = await auth();
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to patch breeding log', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
@@ -365,7 +345,6 @@ export async function PATCH(req: Request) {
                 .flatMap((errors) => errors)
                 .join(' ');
             console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(`Invalid data to update breeding log. ${errorMessage}`, 'log');
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -448,10 +427,6 @@ export async function PATCH(req: Request) {
             );
         });
 
-        Sentry.captureMessage(
-            `Progeny ${progenyId} moved to log ${logEntryId} successfully`,
-            'info'
-        );
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -461,7 +436,6 @@ export async function PATCH(req: Request) {
         );
     } catch (error) {
         console.error('Failed to update breeding log:', error);
-        Sentry.captureException(error);
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'An internal error occurred.',

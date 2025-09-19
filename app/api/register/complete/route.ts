@@ -3,14 +3,13 @@ import { db } from '@/src/db';
 import { users, pendingRegistrations } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
+import { track } from '@vercel/analytics/server';
 
 const completeSchema = z.object({
     email: z.email('A valid email is required.'),
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Completing registration', 'log');
     try {
         const body = await req.json();
         const validated = completeSchema.safeParse(body);
@@ -19,11 +18,9 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
-            Sentry.captureMessage(
-                `Email invalid for completing registration. ${errorMessage}`,
-                'log'
-            );
+            console.error('Zod Validation Failed on registration completion', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
         const { email } = validated.data;
@@ -33,10 +30,6 @@ export async function POST(req: Request) {
         });
 
         if (!pending) {
-            Sentry.captureMessage(
-                `No pending registration found for this email. Please start over.`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     error: 'No pending registration found for this email. Please start over.',
@@ -47,10 +40,6 @@ export async function POST(req: Request) {
 
         if (new Date() > pending.expiresAt) {
             await db.delete(pendingRegistrations).where(eq(pendingRegistrations.email, email));
-            Sentry.captureMessage(
-                `Your registration attempt has expired. Please start over.`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     error: 'Your registration attempt has expired. Please start over.',
@@ -61,7 +50,6 @@ export async function POST(req: Request) {
 
         if (!process.env.TFO_API_KEY) {
             const errorMessage = 'Server configuration error: TFO_API_KEY is not set.';
-            Sentry.captureException(new Error(errorMessage));
             console.error(errorMessage);
             return NextResponse.json(
                 {
@@ -103,15 +91,18 @@ export async function POST(req: Request) {
                 await tx.delete(pendingRegistrations).where(eq(pendingRegistrations.email, email));
             });
 
-            Sentry.captureMessage(
-                `Account created successfully for email: ${pending.email}`,
-                'info'
-            );
+            track('registration_complete', {
+                email: pending.email,
+                tfoUsername: pending.tfoUsername,
+            });
             return NextResponse.json({
                 message: 'Account created successfully! You can now log in.',
             });
         } else {
-            Sentry.captureMessage(`Verification failed for email: ${email}`, 'log');
+            track('registration_failed', {
+                email: pending.email,
+                tfoUsername: pending.tfoUsername,
+            });
             return NextResponse.json(
                 {
                     error: `Verification failed. The creature's name is currently "${currentCreatureName}", but we expected "${pending.verificationToken}". Please correct the name on TFO and try again.`,
@@ -120,7 +111,7 @@ export async function POST(req: Request) {
             );
         }
     } catch (error) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

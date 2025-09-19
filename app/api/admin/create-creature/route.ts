@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
-import * as Sentry from '@sentry/nextjs';
 
 const createCreatureSchema = z.object({
     creatureName: z.string().min(1),
@@ -24,11 +23,9 @@ const createCreatureSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Admin: creating creature', 'log');
     const session = await auth();
 
     if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage('Forbidden access to admin create creature', 'log');
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     const userId = session.user.id;
@@ -42,7 +39,6 @@ export async function POST(req: Request) {
             const validatedError =
                 'Could not create creature: ' + flattenedError.fieldErrors.toString();
             console.error(validatedError);
-            Sentry.captureException(validatedError);
             return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
@@ -81,11 +77,9 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
         });
 
-        Sentry.captureMessage(`Admin: creature ${creatureCode} created successfully`, 'info');
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Creature created successfully!' }, { status: 201 });
     } catch (error: any) {
-        Sentry.captureException(error.message);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

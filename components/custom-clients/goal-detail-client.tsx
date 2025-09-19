@@ -21,10 +21,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { PredictionsAccordion } from '@/components/misc-custom-components/predictions-accordion';
-import { AssignPairDialog } from '@/components/custom-dialogs/assign-breeding-pair-dialog';
 import { GoalModeSwitcher } from '@/components/custom-dialogs/goal-mode-switcher-dialog';
 import { RefreshCw, Loader2, Award, Info, Search } from 'lucide-react';
-import * as Sentry from '@sentry/nextjs';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { InfoDisplay } from '../misc-custom-components/info-display';
@@ -32,6 +30,7 @@ import { ShareGoalButton } from '../misc-custom-components/share-goal-button';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
 import { FindPotentialPairsDialog } from '../custom-dialogs/find-potential-pairs-dialog';
+import { AssignPairDialog } from '../custom-dialogs/assign-breeding-pair-dialog';
 import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
 
 type GoalDetailClientProps = {
@@ -177,7 +176,7 @@ export function GoalDetailClient({
             setImageUrl(data.imageUrl); // Update local state to show new image immediately
             router.refresh(); // Re-fetch server components
         } catch (error) {
-            Sentry.captureException(error);
+            console.error(error);
             // Optionally show a toast notification on error
         } finally {
             setIsRefreshing(false);

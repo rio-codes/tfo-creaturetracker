@@ -5,7 +5,7 @@ import { eq, or } from 'drizzle-orm';
 import { hash } from 'bcrypt-ts';
 import crypto from 'crypto';
 import { z } from 'zod';
-import * as Sentry from '@sentry/nextjs';
+import { track } from '@vercel/analytics/server';
 
 const startSchema = z.object({
     email: z.email(),
@@ -29,7 +29,6 @@ const startSchema = z.object({
 });
 
 export async function POST(req: Request) {
-    Sentry.captureMessage('Starting registration', 'log');
     try {
         const body = await req.json();
         const validated = startSchema.safeParse(body);
@@ -39,11 +38,9 @@ export async function POST(req: Request) {
             const allErrorArrays = Object.values(fieldErrors);
             const allErrors = allErrorArrays.flat();
             const errorString = allErrors.join('\n');
-            console.error('Zod Validation Failed:', errorString);
-            Sentry.captureMessage(
-                `Zod validation failed for registration start: ${errorString}`,
-                'log'
-            );
+            console.error('Zod Validation Failed in registration start', {
+                fieldErrors,
+            });
             return NextResponse.json({ error: errorString }, { status: 400 });
         }
 
@@ -53,10 +50,6 @@ export async function POST(req: Request) {
             where: or(eq(users.email, email), eq(users.username, tfoUsername)),
         });
         if (existingUser) {
-            Sentry.captureMessage(
-                `Registration attempt with existing email/username: ${email}/${tfoUsername}`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     error: 'An account with that email or TFO username already exists.',
@@ -67,7 +60,6 @@ export async function POST(req: Request) {
 
         if (!process.env.TFO_API_KEY) {
             const errorMessage = 'Server configuration error: TFO_API_KEY is not set.';
-            Sentry.captureException(new Error(errorMessage));
             console.error(errorMessage);
             return NextResponse.json(
                 {
@@ -87,7 +79,6 @@ export async function POST(req: Request) {
         });
         const labData = await labResponse.json();
         if (labData.error) {
-            Sentry.captureMessage(`TFO account not found for registration: ${tfoUsername}`, 'log');
             return NextResponse.json(
                 {
                     error: `Could not find a TFO account for username: '${tfoUsername}'. Please check the spelling.`,
@@ -107,10 +98,6 @@ export async function POST(req: Request) {
         });
         const tfoData = await response.json();
         if (tfoData.error || !tfoData.creatures || tfoData.creatures.length === 0) {
-            Sentry.captureMessage(
-                `Empty or hidden tab for registration: ${tfoUsername} / Tab ${tabId}`,
-                'log'
-            );
             return NextResponse.json(
                 {
                     error: `We found your TFO account, but Tab ${tabId} is either empty, hidden, or does not exist. Please provide a different public Tab ID.`,
@@ -149,11 +136,10 @@ export async function POST(req: Request) {
                 },
             });
 
-        Sentry.captureMessage(`Registration started for email: ${email}`, 'info');
+        track('registration_start', { email, tfoUsername });
         return NextResponse.json({ creatureCode, verificationToken });
     } catch (error) {
-        console.error('Registration start failed:', error);
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

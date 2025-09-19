@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Network } from 'lucide-react';
-import * as Sentry from '@sentry/nextjs';
+
 import type {
     EnrichedBreedingPair,
     EnrichedCreature,
@@ -206,7 +206,6 @@ export function FindPotentialPairsDialog({
             router.refresh();
             onOpenChange(false);
         } catch (error: any) {
-            Sentry.captureException(error);
             alert(`Error: ${error.message}`);
         } finally {
             setIsCreating(null);
@@ -231,7 +230,6 @@ export function FindPotentialPairsDialog({
             router.refresh();
             onOpenChange(false);
         } catch (error: any) {
-            Sentry.captureException(error);
             alert(`Error: ${error.message}`);
         } finally {
             setIsCreating(null);

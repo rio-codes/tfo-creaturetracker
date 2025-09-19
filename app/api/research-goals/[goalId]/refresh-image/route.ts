@@ -6,14 +6,11 @@ import { and, eq } from 'drizzle-orm';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
-import * as Sentry from '@sentry/nextjs';
 
 export async function POST(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    Sentry.captureMessage(`Refreshing image for goal ${params.goalId}`, 'log');
     if (!session?.user?.id) {
-        Sentry.captureMessage('Unauthenticated attempt to refresh goal image', 'log');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
@@ -26,15 +23,10 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
         });
 
         if (!goal) {
-            Sentry.captureMessage(`Goal not found for image refresh: ${params.goalId}`, 'log');
             return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
         }
 
         if (!goal.genes || typeof goal.genes !== 'object') {
-            Sentry.captureMessage(
-                `Goal has no gene data for image refresh: ${params.goalId}`,
-                'log'
-            );
             return NextResponse.json(
                 { error: 'Goal has no gene data to generate an image.' },
                 { status: 400 }
@@ -60,10 +52,9 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
         revalidatePath(`/research-goals/${goal.id}`);
         revalidatePath('/research-goals');
 
-        Sentry.captureMessage(`Successfully refreshed image for goal ${goal.id}`, 'info');
         return NextResponse.json({ imageUrl: blobUrl });
     } catch (error: any) {
-        Sentry.captureException(error);
+        console.error(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }

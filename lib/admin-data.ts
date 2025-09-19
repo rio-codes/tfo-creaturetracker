@@ -1,5 +1,6 @@
 import { db } from '@/src/db';
 import { auth } from '@/auth';
+import { users as _users } from '@/src/db/schema';
 
 export async function getAllUsers() {
     const session = await auth();

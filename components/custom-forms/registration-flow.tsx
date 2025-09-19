@@ -5,15 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import * as Sentry from '@sentry/nextjs';
 
 type Step =
     | 'details'
@@ -38,9 +31,7 @@ export default function RegistrationFlow() {
     const [tfoUsername, setTfoUsername] = useState('');
     const [tabId, setTabId] = useState('0');
     const [challenge, setChallenge] = useState<Challenge | null>(null);
-    const [creatureImageUrl, setCreatureImageUrl] = useState<string | null>(
-        null
-    );
+    const [creatureImageUrl, setCreatureImageUrl] = useState<string | null>(null);
     const [_isImageLoading, setIsImageLoading] = useState(false);
     const [feedbackMessage, _setFeedbackMessage] = useState('');
 
@@ -51,21 +42,18 @@ export default function RegistrationFlow() {
             const fetchImage = async () => {
                 try {
                     // It now calls OUR OWN backend proxy route
-                    const response = await fetch(
-                        '/api/verification/creature-details',
-                        {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                creatureCode: challenge.creatureCode,
-                            }),
-                        }
-                    );
+                    const response = await fetch('/api/verification/creature-details', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            creatureCode: challenge.creatureCode,
+                        }),
+                    });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error);
                     setCreatureImageUrl(data.imageUrl);
-                } catch (err: any) {
-                    Sentry.captureException(err);
+                } catch (error) {
+                    console.error(error);
                     setError('Failed to load creature image.');
                 } finally {
                     setIsImageLoading(false);
@@ -115,7 +103,9 @@ export default function RegistrationFlow() {
                 setStep('challenge');
             }
         } catch (err: any) {
-            setError(err);
+            const errorMessage = err.message || 'An unexpected network error occurred.';
+            setError(errorMessage);
+            console.log(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -138,7 +128,9 @@ export default function RegistrationFlow() {
             setStep('success');
             setTimeout(() => router.push('/login'), 3000);
         } catch (err: any) {
-            setError(err.message);
+            const errorMessage = err.message || 'An unexpected network error occurred.';
+            setError(errorMessage);
+            console.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -151,16 +143,12 @@ export default function RegistrationFlow() {
                 <CardDescription>
                     {step === 'details' && 'Enter your details'}
                     {step === 'provideTab' && 'Enter a tab ID'}
-                    {(step === 'challenge' ||
-                        step === 'imageLoading' ||
-                        step === 'imageError') &&
+                    {(step === 'challenge' || step === 'imageLoading' || step === 'imageError') &&
                         'Verify ownership of your TFO account'}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {error && (
-                    <p className="text-red-500 text-center mb-4">{error}</p>
-                )}
+                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
                 {(step === 'details' || step === 'provideTab') && (
                     <form onSubmit={handleStart} className="space-y-4">
@@ -178,9 +166,7 @@ export default function RegistrationFlow() {
                                     type="text"
                                     placeholder="TFO Username"
                                     value={tfoUsername}
-                                    onChange={(e) =>
-                                        setTfoUsername(e.target.value)
-                                    }
+                                    onChange={(e) => setTfoUsername(e.target.value)}
                                     required
                                     className="bg-ebena-lavender"
                                 />
@@ -188,17 +174,14 @@ export default function RegistrationFlow() {
                                     type="password"
                                     placeholder="Password"
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(e) => setPassword(e.target.value)}
                                     required
                                     className="bg-ebena-lavender"
                                 />
                                 <div className="w-full items-center text-dusk-purple font-light text-sm text-center">
                                     <p>
-                                        Note: Your password must be at least 12
-                                        characters long and contain at least one
-                                        letter, one number, and one special
+                                        Note: Your password must be at least 12 characters long and
+                                        contain at least one letter, one number, and one special
                                         character (e.g. !@#$%^&*){' '}
                                     </p>
                                 </div>
@@ -222,24 +205,19 @@ export default function RegistrationFlow() {
                             className="w-full bg-pompaca-purple text-barely-lilac"
                             disabled={isLoading}
                         >
-                            {isLoading
-                                ? 'Checking...'
-                                : 'Continue to Verification'}
+                            {isLoading ? 'Checking...' : 'Continue to Verification'}
                         </Button>
                     </form>
                 )}
 
-                {(step === 'challenge' ||
-                    step === 'imageLoading' ||
-                    step === 'imageError') &&
+                {(step === 'challenge' || step === 'imageLoading' || step === 'imageError') &&
                     challenge && (
                         <div className="text-center space-y-4">
                             {step === 'imageLoading' && (
                                 <Loader2 className="animate-spin mx-auto" />
                             )}
                             <p>
-                                Please go to The Final Outpost and rename this
-                                creature:{' '}
+                                Please go to The Final Outpost and rename this creature:{' '}
                                 {creatureImageUrl && (
                                     <a
                                         href={`https://finaloutpost.net/view/${challenge.creatureCode}`}
@@ -256,9 +234,8 @@ export default function RegistrationFlow() {
                                 )}
                                 {step === 'imageError' && (
                                     <p className="text-yellow-500">
-                                        Failed to load creature image. You can
-                                        still proceed with the text instructions
-                                        below.
+                                        Failed to load creature image. You can still proceed with
+                                        the text instructions below.
                                     </p>
                                 )}{' '}
                                 with the code:
@@ -266,45 +243,33 @@ export default function RegistrationFlow() {
                             <div className="bg-ebena-lavender p-2 rounded font-mono text-lg">
                                 {challenge.creatureCode}
                             </div>
-                            <p>
-                                to the following exact name (you can copy and
-                                paste it):
-                            </p>
+                            <p>to the following exact name (you can copy and paste it):</p>
                             <div className="bg-ebena-lavender p-2 rounded font-mono text-lg">
                                 {challenge.verificationToken}
                             </div>
                             <p className="text-sm text-dusk-purple">
-                                Once you have renamed the creature, click the
-                                button below. The token will expire in 15
-                                minutes. (After this process, you can change the
-                                name back to what it was before or un-name it if
-                                you want.)
+                                Once you have renamed the creature, click the button below. The
+                                token will expire in 15 minutes. (After this process, you can change
+                                the name back to what it was before or un-name it if you want.)
                             </p>
                             <Button
                                 onClick={handleComplete}
                                 disabled={isLoading}
                                 className="bg-pompaca-purple text-barely-lilac"
                             >
-                                {isLoading ? (
-                                    <Loader2 className="animate-spin mr-2" />
-                                ) : null}
+                                {isLoading ? <Loader2 className="animate-spin mr-2" /> : null}
                                 Verify Creature Name
                             </Button>
                         </div>
                     )}
 
                 {step === 'success' && (
-                    <div className="text-center text-green-600 font-bold">
-                        {feedbackMessage}
-                    </div>
+                    <div className="text-center text-green-600 font-bold">{feedbackMessage}</div>
                 )}
 
-                {(step === 'challenge' || step === 'error') &&
-                    feedbackMessage && (
-                        <div className="text-center text-red-500 mt-4">
-                            {feedbackMessage}
-                        </div>
-                    )}
+                {(step === 'challenge' || step === 'error') && feedbackMessage && (
+                    <div className="text-center text-red-500 mt-4">{feedbackMessage}</div>
+                )}
             </CardContent>
         </Card>
     );

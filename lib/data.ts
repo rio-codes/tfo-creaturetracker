@@ -1,5 +1,5 @@
 import 'server-only';
-import * as Sentry from '@sentry/nextjs';
+
 import { db } from '@/src/db';
 import {
     creatures,
@@ -41,7 +41,6 @@ const enrichAndSerializeBreedingPair = (
     allRawPairs: DbBreedingPair[]
 ): EnrichedBreedingPair | null => {
     if (!pair.maleParent || !pair.femaleParent) {
-        Sentry.logger.warn(`Skipping pair ${pair.id} due to missing parent data.`);
         return null;
     }
 
@@ -185,9 +184,6 @@ export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair
 
         return enrichedPairs;
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all breeding pairs.' },
-        });
         return [];
     }
 }
@@ -278,9 +274,6 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
         return { goal: enrichedGoal, predictions };
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch goal details.' },
-        });
         return { goal: null, predictions: [] };
     }
 }
@@ -360,9 +353,6 @@ export async function fetchFilteredCreatures(
 
         return { pinnedCreatures, unpinnedCreatures, totalPages };
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch creatures.' },
-        });
         return { pinnedCreatures: [], unpinnedCreatures: [], totalPages: 0 };
     }
 }
@@ -432,9 +422,6 @@ export async function fetchFilteredResearchGoals(
 
         return { pinnedGoals, unpinnedGoals, totalPages };
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch research goals.' },
-        });
         return { pinnedGoals: [], unpinnedGoals: [], totalPages: 0 };
     }
 }
@@ -592,9 +579,6 @@ export async function fetchBreedingPairsWithStats(
             totalPages,
         };
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch breeding pairs with stats.' },
-        });
         return { pinnedPairs: [], unpinnedPairs: [], totalPages: 0 };
     }
 }
@@ -610,9 +594,6 @@ export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
         });
         return fetchedCreatures.map(enrichAndSerializeCreature);
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all creatures.' },
-        });
         return [];
     }
 }
@@ -628,9 +609,6 @@ export async function getAllResearchGoalsForUser(): Promise<EnrichedResearchGoal
         });
         return allUserGoals.map((goal) => enrichAndSerializeGoal(goal, goal.goalMode));
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all research goals.' },
-        });
         return [];
     }
 }
@@ -646,9 +624,6 @@ export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]>
         });
         return pairs;
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all raw breeding pairs.' },
-        });
         return [];
     }
 }
@@ -664,9 +639,6 @@ export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEn
         });
         return logEntries;
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all breeding log entries.' },
-        });
         return [];
     }
 }
@@ -712,9 +684,6 @@ export async function fetchAndUploadWithRetry(
             // if successful, return the new URL immediately
             return blob.url;
         } catch (error) {
-            Sentry.logger.warn(
-                `Attempt ${attempt} failed for reference ${referenceId}: ${error?.toString()}`
-            );
             if (attempt === retries) {
                 // if this was the last attempt, re-throw the error to be caught by the main logic
                 throw new Error(`All ${retries} attempts failed for ${referenceId}.`);
@@ -735,9 +704,6 @@ export async function getAllEnrichedCreaturesForUser(): Promise<EnrichedCreature
         });
         return fetchedCreatures.map(enrichAndSerializeCreature);
     } catch (error) {
-        Sentry.captureException(error, {
-            extra: { context: 'Failed to fetch all enriched creatures.' },
-        });
         return [];
     }
 }

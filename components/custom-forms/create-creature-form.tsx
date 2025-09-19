@@ -16,7 +16,6 @@ import {
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2 } from 'lucide-react';
 import type { GoalGene } from '@/types';
-import * as Sentry from '@sentry/nextjs';
 
 type GeneOption = {
     value: string;
@@ -42,23 +41,21 @@ export function CreateCreatureForm() {
         if (!species || !structuredGeneData[species]) return {};
         const optionsByCat: { [key: string]: GeneOption[] } = {};
 
-        for (const [category, genes] of Object.entries(
-            structuredGeneData[species]
-        )) {
-            optionsByCat[category] = (
-                genes as { genotype: string; phenotype: string }[]
-            ).map((gene) => ({
-                value: gene.genotype,
-                display:
-                    category === 'Gender'
-                        ? gene.genotype
-                        : `${gene.phenotype} (${gene.genotype})`,
-                selection: {
-                    phenotype: gene.phenotype,
-                    genotype: gene.genotype,
-                    isMultiGenotype: false, // Not relevant for creature creation
-                },
-            }));
+        for (const [category, genes] of Object.entries(structuredGeneData[species])) {
+            optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
+                (gene) => ({
+                    value: gene.genotype,
+                    display:
+                        category === 'Gender'
+                            ? gene.genotype
+                            : `${gene.phenotype} (${gene.genotype})`,
+                    selection: {
+                        phenotype: gene.phenotype,
+                        genotype: gene.genotype,
+                        isMultiGenotype: false, // Not relevant for creature creation
+                    },
+                })
+            );
         }
         return optionsByCat;
     }, [species]);
@@ -77,9 +74,8 @@ export function CreateCreatureForm() {
                     let defaultOption = options[0];
                     if (category === 'Gender') {
                         defaultOption =
-                            options.find(
-                                (opt) => opt.selection.genotype === 'Female'
-                            ) || options[0];
+                            options.find((opt) => opt.selection.genotype === 'Female') ||
+                            options[0];
                     }
                     defaultSelections[category] = {
                         ...defaultOption.selection,
@@ -93,9 +89,7 @@ export function CreateCreatureForm() {
 
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
-        const selectedOption = options?.find(
-            (opt) => opt.value === selectedValue
-        );
+        const selectedOption = options?.find((opt) => opt.value === selectedValue);
         if (selectedOption) {
             setSelectedGenes((prev) => ({
                 ...prev,
@@ -122,7 +116,6 @@ export function CreateCreatureForm() {
             setPreviewImageUrl(data.imageUrl);
         } catch (err: any) {
             setPreviewError(err.message);
-            Sentry.captureException(err);
         } finally {
             setIsPreviewLoading(false);
         }
@@ -145,8 +138,7 @@ export function CreateCreatureForm() {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok)
-                throw new Error(data.error || 'Failed to create creature.');
+            if (!response.ok) throw new Error(data.error || 'Failed to create creature.');
 
             alert('Creature created successfully!'); // Replace with a toast
             router.push('/admin/creatures');
@@ -222,28 +214,18 @@ export function CreateCreatureForm() {
                                         {category}
                                     </Label>
                                     <Select
-                                        value={
-                                            selectedGenes[category]?.genotype ||
-                                            ''
-                                        }
-                                        onValueChange={(value) =>
-                                            handleGeneChange(category, value)
-                                        }
+                                        value={selectedGenes[category]?.genotype || ''}
+                                        onValueChange={(value) => handleGeneChange(category, value)}
                                     >
                                         <SelectTrigger className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                                            {(geneOptions[category] || []).map(
-                                                (option) => (
-                                                    <SelectItem
-                                                        key={option.value}
-                                                        value={option.value}
-                                                    >
-                                                        {option.display}
-                                                    </SelectItem>
-                                                )
-                                            )}
+                                            {(geneOptions[category] || []).map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.display}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -266,11 +248,7 @@ export function CreateCreatureForm() {
                                 Preview Image
                             </Button>
                         </div>
-                        {previewError && (
-                            <p className="text-sm text-red-500">
-                                {previewError}
-                            </p>
-                        )}
+                        {previewError && <p className="text-sm text-red-500">{previewError}</p>}
                         {previewImageUrl ? (
                             <img
                                 src={previewImageUrl}
@@ -293,14 +271,10 @@ export function CreateCreatureForm() {
             <div className="flex justify-end pt-4">
                 <Button
                     type="submit"
-                    disabled={
-                        isLoading || !species || !creatureCode || !creatureName
-                    }
+                    disabled={isLoading || !species || !creatureCode || !creatureName}
                     className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                 >
-                    {isLoading && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Creature
                 </Button>
             </div>

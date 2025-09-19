@@ -10,7 +10,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import * as Sentry from "@sentry/nextjs";
 
 export default function RegisterForm() {
     const [email, setEmail] = useState('');
@@ -27,98 +26,146 @@ export default function RegisterForm() {
         setSuccessMessage('');
 
         if (password.length < 12) {
-        setError('Password must be at least 12 characters long.');
-        return;
+            setError('Password must be at least 12 characters long.');
+            return;
         }
 
         try {
-        const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password }),
-        });
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password }),
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        if (res.ok) {
-            setSuccessMessage(data.message + " Redirecting to login...");
-            setTimeout(() => router.push('/login'), 2000);
-        } else {
-            setError(data.message || 'An error occurred.');
-        }
+            if (res.ok) {
+                setSuccessMessage(data.message + ' Redirecting to login...');
+                setTimeout(() => router.push('/login'), 2000);
+            } else {
+                setError(data.message || 'An error occurred.');
+            }
         } catch (err) {
-        setError('An unexpected error occurred. Please try again.');
-        Sentry.captureException(err);
+            setError('An unexpected error occurred. Please try again.');
         }
     };
 
     return (
         <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple dark:border-purple-400 shadow-lg">
-        <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">Create Account</CardTitle>
-            <CardDescription className="text-pompaca-purple dark:text-purple-400">Join and track your breeding goals</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {/* Display success or error messages */}
-            {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
-            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="email" className="text-pompaca-purple dark:text-purple-300 font-medium">Email</Label>
-                <Input
-                id="email" type="email" placeholder="you@example.com"
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="username" className="text-pompaca-purple dark:text-purple-300 font-medium">Username</Label>
-                <Input
-                id="username" type="text" placeholder="your TFO username"
-                value={username} onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="password" className="text-pompaca-purple dark:text-purple-300 font-medium">Password</Label>
-                <Input
-                id="password" type="password" placeholder="••••••••"
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400" required
-                />
-            </div>
-            <div className="flex items-center space-x-2">
-                <Checkbox
-                id="terms"
-                onCheckedChange={(checked: CheckedState) => setAgreeToTerms(!!checked)}
-                className="border-pompaca-purple"
-                />
-                <Label htmlFor="terms" className="text-sm text-pompaca-purple dark:text-purple-300">
-                I agree to the{" "}
-                <Link href="/terms" className="text-dusk-purple dark:text-purple-400 hover:underline">Terms of Service</Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-dusk-purple dark:text-purple-400 hover:underline">Privacy Policy</Link>
-                </Label>
-            </div>
-            <Button
-                type="submit"
-                className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                disabled={!agreeToTerms}
-            >
-                Create Account
-            </Button>
-            </form>
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">
+                    Create Account
+                </CardTitle>
+                <CardDescription className="text-pompaca-purple dark:text-purple-400">
+                    Join and track your breeding goals
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {/* Display success or error messages */}
+                {successMessage && (
+                    <p className="text-green-600 text-center mb-4">{successMessage}</p>
+                )}
+                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-            <div className="mt-6 text-center">
-            <p className="text-pompaca-purple dark:text-purple-300">
-                Already have an account?{" "}
-                <Link href="/login" className="text-dusk-purple dark:text-purple-400 font-medium hover:underline">
-                Sign in here
-                </Link>
-            </p>
-            </div>
-        </CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="email"
+                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                        >
+                            Email
+                        </Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="username"
+                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                        >
+                            Username
+                        </Label>
+                        <Input
+                            id="username"
+                            type="text"
+                            placeholder="your TFO username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="password"
+                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                        >
+                            Password
+                        </Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            required
+                        />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="terms"
+                            onCheckedChange={(checked: CheckedState) => setAgreeToTerms(!!checked)}
+                            className="border-pompaca-purple"
+                        />
+                        <Label
+                            htmlFor="terms"
+                            className="text-sm text-pompaca-purple dark:text-purple-300"
+                        >
+                            I agree to the{' '}
+                            <Link
+                                href="/terms"
+                                className="text-dusk-purple dark:text-purple-400 hover:underline"
+                            >
+                                Terms of Service
+                            </Link>{' '}
+                            and{' '}
+                            <Link
+                                href="/privacy"
+                                className="text-dusk-purple dark:text-purple-400 hover:underline"
+                            >
+                                Privacy Policy
+                            </Link>
+                        </Label>
+                    </div>
+                    <Button
+                        type="submit"
+                        className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        disabled={!agreeToTerms}
+                    >
+                        Create Account
+                    </Button>
+                </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-pompaca-purple dark:text-purple-300">
+                        Already have an account?{' '}
+                        <Link
+                            href="/login"
+                            className="text-dusk-purple dark:text-purple-400 font-medium hover:underline"
+                        >
+                            Sign in here
+                        </Link>
+                    </p>
+                </div>
+            </CardContent>
         </Card>
     );
 }

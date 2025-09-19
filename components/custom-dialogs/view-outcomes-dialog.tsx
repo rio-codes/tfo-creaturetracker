@@ -34,7 +34,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
-import * as Sentry from '@sentry/nextjs';
+
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 
 type Outcome = {
@@ -93,7 +93,6 @@ export function ViewOutcomesDialog({
                     return newUrl; // Return for setting the default URL
                 }
             } catch (error) {
-                Sentry.captureException(error);
             } finally {
                 setIsLoading(false);
             }
@@ -137,7 +136,6 @@ export function ViewOutcomesDialog({
                 router.push(`/research-goals/${data.goalId}`);
             }
         } catch (error: any) {
-            Sentry.captureException(error);
             alert(error.message); // Replace with a toast notification for better UX
         } finally {
             setIsSavingGoal(false);
@@ -199,7 +197,6 @@ export function ViewOutcomesDialog({
                         setDefaultPreviewUrl(initialUrl);
                     }
                 } catch (error) {
-                    Sentry.captureException(error);
                 } finally {
                     setIsLoading(false);
                 }

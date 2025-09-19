@@ -6,7 +6,7 @@ import type {
     EnrichedResearchGoal,
     EnrichedBreedingPair,
 } from '@/types';
-import * as Sentry from '@sentry/nextjs';
+
 import { checkForInbreeding } from '@/lib/breeding-rules';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
@@ -23,9 +23,6 @@ export const enrichAndSerializeBreedingPair = (
     allRawPairs: DbBreedingPair[]
 ): EnrichedBreedingPair | null => {
     if (!pair.maleParent || !pair.femaleParent) {
-        Sentry.logger.warn(
-            `Skipping pair ${pair.id} due to missing parent data.`
-        );
         return null;
     }
 

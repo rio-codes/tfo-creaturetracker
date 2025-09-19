@@ -64,9 +64,7 @@ export default async function AdminMetricsPage() {
                         </p>
                     </CardContent>
                 </Card>
-                {/* Other metric cards would go here, following the same pattern */}
             </div>
-            {/* Here you could add sections for Sentry and Vercel Analytics later */}
         </div>
     );
 }

@@ -1,63 +1,59 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { reports } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { logAdminAction } from '@/lib/audit';
+import { hasObscenity } from '@/lib/obscenity';
 import * as Sentry from '@sentry/nextjs';
-import { revalidatePath } from 'next/cache';
+import { reports } from '@/src/db/schema';
 
-const updateStatusSchema = z.object({
-    status: z.enum(['open', 'resolved', 'dismissed']),
+const reportSchema = z.object({
+    reportedUserId: z.string().uuid(),
+    reason: z
+        .string()
+        .min(10, 'Reason must be at least 10 characters.')
+        .max(1000, 'Reason cannot exceed 1000 characters.'),
 });
 
-export async function PATCH(req: Request, { params }: { params: { reportId: string } }) {
+export async function POST(req: Request) {
     const session = await auth();
-    if (session?.user?.role !== 'admin') {
-        Sentry.captureMessage(
-            `Forbidden access to update report status for ${params.reportId}`,
-            'log'
-        );
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+    const reporterId = session.user.id;
 
     try {
         const body = await req.json();
-        const validated = updateStatusSchema.safeParse(body);
+        const validated = reportSchema.safeParse(body);
 
         if (!validated.success) {
-            Sentry.captureMessage(`Invalid status for report ${params.reportId}`, 'log');
-            return NextResponse.json({ error: 'Invalid status provided.' }, { status: 400 });
+            return NextResponse.json(
+                { error: validated.error.flatten().fieldErrors },
+                { status: 400 }
+            );
         }
 
-        const { status } = validated.data;
-        const { reportId } = params;
+        const { reportedUserId, reason } = validated.data;
 
-        const [updatedReport] = await db
-            .update(reports)
-            .set({ status })
-            .where(eq(reports.id, reportId))
-            .returning();
-
-        if (!updatedReport) {
-            return NextResponse.json({ error: 'Report not found.' }, { status: 404 });
+        if (reporterId === reportedUserId) {
+            return NextResponse.json({ error: 'You cannot report yourself.' }, { status: 400 });
         }
 
-        await logAdminAction({
-            action: 'report.status_update',
-            targetType: 'report',
-            targetId: reportId,
-            targetUserId: updatedReport.reportedId,
-            details: { newStatus: status, adminId: session.user.id },
-        });
+        if (hasObscenity(reason)) {
+            return NextResponse.json(
+                { error: 'Your report contains inappropriate language. Please revise it.' },
+                { status: 400 }
+            );
+        }
 
-        revalidatePath('/admin/reports');
+        await db.insert(reports).values({ reporterId, reportedId: reportedUserId, reason });
+        Sentry.captureMessage(`User ${reporterId} reported user ${reportedUserId}.`, 'info');
 
-        Sentry.captureMessage(`Admin updated report ${reportId} to ${status}`, 'info');
-        return NextResponse.json({ message: 'Report status updated successfully.' });
+        return NextResponse.json(
+            { message: 'Report submitted successfully. Thank you.' },
+            { status: 201 }
+        );
     } catch (error) {
-        console.error('Failed to update report status:', error);
+        console.error('Failed to submit report:', error);
         Sentry.captureException(error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }

@@ -137,7 +137,7 @@ export default function RegistrationFlow() {
     };
 
     return (
-        <Card className="w-full text-center max-w-lg bg-ebena-lavender border-pompaca-purple shadow-lg">
+        <Card className="w-full text-center max-w-lg dark:bg-pompaca-purple bg-ebena-lavender border-pompaca-purple text-pompaca-purple dark:border-purple-400 dark:text-purple-300 shadow-lg">
             <CardHeader>
                 <CardTitle>Create Your Account</CardTitle>
                 <CardDescription>
@@ -160,7 +160,7 @@ export default function RegistrationFlow() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="bg-ebena-lavender"
+                                    className="bg-ebena-lavender text-pompaca-purple"
                                 />
                                 <Input
                                     type="text"
@@ -168,7 +168,7 @@ export default function RegistrationFlow() {
                                     value={tfoUsername}
                                     onChange={(e) => setTfoUsername(e.target.value)}
                                     required
-                                    className="bg-ebena-lavender"
+                                    className="bg-ebena-lavender text-pompaca-purple"
                                 />
                                 <Input
                                     type="password"
@@ -176,7 +176,7 @@ export default function RegistrationFlow() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="bg-ebena-lavender"
+                                    className="bg-ebena-lavender text-pompaca-purple"
                                 />
                                 <div className="w-full items-center text-dusk-purple font-light text-sm text-center">
                                     <p>

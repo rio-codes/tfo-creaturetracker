@@ -44,9 +44,9 @@ const settingsFormSchema = z
             .min(12, 'Password must be at least 12 characters.')
             .optional()
             .or(z.literal('')),
-        collectionItemsPerPage: z.number().min(3).max(30),
-        goalsItemsPerPage: z.number().min(3).max(30),
-        pairsItemsPerPage: z.number().min(3).max(30),
+        collectionItemsPerPage: z.coerce.number().min(3).max(30),
+        goalsItemsPerPage: z.coerce.number().min(3).max(30),
+        pairsItemsPerPage: z.coerce.number().min(3).max(30),
         theme: z.enum(['light', 'dark', 'system']),
         goalConversions: z.any().optional(),
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),

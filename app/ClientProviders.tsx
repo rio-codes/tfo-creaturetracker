@@ -33,8 +33,8 @@ function AppContent({ children }: { children: React.ReactNode }) {
         !hideHeaderOnPrefixes.some((prefix) => pathname.startsWith(prefix));
 
     const showHeader = isAuthenticated && canShowHeaderOnPath;
-    const apiKey = process.env.HYPERDX_API_KEY;
-    const serviceName = process.env.OTEL_SERVICE_NAME;
+    const apiKey = process.env.NEXT_PUBLIC_HYPERDX_API_KEY;
+    const serviceName = process.env.NEXT_PUBLIC_OTEL_SERVICE_NAME;
 
     if (!apiKey || !serviceName) {
         console.warn(
@@ -44,7 +44,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         HyperDX.init({
             apiKey: apiKey,
             service: serviceName,
-            tracePropagationTargets: ['localhost', 'tfo.creaturetracker.net'],
+            tracePropagationTargets: [/localhost/, /tfo\.creaturetracker\.net/],
             consoleCapture: true,
             advancedNetworkCapture: true,
         });

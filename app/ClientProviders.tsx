@@ -11,7 +11,6 @@ import HyperDX from '@hyperdx/browser';
 
 // Define the paths where the header should be hidden even for logged-in users
 const hideHeaderOnPaths = [
-    '/',
     '/login',
     '/register',
     '/terms',
@@ -25,14 +24,11 @@ const hideHeaderOnPrefixes = ['/share/'];
 
 function AppContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { status } = useSession();
-    const isAuthenticated = status === 'authenticated';
 
-    const canShowHeaderOnPath =
+    const showHeader =
         !hideHeaderOnPaths.includes(pathname) &&
         !hideHeaderOnPrefixes.some((prefix) => pathname.startsWith(prefix));
 
-    const showHeader = isAuthenticated && canShowHeaderOnPath;
     const apiKey = process.env.NEXT_PUBLIC_HYPERDX_API_KEY;
     const serviceName = process.env.NEXT_PUBLIC_OTEL_SERVICE_NAME;
 
@@ -54,15 +50,19 @@ function AppContent({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const { data: session } = useSession();
+    const session = useSession().data;
     const user = session?.user;
 
     if (user) {
-        HyperDX.setGlobalAttributes({
-            userId: user.id,
-            username: user.username,
-            userEmail: user.email!,
-        });
+        try {
+            HyperDX.setGlobalAttributes({
+                userId: user.id,
+                username: user.username,
+                userEmail: user.email!,
+            });
+        } catch (error) {
+            console.error('Error setting global attributes:', error);
+        }
     }
 
     return (

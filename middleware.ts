@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
-const PUBLIC_ROUTES = ['/', '/login', '/register'];
+const PUBLIC_ROUTES = ['/login', '/register'];
 const PUBLIC_PREFIXES = ['/api/', '/share/'];
 
 const PROTECTED_ROUTES = ['/collection', '/breeding-pairs', '/research-goals', '/settings'];
@@ -33,12 +33,12 @@ export default auth((req: any) => {
 
     // If user is not an admin and trying to access an admin route, redirect
     if (isAdminRoute && userRole !== 'admin') {
-        return NextResponse.redirect(new URL('/collection', req.nextUrl));
+        return NextResponse.redirect(new URL('/', req.nextUrl));
     }
 
     // If user is authenticated, redirect them from public-only pages
     if (isAuthenticated && isPublicRoute) {
-        return NextResponse.redirect(new URL('/collection', req.nextUrl));
+        return NextResponse.redirect(new URL('/', req.nextUrl));
     }
 
     return NextResponse.next();

@@ -364,6 +364,10 @@ export const reports = pgTable('report', {
         .notNull()
         .references(() => users.id, { onDelete: 'cascade' }),
     reason: text('reason').notNull(),
-    status: text('status').default('open').notNull(), // e.g., 'open', 'resolved', 'dismissed'
+    status: text('status', {
+        enum: ['open', 'resolved', 'dismissed'],
+    })
+        .default('open')
+        .notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });

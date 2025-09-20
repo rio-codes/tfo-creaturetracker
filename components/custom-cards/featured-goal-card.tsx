@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import type { EnrichedResearchGoal, DbCreature } from '@/types';
 import type { FeaturedGoalProgress } from '@/app/[username]/page';
@@ -19,22 +18,18 @@ export function FeaturedGoalCard({ goal, achievement, username, progress }: Feat
     return (
         <Card className="h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
             <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac">
-                <Link href={`/research-goals/${goal.id}`} className="self-center sm:self-start">
-                    <img
-                        src={goal.imageUrl || '/images/misc/placeholder.png'}
-                        alt={goal.name}
-                        className="h-32 w-32 p-3 object-contain rounded-md bg-white/10"
-                    />
-                </Link>
+                <img
+                    src={goal.imageUrl || '/images/misc/placeholder.png'}
+                    alt={goal.name}
+                    className="h-32 w-32 p-3 object-contain rounded-md bg-white/10"
+                />
                 <div className="flex-1">
-                    <Link href={`/research-goals/${goal.id}`}>
-                        <CardTitle
-                            className="text-lg truncate text-pompaca-purple dark:text-purple-300 hover:underline"
-                            title={goal.name}
-                        >
-                            {goal.name}
-                        </CardTitle>
-                    </Link>
+                    <CardTitle
+                        className="text-lg truncate text-pompaca-purple dark:text-purple-300"
+                        title={goal.name}
+                    >
+                        {goal.name}
+                    </CardTitle>
                     <div className="text-sm text-pompaca-purple dark:text-purple-400">
                         <p>
                             <strong>Species:</strong> {goal.species}

@@ -45,19 +45,19 @@ const settingsFormSchema = z
             .optional()
             .or(z.literal('')),
         collectionItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+            .number({ message: 'Must be a number.' })
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
         goalsItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+            .number({ message: 'Must be a number.' })
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
         pairsItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+            .number({ message: 'Must be a number.' })
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
         theme: z.enum(['light', 'dark', 'system']),
-        goalConversions: z.any().optional(),
+        goalConversions: z.any().optional(), // This field is not directly used in the form but is part of the user object
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
         featuredCreatureIds: z
             .array(z.string())
@@ -72,10 +72,7 @@ const settingsFormSchema = z
             .max(50, 'Pronouns must be 50 characters or less.')
             .optional()
             .nullable(),
-        socialLinks: z
-            .string()
-            .transform((str) => str.split('\n').filter((link) => link.trim() !== ''))
-            .optional(),
+        socialLinks: z.string().optional().nullable(),
         showLabLink: z.boolean().optional(),
         statusMessage: z
             .string()
@@ -106,16 +103,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<SettingsFormValues>({
-        resolver: zodResolver(settingsFormSchema) as any,
+        resolver: zodResolver(settingsFormSchema),
         defaultValues: {
             email: user.email ?? '',
-            collectionItemsPerPage: user.collectionItemsPerPage || 10,
-            goalsItemsPerPage: user.goalsItemsPerPage || 10,
-            pairsItemsPerPage: user.pairsItemsPerPage || 10,
+            collectionItemsPerPage: user.collectionItemsPerPage ?? 10,
+            goalsItemsPerPage: user.goalsItemsPerPage ?? 10,
+            pairsItemsPerPage: user.pairsItemsPerPage ?? 10,
             theme: user.theme ?? 'system',
             bio: user.bio ?? '',
             pronouns: user.pronouns ?? '',
-            socialLinks: user.socialLinks!.filter((link) => link !== null).join('\n') as any,
+            socialLinks: user.socialLinks?.filter((link) => link).join('\n') ?? '',
             statusMessage: user.statusMessage ?? '',
             statusEmoji: user.statusEmoji ?? '✨',
             showLabLink: user.showLabLink ?? false,
@@ -141,9 +138,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const onSubmit = async (data: SettingsFormValues) => {
         setIsSubmitting(true);
 
-        // Don't send password if it's empty
-        const { confirmPassword, ...updateData } = data;
+        const { confirmPassword, socialLinks, ...restOfData } = data;
 
+        const updateData = {
+            ...restOfData,
+            socialLinks: socialLinks
+                ? socialLinks.split('\n').filter((link) => link.trim() !== '')
+                : [],
+        };
+
+        // Don't send password if it's empty
         if (!updateData.password) {
             delete updateData.password;
         }
@@ -317,6 +321,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             placeholder="https://twitter.com/your_handle&#10;https://discord.com/users/your_id"
                                             className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
                                             {...field}
+                                            value={field.value ?? ''}
                                         />
                                     </FormControl>
                                     <FormDescription className="text-dusk-purple dark:text-purple-400">
@@ -587,6 +592,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             min="3"
                                             max="30"
                                             {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    e.target.value === ''
+                                                        ? 0
+                                                        : parseInt(e.target.value, 10)
+                                                )
+                                            }
                                             className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
                                         />
                                     </FormControl>
@@ -608,6 +620,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             min="3"
                                             max="30"
                                             {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    e.target.value === ''
+                                                        ? 0
+                                                        : parseInt(e.target.value, 10)
+                                                )
+                                            }
                                             className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
                                         />
                                     </FormControl>
@@ -629,6 +648,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             min="3"
                                             max="30"
                                             {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    e.target.value === ''
+                                                        ? 0
+                                                        : parseInt(e.target.value, 10)
+                                                )
+                                            }
                                             className="bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac"
                                         />
                                     </FormControl>

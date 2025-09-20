@@ -62,10 +62,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const newTab = await db
-            .insert(userTabs)
-            .values({ userId, tabId, tabName: tabName || null })
-            .returning();
+        const newTab = await db.insert(userTabs).values({ userId, tabId, tabName }).returning();
 
         revalidatePath('/collection');
         return NextResponse.json(newTab[0], { status: 201 });

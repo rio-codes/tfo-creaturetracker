@@ -44,18 +44,18 @@ const settingsFormSchema = z
             .min(12, 'Password must be at least 12 characters.')
             .optional()
             .or(z.literal('')),
-        collectionItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
-        goalsItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
-        pairsItemsPerPage: z
-            .string()
-            .transform(Number)
-            .refine((n) => n >= 3 && n <= 30, 'Must be between 3 and 30.'),
+        collectionItemsPerPage: z.coerce
+            .number()
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
+        goalsItemsPerPage: z.coerce
+            .number()
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
+        pairsItemsPerPage: z.coerce
+            .number()
+            .min(3, 'Must be between 3 and 30.')
+            .max(30, 'Must be between 3 and 30.'),
         theme: z.enum(['light', 'dark', 'system']),
         goalConversions: z.any().optional(),
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
@@ -106,12 +106,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<SettingsFormValues>({
-        resolver: zodResolver(settingsFormSchema) as any,
+        resolver: zodResolver(settingsFormSchema),
         defaultValues: {
             email: user.email ?? '',
-            collectionItemsPerPage: user.collectionItemsPerPage || 10,
-            goalsItemsPerPage: user.goalsItemsPerPage || 10,
-            pairsItemsPerPage: user.pairsItemsPerPage || 10,
+            collectionItemsPerPage: user.collectionItemsPerPage ?? 10,
+            goalsItemsPerPage: user.goalsItemsPerPage ?? 10,
+            pairsItemsPerPage: user.pairsItemsPerPage ?? 10,
             theme: user.theme ?? 'system',
             bio: user.bio ?? '',
             pronouns: user.pronouns ?? '',

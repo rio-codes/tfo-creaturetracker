@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 const createTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),
-    tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
+    tabName: z.string().max(32, 'Tab name must be 32 characters or less.').nullable().optional(),
 });
 
 export async function GET() {
@@ -39,22 +39,23 @@ export async function POST(req: Request) {
     const userId = session.user.id;
 
     try {
-        const { tabId, tabName } = await req.json();
-        const validatedTabs = createTabSchema.safeParse({ tabId, tabName });
+        const body = await req.json();
+        const validatedTabs = createTabSchema.safeParse(body);
 
         if (!validatedTabs.success) {
-            const flattenedError = validatedTabs.error.flatten();
-            const fullError =
-                flattenedError.fieldErrors.tabId || '' + flattenedError.fieldErrors.tabName || '';
+            const { fieldErrors } = validatedTabs.error.flatten();
+            const errorMessage = Object.values(fieldErrors).flat().join(' ');
             return NextResponse.json(
                 {
-                    error: `Error: ${fullError}`,
+                    error: `Error: ${errorMessage || 'Invalid input.'}`,
                 },
                 { status: 400 }
             );
         }
 
-        if (hasObscenity(tabName)) {
+        const { tabId, tabName } = validatedTabs.data;
+
+        if (tabName && hasObscenity(tabName)) {
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }

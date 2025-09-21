@@ -8,6 +8,16 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { alertService } from '@/services/alert.service';
 
 type DialogProps = {
@@ -16,6 +26,12 @@ type DialogProps = {
 };
 
 type SyncStatus = 'idle' | 'loading' | 'success' | 'error';
+
+type MissingCreature = {
+    id: string;
+    code: string;
+    creatureName: string | null;
+};
 
 type UserTab = {
     id: number;
@@ -32,6 +48,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [userTabs, setUserTabs] = useState<UserTab[]>([]);
     const [isLoadingTabs, setIsLoadingTabs] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [missingCreatures, setMissingCreatures] = useState<MissingCreature[]>([]);
+    const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
     const router = useRouter();
 
@@ -65,6 +83,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setMessage('');
         const tabsToSync = userTabs.filter((tab) => tab.isSyncEnabled).map((tab) => tab.tabId);
 
+        const isSyncingAllSavedTabs =
+            userTabs.length > 0 && userTabs.every((tab) => tabsToSync.includes(tab.tabId));
         if (tabsToSync.length === 0) {
             setStatus('idle');
             alertService.warn('No tabs selected for syncing.', {
@@ -78,7 +98,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             const response = await fetch('/api/creatures/sync-all', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tabIds: tabsToSync }),
+                body: JSON.stringify({ tabIds: tabsToSync, fullSync: isSyncingAllSavedTabs }),
             });
 
             const data = await response.json();
@@ -87,14 +107,23 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 throw new Error(data.error || 'Something went wrong during sync.');
             }
 
-            setStatus('success');
-            setMessage(data.message);
-            handleClose();
-            alertService.success(data.message, {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
-            router.refresh();
+            if (data.missingCreatures && data.missingCreatures.length > 0) {
+                setMissingCreatures(data.missingCreatures);
+                setShowArchiveConfirm(true);
+                alertService.success(data.message, { autoClose: true, keepAfterRouteChange: true });
+                // Don't close the main dialog, let the archive confirmation handle it.
+                setStatus('idle');
+                router.refresh();
+            } else {
+                setStatus('success');
+                setMessage(data.message);
+                handleClose();
+                alertService.success(data.message, {
+                    autoClose: true,
+                    keepAfterRouteChange: true,
+                });
+                router.refresh();
+            }
         } catch (error: any) {
             console.error('Failed to sync creatures', error);
             setStatus('error');
@@ -103,6 +132,31 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
+        }
+    };
+
+    const handleArchiveMissing = async () => {
+        setStatus('loading');
+        try {
+            const creatureIds = missingCreatures.map((c) => c.id);
+            const response = await fetch('/api/creatures/archive-many', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ creatureIds }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            alertService.success(`${creatureIds.length} creatures archived.`, {
+                autoClose: true,
+                keepAfterRouteChange: true,
+            });
+            setShowArchiveConfirm(false);
+            setMissingCreatures([]);
+            handleClose();
+            router.refresh();
+        } catch (error: any) {
+            alertService.error(error.message, { autoClose: true, keepAfterRouteChange: true });
         }
     };
 
@@ -210,6 +264,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
     return (
         <div className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center">
+            {/* Main Dialog */}
             <div
                 className="bg-barely-lilac dark:bg-pompaca-purple rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
@@ -391,6 +446,41 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     </Button>
                 </div>
             </div>
+
+            {/* Archive Confirmation Dialog */}
+            <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Archive Missing Creatures?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            The following {missingCreatures.length} creatures were not found in your
+                            synced tabs. Would you like to archive them?
+                            <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-2">
+                                <ul className="text-xs list-disc list-inside">
+                                    {missingCreatures.map((c) => (
+                                        <li key={c.id}>
+                                            {c.creatureName || 'Unnamed'} ({c.code})
+                                        </li>
+                                    ))}
+                                </ul>
+                            </ScrollArea>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            onClick={() => {
+                                setShowArchiveConfirm(false);
+                                handleClose();
+                            }}
+                        >
+                            No, Keep Them
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleArchiveMissing}>
+                            Yes, Archive Them
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

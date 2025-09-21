@@ -189,6 +189,7 @@ export const creatures = pgTable(
         gender: creatureGenderEnum('gender'),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
+        isArchived: boolean('is_archived').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

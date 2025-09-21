@@ -20,6 +20,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import * as select from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -137,7 +139,7 @@ export function CollectionClient({
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const { replace } = useRouter();
+    const router = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
     const [unpinnedCreatures, setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
 
@@ -190,20 +192,21 @@ export function CollectionClient({
 
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
-            let params = new URLSearchParams();
-            if (filterName == 'male' || filterName == 'female') {
-                params = new URLSearchParams('genders');
-            } else {
-                params = new URLSearchParams(searchParams);
-            }
+            const params = new URLSearchParams(searchParams);
             params.set('page', '1');
 
-            if (value && value !== 'all') {
+            if (filterName === 'showArchived') {
+                if (value) {
+                    params.set(filterName, 'true');
+                } else {
+                    params.delete(filterName);
+                }
+            } else if (value && value !== 'all') {
                 params.set(filterName, String(value));
             } else {
                 params.delete(filterName);
             }
-            replace(`${pathname}?${params.toString()}`);
+            router.replace(`${pathname}?${params.toString()}`);
         },
         300
     );
@@ -211,6 +214,7 @@ export function CollectionClient({
     const currentSpecies = searchParams.get('species') || 'all';
     const currentStage = searchParams.get('stage') || 'all';
     const currentQuery = searchParams.get('query') || '';
+    const showArchived = searchParams.get('showArchived') === 'true';
 
     return (
         <div className="min-h-screen">
@@ -289,6 +293,20 @@ export function CollectionClient({
                         </select.SelectContent>
                     </select.Select>
                 </div>
+                <div className="flex items-center space-x-2 mb-8">
+                    <Checkbox
+                        id="show-archived"
+                        checked={showArchived}
+                        onCheckedChange={(checked) => handleFilterChange('showArchived', !!checked)}
+                        className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac"
+                    />
+                    <Label
+                        htmlFor="show-archived"
+                        className="text-pompaca-purple dark:text-purple-300"
+                    >
+                        Show archived creatures
+                    </Label>
+                </div>
                 {/* Pinned Creatures */}
                 {pinnedCreatures.length > 0 && (
                     <div className="mb-12">
@@ -297,12 +315,17 @@ export function CollectionClient({
                                 Pinned Creatures
                             </h2>
                             {isMounted && (
-                                <Button
-                                    onClick={() => setIsReorderDialogOpen(true)}
-                                    className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                >
-                                    Reorder
-                                </Button>
+                                <>
+                                    <Button
+                                        onClick={() => setIsReorderDialogOpen(true)}
+                                        className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    >
+                                        Reorder
+                                    </Button>
+                                    <p className="hidden md:block text-xs text-pompaca-purple dark:text-purple-400">
+                                        (Drag and drop to rearrange pinned cards)
+                                    </p>
+                                </>
                             )}
                         </div>
 

@@ -247,11 +247,8 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                     );
                     chancesByCategory[category] = chance;
 
-                    // Only factor in non-optional genes for the average
-                    if (!targetGene.isOptional) {
-                        totalChance += chance;
-                        geneCount++;
-                    }
+                    totalChance += chance;
+                    geneCount++;
                 }
 
                 const averageChance = geneCount > 0 ? totalChance / geneCount : 1;

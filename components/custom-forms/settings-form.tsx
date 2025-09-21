@@ -47,16 +47,19 @@ const settingsFormSchema = z
         collectionItemsPerPage: z
             .number({ message: 'Must be a number.' })
             .min(3, 'Must be between 3 and 30.')
-            .max(30, 'Must be between 3 and 30.'),
+            .max(30, 'Must be between 3 and 30.')
+            .optional(),
         goalsItemsPerPage: z
             .number({ message: 'Must be a number.' })
             .min(3, 'Must be between 3 and 30.')
-            .max(30, 'Must be between 3 and 30.'),
+            .max(30, 'Must be between 3 and 30.')
+            .optional(),
         pairsItemsPerPage: z
             .number({ message: 'Must be a number.' })
             .min(3, 'Must be between 3 and 30.')
-            .max(30, 'Must be between 3 and 30.'),
-        theme: z.enum(['light', 'dark', 'system']),
+            .max(30, 'Must be between 3 and 30.')
+            .optional(),
+        theme: z.enum(['light', 'dark', 'system']).optional(),
         goalConversions: z.any().optional(), // This field is not directly used in the form but is part of the user object
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
         featuredCreatureIds: z

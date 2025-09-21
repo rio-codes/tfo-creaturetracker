@@ -278,12 +278,17 @@ export function BreedingPairsClient({
                                     Pinned Pairs
                                 </h2>
                                 {isMounted && (
-                                    <Button
-                                        onClick={() => setIsReorderDialogOpen(true)}
-                                        className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                    >
-                                        Reorder
-                                    </Button>
+                                    <>
+                                        <Button
+                                            onClick={() => setIsReorderDialogOpen(true)}
+                                            className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                        >
+                                            Reorder
+                                        </Button>
+                                        <p className="hidden md:block text-xs text-dusk-purple dark:text-purple-400">
+                                            (Drag and drop to rearrange pinned cards)
+                                        </p>
+                                    </>
                                 )}
                             </div>
 

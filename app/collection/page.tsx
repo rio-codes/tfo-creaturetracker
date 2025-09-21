@@ -25,6 +25,7 @@ export default async function CollectionPage({
         stage?: string;
         gender?: string;
         species?: string;
+        showArchived?: string;
     };
 }) {
     const session = await auth();

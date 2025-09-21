@@ -5,13 +5,25 @@ import Link from 'next/link';
 import {
     ChevronUp,
     ChevronDown,
+    Archive,
     Pin,
     PinOff,
     Loader2,
     X,
     UserRoundPlus,
     UserRoundMinus,
+    Trash2,
 } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -93,6 +105,7 @@ export function CreatureCard({
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isFeaturing, setIsFeaturing] = useState(false);
+    const [isArchiving, setIsArchiving] = useState(false);
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredCreatureIds?.includes(creature.id) ?? false
     );
@@ -101,6 +114,14 @@ export function CreatureCard({
         () => allPairs?.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id)),
         [allPairs, creature.id]
     );
+
+    const isParentOfPair = useMemo(() => {
+        return allRawPairs.some(
+            (p) => p.maleParentId === creature.id || p.femaleParentId === creature.id
+        );
+    }, [allRawPairs, creature.id]);
+
+    const isProgeny = !!parentPair;
 
     const handleFeatureToggle = async () => {
         if (!currentUser) return;
@@ -160,22 +181,33 @@ export function CreatureCard({
         }
     };
 
-    const handleRemoveFromCollection = async () => {
-        if (
-            !window.confirm(
-                `Are you sure you want to remove "${
-                    creature.creatureName || creature.code
-                }" from your collection? This cannot be undone.`
-            )
-        ) {
-            return;
+    const handleArchive = async () => {
+        setIsArchiving(true);
+        try {
+            const response = await fetch(`/api/creatures/${creature.id}/archive`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isArchived: true }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to archive creature.');
+            }
+            toast.success('Creature archived.');
+            router.refresh();
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setIsArchiving(false);
         }
+    };
+
+    const handleDeletePermanently = async () => {
         setIsDeleting(true);
         try {
             const apiUrl = isAdminView
                 ? `/api/admin/creatures/${creature.id}`
                 : `/api/creatures/${creature.id}`;
-
             const response = await fetch(apiUrl, {
                 method: 'DELETE',
             });
@@ -183,23 +215,33 @@ export function CreatureCard({
                 const data = await response.json();
                 throw new Error(data.error || 'Failed to remove the creature.');
             }
-            // Reload the page to ensure the underlying admin table is updated.
+            toast.success('Creature deleted permanently.');
             window.location.reload();
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message);
         } finally {
             setIsDeleting(false);
         }
     };
 
     return (
-        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500">
+        <Card
+            className={`relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 ${
+                creature.isArchived ? 'opacity-60' : ''
+            }`}
+        >
+            {creature.isArchived && (
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-2 rounded-full bg-gray-500/80 px-3 py-1 text-white text-xs font-bold">
+                    <Archive className="h-4 w-4" />
+                    <span>Archived</span>
+                </div>
+            )}
             <div className="absolute top-1 right-1 z-10">
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={handlePinToggle}
-                    disabled={isPinning}
+                    disabled={isPinning || creature.isArchived}
                     aria-label={isPinned ? 'Unpin goal' : 'Pin goal'}
                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                 >
@@ -219,7 +261,7 @@ export function CreatureCard({
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleFeatureToggle}
-                                    disabled={isFeaturing}
+                                    disabled={isFeaturing || creature.isArchived}
                                     className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                                 >
                                     {isFeaturing ? (
@@ -438,7 +480,10 @@ export function CreatureCard({
                                 allRawPairs={allRawPairs}
                                 allLogs={allLogs}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                <Button
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                    disabled={creature.isArchived}
+                                >
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
@@ -450,7 +495,10 @@ export function CreatureCard({
                                 allEnrichedPairs={allPairs}
                                 allLogs={allLogs}
                             >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                <Button
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                    disabled={creature.isArchived}
+                                >
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny
                                     </span>
@@ -458,19 +506,66 @@ export function CreatureCard({
                             </LogAsProgenyDialog>
                         </>
                     )}
-                    <Button
-                        onClick={handleRemoveFromCollection}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
-                        disabled={isDeleting}
-                    >
-                        {isDeleting ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
-                                Remove from Collection
-                            </span>
-                        )}
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                disabled={isDeleting || isArchiving || creature.isArchived}
+                            >
+                                <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                                    Remove from Collection
+                                </span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Remove "{creature.creatureName || creature.code}"?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    You can <strong>archive</strong> this creature to hide it from
+                                    your main collection while preserving its data for pedigrees.
+                                    {(isParentOfPair || isProgeny) && (
+                                        <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                                            Warning: This creature is part of a breeding pair or is
+                                            logged as progeny. Deleting it permanently may break
+                                            pedigree links.
+                                        </p>
+                                    )}
+                                    <p className="mt-2">
+                                        <strong>Permanent deletion</strong> cannot be undone.
+                                    </p>
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleArchive}
+                                    disabled={isArchiving || isDeleting}
+                                >
+                                    {isArchiving ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Archive className="mr-2 h-4 w-4" />
+                                    )}
+                                    Archive
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleDeletePermanently}
+                                    disabled={isArchiving || isDeleting}
+                                >
+                                    {isDeleting ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                    )}
+                                    Delete Permanently
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
                 <div>
                     <Link

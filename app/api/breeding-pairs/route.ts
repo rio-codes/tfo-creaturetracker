@@ -14,8 +14,8 @@ const createPairSchema = z.object({
         .min(3, 'Pair name must be at least 3 characters.')
         .max(32, 'Pair name can not be more than 32 characters.'),
     species: z.string().min(1, 'Species is required.'),
-    maleParentId: z.string().uuid('Invalid male parent ID.'),
-    femaleParentId: z.string().uuid('Invalid female parent ID.'),
+    maleParentId: z.string('Invalid male parent ID.'),
+    femaleParentId: z.string('Invalid female parent ID.'),
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 

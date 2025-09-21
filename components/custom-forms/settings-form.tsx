@@ -84,10 +84,15 @@ const settingsFormSchema = z
         showFriendsList: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords don't match.",
-        path: ['confirmPassword'],
-    });
+    .refine(
+        (data) => {
+            if (data.password) {
+                return data.password === data.confirmPassword;
+            }
+            return true;
+        },
+        { message: "Passwords don't match.", path: ['confirmPassword'] }
+    );
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 

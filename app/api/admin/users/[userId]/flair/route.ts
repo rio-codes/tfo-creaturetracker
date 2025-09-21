@@ -32,7 +32,10 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
 
         const result = await db
             .update(users)
-            .set({ supporterTier: tier, updatedAt: new Date() })
+            .set({
+                supporterTier: tier as (typeof users.supporterTier.enumValues)[number],
+                updatedAt: new Date(),
+            })
             .where(eq(users.id, userId))
             .returning({ username: users.username });
 

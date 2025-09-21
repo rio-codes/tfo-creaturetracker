@@ -211,13 +211,13 @@ importers:
         specifier: ^19.1.1
         version: 19.1.1
       react-day-picker:
-        specifier: ^9.10.0
+        specifier: ^9.11.0
         version: 9.11.0(react@19.1.1)
       react-dom:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
       react-hook-form:
-        specifier: ^7.62.0
+        specifier: ^7.63.0
         version: 7.63.0(react@19.1.1)
       react-icons:
         specifier: ^5.5.0
@@ -253,10 +253,10 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       vercel:
-        specifier: ^48.0.2
+        specifier: ^48.1.0
         version: 48.1.0
       zod:
-        specifier: ^4.1.9
+        specifier: ^4.1.11
         version: 4.1.11
     devDependencies:
       '@commitlint/cli':
@@ -266,7 +266,7 @@ importers:
         specifier: ^19.8.1
         version: 19.8.1
       '@eslint/js':
-        specifier: ^9.35.0
+        specifier: ^9.36.0
         version: 9.36.0
       '@next/eslint-plugin-next':
         specifier: ^15.5.3
@@ -293,7 +293,7 @@ importers:
         specifier: ^0.31.4
         version: 0.31.4
       eslint:
-        specifier: ^9.35.0
+        specifier: ^9.36.0
         version: 9.36.0(jiti@2.5.1)
       eslint-config-next:
         specifier: ^15.5.3

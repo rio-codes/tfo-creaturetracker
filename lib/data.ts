@@ -288,10 +288,11 @@ export async function fetchFilteredCreatures(
         gender?: string;
         stage?: string;
         species?: string;
+        showArchived?: string;
     } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
-    const { query, gender, stage, species } = searchParams;
+    const { query, gender, stage, species, showArchived } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
@@ -313,6 +314,7 @@ export async function fetchFilteredCreatures(
     // filter by search query, gender, growth level, or species if specified
     const conditions = [
         eq(creatures.userId, userId),
+        showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
         query
             ? or(ilike(creatures.code, `%${query}%`), ilike(creatures.creatureName, `%${query}%`))
             : undefined,

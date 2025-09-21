@@ -13,7 +13,9 @@ import {
 import { eq, and, inArray, or as drizzleOr } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { FaCrown, FaStar } from 'react-icons/fa';
+
+import { Atom, Microscope, Fish, Squirrel, Bird } from 'lucide-react';
+
 import { auth } from '@/auth';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
 import { FriendshipButton } from '@/components/custom-buttons/friendship-button';
@@ -411,13 +413,20 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
 }
 
 function SupporterIcon({ tier }: { tier: string | null | undefined }) {
-    if (tier === 'patron') {
-        return <FaCrown className="inline-block ml-2 text-yellow-500" title="Patreon Supporter" />;
+    switch (tier) {
+        case 'admin':
+            return <Atom className="inline-block ml-2 text-purple-600" />;
+        case 'beta_tester':
+            return <Microscope className="inline-block ml-2 text-cyan-500" />;
+        case 'postdoc':
+            return <Fish className="inline-block ml-2 text-blue-500" />;
+        case 'assoc_prof':
+            return <Squirrel className="inline-block ml-2 text-green-500" />;
+        case 'tenured_prof':
+            return <Bird className="inline-block ml-2 text-magenta-500" />;
+        default:
+            return null;
     }
-    if (tier === 'beta') {
-        return <FaStar className="inline-block ml-2 text-blue-500" title="Beta Tester" />;
-    }
-    return null;
 }
 
 export default async function UserProfilePage({ params }: { params: { username: string } }) {

@@ -12,6 +12,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { User } from '@/types';
@@ -37,6 +40,28 @@ async function handleSuspendUser(userId: string, currentStatus: string) {
         });
         // Here you would typically trigger a re-fetch of the data
         window.location.reload();
+    }
+}
+
+async function handleSetFlair(userId: string, tier: string) {
+    if (!confirm(`Are you sure you want to set this user's flair to "${tier}"?`)) {
+        return;
+    }
+    try {
+        const res = await fetch(`/api/admin/users/${userId}/flair`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tier }),
+        });
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            const data = await res.json();
+            alert(`Failed to set flair: ${data.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('An error occurred while setting flair.');
     }
 }
 
@@ -151,6 +176,45 @@ export const columns: ColumnDef<User>[] = [
                         >
                             Impersonate User
                         </DropdownMenuItem>
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                                <span>Set Flair</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                                <DropdownMenuItem
+                                    onClick={() => handleSetFlair(user.id, 'researcher')}
+                                >
+                                    None
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Internal</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleSetFlair(user.id, 'admin')}>
+                                    Admin
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleSetFlair(user.id, 'beta_tester')}
+                                >
+                                    Beta Tester
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Supporter</DropdownMenuLabel>
+                                <DropdownMenuItem
+                                    onClick={() => handleSetFlair(user.id, 'postdoc')}
+                                >
+                                    Postdoc
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleSetFlair(user.id, 'assoc_prof')}
+                                >
+                                    Assoc. Prof
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleSetFlair(user.id, 'tenured_prof')}
+                                >
+                                    Tenured Prof
+                                </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                        </DropdownMenuSub>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={() => handleSuspendUser(user.id, user.status)}

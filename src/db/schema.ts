@@ -55,7 +55,11 @@ export const users = pgTable('user', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     bio: text('bio'),
-    supporterTier: text('supporter_tier'), // e.g., 'beta', 'patron'
+    supporterTier: text('supporter_tier', {
+        enum: ['admin', 'beta_tester', 'researcher', 'postdoc', 'assoc_prof', 'tenured_prof'],
+    })
+        .default('researcher')
+        .notNull(),
     featuredCreatureIds: jsonb('featured_creature_ids').$type<string[]>(),
     featuredGoalIds: jsonb('featured_goal_ids').$type<string[]>(),
     pronouns: text('pronouns'),

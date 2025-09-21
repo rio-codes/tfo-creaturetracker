@@ -232,8 +232,8 @@ export function BreedingPairCard({
                 {/* Parent Details */}
                 <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
                     <Collapsible>
-                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                            <p className="truncate">
+                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-center">
+                            <p className="text-ellipsis">
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     M:
                                 </span>{' '}
@@ -246,8 +246,8 @@ export function BreedingPairCard({
                         </CollapsibleContent>
                     </Collapsible>
                     <Collapsible>
-                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                            <p className="truncate">
+                        <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-center">
+                            <p className="text-ellipsis">
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     F:
                                 </span>{' '}
@@ -296,7 +296,7 @@ export function BreedingPairCard({
                                                 <TooltipProvider delayDuration={100}>
                                                     <Tooltip delayDuration={100}>
                                                         <TooltipTrigger asChild>
-                                                            <div className="flex items-center gap-2 cursor-default truncate">
+                                                            <div className="flex items-center gap-2 cursor-default ">
                                                                 <SpeciesAvatar
                                                                     species={p.species!}
                                                                     className="h-4 w-4"
@@ -305,7 +305,7 @@ export function BreedingPairCard({
                                                                     href={`https://finaloutpost.net/view/${p.code}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="truncate hover:underline wrap-anywhere"
+                                                                    className="text-ellipsis hover:underline"
                                                                     onClick={(e) =>
                                                                         e.stopPropagation()
                                                                     }
@@ -344,7 +344,7 @@ export function BreedingPairCard({
                                                             className="bg-barely-lilac dark:bg-pompaca-purple"
                                                         >
                                                             <DialogHeader>
-                                                                <DialogTitle>
+                                                                <DialogTitle className="text-ellipsis">
                                                                     {p.creatureName || 'Unnamed'} (
                                                                     {p.code})
                                                                 </DialogTitle>
@@ -422,7 +422,7 @@ export function BreedingPairCard({
                                             key={g.id}
                                             className="flex items-center justify-between gap-1"
                                         >
-                                            <div className="flex items-center gap-1 truncate">
+                                            <div className="flex items-center gap-1 text-ellipsis">
                                                 {g.isAchieved ? (
                                                     <Award className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                                                 ) : (
@@ -431,11 +431,9 @@ export function BreedingPairCard({
                                                 <Link
                                                     title={g.name}
                                                     href={`/research-goals/${g.id}`}
-                                                    className="truncate hover:underline wrap-anywhere"
+                                                    className="text-ellipsis hover:underline"
                                                 >
-                                                    {g.name.length > 26
-                                                        ? `${g.name.substring(0, 26)}...`
-                                                        : g.name}
+                                                    {g.name}
                                                 </Link>
                                             </div>
                                             <div

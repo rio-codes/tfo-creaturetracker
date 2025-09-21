@@ -203,7 +203,7 @@ export function EditBreedingPairForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 min-w-0">
             <Input
                 placeholder="Pair Name"
                 value={pairName}
@@ -275,8 +275,8 @@ export function EditBreedingPairForm({
                 </SelectTrigger>
                 <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                     {availableMales.map((c) => (
-                        <SelectItem key={c?.id} value={c!.id}>
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
+                        <SelectItem key={c?.id} value={c!.id} className="text-ellipsis truncate">
+                            {c?.creatureName || 'Unnamed'} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -292,7 +292,7 @@ export function EditBreedingPairForm({
                 </SelectTrigger>
                 <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                     {availableFemales.map((c) => (
-                        <SelectItem key={c?.id} value={c!.id}>
+                        <SelectItem key={c?.id} value={c!.id} className="text-ellipsis">
                             {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
                         </SelectItem>
                     ))}

@@ -241,7 +241,7 @@ export function ManageBreedingPairsForm({
                                 key={pair.id}
                                 className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple p-2 rounded-md"
                             >
-                                <span>{pair.pairName}</span>
+                                <span className="text-ellipsis">{pair.pairName}</span>
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -277,7 +277,11 @@ export function ManageBreedingPairsForm({
                         <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
-                                    <SelectItem key={mate?.id} value={mate!.id}>
+                                    <SelectItem
+                                        key={mate?.id}
+                                        value={mate!.id}
+                                        className="text-ellipsis"
+                                    >
                                         {mate?.creatureName} ({mate?.code})
                                     </SelectItem>
                                 ))
@@ -312,7 +316,7 @@ export function ManageBreedingPairsForm({
                                             />
                                             <Collapsible className="w-full">
                                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                                    <p className="truncate">
+                                                    <p className="text-ellipsis">
                                                         {maleParent.creatureName || 'Unnamed'} (
                                                         {maleParent.code})
                                                     </p>
@@ -336,7 +340,7 @@ export function ManageBreedingPairsForm({
                                             />
                                             <Collapsible className="w-full">
                                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
-                                                    <p className="truncate">
+                                                    <p className="text-ellipsis">
                                                         {femaleParent.creatureName || 'Unnamed'} (
                                                         {femaleParent.code})
                                                     </p>

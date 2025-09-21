@@ -41,10 +41,10 @@ export function EditBreedingPairDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden"
+                className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden w-full md:max-w-2xl overflow-y-auto max-h-[90vh]"
             >
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300 w-full text-center">
                         Edit Breeding Pair
                     </DialogTitle>
                 </DialogHeader>

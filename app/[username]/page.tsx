@@ -13,8 +13,7 @@ import {
 import { eq, and, inArray, or as drizzleOr } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-import { Atom, Microscope, Fish, Squirrel, Bird } from 'lucide-react';
+import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
 
 import { auth } from '@/auth';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
@@ -28,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics'; // This function must be exported from lib/genetics.ts
+
 import type {
     DbUser,
     EnrichedCreature,
@@ -412,23 +412,6 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
     };
 }
 
-function SupporterIcon({ tier }: { tier: string | null | undefined }) {
-    switch (tier) {
-        case 'admin':
-            return <Atom className="inline-block ml-2 text-purple-600" />;
-        case 'beta_tester':
-            return <Microscope className="inline-block ml-2 text-cyan-500" />;
-        case 'postdoc':
-            return <Fish className="inline-block ml-2 text-blue-500" />;
-        case 'assoc_prof':
-            return <Squirrel className="inline-block ml-2 text-green-500" />;
-        case 'tenured_prof':
-            return <Bird className="inline-block ml-2 text-magenta-500" />;
-        default:
-            return null;
-    }
-}
-
 export default async function UserProfilePage({ params }: { params: { username: string } }) {
     const session = await auth();
     const pathUsername = params.username;
@@ -480,7 +463,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
                                     ({user.pronouns})
                                 </span>
                             )}
-                            <SupporterIcon tier={user.supporterTier} />
+                            <FlairIcon tier={user.supporterTier} />
                         </CardTitle>
                         <CardDescription className="text-pompaca-purple dark:text-purple-400">
                             Joined on {new Date(user.createdAt).toLocaleDateString()}

@@ -17,7 +17,7 @@ export function FlairIcon({
         case 'assoc_prof':
             return <Squirrel className="inline-block ml-2 text-green-500" />;
         case 'tenured_prof':
-            return <Bird className="inline-block ml-2 text-magenta-500" />;
+            return <Bird className="inline-block ml-2 text-pink-600" />;
         default:
             return null;
     }

@@ -2,9 +2,116 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
 
 // Placeholder for news items. You can fetch this from a CMS or a local file.
 const newsItems = [
+    {
+        title: 'New features, and some squashed bugs (oops)!',
+        date: 'September 21st, 2025', // Example date
+        content: (
+            <>
+                <details>
+                    <summary>
+                        We've made a few changes (and fixed some bugs) since launch. Some highlights
+                        include:
+                    </summary>
+                    <p>
+                        <ul>
+                            <li>
+                                <strong>
+                                    Flair for Admins, Beta Testers, and Patreon Supporters
+                                </strong>
+                                <br />
+                                We have added new icons we call "flair" to your profile if you are
+                                one of our beta testers or Patreon supporters. Beta testers have
+                                this microscope: <FlairIcon tier="beta_tester" />. The three Patreon
+                                tiers have these creatures: <FlairIcon tier="postdoc" /> (Postdoc){' '}
+                                <FlairIcon tier="assoc_prof" /> (Associate Professor),{' '}
+                                <FlairIcon tier="tenured_prof" /> (Tenured Professor). Finally, the
+                                admins (
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="/lyricism"
+                                >
+                                    lyricism
+                                </Link>{' '}
+                                and{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="/koda_curvata"
+                                >
+                                    koda_curvata
+                                </Link>
+                                ) have this atom symbol: <FlairIcon tier="admin" />.
+                            </li>
+                            <br />
+                            <li>
+                                <strong>Archiving for creatures you no longer own</strong>
+                                <br />
+                                Previously if you sold, traded, or gifted your creatures, there was
+                                no option to remove them from your tfoct collection except deletion.
+                                This took them out of the pedigree/inbred pairing detector. Now you
+                                can archive your creatures directly from the collection page, or for
+                                convenience if you are syncing all your tabs we archive missing
+                                creatures for you. You can view/hide archived creatures with a
+                                checkbox on the collection page.
+                            </li>
+                            <br />
+                            <li>
+                                <strong>
+                                    Un-feature creatures and research goals directly from profile
+                                </strong>
+                                <br />
+                                You can now remove featured creatures and goals from your profile,
+                                not just through the main creature collection and goal pages. Thanks
+                                to <FlairIcon tier="beta_tester" />{' '}
+                                <Link
+                                    href="/Notherox"
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                >
+                                    Notherox
+                                </Link>{' '}
+                                for pointing out how useful this is!
+                            </li>
+                            <br />
+                            <li>
+                                <strong>Bugfixes</strong>
+                                <br />
+                                Some of the bugs we fixed include issues with saving your item count
+                                in settings, updating your profile, an issue where you were forced
+                                to name a tab before syncing, and a fix to our goal prediction
+                                logic. Previously if gender was marked as "optional" on a goal your
+                                match score would go down, when it should go up! There's 100% chance
+                                of getting a preferred gender, so it's basically a "freebie" in your
+                                calculation. Thanks again to <FlairIcon tier="beta_tester" />
+                                <Link
+                                    href="/Notherox"
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                >
+                                    Notherox
+                                </Link>
+                                !
+                            </li>
+                        </ul>
+                    </p>
+                    <br />
+                    <p>
+                        We have a lot of exciting features coming soon, check out our{' '}
+                        <a
+                            href="https://patreon.com/tfoct"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        >
+                            Patreon
+                        </a>{' '}
+                        for exclusive previews!
+                    </p>
+                </details>
+            </>
+        ),
+    },
     {
         title: 'Welcome to the TFO.creaturetracker Launch!',
         date: 'September 19th, 2025', // Example date
@@ -52,16 +159,6 @@ const newsItems = [
                     to chat with the team and give feedback!
                 </p>
             </>
-        ),
-    },
-    {
-        title: 'Hey Beta Testers, the home page is live!',
-        date: 'September 13th, 2025', // Example date
-        content: (
-            <p>
-                Let me know what you think in the Discord, and feel free to report any issues, ideas
-                for new features, or bugs you might find as Github issues as usual.
-            </p>
         ),
     },
 ];

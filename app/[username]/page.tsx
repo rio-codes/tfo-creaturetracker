@@ -614,7 +614,11 @@ export default async function UserProfilePage({ params }: { params: { username: 
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {featuredCreatures.map((creature) => (
-                                    <FeaturedCreatureCard key={creature!.id} creature={creature} />
+                                    <FeaturedCreatureCard
+                                        key={creature!.id}
+                                        creature={creature}
+                                        currentUser={user as any}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -633,6 +637,9 @@ export default async function UserProfilePage({ params }: { params: { username: 
                                         achievement={achievements[goal.id]}
                                         username={user.username}
                                         progress={goalProgress[goal.id]}
+                                        currentUser={
+                                            session?.user?.id === user.id ? (user as any) : null
+                                        }
                                     />
                                 ))}
                             </div>

@@ -106,15 +106,18 @@ export function FeaturedGoalCard({
                     </TooltipProvider>
                 </div>
             )}
-            <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac">
+            <CardContent
+                className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac min-w-0 overflow-x-clip max-w-9/10
+            whitespace-normal"
+            >
                 <img
                     src={goal.imageUrl || '/images/misc/placeholder.png'}
                     alt={goal.name}
                     className="h-32 w-32 p-3 object-contain rounded-md bg-white/10"
                 />
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <CardTitle
-                        className="text-lg truncate text-pompaca-purple dark:text-purple-300"
+                        className="text-lg text-pompaca-purple dark:text-purple-300"
                         title={goal.name}
                     >
                         {goal.name}
@@ -128,8 +131,8 @@ export function FeaturedGoalCard({
                         <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">
                             Target Genes:
                         </p>
-                        <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple/50">
-                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400">
+                        <ScrollArea className="h-24 mt-1 rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple/50 whitespace-norma ">
+                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400 ">
                                 {geneEntries.map(([category, geneData]) => (
                                     <div key={category}>
                                         <span className="font-bold text-pompaca-purple dark:text-purple-300">

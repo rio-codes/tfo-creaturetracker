@@ -127,14 +127,14 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                             <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">
                                 Genetics:
                             </p>
-                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple/50">
-                                <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400">
+                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple/50 overflow-x-scroll wrap-normal">
+                                <div className="text-xs font-mono text-pompaca-purple dark:text-purple-400 ">
                                     {creature.geneData?.map((gene) => (
                                         <div key={gene.category}>
                                             <span className="font-bold text-pompaca-purple dark:text-purple-300">
                                                 {gene.category}:
                                             </span>
-                                            <div className="pl-2">
+                                            <div className="pl-2 ">
                                                 <div>Phenotype: {gene.phenotype}</div>
                                                 <div>Genotype: {gene.genotype}</div>
                                             </div>

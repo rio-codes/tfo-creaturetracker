@@ -7,7 +7,6 @@ import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { logUserAction } from '@/lib/user-actions';
-import { logAdminAction } from '@/lib/audit';
 
 const createTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),

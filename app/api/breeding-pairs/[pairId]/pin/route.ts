@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { breedingPairs } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 export async function PATCH(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
@@ -22,6 +23,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             .where(and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, session.user.id)));
 
         revalidatePath('/breeding-pairs');
+
+        const pair = await db.query.breedingPairs.findFirst({
+            where: eq(breedingPairs.id, pairId),
+        });
+
+        await logUserAction({
+            action: 'breedingPair.pin',
+            description: `Breeding pair ${pair?.pairName} ${isPinned ? 'pinned' : 'unpinned'}.`,
+        });
+
         return NextResponse.json({ success: true, isPinned: isPinned });
     } catch (error) {
         console.error('Failed to update pair:', error);

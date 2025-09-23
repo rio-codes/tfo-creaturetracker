@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { friendships } from '@/src/db/schema';
+import { friendships, users } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { logUserAction } from '@/lib/user-actions';
 
 const actionSchema = z.object({
     targetUserId: z.string(),
@@ -62,6 +63,14 @@ export async function POST(req: Request) {
                     status: 'pending',
                     actionUserId: currentUserId,
                 });
+                const friendUserRequest = await db.query.users.findFirst({
+                    where: eq(users.id, targetUserId),
+                });
+                await logUserAction({
+                    action: 'friend.request',
+                    description: `Sent a friend request to ${friendUserRequest?.username}.`,
+                });
+
                 return NextResponse.json({ message: 'Friend request sent.' });
 
             case 'accept':
@@ -84,9 +93,49 @@ export async function POST(req: Request) {
                             eq(friendships.userTwoId, userTwoId)
                         )
                     );
+                const friendUserAccept = await db.query.users.findFirst({
+                    where: eq(users.id, targetUserId),
+                });
+                await logUserAction({
+                    action: 'friend.accept',
+                    description: `Accepted a friend request from ${friendUserAccept?.username}.`,
+                });
+
                 return NextResponse.json({ message: 'Friend request accepted.' });
 
             case 'remove': // Used to reject a request
+                if (!existingFriendship) {
+                    return NextResponse.json(
+                        { error: 'No friendship to remove.' },
+                        { status: 404 }
+                    );
+                }
+                await db
+                    .delete(friendships)
+                    .where(
+                        and(
+                            eq(friendships.userOneId, userOneId),
+                            eq(friendships.userTwoId, userTwoId)
+                        )
+                    );
+                const friendUserRemove = await db.query.users.findFirst({
+                    where: eq(users.id, targetUserId),
+                });
+                if (existingFriendship.status === 'accepted') {
+                    await logUserAction({
+                        action: 'friend.remove',
+                        description: `Removed ${friendUserRemove?.username} from friends list.`,
+                    });
+                    return NextResponse.json({ message: 'Friend removed.' });
+                } else if (existingFriendship.status === 'pending') {
+                    await logUserAction({
+                        action: 'friend.decline',
+                        description: `Declined pending friend request from ${friendUserRemove?.username}.`,
+                    });
+                    return NextResponse.json({ message: 'Friend request declined.' });
+                }
+                return NextResponse.json({ message: 'Friendship removed.' });
+
             case 'cancel': // Used to withdraw a sent request
                 if (!existingFriendship) {
                     return NextResponse.json(
@@ -102,15 +151,14 @@ export async function POST(req: Request) {
                             eq(friendships.userTwoId, userTwoId)
                         )
                     );
-
-                if (action === 'remove' && existingFriendship.status === 'accepted')
-                    return NextResponse.json({ message: 'Friend removed.' });
-                if (action === 'remove' && existingFriendship.status === 'pending')
-                    return NextResponse.json({ message: 'Friend request declined.' });
-                if (action === 'cancel')
-                    return NextResponse.json({ message: 'Friend request cancelled.' });
-
-                return NextResponse.json({ message: 'Friendship status cleared.' });
+                const friendUser = await db.query.users.findFirst({
+                    where: eq(users.id, targetUserId),
+                });
+                await logUserAction({
+                    action: 'friend.cancel',
+                    description: `Cancelled friend request to ${friendUser?.username} .`,
+                });
+                return NextResponse.json({ message: 'Friend request cancelled.' });
 
             default:
                 return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

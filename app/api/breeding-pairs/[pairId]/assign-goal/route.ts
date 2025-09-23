@@ -5,6 +5,7 @@ import { breedingPairs, researchGoals } from '@/src/db/schema';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 const assignGoalSchema = z.object({
     goalId: z.string().uuid('A valid goal ID is required.'),
@@ -87,6 +88,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
 
         revalidatePath(`/research-goals/${goalId}`);
         revalidatePath('/breeding-pairs');
+
+        await logUserAction({
+            action: 'breeding-pair.assign-goal',
+            description: `Assigned breeding pair ${pair.pairName} to goal "${goal.name}".`,
+        });
 
         return NextResponse.json({
             message: `Goal ${assign ? 'assigned' : 'unassigned'} successfully.`,

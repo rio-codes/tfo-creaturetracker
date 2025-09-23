@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { users } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { users, creatures, researchGoals } from '@/src/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { hash } from 'bcrypt-ts';
 import { track } from '@vercel/analytics/server';
+import { logUserAction } from '@/lib/user-actions';
 
 const settingsSchema = z
     .object({
@@ -88,16 +89,60 @@ export async function PATCH(req: Request) {
             dataToUpdate.password = await hash(password, 10);
         }
 
-        if (body.goalConversions) {
-            // Logic for goal conversions would go here
-        }
-
         if (Object.keys(dataToUpdate).length > 0) {
             await db.update(users).set(dataToUpdate).where(eq(users.id, userId));
         }
 
         const username = session.user.username;
         track('settings_updated', { username });
+
+        if (dataToUpdate) {
+            await logUserAction({
+                action: 'user.password_change',
+                description: `Changed settings for user "${username}".`,
+            });
+        }
+
+        if (dataToUpdate.featuredCreatureIds) {
+            const featuredCreatureData =
+                dataToUpdate.featuredCreatureIds.length > 0
+                    ? await db.query.creatures.findMany({
+                          where: and(
+                              eq(creatures.userId, userId),
+                              inArray(creatures.id, dataToUpdate.featuredCreatureIds)
+                          ),
+                          columns: { creatureName: true, code: true },
+                      })
+                    : [];
+
+            const creatureList = featuredCreatureData
+                .map((creature) => `${creature.creatureName} (${creature.code})`)
+                .join(', ');
+            await logUserAction({
+                action: 'user.featured_creatures_change',
+                description: `Changed featured creatures for user "${username}". Now featured creatures are: ${creatureList || 'none'}`,
+            });
+        }
+
+        if (dataToUpdate.featuredGoalIds) {
+            const featuredGoalData =
+                dataToUpdate.featuredGoalIds.length > 0
+                    ? await db.query.researchGoals.findMany({
+                          where: and(
+                              eq(researchGoals.userId, userId),
+                              inArray(researchGoals.id, dataToUpdate.featuredGoalIds)
+                          ),
+                          columns: { name: true },
+                      })
+                    : [];
+
+            const goalList = featuredGoalData.map((goal) => goal.name).join(', ');
+            await logUserAction({
+                action: 'user.featured_goals_change',
+                description: `Changed featured goals for user "${username}". Now featured goals are: ${goalList || 'none'}`,
+            });
+        }
+
         return NextResponse.json({ message: 'Settings updated successfully!' });
     } catch (error) {
         console.error(error);

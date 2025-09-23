@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
+import { logUserAction } from '@/lib/user-actions';
+import { logAdminAction } from '@/lib/audit';
 
 const createTabSchema = z.object({
     tabId: z.number('Tab ID must be a number.'),
@@ -52,6 +54,9 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+        if (!validatedTabs.data.tabName) {
+            validatedTabs.data.tabName = `Tab ${validatedTabs.data.tabId}`;
+        }
 
         const { tabId, tabName } = validatedTabs.data;
 
@@ -65,6 +70,12 @@ export async function POST(req: Request) {
         const newTab = await db.insert(userTabs).values({ userId, tabId, tabName }).returning();
 
         revalidatePath('/collection');
+
+        await logUserAction({
+            action: 'user_tab.create',
+            description: `Created user tab "${tabName}" with tab ID ${tabId}.`,
+        });
+
         return NextResponse.json(newTab[0], { status: 201 });
     } catch (error) {
         console.error(error);

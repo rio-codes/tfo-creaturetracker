@@ -8,6 +8,7 @@ import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { structuredGeneData } from '@/constants/creature-data';
 import { and, eq } from 'drizzle-orm';
+import { logUserAction } from '@/lib/user-actions';
 
 interface GeneInfo {
     genotype: string;
@@ -123,10 +124,14 @@ export async function POST(req: Request) {
                 .where(eq(breedingPairs.id, pairId));
         }
 
-        // 5. Revalidate paths to reflect changes immediately
         revalidatePath('/research-goals');
         revalidatePath('/breeding-pairs');
         revalidatePath(`/research-goals/${newGoalId}`);
+
+        await logUserAction({
+            action: 'goal.create',
+            description: `Created research goal "${goalName}"`,
+        });
 
         return NextResponse.json(
             {

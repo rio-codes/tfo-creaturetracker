@@ -119,7 +119,6 @@ export async function POST(req: Request) {
         await logUserAction({
             action: 'goal.create',
             description: `Created research goal "${newGoal.name}"`,
-            link: `/research-goals/${newGoal.id}`,
         });
 
         revalidatePath('/research-goals');

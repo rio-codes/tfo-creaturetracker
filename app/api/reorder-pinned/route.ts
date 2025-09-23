@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { researchGoals, creatures, breedingPairs } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
+import { logUserAction } from '@/lib/user-actions';
 
 export async function POST(request: Request) {
     const session = await auth();
@@ -38,6 +39,11 @@ export async function POST(request: Request) {
                 const id = orderedIds[i];
                 await tx.update(table).set({ pinOrder: i }).where(eq(table.id, id));
             }
+        });
+
+        await logUserAction({
+            action: 'reorder.pinned',
+            description: `Reordered pinned ${type}s.`,
         });
 
         return NextResponse.json({ message: 'Order updated successfully' });

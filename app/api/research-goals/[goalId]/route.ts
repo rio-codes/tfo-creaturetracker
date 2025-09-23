@@ -9,6 +9,7 @@ import { logAdminAction } from '@/lib/audit';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { hasObscenity } from '@/lib/obscenity';
+import { logUserAction } from '@/lib/user-actions';
 
 const editGoalSchema = z.object({
     name: z
@@ -85,6 +86,13 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
         if (!updatedGoal) {
             return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
         }
+
+        await logUserAction({
+            action: 'goal.update',
+            description: `Pinned research goal "${updatedGoal.name}"`,
+            link: `/research-goals/${updatedGoal.id}`,
+        });
+
         if (session.user.role === 'admin') {
             await logAdminAction({
                 action: isPinned ? 'research_goal.admin_pin' : 'research_goal.admin_unpin',
@@ -205,6 +213,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 details: { updatedFields: Object.keys(validatedFields.data), goalName: name },
             });
         }
+
+        await logUserAction({
+            action: 'goal.update',
+            description: `Updated research goal "${existingGoal.name}"`,
+            link: `/research-goals/${existingGoal.id}`,
+        });
+
         revalidatePath('/research-goals');
         revalidatePath(`/research-goals/${params.goalId}`);
 
@@ -265,15 +280,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
                         .where(eq(breedingPairs.id, pair.id));
                 }
             }
-            if (session.user.role === 'admin') {
-                await logAdminAction({
-                    action: 'research_goal.admin_edit',
-                    targetType: 'research_goal',
-                    targetUserId: goalToDelete.userId,
-                    targetId: params.goalId,
-                    details: { goalName: goalToDelete.name, action: 'delete' },
-                });
-            }
+
             return goalToDelete;
         });
 
@@ -283,6 +290,21 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
                 { status: 404 }
             );
         }
+
+        if (session.user.role === 'admin') {
+            await logAdminAction({
+                action: 'research_goal.admin_edit',
+                targetType: 'research_goal',
+                targetUserId: deletedGoal.userId,
+                targetId: params.goalId,
+                details: { goalName: deletedGoal.name, action: 'delete' },
+            });
+        }
+
+        await logUserAction({
+            action: 'goal.delete',
+            description: `Deleted research goal "${deletedGoal.name}"`,
+        });
 
         revalidatePath('/research-goals');
         revalidatePath('/breeding-pairs');

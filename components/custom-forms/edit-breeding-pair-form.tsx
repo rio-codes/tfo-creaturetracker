@@ -293,7 +293,7 @@ export function EditBreedingPairForm({
                 <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                     {availableFemales.map((c) => (
                         <SelectItem key={c?.id} value={c!.id} className="text-ellipsis">
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) - {c?.species}
+                            {c?.creatureName || 'Unnamed'} ({c?.code})
                         </SelectItem>
                     ))}
                 </SelectContent>

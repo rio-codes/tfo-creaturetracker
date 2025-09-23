@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
 import { validatePairing } from '@/lib/breeding-rules';
+import { logUserAction } from '@/lib/user-actions';
 import { logAdminAction } from '@/lib/audit';
 
 const editPairSchema = z.object({
@@ -220,6 +221,12 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');
 
+        // TODO: Specify in logUserAction which properties were changes
+        await logUserAction({
+            action: 'pair.update',
+            description: `Updated breeding pair "${pairName}"`,
+        });
+
         return NextResponse.json({
             message: 'Breeding pair updated successfully!',
         });
@@ -318,6 +325,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
                 });
             }
             revalidatePath('/breeding-pairs');
+
+            await logUserAction({
+                action: 'pair.delete',
+                description: `Deleted breeding pair "${result[0].pairName}"`,
+            });
+
             return NextResponse.json({
                 message: 'Breeding pair deleted successfully.',
             });

@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { hasObscenity } from '@/lib/obscenity';
+import { logUserAction } from '@/lib/user-actions';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
@@ -122,6 +123,13 @@ export async function POST(req: Request) {
             );
         }
 
+        const pair = await db.query.breedingPairs.findFirst({
+            where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
+        });
+        if (!pair) {
+            return NextResponse.json({ error: 'Breeding pair not found' }, { status: 404 });
+        }
+
         const [newLogEntry] = await db.transaction(async (tx) => {
             if (sourceLogId) {
                 const sourceLog = await tx.query.breedingLogEntries.findFirst({
@@ -173,6 +181,11 @@ export async function POST(req: Request) {
 
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
+
+        await logUserAction({
+            action: 'log.create',
+            description: `Logged a new breeding event for pair "${pair.pairName}"`,
+        });
 
         return NextResponse.json(
             { message: 'Breeding event logged successfully!' },
@@ -258,6 +271,18 @@ export async function PUT(req: Request) {
 
             // Check for new achievements
             await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyIds, logId);
+
+            const pair = await db.query.breedingPairs.findFirst({
+                where: and(
+                    eq(breedingPairs.id, existingLog.pairId),
+                    eq(breedingPairs.userId, userId)
+                ),
+            });
+
+            await logUserAction({
+                action: 'log.update',
+                description: `Updated breeding event for pair "${pair?.pairName}"`,
+            });
         });
 
         revalidatePath('/breeding-pairs');
@@ -301,7 +326,6 @@ export async function DELETE(req: Request) {
             const logToDelete = await tx.query.breedingLogEntries.findFirst({
                 where: and(eq(breedingLogEntries.id, logId), eq(breedingLogEntries.userId, userId)),
             });
-
             if (!logToDelete) {
                 throw new Error('Log entry not found or you do not have permission to delete it.');
             }
@@ -311,6 +335,18 @@ export async function DELETE(req: Request) {
 
             // Delete the log entry
             await tx.delete(breedingLogEntries).where(eq(breedingLogEntries.id, logId));
+
+            const pair = await db.query.breedingPairs.findFirst({
+                where: and(
+                    eq(breedingPairs.id, logToDelete.pairId),
+                    eq(breedingPairs.userId, userId)
+                ),
+            });
+
+            await logUserAction({
+                action: 'log.delete',
+                description: `Deleted breeding event on ${logToDelete.createdAt} for pair "${pair?.pairName}"`,
+            });
         });
 
         revalidatePath('/breeding-pairs');
@@ -356,6 +392,32 @@ export async function PATCH(req: Request) {
                 { status: 400 }
             );
         }
+
+        const sourceLog = await db.query.breedingLogEntries.findFirst({
+            where: and(
+                eq(breedingLogEntries.id, sourceLogId!),
+                eq(breedingLogEntries.userId, userId)
+            ),
+        });
+
+        const sourcePair = await db.query.breedingPairs.findFirst({
+            where: and(
+                sourceLog?.pairId ? eq(breedingPairs.id, sourceLog.pairId) : undefined,
+                eq(breedingPairs.userId, userId)
+            ),
+        });
+
+        const progenyCreature1 = sourceLog?.progeny1Id
+            ? await db.query.creatures.findFirst({
+                  where: and(eq(creatures.id, sourceLog.progeny1Id), eq(creatures.userId, userId)),
+              })
+            : null;
+
+        const progenyCreature2 = sourceLog?.progeny2Id
+            ? await db.query.creatures.findFirst({
+                  where: and(eq(creatures.id, sourceLog.progeny2Id), eq(creatures.userId, userId)),
+              })
+            : null;
 
         await db.transaction(async (tx) => {
             if (sourceLogId) {
@@ -425,6 +487,20 @@ export async function PATCH(req: Request) {
                 [progenyId],
                 logEntryId
             );
+
+            const destinationPair = await db.query.breedingPairs.findFirst({
+                where: and(
+                    eq(breedingPairs.id, destinationLog.pairId),
+                    eq(breedingPairs.userId, userId)
+                ),
+            });
+
+            if (sourcePair && destinationPair && (progenyCreature1 || progenyCreature2)) {
+                await logUserAction({
+                    action: 'log.progeny.move',
+                    description: `Moved progeny ${progenyCreature1?.creatureName || progenyCreature2?.creatureName} from log entry for pair "${sourcePair?.pairName}" to log entry for pair ${destinationPair?.pairName}`,
+                });
+            }
         });
 
         revalidatePath('/breeding-pairs');
@@ -435,7 +511,7 @@ export async function PATCH(req: Request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Failed to update breeding log:', error);
+        console.error('Failed to update breeding log with new progeny:', error);
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'An internal error occurred.',

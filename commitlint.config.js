@@ -13,6 +13,7 @@ module.exports = {
                 'profile',
                 'auth',
                 'settings',
+                'activity-log',
                 // Cross-Cutting Concerns
                 'admin',
                 'ui',

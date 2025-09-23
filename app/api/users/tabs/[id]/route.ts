@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { logAdminAction } from '@/lib/audit';
+import { logUserAction } from '@/lib/user-actions';
 
 const updateTabSchema = z.object({
     tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
@@ -87,6 +88,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
                 },
             });
         }
+        await logUserAction({
+            action: 'user_tab.update',
+            description: `Updated user tab "${updatedTab[0].tabName}"`,
+        });
+
         revalidatePath('/collection');
         return NextResponse.json(updatedTab[0]);
     } catch (error) {
@@ -105,7 +111,7 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 
     const tabToDelete = await db.query.userTabs.findFirst({
         where: eq(userTabs.id, parseInt(params.id)),
-        columns: { userId: true },
+        columns: { tabName: true, userId: true },
     });
     if (!tabToDelete) {
         return NextResponse.json({ error: 'Tab not found.' }, { status: 404 });
@@ -129,6 +135,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
             });
         }
         revalidatePath('/collection');
+
+        await logUserAction({
+            action: 'user_tab.delete',
+            description: `Deleted user tab "${tabToDelete.tabName}"`,
+        });
+
         return NextResponse.json({ message: 'Tab deleted successfully.' });
     } catch (error) {
         console.error(error);

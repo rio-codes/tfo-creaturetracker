@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { z } from 'zod';
-
+import { logUserAction } from '@/lib/user-actions';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 import { and, eq, sql } from 'drizzle-orm';
@@ -149,6 +149,12 @@ export async function POST(req: Request) {
         }
 
         const successMessage = `Successfully synced ${creatureValuesToUpdate.length} creatures. Updated ${updatedImageCount} images.`;
+
+        await logUserAction({
+            action: 'sync.run',
+            description: `Synced TFO tab ${tabId}. Updated ${updatedImageCount} images.`,
+        });
+
         revalidatePath('/collection');
         return NextResponse.json(
             {

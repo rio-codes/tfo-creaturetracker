@@ -6,6 +6,7 @@ import { and, eq, notInArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 type CreatureInsert = typeof creatures.$inferInsert;
 
@@ -91,6 +92,11 @@ async function syncTab(
             isArchived: false, // Un-archive if it's found again
         });
     }
+
+    await logUserAction({
+        action: 'sync.run',
+        description: `Synced TFO tab ${tabId}. Updated ${creatureValuesToUpdate.length} creatures.`,
+    });
 
     return { syncedCreatures: creatureValuesToUpdate, tfoCreatureCodes };
 }

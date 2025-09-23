@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { researchGoals } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
@@ -41,6 +42,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
         // Revalidate the path to ensure the page re-fetches data
         revalidatePath(`/research-goals/${goalId}`);
+
+        await logUserAction({
+            action: 'researchGoal.toggleMode',
+            description: `Converted research goal "${goal.name}" to  ${newMode} mode.`,
+        });
 
         return NextResponse.json({
             message: `Goal mode switched to ${newMode} successfully.`,

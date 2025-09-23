@@ -9,6 +9,7 @@ import { TFO_SPECIES_CODES } from '@/constants/creature-data';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { structuredGeneData } from '@/constants/creature-data';
 import { fetchAndUploadWithRetry } from '@/lib/data';
+import { logUserAction } from '@/lib/user-actions';
 
 const goalSchema = z.object({
     name: z
@@ -78,8 +79,9 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-        const { name, species, genes } = validatedFields.data;
+        const { name, species, genes, goalMode } = validatedFields.data;
         if (hasObscenity(name)) {
+            console.log('Inappropriate name provided for changed research goal');
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -101,22 +103,32 @@ export async function POST(req: Request) {
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
-        await db.insert(researchGoals).values({
-            userId: session.user.id,
-            name: name,
-            species: species,
-            imageUrl: blobUrl,
-            genes: genes,
-            updatedAt: new Date(),
+        const [newGoal] = await db
+            .insert(researchGoals)
+            .values({
+                userId: session.user.id,
+                name: name,
+                species: species,
+                imageUrl: blobUrl,
+                genes: genes,
+                goalMode: goalMode,
+                updatedAt: new Date(),
+            })
+            .returning();
+
+        await logUserAction({
+            action: 'goal.create',
+            description: `Created research goal "${newGoal.name}"`,
         });
 
         revalidatePath('/research-goals');
 
         return NextResponse.json(
-            { message: 'Research Goal created successfully!' },
+            { message: 'Research Goal created successfully!', goalId: newGoal.id },
             { status: 201 }
         );
     } catch (error: any) {
+        console.error('Failed to create research goal:', error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

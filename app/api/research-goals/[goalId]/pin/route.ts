@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { researchGoals } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
@@ -35,7 +36,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             );
         }
 
+        const goal = await db.query.researchGoals.findFirst({
+            where: and(eq(researchGoals.id, goalId), eq(researchGoals.userId, session.user.id)),
+        });
+
         revalidatePath('/research-goals');
+
+        await logUserAction({
+            action: 'researchGoal.pin',
+            description: `Research goal "${goal?.name}" ${isPinned ? 'pinned' : 'unpinned'}.`,
+        });
 
         return NextResponse.json({ success: true, isPinned: isPinned });
     } catch (error) {

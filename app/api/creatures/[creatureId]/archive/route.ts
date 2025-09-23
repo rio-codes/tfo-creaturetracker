@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { logUserAction } from '@/lib/user-actions';
 
 export async function PATCH(req: Request, { params }: { params: { creatureId: string } }) {
     const session = await auth();
@@ -36,6 +37,15 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
         }
 
         revalidatePath('/collection');
+
+        const creature = await db.query.creatures.findFirst({
+            where: eq(creatures.id, creatureId),
+        });
+
+        await logUserAction({
+            action: 'creature.update',
+            description: `Updated creature "${creature?.creatureName} (${creature?.code})" archive status to ${isArchived ? 'archived' : 'un-archived'}`,
+        });
 
         return NextResponse.json({
             message: `Creature ${isArchived ? 'archived' : 'un-archived'} successfully.`,

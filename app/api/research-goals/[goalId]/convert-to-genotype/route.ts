@@ -6,6 +6,7 @@ import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { enrichAndSerializeGoal } from '@/lib/serialization';
+import { logUserAction } from '@/lib/user-actions';
 
 const conversionSchema = z.object({
     conversions: z.record(z.string(), z.string()),
@@ -63,6 +64,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             .where(eq(researchGoals.id, goalId));
 
         revalidatePath(`/research-goals/${goalId}`);
+
+        await logUserAction({
+            action: 'researchGoal.convertToGenotype',
+            description: `Converted research goal "${goal.name}" to genotype mode.`,
+        });
 
         return NextResponse.json({
             message: 'Goal successfully converted to genotype mode.',

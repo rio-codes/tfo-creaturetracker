@@ -278,11 +278,11 @@ export function ManageBreedingPairsForm({
                             {suitableMates.length > 0 ? (
                                 suitableMates.map((mate) => (
                                     <SelectItem
-                                        key={mate.id}
-                                        value={mate.id}
+                                        key={mate?.id}
+                                        value={mate!.id}
                                         className="text-ellipsis"
                                     >
-                                        {mate.creatureName} ({mate.code})
+                                        {mate?.creatureName} ({mate?.code})
                                     </SelectItem>
                                 ))
                             ) : (

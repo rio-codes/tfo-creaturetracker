@@ -163,7 +163,7 @@ export function CreatureCard({
         setIsPinning(true);
         const newPinState = !isPinned;
         try {
-            const response = await fetch(`/api/creatures/${creature.id}/pin`, {
+            const response = await fetch(`/api/creatures/${creature.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPinned: newPinState }),

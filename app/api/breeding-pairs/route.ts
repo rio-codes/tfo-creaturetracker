@@ -7,6 +7,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { validatePairing } from '@/lib/breeding-rules';
+import { logUserAction } from '@/lib/user-actions';
 
 const createPairSchema = z.object({
     pairName: z
@@ -113,6 +114,11 @@ export async function POST(req: Request) {
                 revalidatePath(`/research-goals/${goal.id}`);
             }
         }
+
+        await logUserAction({
+            action: 'pair.create',
+            description: `Created breeding pair "${newPair.pairName}"`,
+        });
 
         revalidatePath('/breeding-pairs');
         revalidatePath('/research-goals');

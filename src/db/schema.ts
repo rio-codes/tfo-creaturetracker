@@ -376,3 +376,21 @@ export const reports = pgTable('report', {
         .notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const userActionLog = pgTable(
+    'user_action_log',
+    {
+        id: uuid('id').defaultRandom().primaryKey(),
+        userId: text('user_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow().notNull(),
+        action: text('action').notNull(), // e.g., 'goal.create', 'creature.archive'
+        description: text('description').notNull(),
+        link: text('link'), // e.g., '/research-goals/goal-id'
+    },
+    (table) => ({
+        userIdx: index('user_action_log_userId_idx').on(table.userId),
+        timestampIdx: index('user_action_log_timestamp_idx').on(table.timestamp),
+    })
+);

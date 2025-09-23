@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogIn, LogOut, Loader2, User, Settings } from 'lucide-react';
+import { Menu, LogIn, LogOut, Loader2, User, Settings, Logs } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -156,6 +156,15 @@ export default function Header() {
                                 <Link href="/settings">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                            >
+                                <Link href="/account/activity">
+                                    <Logs className="mr-2 h-4 w-4" />
+                                    <span>Activity Log</span>
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem

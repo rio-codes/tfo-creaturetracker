@@ -44,7 +44,6 @@ import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';
 import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
-import { calculateGeneration } from '@/lib/creature-utils';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -124,10 +123,6 @@ export function CreatureCard({
         );
     }, [allRawPairs, creature.id]);
 
-    const generation = useMemo(
-        () => calculateGeneration(creature.id, allRawPairs, allLogs),
-        [creature, allRawPairs, allLogs]
-    );
     const isProgeny = !!parentPair;
 
     const handleFeatureToggle = async () => {

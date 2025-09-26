@@ -39,6 +39,10 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
 
     const handleGenerationChange = (value: string) => {
         setGeneration(value ? Number(value) : '');
+        const newIsG1 = value === '1';
+        if (!newIsG1 && g1Origin !== 'another-lab') {
+            setG1Origin('none');
+        }
     };
 
     const handleSave = async () => {

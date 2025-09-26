@@ -17,6 +17,8 @@ import { calculateAllPossibleOutcomes } from '@/lib/genetics';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 type Metrics = {
     totalUsers: number;
     newUsersLastWeek: number;
@@ -25,19 +27,16 @@ type Metrics = {
     totalGoals: number;
     recentUsers: (typeof users.$inferSelect)[];
 };
-
 type TopUser = {
     username: string | null;
     image: string | null;
     id: string;
     creatureCount: number;
 } | null;
-
 type PopularSpecies = {
     species: string | null;
     count: number;
 } | null;
-
 type ProlificPair = {
     id: string;
     name: string | null;
@@ -47,24 +46,19 @@ type ProlificPair = {
         id: string;
     } | null;
 } | null;
-
 type RandomCreature = {
     image: string | null;
     species: string | null;
     code: string;
     genes: { [category: string]: { genotype: string; phenotype: string } };
 } | null;
-
 type FunMetrics = {
     topUser: TopUser;
     popularSpecies: PopularSpecies;
     prolificPair: ProlificPair;
     randomCreature: RandomCreature;
 };
-
 async function getMetrics(): Promise<Metrics> {
-    // This logic is duplicated from the API route, but for a server component
-    // it's often better to call the DB directly.
     const [
         totalUsersResult,
         newUsersLastWeekResult,
@@ -83,7 +77,6 @@ async function getMetrics(): Promise<Metrics> {
         db.select({ value: count() }).from(researchGoals),
         db.select().from(users).orderBy(desc(users.createdAt)).limit(5),
     ]);
-
     return {
         totalUsers: totalUsersResult[0].value,
         newUsersLastWeek: newUsersLastWeekResult[0].value,
@@ -93,9 +86,7 @@ async function getMetrics(): Promise<Metrics> {
         recentUsers,
     };
 }
-
 async function getFunMetrics(): Promise<FunMetrics> {
-    // Top User by creature count
     const topUserQuery = await db
         .select({
             ownerId: creatures.userId,
@@ -106,7 +97,6 @@ async function getFunMetrics(): Promise<FunMetrics> {
         .groupBy(creatures.userId)
         .orderBy(desc(sql`creature_count`))
         .limit(1);
-
     let topUser: TopUser = null;
     if (topUserQuery.length > 0) {
         const { ownerId, count } = topUserQuery[0];
@@ -118,8 +108,6 @@ async function getFunMetrics(): Promise<FunMetrics> {
             topUser = { ...user, creatureCount: count };
         }
     }
-
-    // Most popular species
     const popularSpeciesQuery = await db
         .select({
             species: creatures.species,
@@ -130,12 +118,8 @@ async function getFunMetrics(): Promise<FunMetrics> {
         .groupBy(creatures.species)
         .orderBy(desc(sql`species_count`))
         .limit(1);
-
     const popularSpecies: PopularSpecies =
         popularSpeciesQuery.length > 0 ? popularSpeciesQuery[0] : null;
-
-    // Most prolific breeding pair
-    // 1. Find the pairId that appears most often in the breeding log.
     const prolificPairLogQuery = await db
         .select({
             pairId: breedingLogEntries.pairId,
@@ -148,29 +132,23 @@ async function getFunMetrics(): Promise<FunMetrics> {
         .groupBy(breedingLogEntries.pairId)
         .orderBy(desc(sql`times_bred`))
         .limit(1);
-
     let prolificPair: ProlificPair = null;
     if (prolificPairLogQuery.length > 0) {
         const { pairId, timesBred } = prolificPairLogQuery[0];
-
         if (pairId) {
-            // 2. Fetch the pair's details using the ID.
             const pairInfo = await db.query.breedingPairs.findFirst({
                 where: eq(breedingPairs.id, pairId),
                 columns: {
                     id: true,
                     pairName: true,
-                    userId: true, // This is the foreign key to the users table.
+                    userId: true,
                 },
             });
-
             if (pairInfo && pairInfo.userId) {
-                // 3. Fetch the breeder's (user's) details.
                 const breederInfo = await db.query.users.findFirst({
                     where: eq(users.id, pairInfo.userId),
                     columns: { id: true, username: true },
                 });
-
                 prolificPair = {
                     id: pairInfo.id,
                     name: pairInfo.pairName,
@@ -182,11 +160,7 @@ async function getFunMetrics(): Promise<FunMetrics> {
             }
         }
     }
-
-    // Get a random creature by generating a possible offspring
     let randomCreature: RandomCreature = null;
-
-    // 1. Get a random breeding pair with its parents
     const randomPair = await db.query.breedingPairs.findFirst({
         orderBy: sql`RANDOM()`,
         where: and(isNotNull(breedingPairs.maleParentId), isNotNull(breedingPairs.femaleParentId)),
@@ -195,22 +169,18 @@ async function getFunMetrics(): Promise<FunMetrics> {
             femaleParent: true,
         },
     });
-
     if (randomPair && randomPair.maleParent && randomPair.femaleParent) {
-        // 2. Calculate possible outcomes directly, bypassing the API
         const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
         const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
         const outcomesByCategory = calculateAllPossibleOutcomes(
             maleParentEnriched,
             femaleParentEnriched
         );
-
-        // 3. For each category, randomly select a resulting gene based on probability
         const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } = {};
         for (const category in outcomesByCategory) {
             const outcomes = outcomesByCategory[category];
             let rand = Math.random();
-            let chosenOutcome = outcomes[outcomes.length - 1]; // Fallback
+            let chosenOutcome = outcomes[outcomes.length - 1];
             for (const outcome of outcomes) {
                 if (rand < outcome.probability) {
                     chosenOutcome = outcome;
@@ -223,16 +193,12 @@ async function getFunMetrics(): Promise<FunMetrics> {
                 phenotype: chosenOutcome.phenotype,
             };
         }
-
         const selectedGenotypes = Object.fromEntries(
             Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
         );
-
-        // 4. Generate a preview image for the selected genes directly
         let imageUrl: string | null = null;
         try {
             const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
-            // Add a cache-buster to the TFO URL
             const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
             imageUrl = await fetchAndUploadWithRetry(
                 bustedTfoImageUrl,
@@ -241,16 +207,12 @@ async function getFunMetrics(): Promise<FunMetrics> {
             );
         } catch (error) {
             console.error('Failed to generate preview image for admin metrics:', error);
-            // Continue without an image if generation fails
         }
-
-        // 5. Generate a random 5-character alphanumeric code
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let randomCode = '';
         for (let i = 0; i < 5; i++) {
             randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-
         randomCreature = {
             image: imageUrl,
             species: randomPair.species,
@@ -258,13 +220,10 @@ async function getFunMetrics(): Promise<FunMetrics> {
             genes: selectedGenes,
         };
     }
-
     return { topUser, popularSpecies, prolificPair, randomCreature };
 }
-
 export default async function AdminMetricsPage() {
     const [metrics, funMetrics] = await Promise.all([getMetrics(), getFunMetrics()]);
-
     return (
         <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -327,7 +286,6 @@ export default async function AdminMetricsPage() {
                     </CardContent>
                 </Card>
             </div>
-
             <div>
                 <h2 className="text-2xl font-bold tracking-tight text-pompaca-purple dark:text-purple-300 mb-4">
                     Fun Facts
@@ -482,7 +440,7 @@ export default async function AdminMetricsPage() {
                                     </Avatar>
                                     <div className="ml-4 space-y-1">
                                         <Link
-                                            href={`/admin/users/${user.id}`}
+                                            href={`/${user.username}`}
                                             className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300"
                                         >
                                             {user.username || 'Unnamed User'}

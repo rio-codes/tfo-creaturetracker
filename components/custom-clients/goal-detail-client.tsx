@@ -373,7 +373,7 @@ export function GoalDetailClient({
                                                 <div>
                                                     <p className="font-semibold">
                                                         {progeny.creatureName || 'Unnamed'} (
-                                                        {progeny.code})
+                                                        {progeny.code}) (G{progeny.generation})
                                                     </p>
                                                     <p className="text-xs text-dusk-purple dark:text-purple-400">
                                                         From: {progeny.parentPairName}

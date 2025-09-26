@@ -13,6 +13,7 @@ import {
     UserRoundPlus,
     UserRoundMinus,
     Trash2,
+    Pencil,
 } from 'lucide-react';
 import {
     AlertDialog,
@@ -42,6 +43,8 @@ import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pai
 import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';
+import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
+import { calculateGeneration } from '@/lib/creature-utils';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -121,6 +124,10 @@ export function CreatureCard({
         );
     }, [allRawPairs, creature.id]);
 
+    const generation = useMemo(
+        () => calculateGeneration(creature.id, allRawPairs, allLogs),
+        [creature, allRawPairs, allLogs]
+    );
     const isProgeny = !!parentPair;
 
     const handleFeatureToggle = async () => {
@@ -301,12 +308,9 @@ export function CreatureCard({
                     <div>
                         <strong>Species:</strong> {creature.species}
                     </div>
-                    <div>
-                        <strong>Gender:</strong> {creature.gender}
-                    </div>
                     {!isAdminView && (
                         <div className="text-sm">
-                            <strong>Parents:</strong>{' '}
+                            <strong>Parents/Origin:</strong>{' '}
                             {parentPair ? (
                                 <Dialog>
                                     <TooltipProvider>
@@ -426,8 +430,30 @@ export function CreatureCard({
                                     </DialogContent>
                                 </Dialog>
                             ) : (
-                                'Unknown'
+                                <>
+                                    {creature.g1Origin === 'cupboard' && 'Cupboard'}
+                                    {creature.g1Origin === 'genome-splicer' && 'Genome Splicer'}
+                                    {creature.g1Origin === 'another-lab' && 'Another Lab'}
+                                    {!creature.g1Origin && 'Unknown'}
+                                </>
                             )}
+                            <span>
+                                {' (G'}
+                                {generation}
+                                {!isAdminView && (
+                                    <SetGenerationDialog creature={creature}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-2 w-2 p-2 ml-1 text-dusk-purple hover:text-pompaca-purple dark:hover:text-purple-300"
+                                            aria-label="Edit generation"
+                                        >
+                                            <Pencil className="h-2 w-2" />
+                                        </Button>
+                                    </SetGenerationDialog>
+                                )}
+                                {')'}
+                            </span>
                         </div>
                     )}
                 </div>

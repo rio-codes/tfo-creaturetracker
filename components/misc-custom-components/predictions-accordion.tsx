@@ -80,9 +80,11 @@ export function PredictionsAccordion({ predictions, allCreatures }: PredictionsA
                                         </div>
                                         <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
                                             {p.maleParent?.creatureName || 'Unnamed'} (
-                                            {p.maleParent?.code}) x{' '}
+                                            {p.maleParent?.code}) (G
+                                            {p.maleParent?.generation}) x{' '}
                                             {p.femaleParent?.creatureName || 'Unnamed'} (
-                                            {p.femaleParent?.code})
+                                            {p.femaleParent?.code}) (G
+                                            {p.femaleParent?.generation}) ({p.femaleParent?.code})
                                         </div>
                                     </div>
                                 </div>

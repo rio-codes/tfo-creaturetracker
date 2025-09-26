@@ -39,7 +39,7 @@ export async function PATCH(request: Request, { params }: { params: { creatureId
         const [updatedCreature] = await db
             .update(creatures)
             .set({
-                generation,
+                generation: generation || 1,
                 g1Origin: generation === 1 || g1Origin === 'another-lab' ? g1Origin : null,
             })
             .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))

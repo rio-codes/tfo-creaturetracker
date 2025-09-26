@@ -4,11 +4,10 @@
 /node_modules
 
 # next.js
-/.next/
-/out/
+.next/
 
 # production
-/build
+build/
 
 # debug
 npm-debug.log*
@@ -20,7 +19,7 @@ yarn-error.log*
 .env*
 
 # vercel
-.vercel
+.vercel/
 
 # typescript
 *.tsbuildinfo
@@ -30,5 +29,4 @@ next-env.d.ts
 /src/db/migrations
 
 # vs code
-.vscode
-project-context.md
+.vscode/

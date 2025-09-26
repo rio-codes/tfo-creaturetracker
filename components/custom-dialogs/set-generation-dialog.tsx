@@ -37,11 +37,15 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
 
     const isG1 = generation === 1 || generation === '1';
 
+    const handleGenerationChange = (value: string) => {
+        setGeneration(value ? Number(value) : '');
+    };
+
     const handleSave = async () => {
         setIsLoading(true);
 
         const generationValue = generation === '' ? null : Number(generation);
-        const originValue = isG1 && g1Origin !== 'none' ? g1Origin : null;
+        const originValue = g1Origin !== 'none' ? g1Origin : null;
 
         try {
             const response = await fetch(`/api/creatures/${creature?.id}/generation`, {
@@ -84,29 +88,36 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                             type="number"
                             min="1"
                             value={generation}
-                            onChange={(e) =>
-                                setGeneration(e.target.value ? Number(e.target.value) : '')
-                            }
+                            onChange={(e) => handleGenerationChange(e.target.value)}
                             className="min-w-0 max-w-15 text-left bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple"
                         />
 
                         <Label htmlFor="g1-origin" className="text-left">
                             Origin if G1:
                         </Label>
-                        <Select value={g1Origin} onValueChange={setG1Origin} disabled={!isG1}>
+                        <Select
+                            value={g1Origin}
+                            onValueChange={(value) => {
+                                setG1Origin(value);
+                            }}
+                        >
                             <SelectTrigger className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
                                 <SelectValue placeholder="Select origin..." />
                             </SelectTrigger>
                             <SelectContent className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
                                 <SelectItem value="none">None</SelectItem>
-                                <SelectItem value="cupboard">Cupboard</SelectItem>
-                                <SelectItem value="genome-splicer">Genome Splicer</SelectItem>
+                                <SelectItem value="cupboard" disabled={!isG1}>
+                                    Cupboard
+                                </SelectItem>
+                                <SelectItem value="genome-splicer" disabled={!isG1}>
+                                    Genome Splicer
+                                </SelectItem>
                                 <SelectItem value="another-lab">Another Lab</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <p className="text-xs text-dusk-purple dark:text-purple-400 col-span-4 py-5">
-                        Origin can only be set if Generation is 1.
+                        Origins other than "Another Lab" can only be set if Generation is 1.
                     </p>
                 </div>
                 <div className="flex justify-end gap-2">

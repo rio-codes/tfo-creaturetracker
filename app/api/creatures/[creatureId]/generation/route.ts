@@ -29,9 +29,9 @@ export async function PATCH(request: Request, { params }: { params: { creatureId
 
         const { generation, g1Origin } = validation.data;
 
-        if (generation !== 1 && g1Origin) {
+        if (generation !== 1 && g1Origin && g1Origin !== 'another-lab') {
             return NextResponse.json(
-                { error: 'G1 Origin can only be set for G1 creatures.' },
+                { error: 'Only "Another Lab" origin can be set for non-G1 creatures.' },
                 { status: 400 }
             );
         }
@@ -40,7 +40,7 @@ export async function PATCH(request: Request, { params }: { params: { creatureId
             .update(creatures)
             .set({
                 generation,
-                g1Origin: generation === 1 ? g1Origin : null, // Clear origin if not G1
+                g1Origin: generation === 1 || g1Origin === 'another-lab' ? g1Origin : null,
             })
             .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
             .returning();

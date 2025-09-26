@@ -66,6 +66,17 @@ export async function POST(req: Request) {
             );
         }
 
+        const existingTab = await db.query.userTabs.findFirst({
+            where: eq(userTabs.tabId, tabId),
+        });
+
+        if (existingTab) {
+            return NextResponse.json(
+                { error: 'Tab with this ID already exists.' },
+                { status: 409 }
+            );
+        }
+
         const newTab = await db.insert(userTabs).values({ userId, tabId, tabName }).returning();
 
         revalidatePath('/collection');

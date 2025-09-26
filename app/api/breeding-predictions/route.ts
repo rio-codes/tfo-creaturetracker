@@ -31,6 +31,7 @@ const enrichAndSerializeCreature = (creature: DbCreature): EnrichedCreature | nu
         createdAt: creature.createdAt.toISOString(),
         updatedAt: creature.updatedAt.toISOString(),
         gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
+        g1_origin: creature.g1Origin,
         geneData:
             creature.genetics
                 ?.split(',')

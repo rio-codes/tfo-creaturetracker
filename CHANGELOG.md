@@ -26,7 +26,7 @@
 ## <small>1.6.0 (2025-09-26)</small>
 
 - chore(release): 🚀 update minor version for new generations feature: v.1.3.0 ([a4b89a5](https://github.com/rio-codes/tfo-creaturetracker/commit/a4b89a5))
-- feat(collection): ✨add generation indicator to db and across site for all creatures (#221) ([b44afa0](https://github.com/rio-codes/tfo-creaturetracker/commit/b44afa0)), closes [#221](https://github.com/rio-codes/tfo-creaturetracker/issues/221) [#218](https://github.com/rio-codes/tfo-creaturetracker/issues/218) [#208](https://github.com/rio-codes/tfo-creaturetracker/issues/208)
+- feat(collection): ✨ add generation indicator to db and across site for all creatures (#221) ([b44afa0](https://github.com/rio-codes/tfo-creaturetracker/commit/b44afa0)), closes [#221](https://github.com/rio-codes/tfo-creaturetracker/issues/221) [#218](https://github.com/rio-codes/tfo-creaturetracker/issues/218) [#208](https://github.com/rio-codes/tfo-creaturetracker/issues/208)
 
 ## <small>1.5.2 (2025-09-25)</small>
 
@@ -34,7 +34,7 @@
 
 ## <small>1.5.1 (2025-09-25)</small>
 
-- Apply dark mode to all text in registration flow (#219) ([b849832](https://github.com/rio-codes/tfo-creaturetracker/commit/b849832)), closes [#219](https://github.com/rio-codes/tfo-creaturetracker/issues/219)
+- fix(ui): 💄 apply dark mode to all text in registration flow (#219) ([b849832](https://github.com/rio-codes/tfo-creaturetracker/commit/b849832)), closes [#219](https://github.com/rio-codes/tfo-creaturetracker/issues/219)
 - build(deps):⬆ bump the all-dependencies group with 4 updates (#215) ([801eddd](https://github.com/rio-codes/tfo-creaturetracker/commit/801eddd)), closes [#215](https://github.com/rio-codes/tfo-creaturetracker/issues/215)
 - build(deps): ⬆ bump the all-dependencies group with 6 updates (#217) ([da7f8fd](https://github.com/rio-codes/tfo-creaturetracker/commit/da7f8fd)), closes [#217](https://github.com/rio-codes/tfo-creaturetracker/issues/217)
 
@@ -46,7 +46,7 @@
 
 - fix(profile): 💄 fix text overflowing featured creature and goal cards (#210) ([2921179](https://github.com/rio-codes/tfo-creaturetracker/commit/2921179)), closes [#210](https://github.com/rio-codes/tfo-creaturetracker/issues/210)
 - docs(docs): 📝 update news items ([36f9042](https://github.com/rio-codes/tfo-creaturetracker/commit/36f9042))
-- build(deps): bump @opentelemetry/api in the all-dependencies group (#209) ([c018c90](https://github.com/rio-codes/tfo-creaturetracker/commit/c018c90)), closes [#209](https://github.com/rio-codes/tfo-creaturetracker/issues/209)
+- build(deps): ⬆ bump @opentelemetry/api in the all-dependencies group (#209) ([c018c90](https://github.com/rio-codes/tfo-creaturetracker/commit/c018c90)), closes [#209](https://github.com/rio-codes/tfo-creaturetracker/issues/209)
 - build(deps): ⬆ bump the all-dependencies group with 4 updates (#213) ([3a76b14](https://github.com/rio-codes/tfo-creaturetracker/commit/3a76b14)), closes [#213](https://github.com/rio-codes/tfo-creaturetracker/issues/213)
 
 ## <small>1.4.0 (2025-09-21)</small>
@@ -116,5 +116,3 @@
 ## <small>1.0.0 (2025-09-20)</small>
 
 - Launch Day! v1.1.9 (versioning later changed, reset here to 1.0.0) (#180) ([3378838](https://github.com/rio-codes/tfo-creaturetracker/commit/3378838)), closes [#180](https://github.com/rio-codes/tfo-creaturetracker/issues/180)
-- test: 🔊 add eror handling to hyperdx browser init ([31fae32](https://github.com/rio-codes/tfo-creaturetracker/commit/31fae32))
-- fix(config): 🐛 fix regex patterns and env vars for hyperdx ([0d0480c](https://github.com/rio-codes/tfo-creaturetracker/commit/0d0480c))

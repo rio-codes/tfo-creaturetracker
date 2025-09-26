@@ -439,7 +439,7 @@ export function CreatureCard({
                             )}
                             <span>
                                 {' (G'}
-                                {generation}
+                                {creature.generation}
                                 {!isAdminView && (
                                     <SetGenerationDialog creature={creature}>
                                         <Button

@@ -282,7 +282,7 @@ export function ManageBreedingPairsForm({
                                         value={mate!.id}
                                         className="text-ellipsis"
                                     >
-                                        {mate?.creatureName} ({mate?.code})
+                                        {mate?.creatureName} ({mate?.code}) (G{mate?.generation})
                                     </SelectItem>
                                 ))
                             ) : (
@@ -318,7 +318,7 @@ export function ManageBreedingPairsForm({
                                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
                                                     <p className="text-ellipsis">
                                                         {maleParent.creatureName || 'Unnamed'} (
-                                                        {maleParent.code})
+                                                        {maleParent.code}) ({maleParent.generation})
                                                     </p>
                                                     <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                                                 </CollapsibleTrigger>
@@ -342,7 +342,8 @@ export function ManageBreedingPairsForm({
                                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
                                                     <p className="text-ellipsis">
                                                         {femaleParent.creatureName || 'Unnamed'} (
-                                                        {femaleParent.code})
+                                                        {femaleParent.code}) (
+                                                        {femaleParent.generation})
                                                     </p>
                                                     <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                                                 </CollapsibleTrigger>

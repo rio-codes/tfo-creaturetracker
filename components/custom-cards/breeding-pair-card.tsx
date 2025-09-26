@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type {
@@ -52,7 +52,6 @@ import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dial
 import { ViewOutcomesDialog } from '../custom-dialogs/view-outcomes-dialog';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ViewLogsDialog } from '../custom-dialogs/view-logs-dialog';
-import { calculateGeneration } from '@/lib/creature-utils';
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;

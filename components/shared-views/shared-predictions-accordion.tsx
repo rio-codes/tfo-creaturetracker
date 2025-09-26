@@ -63,9 +63,11 @@ export function SharedPredictionsAccordion({ predictions }: Props) {
                                     </div>
                                     <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
                                         {p.maleParent?.creatureName || 'Unnamed'} (
-                                        {p.maleParent?.code}) x{' '}
+                                        {p.maleParent?.code}) (G
+                                        {p.maleParent?.generation}) x{' '}
                                         {p.femaleParent?.creatureName || 'Unnamed'} (
-                                        {p.femaleParent?.code})
+                                        {p.femaleParent?.code}) (G
+                                        {p.femaleParent?.generation})
                                     </div>
                                 </div>
                             </div>

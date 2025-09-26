@@ -122,6 +122,9 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                             <p>
                                 <strong>Gender:</strong> {creature.gender}
                             </p>
+                            <p>
+                                <strong>Generation:</strong> G{creature.generation}
+                            </p>
                         </div>
                         <div className="mt-2">
                             <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">

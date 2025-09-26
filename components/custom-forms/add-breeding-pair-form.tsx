@@ -385,7 +385,7 @@ export function AddPairForm({
                     <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                         {availableMales.map((c) => (
                             <SelectItem key={c?.id} value={c!.id} className="truncate">
-                                {c?.creatureName || 'Unnamed'} ({c?.code})
+                                {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -401,7 +401,7 @@ export function AddPairForm({
                     <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
                         {availableFemales.map((c) => (
                             <SelectItem key={c?.id} value={c!.id} className="truncate">
-                                {c?.creatureName || 'Unnamed'} ({c?.code})
+                                {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
                             </SelectItem>
                         ))}
                     </SelectContent>

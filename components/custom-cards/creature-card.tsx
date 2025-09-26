@@ -306,7 +306,7 @@ export function CreatureCard({
                     {!isAdminView && (
                         <div className="text-sm">
                             <strong>Parents/Origin:</strong>{' '}
-                            {parentPair ? (
+                            {parentPair && (
                                 <Dialog>
                                     <TooltipProvider>
                                         <Tooltip>
@@ -424,14 +424,12 @@ export function CreatureCard({
                                         />
                                     </DialogContent>
                                 </Dialog>
-                            ) : (
-                                <>
-                                    {creature.g1Origin === 'cupboard' && 'Cupboard'}
-                                    {creature.g1Origin === 'genome-splicer' && 'Genome Splicer'}
-                                    {creature.g1Origin === 'another-lab' && 'Another Lab'}
-                                    {!creature.g1Origin && 'Unknown'}
-                                </>
                             )}
+                            {parentPair && creature.g1Origin === 'another-lab' && (
+                                <span>{' / '}</span>
+                            )}
+                            {creature.g1Origin === 'another-lab' && <span>{'Another Lab'}</span>}
+                            {!parentPair && !creature.g1Origin && 'Unknown'}
                             <span>
                                 {' (G'}
                                 {creature.generation}

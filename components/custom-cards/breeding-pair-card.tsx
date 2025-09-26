@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type {
@@ -52,6 +52,7 @@ import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dial
 import { ViewOutcomesDialog } from '../custom-dialogs/view-outcomes-dialog';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ViewLogsDialog } from '../custom-dialogs/view-logs-dialog';
+import { calculateGeneration } from '@/lib/creature-utils';
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -237,7 +238,8 @@ export function BreedingPairCard({
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     M:
                                 </span>{' '}
-                                {maleParent.creatureName || 'Unnamed'} ({maleParent.code})
+                                {maleParent.creatureName || 'Unnamed'} ({maleParent.code}) (G
+                                {maleParent.generation})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>
@@ -251,7 +253,8 @@ export function BreedingPairCard({
                                 <span className="font-semibold text-pompaca-purple dark:text-purple-300">
                                     F:
                                 </span>{' '}
-                                {femaleParent.creatureName || 'Unnamed'} ({femaleParent.code})
+                                {femaleParent.creatureName || 'Unnamed'} ({femaleParent.code}) (G
+                                {femaleParent.generation})
                             </p>
                             <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
                         </CollapsibleTrigger>

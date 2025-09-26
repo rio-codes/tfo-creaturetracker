@@ -53,6 +53,8 @@ export type EnrichedCreature =
               genotype: string;
               phenotype: string;
           }[];
+          generation: number | null;
+          g1_origin: string | null;
       })
     | null;
 

@@ -1,15 +1,8 @@
-import type {
-    DbCreature,
-    DbResearchGoal,
-    EnrichedCreature,
-    EnrichedResearchGoal,
-} from '@/types';
+import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { structuredGeneData } from '@/constants/creature-data';
 
 // serialize dates and add rich gene data to creature object
-export const enrichAndSerializeCreature = (
-    creature: DbCreature | null
-): EnrichedCreature => {
+export const enrichAndSerializeCreature = (creature: DbCreature | null): EnrichedCreature => {
     if (!creature) return null;
     const speciesGeneData = structuredGeneData[creature.species || ''];
     return {
@@ -17,6 +10,8 @@ export const enrichAndSerializeCreature = (
         createdAt: creature.createdAt.toISOString(),
         updatedAt: creature.updatedAt.toISOString(),
         gottenAt: creature.gottenAt ? creature.gottenAt.toISOString() : null,
+        generation: creature.generation,
+        g1_origin: creature.g1Origin,
         geneData:
             creature.genetics
                 ?.split(',')
@@ -24,9 +19,7 @@ export const enrichAndSerializeCreature = (
                     const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
                     const categoryData = speciesGeneData[category];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === genotype
-                    );
+                    const matchedGene = categoryData?.find((g) => g.genotype === genotype);
                     return {
                         category,
                         genotype,
@@ -55,11 +48,7 @@ export const enrichAndSerializeGoal = (
     if (speciesGeneData && goal.genes && typeof goal.genes === 'object') {
         for (const [category, selection] of Object.entries(goal.genes)) {
             let finalGenotype: string, finalPhenotype: string;
-            if (
-                typeof selection === 'object' &&
-                selection.phenotype &&
-                selection.genotype
-            ) {
+            if (typeof selection === 'object' && selection.phenotype && selection.genotype) {
                 finalGenotype = selection.genotype;
                 finalPhenotype = selection.phenotype;
             } else if (typeof selection === 'string') {
@@ -68,9 +57,7 @@ export const enrichAndSerializeGoal = (
                     genotype: string;
                     phenotype: string;
                 }[];
-                const matchedGene = categoryData?.find(
-                    (g) => g.genotype === finalGenotype
-                );
+                const matchedGene = categoryData?.find((g) => g.genotype === finalGenotype);
                 finalPhenotype = matchedGene?.phenotype || 'Unknown';
             } else continue;
 

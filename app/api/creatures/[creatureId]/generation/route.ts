@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { logUserAction } from '@/lib/user-actions';
 
 const patchBodySchema = z.object({
     generation: z.number().int().positive().nullable(),
@@ -43,6 +44,18 @@ export async function PATCH(request: Request, { params }: { params: { creatureId
             })
             .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
             .returning();
+
+        if (generation !== 1) {
+            await logUserAction({
+                action: 'creature.update',
+                description: `Updated creature generation for creature "${updatedCreature.creatureName} (${updatedCreature.code})" to G${generation}`,
+            });
+        } else if (g1Origin) {
+            await logUserAction({
+                action: 'creature.update',
+                description: `Updated G1 creature origin to ${g1Origin.toString()}`,
+            });
+        }
 
         return NextResponse.json(updatedCreature);
     } catch (error) {

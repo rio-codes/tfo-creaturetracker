@@ -10,7 +10,7 @@
         "start": "next start",
         "db:generate": "drizzle-kit generate",
         "db:push": "drizzle-kit push",
-        "changelog": "conventional-changelog -p conventionalcommits -r 0"
+        "changelog": "conventional-changelog -p conventionalcommits"
     },
     "pnpm": {
         "overrides": {

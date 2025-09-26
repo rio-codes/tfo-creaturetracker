@@ -393,31 +393,44 @@ export async function PATCH(req: Request) {
             );
         }
 
-        const sourceLog = await db.query.breedingLogEntries.findFirst({
-            where: and(
-                eq(breedingLogEntries.id, sourceLogId!),
-                eq(breedingLogEntries.userId, userId)
-            ),
-        });
+        let sourcePair = null;
+        let progenyCreature1 = null;
+        let progenyCreature2 = null;
 
-        const sourcePair = await db.query.breedingPairs.findFirst({
-            where: and(
-                sourceLog?.pairId ? eq(breedingPairs.id, sourceLog.pairId) : undefined,
-                eq(breedingPairs.userId, userId)
-            ),
-        });
+        if (sourceLogId) {
+            const sourceLog = await db.query.breedingLogEntries.findFirst({
+                where: and(
+                    eq(breedingLogEntries.id, sourceLogId),
+                    eq(breedingLogEntries.userId, userId)
+                ),
+            });
 
-        const progenyCreature1 = sourceLog?.progeny1Id
-            ? await db.query.creatures.findFirst({
-                  where: and(eq(creatures.id, sourceLog.progeny1Id), eq(creatures.userId, userId)),
-              })
-            : null;
+            if (sourceLog) {
+                sourcePair = await db.query.breedingPairs.findFirst({
+                    where: and(
+                        eq(breedingPairs.id, sourceLog.pairId),
+                        eq(breedingPairs.userId, userId)
+                    ),
+                });
 
-        const progenyCreature2 = sourceLog?.progeny2Id
-            ? await db.query.creatures.findFirst({
-                  where: and(eq(creatures.id, sourceLog.progeny2Id), eq(creatures.userId, userId)),
-              })
-            : null;
+                progenyCreature1 = sourceLog.progeny1Id
+                    ? await db.query.creatures.findFirst({
+                          where: and(
+                              eq(creatures.id, sourceLog.progeny1Id),
+                              eq(creatures.userId, userId)
+                          ),
+                      })
+                    : null;
+                progenyCreature2 = sourceLog.progeny2Id
+                    ? await db.query.creatures.findFirst({
+                          where: and(
+                              eq(creatures.id, sourceLog.progeny2Id),
+                              eq(creatures.userId, userId)
+                          ),
+                      })
+                    : null;
+            }
+        }
 
         await db.transaction(async (tx) => {
             if (sourceLogId) {

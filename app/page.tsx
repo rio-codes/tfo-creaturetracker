@@ -1,11 +1,317 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PawPrint, Heart, Target, Dna, Rabbit, Sparkles } from 'lucide-react';
+import {
+    users,
+    creatures,
+    breedingPairs,
+    researchGoals,
+    breedingLogEntries,
+} from '@/src/db/schema';
+import { db } from '@/src/db';
+import { count, desc, sql, isNotNull, eq, and } from 'drizzle-orm';
+import { enrichAndSerializeCreature } from '@/lib/serialization';
+import { calculateAllPossibleOutcomes } from '@/lib/genetics';
+import { constructTfoImageUrl } from '@/lib/tfo-utils';
+import { fetchAndUploadWithRetry } from '@/lib/data';
+
+export const dynamic = 'force-dynamic';
+
+type HomepageStats = {
+    totalCreatures: number;
+    totalPairs: number;
+    totalGoals: number;
+    popularSpecies: {
+        species: string | null;
+        count: number;
+    } | null;
+    prolificPair: {
+        id: string;
+        name: string | null;
+        timesBred: number;
+        breeder: {
+            username: string | null;
+            id: string;
+        } | null;
+    } | null;
+    randomCreature: {
+        image: string | null;
+        species: string | null;
+        code: string;
+    } | null;
+};
+
+type ProlificPair = {
+    id: string;
+    name: string | null;
+    timesBred: number;
+    breeder: {
+        username: string | null;
+        id: string;
+    } | null;
+} | null;
+type RandomCreature = {
+    image: string | null;
+    species: string | null;
+    code: string;
+    genes: { [category: string]: { genotype: string; phenotype: string } };
+} | null;
+
+async function getHomepageStats(): Promise<HomepageStats> {
+    const [totalCreaturesResult, totalPairsResult, totalGoalsResult] = await Promise.all([
+        db.select({ value: count() }).from(creatures),
+        db.select({ value: count() }).from(breedingPairs),
+        db.select({ value: count() }).from(researchGoals),
+    ]);
+
+    const popularSpeciesQuery = await db
+        .select({
+            species: creatures.species,
+            count: sql<number>`count(${creatures.id})`.mapWith(Number).as('species_count'),
+        })
+        .from(creatures)
+        .where(isNotNull(creatures.species))
+        .groupBy(creatures.species)
+        .orderBy(desc(sql`species_count`))
+        .limit(1);
+
+    const prolificPairLogQuery = await db
+        .select({
+            pairId: breedingLogEntries.pairId,
+            timesBred: sql<number>`count(${breedingLogEntries.id})`
+                .mapWith(Number)
+                .as('times_bred'),
+        })
+        .from(breedingLogEntries)
+        .where(isNotNull(breedingLogEntries.pairId))
+        .groupBy(breedingLogEntries.pairId)
+        .orderBy(desc(sql`times_bred`))
+        .limit(1);
+    let prolificPair: ProlificPair = null;
+    if (prolificPairLogQuery.length > 0) {
+        const { pairId, timesBred } = prolificPairLogQuery[0];
+        if (pairId) {
+            const pairInfo = await db.query.breedingPairs.findFirst({
+                where: eq(breedingPairs.id, pairId),
+                columns: {
+                    id: true,
+                    pairName: true,
+                    userId: true,
+                },
+            });
+            if (pairInfo && pairInfo.userId) {
+                const breederInfo = await db.query.users.findFirst({
+                    where: eq(users.id, pairInfo.userId),
+                    columns: { id: true, username: true },
+                });
+                prolificPair = {
+                    id: pairInfo.id,
+                    name: pairInfo.pairName,
+                    timesBred: timesBred,
+                    breeder: breederInfo
+                        ? { id: breederInfo.id, username: breederInfo.username }
+                        : null,
+                };
+            }
+        }
+    }
+
+    let randomCreature: RandomCreature = null;
+    const randomPair = await db.query.breedingPairs.findFirst({
+        orderBy: sql`RANDOM()`,
+        where: and(isNotNull(breedingPairs.maleParentId), isNotNull(breedingPairs.femaleParentId)),
+        with: { maleParent: true, femaleParent: true },
+    });
+
+    if (randomPair && randomPair.maleParent && randomPair.femaleParent) {
+        const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
+        const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
+        const outcomesByCategory = calculateAllPossibleOutcomes(
+            maleParentEnriched,
+            femaleParentEnriched
+        );
+        const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } = {};
+        for (const category in outcomesByCategory) {
+            const outcomes = outcomesByCategory[category];
+            let rand = Math.random();
+            let chosenOutcome = outcomes[outcomes.length - 1];
+            for (const outcome of outcomes) {
+                if (rand < outcome.probability) {
+                    chosenOutcome = outcome;
+                    break;
+                }
+                rand -= outcome.probability;
+            }
+            selectedGenes[category] = {
+                genotype: chosenOutcome.genotype,
+                phenotype: chosenOutcome.phenotype,
+            };
+        }
+        const selectedGenotypes = Object.fromEntries(
+            Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
+        );
+        let imageUrl: string | null = null;
+        try {
+            const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
+            const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+            imageUrl = await fetchAndUploadWithRetry(
+                bustedTfoImageUrl,
+                `pair-preview-${randomPair.id}`,
+                3
+            );
+        } catch (error) {
+            console.error('Failed to generate preview image for admin metrics:', error);
+        }
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let randomCode = '';
+        for (let i = 0; i < 5; i++) {
+            randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        randomCreature = {
+            image: imageUrl,
+            species: randomPair.species,
+            code: randomCode,
+            genes: selectedGenes,
+        };
+    }
+
+    return {
+        totalCreatures: totalCreaturesResult[0].value,
+        totalPairs: totalPairsResult[0].value,
+        totalGoals: totalGoalsResult[0].value,
+        popularSpecies: popularSpeciesQuery.length > 0 ? popularSpeciesQuery[0] : null,
+        prolificPair,
+        randomCreature,
+    };
+}
 
 // Placeholder for news items. You can fetch this from a CMS or a local file.
 const newsItems = [
+    {
+        title: 'So Much Good Stuff!',
+        date: 'September 26th, 2025', // Example date
+        content: (
+            <>
+                <details>
+                    <summary>
+                        Another week, more new TFOCT features! Since last time, we've added some fun
+                        stuff:
+                    </summary>
+                    <p>
+                        <ul>
+                            <li>
+                                <strong>User Activity Log</strong>
+                                <br />
+                                Yup, just like our big sister site TFO and many others, we now have
+                                an{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="/account/activity"
+                                >
+                                    Activity Log
+                                </Link>{' '}
+                                that watches your every move on the site, so you can remember the
+                                name of that Research Goal you made yesterday that was so cool, or
+                                find out if you've synced that tab yet today. <br />
+                                <br />
+                                You are the only one that can see it, but I guess if you want to
+                                take a screenshot and show off all the cool stuff you've been up to,
+                                knock yourself out!
+                            </li>
+                            <br />
+                            <li>
+                                <strong>Editable Generation Indicators on Creature Names</strong>
+                                <br />
+                                You may notice that every time you see a reference to a creature
+                                now, it has a generation indicator such as "G1" next to its name.
+                                You can also set the origin of G1 creatures to Cupboard or Genome
+                                Splicer, and of any creature to "Another Lab" as well as change the
+                                generation manually. We do our best to guess the generation based on
+                                your breeding logs, but we can't know what goes on in...Another Lab.{' '}
+                                <br />
+                                <br />
+                                In any case, this feature is useful to create that perfect pedigree
+                                without having to look it up on TFO, to look for those perfect
+                                unbred G1s to hawk on the market, or just because the more data, the
+                                better! Am I right? Speaking of which...
+                            </li>
+                            <br />
+                            <li>
+                                <strong>Fun Stats on the Homepage!</strong>
+                                <br />
+                                No explanation necessary really, just direct your gaze to the left,
+                                or scroll back up on mobile, you passed it on the way here. Can't
+                                miss it. The random creature is generated by selecting a possible
+                                outcome from one of the site's breeding pairs...if you love the
+                                creature you see and want to make it a goal let me know and I'll try
+                                and dig up the genes!
+                            </li>
+                            <br />
+                            <li>
+                                <strong>Bugfixes</strong>
+                                <br />
+                                We've fixed some bugs with validating settings data, some layout
+                                overflows on mobile, a bug where you couldn't add a second progeny
+                                to a breeding log entry, and done some maintenance and cleanup under
+                                the hood. If you want to see what's going on under there, one of our
+                                useful internal updates is this{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="https://github.com/rio-codes/tfo-creaturetracker/blob/main/CHANGELOG.md"
+                                >
+                                    changelog
+                                </Link>{' '}
+                                which gives you the rundown on every change we've made since launch.
+                                <br />
+                                <br />
+                                Also, one of our new users alerted us to a major bug with dark mode
+                                text visibility during registration, thank you so much! If you run
+                                into any bugs yourself, feel free to{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="mailto:tfoct@mailbox.org"
+                                >
+                                    email
+                                </Link>{' '}
+                                us, hop into the{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="https://discord.gg/PMtE3jrXYR"
+                                >
+                                    Discord
+                                </Link>
+                                , or if you are feeling really ambitious submit a bug report issue
+                                on our{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    href="https://github.com/rio-codes/tfo-creaturetracker/issues"
+                                >
+                                    GitHub
+                                </Link>
+                                ! You can help us make this site even better!
+                            </li>
+                        </ul>
+                    </p>
+                    <br />
+                    <p>
+                        As always, for previews of upcoming features, subscribe to our{' '}
+                        <a
+                            href="https://patreon.com/tfoct"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        >
+                            Patreon
+                        </a>{' '}
+                        . I'll be making a post there later tonight with some of the exciting
+                        features on our roadmap.
+                    </p>
+                </details>
+            </>
+        ),
+    },
     {
         title: 'New features, and some squashed bugs (oops)!',
         date: 'September 21st, 2025', // Example date
@@ -163,7 +469,8 @@ const newsItems = [
     },
 ];
 
-export default function Page() {
+export default async function Page() {
+    const stats = await getHomepageStats();
     return (
         <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple text-midnight-purple dark:text-barely-lilac p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
@@ -200,6 +507,143 @@ export default function Page() {
                                 title="Research Goals"
                                 description="Define and pursue specific genetic goals."
                             />
+                        </div>
+
+                        <div className="mt-8">
+                            <h2 className="text-2xl font-bold mb-4">Stats</h2>
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Total Creatures
+                                        </CardTitle>
+                                        <PawPrint className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                            {stats.totalCreatures}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Total Breeding Pairs
+                                        </CardTitle>
+                                        <Heart className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                            {stats.totalPairs}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Total Research Goals
+                                        </CardTitle>
+                                        <Target className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                            {stats.totalGoals}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Most Popular Species
+                                        </CardTitle>
+                                        <Dna className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        {stats.popularSpecies ? (
+                                            <div className="flex flex-col h-full md:gap-y-53">
+                                                <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                                    {stats.popularSpecies.species}
+
+                                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                                        with {stats.popularSpecies.count} total
+                                                        creatures
+                                                    </p>
+                                                </div>
+                                                <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 mt-2">
+                                                    It's horses, isn't it. I bet anything it's
+                                                    horses.
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                                No data.
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Most Prolific Pair
+                                        </CardTitle>
+                                        <Rabbit className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        {stats.prolificPair ? (
+                                            <div className="flex flex-col h-full md:gap-y-45">
+                                                <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                                    {stats.prolificPair.name || 'Unnamed Pair'}
+                                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                                        Bred {stats.prolificPair.timesBred} times
+                                                    </p>
+                                                </div>
+                                                <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 mt-2">
+                                                    That's...a lot of capsules. I'm suddenly so...
+                                                    thirsty...
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                                No data.
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                                            Look!
+                                        </CardTitle>
+                                        <Sparkles className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                                    </CardHeader>
+                                    <CardContent className="text-center">
+                                        {stats.randomCreature?.image ? (
+                                            <div className="pt-2">
+                                                <img
+                                                    src={stats.randomCreature.image}
+                                                    alt={
+                                                        stats.randomCreature.species || 'A creature'
+                                                    }
+                                                    className="rounded-md object-scale-down aspect-square w-full"
+                                                />
+                                                <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 text-pretty">
+                                                    A wild{' '}
+                                                    <span className="font-bold">
+                                                        {stats.randomCreature.species}
+                                                    </span>{' '}
+                                                    with the code{' '}
+                                                    <span>{stats.randomCreature.code}</span>{' '}
+                                                    appeared!
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                                Could not generate a creature.
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </div>
                     </div>
 

@@ -6,6 +6,7 @@ module.exports = {
             'always',
             [
                 // Core Features
+                'homepage',
                 'collection',
                 'pairs',
                 'goals',

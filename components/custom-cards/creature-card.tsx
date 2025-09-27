@@ -306,6 +306,9 @@ export function CreatureCard({
                     <div>
                         <strong>Species:</strong> {creature.species}
                     </div>
+                    <div>
+                        <strong>Gender:</strong> {creature.gender}
+                    </div>
                     {!isAdminView && (
                         <div className="text-sm">
                             <strong>Parents/Origin:</strong>{' '}
@@ -432,6 +435,10 @@ export function CreatureCard({
                                 <span>{' / '}</span>
                             )}
                             {creature.g1Origin === 'another-lab' && <span>{'Another Lab'}</span>}
+                            {creature.g1Origin === 'cupboard' && <span>{'Cupboard'}</span>}
+                            {creature.g1Origin === 'genome-splicer' && (
+                                <span>{'Genome Splicer'}</span>
+                            )}
                             {!parentPair && !creature.g1Origin && 'Unknown'}
                             <span>
                                 {' (G'}

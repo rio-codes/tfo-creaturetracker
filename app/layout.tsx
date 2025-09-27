@@ -6,35 +6,40 @@ import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
-    title: {
-        default: 'TFO.creaturetracker',
-        template: '%s | TFO.creaturetracker',
+    manifest: '/site.webmanifest',
+    icons: {
+        icon: {
+            rel: 'icon',
+            url: '/images/icons/chrome-192x192.png',
+        },
+        apple: '/images/icons/apple-touch-icon.png',
+        shortcut: '/images/icons/favicon.ico',
     },
-    description:
-        'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
+    applicationName: 'TFO.creaturetracker',
+    title: 'TFO.creaturetracker',
+    description: 'A breeding project organizer for The Final Outpost.',
+    keywords: ['TFO', 'TFOCT', 'The Final Outpost', 'genetics', 'adoptables'],
+    creator: 'Rio S. (lyricism)',
     openGraph: {
         title: 'TFO.creaturetracker',
-        description:
-            'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
+        description: 'A breeding project organizer for The Final Outpost.',
         url: 'https://tfo.creaturetracker.net',
-        siteName: 'TFO.creaturetracker',
         images: [
             {
-                url: 'https://github.com/user-attachments/assets/ef9b624e-8c48-4721-980e-4531b21563f0',
-                width: 750,
-                height: 750,
+                url: 'https://tfo.creaturetracker.net/images/icons/icon.svg',
+                width: 60,
+                height: 60,
                 alt: 'TFO.creaturetracker Logo',
             },
         ],
-        locale: 'en_US',
-        type: 'website',
     },
+    themeColor: '#3C2D63',
+    colorScheme: 'dark',
     twitter: {
         card: 'summary_large_image',
         title: 'TFO.creaturetracker',
-        description:
-            'A tool to organize your collection, predict breeding results, and reach your research goals for the game The Final Outpost.',
-        images: ['https://github.com/user-attachments/assets/ef9b624e-8c48-4721-980e-4531b21563f0'],
+        description: 'A breeding project organizer for The Final Outpost.',
+        images: ['https://tfo.creaturetracker.net/images/icons/icon.svg'],
     },
 };
 

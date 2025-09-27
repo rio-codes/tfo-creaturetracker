@@ -2,15 +2,15 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="60"
-   height="60"
-   viewBox="0 0 259.85862 133.62795"
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
    version="1.1"
    id="svg1"
    sodipodi:docname="icon.svg"
-   inkscape:export-filename="../tfocf-stuff/square_icon_750_transparent_favicon.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:export-filename="/home/midbar/Projects/tfocf-stuff/square_icon_512_transparent_favicon.png"
+   inkscape:export-xdpi="819.20001"
+   inkscape:export-ydpi="819.20001"
    inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    xml:space="preserve"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -27,17 +27,18 @@
      borderopacity="0.25"
      inkscape:showpageshadow="2"
      inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
+     inkscape:pagecheckerboard="true"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="3.8413581"
-     inkscape:cx="-59.093684"
-     inkscape:cy="-68.725694"
+     inkscape:zoom="1"
+     inkscape:cx="255.5"
+     inkscape:cy="244"
      inkscape:window-width="2560"
      inkscape:window-height="1312"
      inkscape:window-x="0"
      inkscape:window-y="61"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g4" /><title
+     inkscape:current-layer="g4"
+     inkscape:clip-to-page="false" /><title
      id="title1">TFO.creaturetracker.net Logo</title><defs
      id="defs1"><linearGradient
        id="linearGradient27"><stop
@@ -113,24 +114,24 @@
        x2="272.5253"
        y2="177.23505"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.1990038,0,0,2.1990038,-317.52037,-286.0404)" /><linearGradient
+       gradientTransform="matrix(3.9597427,0,0,5.1426997,204.52524,-367.38755)" /><linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient17"
        id="linearGradient23"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.2473296,0,0,2.2473299,-285.12329,-174.34276)"
+       gradientTransform="matrix(4.6328202,0,0,4.5908629,188.50832,-54.587971)"
        x1="157.43913"
        y1="177.23505"
        x2="272.5253"
        y2="177.23505" /></defs><g
      id="layer1"
-     transform="matrix(1.0712182,0,0,1.0674175,-17.585594,-110.2423)"
+     transform="matrix(1.0712182,0,0,1.0674175,-870.31568,-436.54793)"
      inkscape:export-filename="../tfocf-stuff/square_icon_750_bg-pompaca_favicon.png"
      inkscape:export-xdpi="96"
      inkscape:export-ydpi="96"><g
        id="g4"><g
          id="g25"
-         transform="matrix(3.3682269,-0.23640367,0.2159836,3.0992395,10.49422,183.66024)">
+         transform="matrix(6.8710434,-0.48802162,0.44059757,6.3979371,797.69144,680.70107)">
     <path
    d="M 3.9675,15.0175 C 5.745,13.24 7.85,12.88 9.9525,12.87 8.72,13.2925 7.805,14.1775 6.9375,15.4225 c -2.285,3.28 -1.03,8.3275 -0.2175,11.27 0.385,1.395 0.7825,2.85 1.01,4.3075 H 3.645 C 3.46,30.0325 3.1825,28.9625 2.85,27.76 1.705,23.6 0.335,18.65 3.9675,15.0175 Z"
    fill="#00897b"
@@ -267,19 +268,17 @@
    id="path24" />
     </g>
   </g><path
-         d="M 60.140062,154.90034 V 64.203643 H 28.688786 V 52.500842 H 104.75699 V 64.203643 H 73.305713 v 90.696697 z m 56.319648,0 V 52.500842 h 70.2168 v 11.702801 h -57.05115 v 40.959797 h 54.12545 v 11.7028 h -54.12545 v 38.0341 z m 83.38242,-11.7028 V 64.203643 l 11.7028,-11.702801 h 58.514 l 11.7028,11.702801 v 78.993897 l -11.7028,11.7028 h -58.514 z m 13.16565,-78.993897 v 78.993897 h 55.5883 V 64.203643 Z"
+         d="M 884.57779,663.81839 V 451.71058 h -56.63427 v -27.36875 h 136.97584 v 27.36875 h -56.63422 v 212.10781 z m 101.41474,0 V 424.34183 h 126.43927 v 27.36875 h -102.7319 v 95.79061 h 97.4635 v 27.36876 h -97.4635 v 88.94844 z M 1136.139,636.44964 V 451.71058 l 21.0733,-27.36875 h 105.3659 l 21.0734,27.36875 v 184.73906 l -21.0734,27.36875 h -105.3659 z m 23.7073,-184.73906 v 184.73906 h 100.098 V 451.71058 Z"
          id="text18"
-         style="font-size:146.285px;font-family:Tektur;-inkscape-font-specification:'Tektur, Normal';fill:url(#linearGradient21);stroke:#382a5c;stroke-width:3.86185"
-         transform="scale(0.88271325,1.1328707)"
+         style="font-size:146.285px;font-family:Tektur;-inkscape-font-specification:'Tektur, Normal';fill:url(#linearGradient21);stroke:#382a5c;stroke-width:7.92502"
          aria-label="TFO" /><path
-         d="m 77.664151,276.28818 v -14.9499 H 91.11906 v 14.9499 z m 33.637269,-13.45491 v -56.80962 l 13.45491,-13.45491 h 55.31463 v 11.95992 h -55.31463 v 59.7996 h 55.31463 v 11.95992 h -55.31463 z m 82.22446,-83.71944 13.45491,-7.47495 v 23.91984 h 38.86974 v 11.95992 h -38.86974 v 56.80962 h 38.86974 v 11.95992 h -38.86974 l -13.45491,-13.45491 z"
+         d="m 936.38659,865.96437 v -30.53978 h 27.73697 v 30.53978 z M 1005.7292,838.4786 V 722.42745 l 27.7368,-27.4858 h 114.03 v 24.43183 h -114.03 v 122.15909 h 114.03 v 24.4318 h -114.03 z m 169.5037,-171.02273 27.7371,-15.26988 v 48.86362 h 80.1291 v 24.4318 H 1202.97 v 116.05116 h 80.1291 v 24.4318 H 1202.97 l -27.7371,-27.48577 z"
          id="text21"
-         style="font-size:149.499px;font-family:Tektur;-inkscape-font-specification:'Tektur, Normal';fill:url(#linearGradient23);stroke:#382a5c;stroke-width:3.94672"
-         transform="scale(1.0105489,0.9895612)"
+         style="font-size:149.499px;font-family:Tektur;-inkscape-font-specification:'Tektur, Normal';fill:url(#linearGradient23);stroke:#382a5c;stroke-width:8.09919"
          aria-label=".ct" /></g></g><metadata
      id="metadata30"><rdf:RDF><cc:Work
          rdf:about=""><cc:license
-           rdf:resource="http://creativecommons.org/licenses/by-nc-sa/4.0/" /><dc:title>TFO.creaturetracker.net Logo</dc:title><dc:creator><cc:Agent><dc:title>Rio Sinnott</dc:title></cc:Agent></dc:creator></cc:Work><cc:License
+           rdf:resource="http://creativecommons.org/licenses/by-nc-sa/4.0/" /><dc:title>TFO.creaturetracker.net Logo</dc:title><dc:creator><cc:Agent><dc:title>Rio S. (lyricism)</dc:title></cc:Agent></dc:creator></cc:Work><cc:License
          rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/"><cc:permits
            rdf:resource="http://creativecommons.org/ns#Reproduction" /><cc:permits
            rdf:resource="http://creativecommons.org/ns#Distribution" /><cc:requires

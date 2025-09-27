@@ -1,11 +1,10 @@
 module.exports = {
-    extends: ['@commitlint/config-conventional'],
+    extends: ['@commitlint/config-conventional', 'commitlint-plugin-gitmoji'],
     rules: {
         'scope-enum': [
             2, // Level: Error
-            'always', // Applicability
+            'always',
             [
-                // List of allowed scopes
                 // Core Features
                 'collection',
                 'pairs',

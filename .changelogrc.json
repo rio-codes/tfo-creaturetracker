@@ -1,0 +1,46 @@
+{
+    "options": {
+        "preset": "gitmoji",
+        "header": "TFOCT Changelog",
+        "issueUrlFormat": "https://github.com/{{user}}/{{repository}}/issues/{{id}}",
+        "commitUrlFormat": "https://github.com/{{user}}/{{repository}}/commit/{{hash}}",
+        "compareUrlFormat": "https://github.com/{{user}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+        "releaseCommitMessageFormat": "chore(release): 🔖{{currentTag}}",
+        "withEmoji": true,
+        "userUrlFormat": "https://github.com/{{user}}",
+        "types": [
+            { "type": "feat", "section": "Features" },
+            { "type": "fix", "section": "Bug Fixes" },
+            { "type": "chore", "section": "Chores" },
+            { "type": "docs", "section": "Documentation" },
+            { "type": "style", "section": "Styles" },
+            { "type": "refactor", "section": "Refactors" },
+            { "type": "perf", "section": "Performance" },
+            { "type": "test", "section": "Tests" }
+        ],
+        "preMajor": true,
+        "scope": [
+            "collection",
+            "breeding-pairs",
+            "research-goals",
+            "profile",
+            "auth",
+            "settings",
+            "activity-log",
+            "admin",
+            "ui",
+            "api",
+            "db",
+            "lib",
+            "config",
+            "deps",
+            "vercel",
+            "hyperdx",
+            "docs",
+            "release"
+        ],
+        "parserOpts": {
+            "preset": "gitmoji"
+        }
+    }
+}

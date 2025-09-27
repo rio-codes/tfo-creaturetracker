@@ -42,10 +42,7 @@ type HomepageStats = {
         code: string;
     } | null;
 };
-type PopularSpecies = {
-    species: string | null;
-    count: number;
-} | null;
+
 type ProlificPair = {
     id: string;
     name: string | null;
@@ -79,8 +76,6 @@ async function getHomepageStats(): Promise<HomepageStats> {
         .groupBy(creatures.species)
         .orderBy(desc(sql`species_count`))
         .limit(1);
-    const popularSpecies: PopularSpecies =
-        popularSpeciesQuery.length > 0 ? popularSpeciesQuery[0] : null;
 
     const prolificPairLogQuery = await db
         .select({

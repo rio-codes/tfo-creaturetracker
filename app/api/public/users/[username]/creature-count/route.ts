@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 const querySchema = z.object({
     species: z.string().min(1, { message: 'Species parameter is required.' }),
-    color: z.string().optional(),
+    color: z.string().optional().nullable(),
 });
 
 const BADGE_COLOR = 'D0BCFF';

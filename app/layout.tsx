@@ -7,13 +7,13 @@ import { Toaster } from '@/components/ui/sonner';
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
     manifest: '/site.webmanifest',
+    robots: '/robots.txt',
     icons: {
         icon: {
             rel: 'icon',
             url: '/images/icons/chrome-192x192.png',
         },
         apple: '/images/icons/apple-touch-icon.png',
-        shortcut: '/images/icons/favicon.ico',
     },
     applicationName: 'TFO.creaturetracker',
     title: 'TFO.creaturetracker',
@@ -23,24 +23,12 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'TFO.creaturetracker',
         description: 'A breeding project organizer for The Final Outpost.',
+        type: 'website',
         url: 'https://tfo.creaturetracker.net',
-        images: [
-            {
-                url: 'https://tfo.creaturetracker.net/images/icons/icon.svg',
-                width: 60,
-                height: 60,
-                alt: 'TFO.creaturetracker Logo',
-            },
-        ],
+        siteName: 'TFO.creaturetracker',
     },
     themeColor: '#3C2D63',
     colorScheme: 'dark',
-    twitter: {
-        card: 'summary_large_image',
-        title: 'TFO.creaturetracker',
-        description: 'A breeding project organizer for The Final Outpost.',
-        images: ['https://tfo.creaturetracker.net/images/icons/icon.svg'],
-    },
 };
 
 const tektur = Tektur({

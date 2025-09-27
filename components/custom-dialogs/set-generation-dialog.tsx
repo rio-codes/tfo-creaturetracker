@@ -97,7 +97,7 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                         />
 
                         <Label htmlFor="g1-origin" className="text-left">
-                            Origin if G1:
+                            Origin:
                         </Label>
                         <Select
                             value={g1Origin}

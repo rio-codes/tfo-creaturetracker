@@ -153,7 +153,6 @@ export function FindPotentialPairsDialog({
             onLoadingChange(false);
         }, 50);
         return () => clearTimeout(timer);
-        return () => clearTimeout(timer);
     }, [open, goal, allCreatures, allPairs, onLoadingChange]);
     const handleCreateAndAssign = async (
         male: EnrichedCreature,
@@ -249,9 +248,11 @@ export function FindPotentialPairsDialog({
                                                 <div>
                                                     <p className="font-semibold">
                                                         {maleParent?.creatureName} (
-                                                        {maleParent?.code}) x{' '}
+                                                        {maleParent?.code}) (G
+                                                        {maleParent?.generation})x{' '}
                                                         {femaleParent?.creatureName} (
-                                                        {femaleParent?.code})
+                                                        {femaleParent?.code}) (G
+                                                        {femaleParent?.generation})
                                                     </p>
                                                     {existingPairName && (
                                                         <p className="text-xs text-green-600 dark:text-green-400 font-semibold">

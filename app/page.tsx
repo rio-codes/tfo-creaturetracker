@@ -266,9 +266,17 @@ const newsItems = [
                                 which gives you the rundown on every change we've made since launch.
                                 <br />
                                 <br />
-                                Also, one of our new users alerted us to a major bug with dark mode
-                                text visibility during registration, thank you so much! If you run
-                                into any bugs yourself, feel free to{' '}
+                                Also, one of our new users,{' '}
+                                <Link
+                                    className="text-pompaca-purple dark:text-purple-400   hover:underline font-semibold"
+                                    href="/Solarion"
+                                >
+                                    Solarion
+                                </Link>
+                                {', '}
+                                alerted us to a major bug with dark mode text visibility during
+                                registration, thank you so much! If you run into any bugs yourself,
+                                feel free to{' '}
                                 <Link
                                     className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
                                     href="mailto:tfoct@mailbox.org"

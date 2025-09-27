@@ -52,6 +52,7 @@ import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dial
 import { ViewOutcomesDialog } from '../custom-dialogs/view-outcomes-dialog';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ViewLogsDialog } from '../custom-dialogs/view-logs-dialog';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
@@ -62,7 +63,7 @@ type BreedingPairCardProps = {
     _isAdminView?: boolean;
 };
 
-const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
+const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature }) => {
     if (!creature?.geneData || creature.geneData.length === 0) {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
@@ -71,10 +72,12 @@ const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
         .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
         .join(', ');
 
+    const cleanSummary = await sanitizeHtml(summary);
+
     return (
         <p
             className="pt-1 text-xs text-dusk-purple break-words"
-            dangerouslySetInnerHTML={{ __html: summary }}
+            dangerouslySetInnerHTML={{ __html: cleanSummary }}
             title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
         />
     );

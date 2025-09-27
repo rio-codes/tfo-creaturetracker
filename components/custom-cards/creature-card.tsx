@@ -44,6 +44,7 @@ import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';
 import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -59,7 +60,7 @@ interface CreatureCardProps {
     currentUser?: User | null;
 }
 
-const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature | null }) => {
+const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature | null }) => {
     if (!creature?.geneData || creature.geneData.length === 0) {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
@@ -68,10 +69,12 @@ const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature | null }) 
         .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
         .join(', ');
 
+    const cleanSummary = await sanitizeHtml(summary);
+
     return (
         <p
             className="pt-1 text-xs text-dusk-purple break-words"
-            dangerouslySetInnerHTML={{ __html: summary }}
+            dangerouslySetInnerHTML={{ __html: cleanSummary }}
             title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
         />
     );

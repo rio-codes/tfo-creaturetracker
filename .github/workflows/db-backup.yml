@@ -1,0 +1,33 @@
+name: Database Backup
+
+on:
+    workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+    schedule:
+        - cron: '0 2 * * *' # Runs every day at 2:00 AM UTC
+
+jobs:
+    backup:
+        name: Backup PostgreSQL Database
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install PostgreSQL client
+              run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+            - name: Create database dump
+              run: |
+                  FILENAME="backup-$(date +'%Y-%m-%dT%H-%M-%S').sql.gz"
+                  pg_dump "$POSTGRES_URL" | gzip > "$FILENAME"
+                  echo "BACKUP_FILENAME=$FILENAME" >> $GITHUB_ENV
+              env:
+                  POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+
+            - name: Upload backup artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: database-backup
+                  path: ${{ env.BACKUP_FILENAME }}
+                  retention-days: 14 # Optional: The number of days to retain the artifact

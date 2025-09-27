@@ -1,3 +1,7 @@
+## <small>1.8.0 (2025-09-26)</small>
+
+- feat(homepage): ✨ add fun statistics and random creature to homepage ([8304447](https://github.com/rio-codes/tfo-creaturetracker/commit/8304447))
+
 ## <small>1.7.8 (2025-09-26)</small>
 
 - perf(db): ⚡️ set default generation "1" for all creatures in db schema ([2d4f62f](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4f62f))

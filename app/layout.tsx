@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
-    manifest: '/site.webmanifest',
+    manifest: '/manifest.ts',
     robots: '/robots.txt',
     icons: {
         icon: {
@@ -27,8 +27,6 @@ export const metadata: Metadata = {
         url: 'https://tfo.creaturetracker.net',
         siteName: 'TFO.creaturetracker',
     },
-    themeColor: '#3C2D63',
-    colorScheme: 'dark',
 };
 
 const tektur = Tektur({
@@ -43,7 +41,7 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <link rel="icon" href="/images/icons/favicon.ico" />
+                <link rel="icon" href="/images/icons/icon.svg" sizes="any" type="image/svg+xml" />
                 <link
                     rel="icon"
                     type="image/png"

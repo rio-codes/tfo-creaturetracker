@@ -1,3 +1,8 @@
+## <small>1.8.1 (2025-09-27)</small>
+
+- fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([a6e8d2a](https://github.com/rio-codes/tfo-creaturetracker/commit/a6e8d2a))
+- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
+
 ## <small>1.8.0 (2025-09-26)</small>
 
 - feat(homepage): ✨ add fun statistics and random creature to homepage ([8304447](https://github.com/rio-codes/tfo-creaturetracker/commit/8304447))

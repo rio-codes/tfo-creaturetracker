@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         url: 'https://tfo.creaturetracker.net',
         siteName: 'TFO.creaturetracker',
         images: {
-            url: 'https://tfo.creaturetracker.net/images/icons/icon.svg',
+            url: 'https://tfo.creaturetracker.net/images/misc/og-image.png',
             width: 192,
             height: 192,
             alt: 'TFO.creaturetracker',
@@ -35,9 +35,9 @@ export const metadata: Metadata = {
         locale: 'en_US',
     },
     twitter: {
-        card: 'summary',
+        card: 'summary_large_image',
         title: 'TFO.creaturetracker',
-        images: 'https://tfo.creaturetracker.net/images/icons/android-chrome-192x192.png',
+        images: 'https://tfo.creaturetracker.net/images/misc/og-image.png',
     },
 };
 

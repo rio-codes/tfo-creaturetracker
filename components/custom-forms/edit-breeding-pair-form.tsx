@@ -261,7 +261,7 @@ export function EditBreedingPairForm({
             <CreatureCombobox
                 creatures={availableMales}
                 selectedCreatureId={selectedMaleId}
-                onSelectCreature={setSelectedMaleId}
+                onSelectCreature={setSelectedMaleId as any}
                 placeholder="Select Male Parent..."
                 disabled={editingWhichParent !== 'male'}
             />
@@ -269,7 +269,7 @@ export function EditBreedingPairForm({
             <CreatureCombobox
                 creatures={availableFemales}
                 selectedCreatureId={selectedFemaleId}
-                onSelectCreature={setSelectedFemaleId}
+                onSelectCreature={setSelectedFemaleId as any}
                 placeholder="Select Female Parent..."
                 disabled={editingWhichParent !== 'female'}
             />

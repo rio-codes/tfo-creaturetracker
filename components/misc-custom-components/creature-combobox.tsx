@@ -33,7 +33,7 @@ export function CreatureCombobox({
 }: CreatureComboboxProps) {
     const [open, setOpen] = React.useState(false);
 
-    const selectedCreature = creatures.find((c) => c.id === selectedCreatureId);
+    const selectedCreature = creatures.find((c) => c?.id === selectedCreatureId);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -65,13 +65,13 @@ export function CreatureCombobox({
                             {creatures.map((creature) => (
                                 <CommandItem
                                     className="bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac"
-                                    key={creature.id}
-                                    value={`${creature.creatureName || 'Unnamed'} ${creature.code}`}
+                                    key={creature?.id}
+                                    value={`${creature!.creatureName || 'Unnamed'} ${creature!.code}`}
                                     onSelect={() => {
                                         onSelectCreature(
-                                            creature.id === selectedCreatureId
+                                            creature?.id === selectedCreatureId
                                                 ? undefined
-                                                : creature.id
+                                                : creature?.id
                                         );
                                         setOpen(false);
                                     }}
@@ -79,14 +79,14 @@ export function CreatureCombobox({
                                     <Check
                                         className={cn(
                                             'mr-2 h-4 w-4',
-                                            selectedCreatureId === creature.id
+                                            selectedCreatureId === creature?.id
                                                 ? 'opacity-100'
                                                 : 'opacity-0'
                                         )}
                                     />
                                     <span className="truncate">
-                                        {creature.creatureName || 'Unnamed'} ({creature.code}) (G
-                                        {creature.generation})
+                                        {creature?.creatureName || 'Unnamed'} ({creature?.code}) (G
+                                        {creature?.generation})
                                     </span>
                                 </CommandItem>
                             ))}

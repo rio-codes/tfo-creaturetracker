@@ -1,27 +1,36 @@
+## <small>1.9.0 (2025-09-27)</small>
+
+- feat(hyperdx): ✨ upload source maps during build with hyperdx cli ([307bbb6](https://github.com/rio-codes/tfo-creaturetracker/commit/307bbb6))
+
 ## <small>1.8.5 (2025-09-27)</small>
 
-- ci(db): 🚀 add github action to backup db daily @ 2AM UTC
+- fix(config): 🐛 fix broken link to site manifest ([4fac706](https://github.com/rio-codes/tfo-creaturetracker/commit/4fac706))
+- fix(ui): 🐛 remove images array from opengraph spec ([3129aea](https://github.com/rio-codes/tfo-creaturetracker/commit/3129aea))
+- fix(ui): 🐛 update metadata format ([733b755](https://github.com/rio-codes/tfo-creaturetracker/commit/733b755))
+- build(config): ⬆️ update pnpm lockfile to pass build ([503ccb1](https://github.com/rio-codes/tfo-creaturetracker/commit/503ccb1))
+- style(ui): 💄 improve layout of opengraph embed (#246) ([b9e70dc](https://github.com/rio-codes/tfo-creaturetracker/commit/b9e70dc)), closes [#246](https://github.com/rio-codes/tfo-creaturetracker/issues/246)
+- chore(release): 🔖 patch version upgrade to v1.8.5 ([e729731](https://github.com/rio-codes/tfo-creaturetracker/commit/e729731))
+- chore(release): 🔖 patch version upgrade to v1.8.5 ([f487c06](https://github.com/rio-codes/tfo-creaturetracker/commit/f487c06))
+
+## <small>1.8.5 (2025-09-27)</small>
+
+- ci(db): 🚀 add github action to backup db daily @ 2AM UTC ([116f864](https://github.com/rio-codes/tfo-creaturetracker/commit/116f864))
 
 ## <small>1.8.4 (2025-09-27)</small>
 
-- chore(release): 🔧 add robots.txt to block all ai crawlers and allow all others (#244)
-- style(pairs): 💄 fix minor ui issues, "G" for generation on form, wording of set-gen dialog
-- fix(collection): 🐛 remove deleted content from creature card; origin marker and gender
+- chore(homepage): 👥 add shoutout to new user in news items ([ec561c4](https://github.com/rio-codes/tfo-creaturetracker/commit/ec561c4))
+- chore(release): 🔧 add robots.txt to block all ai crawlers and allow all others (#244) ([30ad4d2](https://github.com/rio-codes/tfo-creaturetracker/commit/30ad4d2)), closes [#244](https://github.com/rio-codes/tfo-creaturetracker/issues/244)
+- style(pairs): 💄 fix minor ui issues, "G" for generation on form, wording of set-gen dialog ([1564553](https://github.com/rio-codes/tfo-creaturetracker/commit/1564553))
+- fix(api): 🐛 make color nullable on creature-count public api (#241) ([dd8e7a2](https://github.com/rio-codes/tfo-creaturetracker/commit/dd8e7a2)), closes [#241](https://github.com/rio-codes/tfo-creaturetracker/issues/241)
+- fix(collection): 🐛 remove deleted content from creature card; origin marker and gender (#242) ([e1e7544](https://github.com/rio-codes/tfo-creaturetracker/commit/e1e7544)), closes [#242](https://github.com/rio-codes/tfo-creaturetracker/issues/242)
 
 ## <small>1.8.3 (2025-09-27)</small>
 
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([4005a99](https://github.com/rio-codes/tfo-creaturetracker/commit/4005a99))
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([a6e8d2a](https://github.com/rio-codes/tfo-creaturetracker/commit/a6e8d2a))
-
-## <small>1.8.2 (2025-09-27)</small>
-
 - feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 
-## <small>1.8.1 (2025-09-27)</small>
-
-- fix(api): 🐛 make color nullable on creature-count public api (#241)
-
-## <small>1.8.0 (2025-09-27)</small>
+## 1.8.0 (2025-09-27)
 
 - docs(docs): 🎨 recreate changelog with proper semvers, automate changelog (#233) ([b203eca](https://github.com/rio-codes/tfo-creaturetracker/commit/b203eca)), closes [#233](https://github.com/rio-codes/tfo-creaturetracker/issues/233)
 - perf(db): ⚡️ set default generation "1" for all creatures in db schema (#232) ([2d4f62f](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4f62f)), closes [#232](https://github.com/rio-codes/tfo-creaturetracker/issues/232)
@@ -134,8 +143,6 @@
 ## 1.1.0 (2025-09-20)
 
 - feat(admin): ✨ add more metrics to admin dashboard including data statistics and random creature (#1 ([5607635](https://github.com/rio-codes/tfo-creaturetracker/commit/5607635)), closes [#193](https://github.com/rio-codes/tfo-creaturetracker/issues/193)
-
-## <small>1.0.3 (2025-09-20)</small>
 
 ## <small>1.0.3 (2025-09-20)</small>
 

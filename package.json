@@ -5,7 +5,7 @@
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm store prune && pnpm i && pnpm dev",
         "reset-stop": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm store prune && pnpm i",
-        "build": "next build && npx dotenv -- cross-var @hyperdx/cli upload-sourcemaps --serviceKey %HYPERDX_SERVICE_KEY% --path .next",
+        "build": "next build && npx @hyperdx/cli upload-sourcemaps --path .next",
         "dev": "next dev",
         "lint": "eslint .",
         "start": "next start",

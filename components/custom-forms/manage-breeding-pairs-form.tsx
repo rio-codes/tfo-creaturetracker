@@ -4,13 +4,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Trash2, Loader2, X, ChevronDown, Network } from 'lucide-react';
 import type {
@@ -26,6 +19,7 @@ import {
     getPossibleOffspringSpecies,
     checkForInbreeding,
 } from '@/lib/breeding-rules';
+import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type ManagePairsFormProps = {
     baseCreature: EnrichedCreature;
@@ -270,28 +264,12 @@ export function ManageBreedingPairsForm({
                         onChange={(e) => setNewPairName(e.target.value)}
                         className="bg-ebena-lavender dark:bg-midnight-purple"
                     />
-                    <Select value={selectedMateId} onValueChange={setSelectedMateId} required>
-                        <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
-                            <SelectValue placeholder="Select a mate..." />
-                        </SelectTrigger>
-                        <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                            {suitableMates.length > 0 ? (
-                                suitableMates.map((mate) => (
-                                    <SelectItem
-                                        key={mate?.id}
-                                        value={mate!.id}
-                                        className="text-ellipsis"
-                                    >
-                                        {mate?.creatureName} ({mate?.code}) (G{mate?.generation})
-                                    </SelectItem>
-                                ))
-                            ) : (
-                                <div className="p-2 text-sm text-center text-dusk-purple dark:text-purple-400">
-                                    No suitable unpaired mates found.
-                                </div>
-                            )}
-                        </SelectContent>
-                    </Select>
+                    <CreatureCombobox
+                        creatures={suitableMates}
+                        selectedCreatureId={selectedMateId}
+                        onSelectCreature={setSelectedMateId}
+                        placeholder="Select a mate..."
+                    />
 
                     {/* Pair Preview */}
                     {selectedMateId && (

@@ -13,13 +13,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type {
@@ -29,6 +22,7 @@ import type {
     SerializedBreedingLogEntry,
 } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type EditLogDialogProps = {
     children: React.ReactNode;
@@ -121,24 +115,12 @@ export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: Ed
     ) => (
         <div className="space-y-2">
             <Label>{label}</Label>
-            <Select
-                value={selectedValue || 'none'}
-                onValueChange={(v) => onValueChange(v === 'none' ? null : v)}
-            >
-                <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac">
-                    <SelectValue placeholder="Select progeny..." />
-                </SelectTrigger>
-                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac">
-                    <SelectItem value="none">None</SelectItem>
-                    {possibleProgeny
-                        .filter((c) => c?.id !== otherSelectedId)
-                        .map((c) => (
-                            <SelectItem key={c?.id} value={c!.id}>
-                                {c?.creatureName || 'Unnamed'} ({c?.code})
-                            </SelectItem>
-                        ))}
-                </SelectContent>
-            </Select>
+            <CreatureCombobox
+                creatures={possibleProgeny.filter((c) => c?.id !== otherSelectedId)}
+                selectedCreatureId={selectedValue || undefined}
+                onSelectCreature={(id) => onValueChange(id || null)}
+                placeholder="Select progeny..."
+            />
         </div>
     );
 

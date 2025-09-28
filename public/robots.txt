@@ -100,3 +100,6 @@ Disallow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://tfo.creaturetracker.net/sitemap.xml
+Sitemap: https://tfo.creaturetracker.net/sitemap-0.xml

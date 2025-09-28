@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     icons: {
         icon: {
             rel: 'icon',
-            url: '/images/icons/chrome-192x192.png',
+            url: '/images/icons/android-chrome-192x192.png',
         },
         apple: '/images/icons/apple-touch-icon.png',
     },
@@ -26,6 +26,18 @@ export const metadata: Metadata = {
         type: 'website',
         url: 'https://tfo.creaturetracker.net',
         siteName: 'TFO.creaturetracker',
+        images: {
+            url: 'https://tfo.creaturetracker.net/images/icons/icon.svg',
+            width: 192,
+            height: 192,
+            alt: 'TFO.creaturetracker',
+        },
+        locale: 'en_US',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'TFO.creaturetracker',
+        images: 'https://tfo.creaturetracker.net/images/icons/android-chrome-192x192.png',
     },
 };
 

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { userTabs } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
         }
 
         const existingTab = await db.query.userTabs.findFirst({
-            where: eq(userTabs.tabId, tabId),
+            where: and(eq(userTabs.userId, userId), eq(userTabs.tabId, tabId)),
         });
 
         if (existingTab) {

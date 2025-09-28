@@ -35,7 +35,7 @@ export const metadata: Metadata = {
         locale: 'en_US',
     },
     twitter: {
-        card: 'summary_large_image',
+        card: 'summary',
         title: 'TFO.creaturetracker',
         images: 'https://tfo.creaturetracker.net/images/icons/android-chrome-192x192.png',
     },

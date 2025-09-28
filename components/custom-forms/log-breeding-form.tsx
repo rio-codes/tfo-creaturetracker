@@ -4,16 +4,10 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type { EnrichedCreature } from '@/types';
+import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type LogBreedingFormProps = {
     pair: { id: string | undefined; species: string };
@@ -64,40 +58,22 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <Label>Progeny 1 (Optional)</Label>
-                <Select value={progeny1Id} onValueChange={setProgeny1Id}>
-                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectValue placeholder="Select first offspring..." />
-                    </SelectTrigger>
-                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectItem value="none">None</SelectItem>
-                        {potentialProgeny
-                            .filter((p) => p?.id !== progeny2Id)
-                            .map((c) => (
-                                <SelectItem key={c?.id} value={c!.id}>
-                                    {c?.creatureName} ({c?.code})
-                                </SelectItem>
-                            ))}
-                    </SelectContent>
-                </Select>
+                <CreatureCombobox
+                    creatures={potentialProgeny.filter((p) => p?.id !== progeny2Id)}
+                    selectedCreatureId={progeny1Id}
+                    onSelectCreature={setProgeny1Id}
+                    placeholder="Select first offspring..."
+                />
             </div>
 
             <div>
                 <Label>Progeny 2 (Optional)</Label>
-                <Select value={progeny2Id} onValueChange={setProgeny2Id}>
-                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectValue placeholder="Select second offspring..." />
-                    </SelectTrigger>
-                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                        <SelectItem value="none">None</SelectItem>
-                        {potentialProgeny
-                            .filter((p) => p?.id !== progeny1Id)
-                            .map((c) => (
-                                <SelectItem key={c?.id} value={c!.id}>
-                                    {c?.creatureName} ({c?.code})
-                                </SelectItem>
-                            ))}
-                    </SelectContent>
-                </Select>
+                <CreatureCombobox
+                    creatures={potentialProgeny.filter((p) => p?.id !== progeny1Id)}
+                    selectedCreatureId={progeny2Id}
+                    onSelectCreature={setProgeny2Id}
+                    placeholder="Select second offspring..."
+                />
             </div>
 
             <div>

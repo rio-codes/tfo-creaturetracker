@@ -28,6 +28,7 @@ import {
     validatePairing,
     speciesList,
 } from '@/lib/breeding-rules';
+import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type AddPairFormProps = {
     allCreatures: EnrichedCreature[];
@@ -374,38 +375,21 @@ export function AddPairForm({
                 </Select>
 
                 {/* Parent Selectors */}
-                <Select
-                    value={selectedMaleId}
-                    onValueChange={setSelectedMaleId}
+                <CreatureCombobox
+                    creatures={availableMales}
+                    selectedCreatureId={selectedMaleId}
+                    onSelectCreature={setSelectedMaleId}
+                    placeholder="Select Male Parent..."
                     disabled={!isHybridMode && !selectedSpecies}
-                >
-                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-xs">
-                        <SelectValue placeholder="Select Male Parent..." />
-                    </SelectTrigger>
-                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                        {availableMales.map((c) => (
-                            <SelectItem key={c?.id} value={c!.id} className="truncate">
-                                {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select
-                    value={selectedFemaleId}
-                    onValueChange={setSelectedFemaleId}
+                />
+
+                <CreatureCombobox
+                    creatures={availableFemales}
+                    selectedCreatureId={selectedFemaleId}
+                    onSelectCreature={setSelectedFemaleId}
+                    placeholder="Select Female Parent..."
                     disabled={!isHybridMode && !selectedSpecies}
-                >
-                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-xs">
-                        <SelectValue placeholder="Select Female Parent..." />
-                    </SelectTrigger>
-                    <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                        {availableFemales.map((c) => (
-                            <SelectItem key={c?.id} value={c!.id} className="truncate">
-                                {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                />
 
                 {/* Prediction Display */}
                 {isPredictionLoading && (

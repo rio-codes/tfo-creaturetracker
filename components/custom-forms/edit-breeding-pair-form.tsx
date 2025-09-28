@@ -5,13 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Trash2, Network } from 'lucide-react';
@@ -27,6 +20,7 @@ import {
     getPossibleOffspringSpecies,
     validatePairing,
 } from '@/lib/breeding-rules';
+import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type EditBreedingPairFormProps = {
     pair: EnrichedBreedingPair;
@@ -264,40 +258,21 @@ export function EditBreedingPairForm({
                 </div>
             )}
 
-            <Select
-                value={selectedMaleId}
-                onValueChange={setSelectedMaleId}
+            <CreatureCombobox
+                creatures={availableMales}
+                selectedCreatureId={selectedMaleId}
+                onSelectCreature={setSelectedMaleId}
+                placeholder="Select Male Parent..."
                 disabled={editingWhichParent !== 'male'}
-                required
-            >
-                <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
-                    <SelectValue placeholder="Select Male Parent..." />
-                </SelectTrigger>
-                <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                    {availableMales.map((c) => (
-                        <SelectItem key={c?.id} value={c!.id} className="text-ellipsis truncate">
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            <Select
-                value={selectedFemaleId}
-                onValueChange={setSelectedFemaleId}
+            />
+
+            <CreatureCombobox
+                creatures={availableFemales}
+                selectedCreatureId={selectedFemaleId}
+                onSelectCreature={setSelectedFemaleId}
+                placeholder="Select Female Parent..."
                 disabled={editingWhichParent !== 'female'}
-                required
-            >
-                <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple">
-                    <SelectValue placeholder="Select Female Parent..." />
-                </SelectTrigger>
-                <SelectContent className="w-[var(--radix-select-trigger-width)] bg-ebena-lavender dark:bg-midnight-purple">
-                    {availableFemales.map((c) => (
-                        <SelectItem key={c?.id} value={c!.id} className="text-ellipsis">
-                            {c?.creatureName || 'Unnamed'} ({c?.code}) (G{c?.generation})
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            />
 
             {assignableGoals.length > 0 && (
                 <div className="space-y-2">

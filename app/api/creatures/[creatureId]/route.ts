@@ -98,3 +98,38 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+
+export async function DELETE(req: Request, { params }: { params: { creatureId: string } }) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    try {
+        const { creatureId } = params;
+        const userId = session.user.id;
+
+        const [deletedCreature] = await db
+            .delete(creatures)
+            .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
+            .returning();
+
+        if (!deletedCreature) {
+            return NextResponse.json(
+                { error: 'Creature not found or not authorized' },
+                { status: 404 }
+            );
+        }
+
+        await logUserAction({
+            action: 'creature.delete',
+            description: `Deleted creature "${deletedCreature.creatureName} (${deletedCreature.code})"`,
+        });
+
+        revalidatePath('/collection');
+        return NextResponse.json({ message: 'Creature deleted successfully' });
+    } catch (error) {
+        console.error('[CREATURE_DELETE_ERROR]', error);
+        return NextResponse.json({ error: 'Failed to delete creature' }, { status: 500 });
+    }
+}

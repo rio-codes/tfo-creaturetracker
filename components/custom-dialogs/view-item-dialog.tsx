@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { BreedingPairCard } from '@/components/custom-cards/breeding-pair-card';
 import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
+import type {
+    EnrichedBreedingPair,
+    EnrichedResearchGoal,
+    EnrichedCreature,
+    DbBreedingPair,
+    DbBreedingLogEntry,
+} from '@/types';
 import { Loader2 } from 'lucide-react';
 
 export function ViewItemDialog({
@@ -19,7 +21,16 @@ export function ViewItemDialog({
     item: { type: string; id: string } | null;
     onClose: () => void;
 }) {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<{
+        creature?: EnrichedCreature;
+        pair?: EnrichedBreedingPair;
+        enrichedGoal?: EnrichedResearchGoal;
+        allCreatures?: EnrichedCreature[];
+        allRawPairs?: DbBreedingPair[];
+        allLogs?: DbBreedingLogEntry[];
+        allEnrichedPairs?: EnrichedBreedingPair[];
+        allGoals?: EnrichedResearchGoal[];
+    } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -55,16 +66,29 @@ export function ViewItemDialog({
 
         switch (item?.type) {
             case 'creature':
-                return <CreatureCard {...data} isAdminView={true} />;
-            case 'breeding-pair':
-                return <BreedingPairCard {...data} isAdminView={true} />;
-            case 'research-goal':
                 return (
-                    <ResearchGoalCard
-                        goal={data.enrichedGoal}
+                    <CreatureCard
+                        creature={data.creature!}
+                        pinnedCreatures={[]} // Not applicable in admin view
+                        unpinnedCreatures={[]} // Not applicable in admin view
+                        totalPages={1} // Not applicable in admin view
+                        allCreatures={data.allCreatures!}
+                        allEnrichedPairs={data.allEnrichedPairs || []}
+                        allRawPairs={data.allRawPairs!}
+                        allLogs={data.allLogs!}
+                        allGoals={data.allGoals}
                         isAdminView={true}
                     />
                 );
+            case 'breeding-pair':
+                return (
+                    <BreedingPairCard
+                        {...(data as any)} // The data structure for pair is different
+                        _isAdminView={true}
+                    />
+                );
+            case 'research-goal':
+                return <ResearchGoalCard goal={data.enrichedGoal!} isAdminView={true} />;
             default:
                 return <div>Unsupported item type</div>;
         }

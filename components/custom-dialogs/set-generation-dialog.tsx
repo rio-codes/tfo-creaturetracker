@@ -113,6 +113,9 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                                 <SelectItem value="cupboard" disabled={!isG1}>
                                     Cupboard
                                 </SelectItem>
+                                <SelectItem value="quest" disabled={!isG1}>
+                                    Quest
+                                </SelectItem>
                                 <SelectItem value="genome-splicer" disabled={!isG1}>
                                     Genome Splicer
                                 </SelectItem>

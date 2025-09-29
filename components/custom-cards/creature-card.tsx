@@ -189,16 +189,22 @@ export function CreatureCard({
     const handleArchive = async () => {
         setIsArchiving(true);
         try {
+            const archiveState = creature.isArchived;
             const response = await fetch(`/api/creatures/${creature.id}/archive`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isArchived: true }),
+                body: JSON.stringify({ isArchived: !creature.isArchived }),
             });
+
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.error || 'Failed to archive creature.');
+                throw new Error(data.error || 'Failed to change creature archival state.');
             }
-            toast.success('Creature archived.');
+            if (archiveState) {
+                toast.success('Creature restored from archive.');
+            } else {
+                toast.success('Creature archived.');
+            }
             router.refresh();
         } catch (error: any) {
             toast.error(error.message);
@@ -231,275 +237,295 @@ export function CreatureCard({
 
     return (
         <Card
-            className={`relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500 ${
-                creature.isArchived ? 'opacity-60' : ''
-            }`}
+            className={`relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
         >
-            {creature.isArchived && (
-                <div className="absolute top-2 left-2 z-20 flex items-center gap-2 rounded-full bg-gray-500/80 px-3 py-1 text-white text-xs font-bold">
-                    <Archive className="h-4 w-4" />
-                    <span>Archived</span>
-                </div>
-            )}
-            <div className="absolute top-1 right-1 z-10">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handlePinToggle}
-                    disabled={isPinning || creature.isArchived}
-                    aria-label={isPinned ? 'Unpin goal' : 'Pin goal'}
-                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
-                >
-                    {isPinned ? (
-                        <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
-                    ) : (
-                        <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
-                    )}
-                </Button>
-            </div>
-            {!isAdminView && currentUser && (
-                <div className="absolute bottom-2 right-2 z-10">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={handleFeatureToggle}
-                                    disabled={isFeaturing || creature.isArchived}
-                                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
-                                >
-                                    {isFeaturing ? (
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                    ) : isFeatured ? (
-                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
-                                    ) : (
-                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
-                                    )}
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>
-                                    {isFeatured ? 'Un-feature from profile' : 'Feature on profile'}
-                                </p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            )}
-            <CardContent className="p-4">
-                {/* Creature Image */}
-                <div className="rounded-lg p-4 mb-4 flex justify-center">
-                    <img
-                        src={creature.imageUrl || '/images/misc/placeholder.png'}
-                        alt={creature.code + ', ' + creature.species}
-                        className="w-35 h-35 object-scale-down"
-                    />
-                </div>
-                <div className="flex-col text-sm h-30">
-                    <div>
-                        <strong>Name:</strong> {creature.creatureName}
+            <div className={`${creature.isArchived ? 'opacity-50' : 'opacity-100'}`}>
+                {creature.isArchived && (
+                    <div className="absolute top-2 left-2 z-20 flex items-center gap-2 rounded-full bg-gray-500/80 px-3 py-1 text-white text-xs font-bold">
+                        <Archive className="h-4 w-4" />
+                        <span>Archived</span>
                     </div>
-                    <div>
-                        <strong>Code:</strong> {creature.code}
-                    </div>
-                    <div>
-                        <strong>Species:</strong> {creature.species}
-                    </div>
-                    <div>
-                        <strong>Gender:</strong> {creature.gender}
-                    </div>
-                    {!isAdminView && (
-                        <div className="text-sm">
-                            <strong>Parents/Origin:</strong>{' '}
-                            {parentPair && (
-                                <Dialog>
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <DialogTrigger asChild>
-                                                    <span className="underline decoration-dotted cursor-pointer">
-                                                        {parentPair.pairName}
-                                                    </span>
-                                                </DialogTrigger>
-                                            </TooltipTrigger>
-                                            <TooltipContent className="p-0 border-0 bg-transparent max-w-md w-full hidden md:block">
-                                                <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
-                                                    {/* Header Section */}
-                                                    <div className="relative p-4">
-                                                        {/* Title */}
-                                                        <h3
-                                                            className="text-xl font-bold text-center"
-                                                            title={parentPair.pairName}
-                                                        >
-                                                            {parentPair.pairName}
-                                                        </h3>
-                                                        {/* Parent Images */}
-                                                        <div className="flex justify-center items-center gap-2 mt-2">
-                                                            <img
-                                                                src={getCacheBustedImageUrl(
-                                                                    parentPair.maleParent
-                                                                )}
-                                                                alt={parentPair.maleParent!.code}
-                                                                className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                                            />
-                                                            <X className="text-dusk-purple" />
-                                                            <img
-                                                                src={getCacheBustedImageUrl(
-                                                                    parentPair.femaleParent
-                                                                )}
-                                                                alt={parentPair.femaleParent!.code}
-                                                                className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Content Section */}
-                                                    <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
-                                                        {/* Parent Details */}
-                                                        <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
-                                                            <Collapsible>
-                                                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                                                                    <p className="truncate">
-                                                                        <span className="font-semibold text-pompaca-purple dark:text-purple-300">
-                                                                            M:
-                                                                        </span>{' '}
-                                                                        {parentPair.maleParent!
-                                                                            .creatureName ||
-                                                                            'Unnamed'}{' '}
-                                                                        (
-                                                                        {
-                                                                            parentPair.maleParent!
-                                                                                .code
-                                                                        }
-                                                                        )
-                                                                    </p>
-                                                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                                                </CollapsibleTrigger>
-                                                                <CollapsibleContent>
-                                                                    <ParentGeneSummary
-                                                                        creature={
-                                                                            parentPair.maleParent
-                                                                        }
-                                                                    />
-                                                                </CollapsibleContent>
-                                                            </Collapsible>
-                                                            <Collapsible>
-                                                                <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                                                                    <p className="truncate">
-                                                                        <span className="font-semibold text-pompaca-purple dark:text-purple-300">
-                                                                            F:
-                                                                        </span>{' '}
-                                                                        {parentPair.femaleParent!
-                                                                            .creatureName ||
-                                                                            'Unnamed'}{' '}
-                                                                        (
-                                                                        {
-                                                                            parentPair.femaleParent!
-                                                                                .code
-                                                                        }
-                                                                        )
-                                                                    </p>
-                                                                    <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                                                </CollapsibleTrigger>
-                                                                <CollapsibleContent>
-                                                                    <ParentGeneSummary
-                                                                        creature={
-                                                                            parentPair.femaleParent
-                                                                        }
-                                                                    />
-                                                                </CollapsibleContent>
-                                                            </Collapsible>
-                                                        </div>
-                                                        <div className="text-center text-sm text-pompaca-purple">
-                                                            Bred {parentPair.timesBred} times
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <DialogContent className="p-0 border-0 bg-transparent max-w-md w-full sm:max-w-md ">
-                                        <BreedingPairCard
-                                            pair={parentPair}
-                                            allCreatures={allCreatures!}
-                                            allGoals={allGoals!}
-                                            allPairs={allRawPairs!}
-                                            allLogs={allLogs!}
-                                            _isAdminView={isAdminView}
-                                        />
-                                    </DialogContent>
-                                </Dialog>
-                            )}
-                            {parentPair && creature.g1Origin === 'another-lab' && (
-                                <span>{' / '}</span>
-                            )}
-                            {creature.g1Origin === 'another-lab' && <span>{'Another Lab'}</span>}
-                            {creature.g1Origin === 'cupboard' && <span>{'Cupboard'}</span>}
-                            {creature.g1Origin === 'genome-splicer' && (
-                                <span>{'Genome Splicer'}</span>
-                            )}
-                            {!parentPair && !creature.g1Origin && 'Unknown'}
-                            <span>
-                                {' (G'}
-                                {creature.generation}
-                                {!isAdminView && (
-                                    <SetGenerationDialog creature={creature}>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-2 w-2 p-2 ml-1 text-dusk-purple hover:text-pompaca-purple dark:hover:text-purple-300"
-                                            aria-label="Edit generation"
-                                        >
-                                            <Pencil className="h-2 w-2" />
-                                        </Button>
-                                    </SetGenerationDialog>
-                                )}
-                                {')'}
-                            </span>
-                        </div>
-                    )}
+                )}
+                <div className="absolute top-1 right-1 z-10">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handlePinToggle}
+                        disabled={isPinning || creature.isArchived}
+                        aria-label={isPinned ? 'Unpin goal' : 'Pin goal'}
+                        className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                    >
+                        {isPinned ? (
+                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
+                        ) : (
+                            <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                        )}
+                    </Button>
                 </div>
-                <div className="h-5 text-sm">
-                    <strong>Genetics:</strong>
-                </div>
-                <div>
-                    <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
-                        <div className="text-sm space-y-1 ">
-                            <div className="whitespace-pre-line pr-4">
-                                {creature.geneData && creature.geneData.length > 0 ? (
-                                    <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
-                                        {creature.geneData.map(
-                                            (gene) =>
-                                                gene && (
-                                                    <div key={gene.category}>
-                                                        <span className="font-bold text-pompaca-purple dark:text-purple-300">
-                                                            {gene.category}:
-                                                        </span>
-                                                        <div className="pl-2">
-                                                            <div>Phenotype: {gene.phenotype}</div>
-                                                            <div>Genotype: {gene.genotype}</div>
-                                                        </div>
-                                                    </div>
-                                                )
+                {!isAdminView && currentUser && (
+                    <div className="absolute bottom-2 right-2 z-10">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={handleFeatureToggle}
+                                        disabled={isFeaturing || creature.isArchived}
+                                        className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                                    >
+                                        {isFeaturing ? (
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                        ) : isFeatured ? (
+                                            <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                        ) : (
+                                            <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
                                         )}
-                                    </div>
-                                ) : (
-                                    <p>Unknown</p>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>
+                                        {isFeatured
+                                            ? 'Un-feature from profile'
+                                            : 'Feature on profile'}
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                )}
+                <CardContent className="p-4">
+                    {/* Creature Image */}
+                    <div className="rounded-lg p-4 mb-4 flex justify-center">
+                        <img
+                            src={creature.imageUrl || '/images/misc/placeholder.png'}
+                            alt={creature.code + ', ' + creature.species}
+                            className="w-35 h-35 object-scale-down"
+                        />
+                    </div>
+                    <div className="flex-col text-sm h-30">
+                        <div>
+                            <strong>Name:</strong> {creature.creatureName}
+                        </div>
+                        <div>
+                            <strong>Code:</strong> {creature.code}
+                        </div>
+                        <div>
+                            <strong>Species:</strong> {creature.species}
+                        </div>
+                        <div>
+                            <strong>Gender:</strong> {creature.gender}
+                        </div>
+                        {!isAdminView && (
+                            <div className="text-sm">
+                                <strong>Parents/Origin:</strong>{' '}
+                                {parentPair && (
+                                    <Dialog>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <DialogTrigger asChild>
+                                                        <span className="underline decoration-dotted cursor-pointer">
+                                                            {parentPair.pairName}
+                                                        </span>
+                                                    </DialogTrigger>
+                                                </TooltipTrigger>
+                                                <TooltipContent className="p-0 border-0 bg-transparent max-w-md w-full hidden md:block">
+                                                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
+                                                        {/* Header Section */}
+                                                        <div className="relative p-4">
+                                                            {/* Title */}
+                                                            <h3
+                                                                className="text-xl font-bold text-center"
+                                                                title={parentPair.pairName}
+                                                            >
+                                                                {parentPair.pairName}
+                                                            </h3>
+                                                            {/* Parent Images */}
+                                                            <div className="flex justify-center items-center gap-2 mt-2">
+                                                                <img
+                                                                    src={getCacheBustedImageUrl(
+                                                                        parentPair.maleParent
+                                                                    )}
+                                                                    alt={
+                                                                        parentPair.maleParent!.code
+                                                                    }
+                                                                    className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                                                />
+                                                                <X className="text-dusk-purple" />
+                                                                <img
+                                                                    src={getCacheBustedImageUrl(
+                                                                        parentPair.femaleParent
+                                                                    )}
+                                                                    alt={
+                                                                        parentPair.femaleParent!
+                                                                            .code
+                                                                    }
+                                                                    className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Content Section */}
+                                                        <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
+                                                            {/* Parent Details */}
+                                                            <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
+                                                                <Collapsible>
+                                                                    <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
+                                                                        <p className="truncate">
+                                                                            <span className="font-semibold text-pompaca-purple dark:text-purple-300">
+                                                                                M:
+                                                                            </span>{' '}
+                                                                            {parentPair.maleParent!
+                                                                                .creatureName ||
+                                                                                'Unnamed'}{' '}
+                                                                            (
+                                                                            {
+                                                                                parentPair
+                                                                                    .maleParent!
+                                                                                    .code
+                                                                            }
+                                                                            )
+                                                                        </p>
+                                                                        <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                                                    </CollapsibleTrigger>
+                                                                    <CollapsibleContent>
+                                                                        <ParentGeneSummary
+                                                                            creature={
+                                                                                parentPair.maleParent
+                                                                            }
+                                                                        />
+                                                                    </CollapsibleContent>
+                                                                </Collapsible>
+                                                                <Collapsible>
+                                                                    <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
+                                                                        <p className="truncate">
+                                                                            <span className="font-semibold text-pompaca-purple dark:text-purple-300">
+                                                                                F:
+                                                                            </span>{' '}
+                                                                            {parentPair
+                                                                                .femaleParent!
+                                                                                .creatureName ||
+                                                                                'Unnamed'}{' '}
+                                                                            (
+                                                                            {
+                                                                                parentPair
+                                                                                    .femaleParent!
+                                                                                    .code
+                                                                            }
+                                                                            )
+                                                                        </p>
+                                                                        <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
+                                                                    </CollapsibleTrigger>
+                                                                    <CollapsibleContent>
+                                                                        <ParentGeneSummary
+                                                                            creature={
+                                                                                parentPair.femaleParent
+                                                                            }
+                                                                        />
+                                                                    </CollapsibleContent>
+                                                                </Collapsible>
+                                                            </div>
+                                                            <div className="text-center text-sm text-pompaca-purple">
+                                                                Bred {parentPair.timesBred} times
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                        <DialogContent className="p-0 border-0 bg-transparent max-w-md w-full sm:max-w-md ">
+                                            <BreedingPairCard
+                                                pair={parentPair}
+                                                allCreatures={allCreatures!}
+                                                allGoals={allGoals!}
+                                                allPairs={allRawPairs!}
+                                                allLogs={allLogs!}
+                                                _isAdminView={isAdminView}
+                                            />
+                                        </DialogContent>
+                                    </Dialog>
                                 )}
+                                {parentPair && creature.g1Origin === 'another-lab' && (
+                                    <span>{' / '}</span>
+                                )}
+                                {creature.g1Origin === 'another-lab' && (
+                                    <span>{'Another Lab'}</span>
+                                )}
+                                {creature.g1Origin === 'cupboard' && <span>{'Cupboard'}</span>}
+                                {creature.g1Origin === 'quest' && <span>{'Quest'}</span>}
+                                {creature.g1Origin === 'genome-splicer' && (
+                                    <span>{'Genome Splicer'}</span>
+                                )}
+                                {!parentPair && !creature.g1Origin && 'Unknown'}
+                                <span>
+                                    {' (G'}
+                                    {creature.generation}
+                                    {!isAdminView && (
+                                        <SetGenerationDialog creature={creature}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-2 w-2 p-2 ml-1 text-dusk-purple hover:text-pompaca-purple dark:hover:text-purple-300"
+                                                aria-label="Edit generation"
+                                            >
+                                                <Pencil className="h-2 w-2" />
+                                            </Button>
+                                        </SetGenerationDialog>
+                                    )}
+                                    {')'}
+                                </span>
                             </div>
-                        </div>
-                        <ScrollBar orientation="vertical" />
-                        <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                            <ChevronUp className=" h-4 w-4 text-barely-lilac" />
-                            <ChevronDown className="h-4 w-4 text-barely-lilac" />
-                        </div>
-                    </ScrollArea>
-                </div>
-            </CardContent>
-            <CardFooter className="flex-col">
-                <div className="flex w-full gap-2 justify-center text-sm">
-                    {!isAdminView && allCreatures && allPairs && allLogs && allGoals && (
+                        )}
+                    </div>
+                    <div className="h-5 text-sm">
+                        <strong>Genetics:</strong>
+                    </div>
+                    <div>
+                        <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
+                            <div className="text-sm space-y-1 ">
+                                <div className="whitespace-pre-line pr-4">
+                                    {creature.geneData && creature.geneData.length > 0 ? (
+                                        <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
+                                            {creature.geneData.map(
+                                                (gene) =>
+                                                    gene && (
+                                                        <div key={gene.category}>
+                                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                                                {gene.category}:
+                                                            </span>
+                                                            <div className="pl-2">
+                                                                <div>
+                                                                    Phenotype: {gene.phenotype}
+                                                                </div>
+                                                                <div>Genotype: {gene.genotype}</div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p>Unknown</p>
+                                    )}
+                                </div>
+                            </div>
+                            <ScrollBar orientation="vertical" />
+                            <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
+                                <ChevronUp className=" h-4 w-4 text-barely-lilac" />
+                                <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                            </div>
+                        </ScrollArea>
+                    </div>
+                </CardContent>
+            </div>
+            <CardFooter className="flex flex-col items-center p-4 pt-0">
+                <div className="flex w-full justify-center gap-2 text-sm">
+                    {!isAdminView &&
+                    allCreatures &&
+                    allPairs &&
+                    allLogs &&
+                    allGoals &&
+                    !creature.isArchived ? (
                         <>
                             <ManageBreedingPairsDialog
                                 baseCreature={creature}
@@ -509,10 +535,7 @@ export function CreatureCard({
                                 allRawPairs={allRawPairs}
                                 allLogs={allLogs}
                             >
-                                <Button
-                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
-                                    disabled={creature.isArchived}
-                                >
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
@@ -524,89 +547,147 @@ export function CreatureCard({
                                 allEnrichedPairs={allPairs}
                                 allLogs={allLogs}
                             >
-                                <Button
-                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
-                                    disabled={creature.isArchived}
-                                >
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny
                                     </span>
                                 </Button>
                             </LogAsProgenyDialog>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                        disabled={isDeleting || isArchiving}
+                                    >
+                                        <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                                            Remove from Collection
+                                        </span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Permanently?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to delete this creature
+                                            permanently from the database? If you still own it it
+                                            will be added again on a resync if it is in one of your
+                                            synced tabs.
+                                            {(isParentOfPair || isProgeny) && (
+                                                <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                                                    Warning: This creature is part of a breeding
+                                                    pair or is logged as progeny. Deleting it
+                                                    permanently may break pedigree links, and if you
+                                                    no longer own the creature they cannot be
+                                                    restored. Inbreeding detection relies on these
+                                                    links to function.
+                                                </p>
+                                            )}
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={handleDeletePermanently}
+                                        >
+                                            {isDeleting ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                            )}
+                                            Delete Permanently
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </>
-                    )}
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                    ) : (
+                        <>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                        disabled={isDeleting || isArchiving}
+                                    >
+                                        <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                                            Delete Permanently
+                                        </span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                            Remove "{creature.creatureName || creature.code}"?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            You can <strong>archive</strong> this creature to hide
+                                            it from your main collection while preserving its data
+                                            for pedigrees.
+                                            {(isParentOfPair || isProgeny) && (
+                                                <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                                                    Warning: This creature is part of a breeding
+                                                    pair or is logged as progeny. Deleting it
+                                                    permanently may break pedigree links, and if you
+                                                    no longer own the creature they cannot be
+                                                    restored. Inbreeding detection relies on these
+                                                    links to function.
+                                                </p>
+                                            )}
+                                            <p className="mt-2">
+                                                <strong>Permanent deletion</strong> cannot be
+                                                undone.
+                                            </p>
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={handleArchive}
+                                            disabled={isArchiving || isDeleting}
+                                        >
+                                            {isArchiving ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Archive className="mr-2 h-4 w-4" />
+                                            )}
+                                            Archive
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={handleDeletePermanently}
+                                            disabled={isArchiving || isDeleting}
+                                        >
+                                            {isDeleting ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                            )}
+                                            Delete Permanently
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                             <Button
                                 className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
-                                disabled={isDeleting || isArchiving || creature.isArchived}
+                                onClick={handleArchive}
+                                disabled={isArchiving || isDeleting}
                             >
                                 <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
-                                    Remove from Collection
+                                    Restore From Archive
                                 </span>
                             </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Remove "{creature.creatureName || creature.code}"?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    You can <strong>archive</strong> this creature to hide it from
-                                    your main collection while preserving its data for pedigrees.
-                                    {(isParentOfPair || isProgeny) && (
-                                        <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
-                                            Warning: This creature is part of a breeding pair or is
-                                            logged as progeny. Deleting it permanently may break
-                                            pedigree links.
-                                        </p>
-                                    )}
-                                    <p className="mt-2">
-                                        <strong>Permanent deletion</strong> cannot be undone.
-                                    </p>
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleArchive}
-                                    disabled={isArchiving || isDeleting}
-                                >
-                                    {isArchiving ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Archive className="mr-2 h-4 w-4" />
-                                    )}
-                                    Archive
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    onClick={handleDeletePermanently}
-                                    disabled={isArchiving || isDeleting}
-                                >
-                                    {isDeleting ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                    )}
-                                    Delete Permanently
-                                </Button>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                        </>
+                    )}
                 </div>
-                <div>
-                    <Link
-                        href={`https://finaloutpost.net/view/${creature!.code}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <span className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-2 hover:underline">
-                            View on TFO
-                        </span>
-                    </Link>
-                </div>
+                <Link
+                    href={`https://finaloutpost.net/view/${creature!.code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-2 hover:underline"
+                >
+                    View on TFO
+                </Link>
             </CardFooter>
         </Card>
     );

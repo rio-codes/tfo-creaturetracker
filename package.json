@@ -21,9 +21,12 @@
     },
     "dependencies": {
         "@auth/drizzle-adapter": "^1.10.0",
+        "@commitlint/types": "^20.0.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@hookform/resolvers": "^5.2.2",
         "@hyperdx/browser": "^0.21.2",
         "@hyperdx/cli": "^0.1.0",
@@ -87,6 +90,7 @@
         "react-hook-form": "^7.63.0",
         "react-icons": "^5.5.0",
         "react-resizable-panels": "^3.0.6",
+        "react-router-dom": "^7.9.3",
         "resend": "^6.1.0",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.3.1",
@@ -99,6 +103,7 @@
     "devDependencies": {
         "@commitlint/cli": "^20.0.0",
         "@commitlint/config-conventional": "^20.0.0",
+        "@commitlint/types": "^20.0.0",
         "@eslint/js": "^9.36.0",
         "@gitmoji/parser-opts": "^1.4.0",
         "@izi-p/conventional-changelog-gitmoji": "^0.2.6",

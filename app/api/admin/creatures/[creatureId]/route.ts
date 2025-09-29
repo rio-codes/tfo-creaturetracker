@@ -76,8 +76,13 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),
             allCreatures: enrichedCreatures,
-            allPairs: enrichedPairs,
+            allEnrichedPairs: enrichedPairs,
+            allRawPairs: rawPairs,
             allGoals: enrichedGoals,
+            allLogs: logEntries.map((log) => ({
+                ...log,
+                createdAt: log.createdAt.toISOString(),
+            })),
         });
     } catch (error) {
         console.error('Failed to fetch creature details:', error);

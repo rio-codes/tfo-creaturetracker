@@ -436,6 +436,7 @@ export function CreatureCard({
                             )}
                             {creature.g1Origin === 'another-lab' && <span>{'Another Lab'}</span>}
                             {creature.g1Origin === 'cupboard' && <span>{'Cupboard'}</span>}
+                            {creature.g1Origin === 'quest' && <span>{'Quest'}</span>}
                             {creature.g1Origin === 'genome-splicer' && (
                                 <span>{'Genome Splicer'}</span>
                             )}

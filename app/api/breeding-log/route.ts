@@ -14,6 +14,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { hasObscenity } from '@/lib/obscenity';
 import { logUserAction } from '@/lib/user-actions';
+import { calculateGeneration } from '@/lib/creature-utils';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
@@ -179,6 +180,23 @@ export async function POST(req: Request) {
         const newProgenyIds = [progeny1Id, progeny2Id].filter((id): id is string => !!id);
         await checkAndRecordAchievements(userId, pairId, newProgenyIds, newLogEntry.id);
 
+        if (newProgenyIds.length > 0) {
+            const [allUserPairs, allUserLogs] = await Promise.all([
+                db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
+                db.query.breedingLogEntries.findMany({
+                    where: eq(breedingLogEntries.userId, userId),
+                }),
+            ]);
+
+            for (const progenyId of newProgenyIds) {
+                const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+                await db
+                    .update(creatures)
+                    .set({ generation })
+                    .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+            }
+        }
+
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
@@ -271,6 +289,23 @@ export async function PUT(req: Request) {
 
             // Check for new achievements
             await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyIds, logId);
+
+            if (newProgenyIds.length > 0) {
+                const [allUserPairs, allUserLogs] = await Promise.all([
+                    db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
+                    db.query.breedingLogEntries.findMany({
+                        where: eq(breedingLogEntries.userId, userId),
+                    }),
+                ]);
+
+                for (const progenyId of newProgenyIds) {
+                    const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+                    await db
+                        .update(creatures)
+                        .set({ generation })
+                        .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+                }
+            }
 
             const pair = await db.query.breedingPairs.findFirst({
                 where: and(
@@ -500,6 +535,20 @@ export async function PATCH(req: Request) {
                 [progenyId],
                 logEntryId
             );
+
+            const [allUserPairs, allUserLogs] = await Promise.all([
+                db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
+                db.query.breedingLogEntries.findMany({
+                    where: eq(breedingLogEntries.userId, userId),
+                }),
+            ]);
+
+            const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+
+            await tx
+                .update(creatures)
+                .set({ generation })
+                .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
 
             const destinationPair = await db.query.breedingPairs.findFirst({
                 where: and(

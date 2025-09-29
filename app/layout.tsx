@@ -28,8 +28,8 @@ export const metadata: Metadata = {
         siteName: 'TFO.creaturetracker',
         images: {
             url: 'https://tfo.creaturetracker.net/images/misc/og-image.png',
-            width: 192,
-            height: 192,
+            width: 1200,
+            height: 630,
             alt: 'TFO.creaturetracker',
         },
         locale: 'en_US',

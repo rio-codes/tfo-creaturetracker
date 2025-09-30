@@ -72,10 +72,10 @@
 
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([4005a99](https://github.com/rio-codes/tfo-creaturetracker/commit/4005a99))
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([a6e8d2a](https://github.com/rio-codes/tfo-creaturetracker/commit/a6e8d2a))
-- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 
 ## 1.8.0 (2025-09-27)
 
+- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 - docs(docs): 🎨 recreate changelog with proper semvers, automate changelog (#233) ([b203eca](https://github.com/rio-codes/tfo-creaturetracker/commit/b203eca)), closes [#233](https://github.com/rio-codes/tfo-creaturetracker/issues/233)
 - perf(db): ⚡️ set default generation "1" for all creatures in db schema (#232) ([2d4f62f](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4f62f)), closes [#232](https://github.com/rio-codes/tfo-creaturetracker/issues/232)
 

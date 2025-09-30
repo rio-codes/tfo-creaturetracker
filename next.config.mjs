@@ -14,7 +14,7 @@ const nextConfig = {
     async headers() {
         return [
             {
-                source: '/about',
+                source: '/',
                 headers: [
                     {
                         key: 'X-Clacks-Overhead',

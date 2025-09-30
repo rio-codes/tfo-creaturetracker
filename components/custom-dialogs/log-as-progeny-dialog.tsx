@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
+import React from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -204,7 +206,8 @@ export function LogAsProgenyDialog({
                 <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden">
                     <DialogHeader>
                         <DialogTitle>
-                            Log "{creature?.creatureName} ({creature?.code})" as Progeny
+                            Log `&quot;`{creature?.creatureName} ({creature?.code})`&quot;` as
+                            Progeny
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">

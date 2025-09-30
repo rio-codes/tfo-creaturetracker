@@ -1,3 +1,4 @@
+import React from 'react';
 import type { EnrichedCreature } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award } from 'lucide-react';

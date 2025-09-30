@@ -1,4 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
+
+import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -19,11 +20,7 @@ type AssignPairDialogProps = {
     children: React.ReactNode;
 };
 
-export function AssignPairDialog({
-    goal,
-    predictions,
-    children,
-}: AssignPairDialogProps) {
+export function AssignPairDialog({ goal, predictions, children }: AssignPairDialogProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -35,14 +32,11 @@ export function AssignPairDialog({
         setIsLoading(true);
         setError('');
         try {
-            const response = await fetch(
-                `/api/breeding-pairs/${pairId}/assign-goal`,
-                {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ goalId: goal?.id, assign }),
-                }
-            );
+            const response = await fetch(`/api/breeding-pairs/${pairId}/assign-goal`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goalId: goal?.id, assign }),
+            });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error);
 
@@ -70,9 +64,7 @@ export function AssignPairDialog({
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
                     {error && <p className="text-sm text-red-500">{error}</p>}
                     {predictions.map((p) => {
-                        const isAssigned = initiallyAssignedPairIds.has(
-                            p.pairId || ''
-                        );
+                        const isAssigned = initiallyAssignedPairIds.has(p.pairId || '');
                         return (
                             <div
                                 key={p.pairId}
@@ -83,10 +75,7 @@ export function AssignPairDialog({
                                         id={p.pairId}
                                         checked={isAssigned}
                                         onCheckedChange={(checked) =>
-                                            handleAssignmentChange(
-                                                p.pairId || '',
-                                                !!checked
-                                            )
+                                            handleAssignmentChange(p.pairId || '', !!checked)
                                         }
                                         disabled={isLoading}
                                     />
@@ -100,14 +89,10 @@ export function AssignPairDialog({
                                 <div className="flex items-center gap-4 text-sm">
                                     <span
                                         className={`font-bold ${
-                                            p.isPossible
-                                                ? 'text-green-600'
-                                                : 'text-red-500'
+                                            p.isPossible ? 'text-green-600' : 'text-red-500'
                                         }`}
                                     >
-                                        {p.isPossible
-                                            ? 'POSSIBLE'
-                                            : 'IMPOSSIBLE'}
+                                        {p.isPossible ? 'POSSIBLE' : 'IMPOSSIBLE'}
                                     </span>
                                     <span className="font-mono font-bold w-20 text-right">
                                         {(p.averageChance * 100).toFixed(2)}%

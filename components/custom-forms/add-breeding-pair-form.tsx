@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -101,7 +102,7 @@ export function AddPairForm({
         if (initialGoal) {
             setSelectedGoalIds([initialGoal.id]);
         }
-    }, [baseCreature, initialGoal]);
+    }, [baseCreature, initialGoal, isHybridMode]);
 
     const { selectedMale, selectedFemale } = useMemo(() => {
         const male = allCreatures.find((c) => c?.id === selectedMaleId);

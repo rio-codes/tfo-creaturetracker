@@ -1,12 +1,10 @@
-"use client";
+/* eslint-disable react-hooks/exhaustive-deps */
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import {
-    alertService,
-    Alert as AlertTypeFromService,
-    AlertType,
-} from "@/services/alert.service";
+import React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { alertService, Alert as AlertTypeFromService, AlertType } from '@/services/alert.service';
 
 interface AlertProps {
     id?: string;
@@ -19,7 +17,7 @@ interface AlertWithState extends AlertTypeFromService {
     keepAfterRouteChange?: boolean;
 }
 
-export function Alert({ id = "default-alert", fade = true }: AlertProps) {
+export function Alert({ id = 'default-alert', fade = true }: AlertProps) {
     const mounted = useRef(false);
     const pathname = usePathname();
     const [alerts, setAlerts] = useState<AlertWithState[]>([]);
@@ -28,38 +26,32 @@ export function Alert({ id = "default-alert", fade = true }: AlertProps) {
         mounted.current = true;
 
         // subscribe to new alert notifications from the service
-        const subscription = alertService
-            .onAlert(id)
-            .subscribe((alert: AlertWithState) => {
-                // clear alerts when an empty alert is received
-                if (!alert.message) {
-                    setAlerts((currentAlerts) => {
-                        const filteredAlerts = currentAlerts.filter(
-                            (x) => x.keepAfterRouteChange
-                        );
-                        // remove 'keepAfterRouteChange' flag from the rest
-                        return filteredAlerts.map(
-                            ({ keepAfterRouteChange, ...rest }) => rest
-                        );
-                    });
-                } else {
-                    // add a unique ID for the React key and removal logic
-                    alert.itemId = Math.random();
-                    setAlerts((currentAlerts) => [...currentAlerts, alert]);
+        const subscription = alertService.onAlert(id).subscribe((alert: AlertWithState) => {
+            // clear alerts when an empty alert is received
+            if (!alert.message) {
+                setAlerts((currentAlerts) => {
+                    const filteredAlerts = currentAlerts.filter((x) => x.keepAfterRouteChange);
+                    // remove 'keepAfterRouteChange' flag from the rest
+                    return filteredAlerts.map(({ keepAfterRouteChange, ...rest }) => rest);
+                });
+            } else {
+                // add a unique ID for the React key and removal logic
+                alert.itemId = Math.random();
+                setAlerts((currentAlerts) => [...currentAlerts, alert]);
 
-                    // auto close alert if required
-                    if (alert.autoClose) {
-                        setTimeout(() => removeAlert(alert), 3000);
-                    }
+                // auto close alert if required
+                if (alert.autoClose) {
+                    setTimeout(() => removeAlert(alert), 3000);
                 }
-            });
+            }
+        });
 
         // clean up function that runs when the component unmounts
         return () => {
             mounted.current = false;
             subscription.unsubscribe();
         };
-    }, [id]); // rerun effect if the id property changes
+    }, [id, removeAlert]); // rerun effect if the id property changes
 
     // separate effect to handle clearing alerts on route change
     useEffect(() => {
@@ -81,9 +73,7 @@ export function Alert({ id = "default-alert", fade = true }: AlertProps) {
             // remove alert after the fade-out animation completes
             setTimeout(() => {
                 setAlerts((currentAlerts) =>
-                    currentAlerts.filter(
-                        (x) => x.itemId !== alertToRemove.itemId
-                    )
+                    currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
                 );
             }, 250);
         } else {
@@ -95,19 +85,19 @@ export function Alert({ id = "default-alert", fade = true }: AlertProps) {
     }
 
     function cssClasses(alertItem: AlertWithState): string {
-        const baseClasses = "relative p-4 rounded-lg shadow-md"; // Base styles for all alerts
+        const baseClasses = 'relative p-4 rounded-lg shadow-md'; // Base styles for all alerts
 
         const alertTypeClasses = {
-            [AlertType.Success]: "bg-green-200 text-green-800",
-            [AlertType.Error]: "bg-red-200 text-red-800",
-            [AlertType.Info]: "bg-blue-200 text-blue-800",
-            [AlertType.Warning]: "bg-yellow-200 text-yellow-800",
+            [AlertType.Success]: 'bg-green-200 text-green-800',
+            [AlertType.Error]: 'bg-red-200 text-red-800',
+            [AlertType.Info]: 'bg-blue-200 text-blue-800',
+            [AlertType.Warning]: 'bg-yellow-200 text-yellow-800',
         };
 
         // Add a fade-out transition class if the alert is fading
         const fadeClass = alertItem.fade
-            ? "opacity-0 transition-opacity duration-200"
-            : "opacity-100";
+            ? 'opacity-0 transition-opacity duration-200'
+            : 'opacity-100';
 
         return `${baseClasses} ${alertTypeClasses[alertItem.type]} ${fadeClass}`;
     }

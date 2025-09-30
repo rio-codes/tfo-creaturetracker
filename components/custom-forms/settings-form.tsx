@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -446,7 +447,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         </SelectContent>
                                     </Select>
                                     <FormDescription className="text-dusk-purple dark:text-purple-400">
-                                        Choose between light, dark, or your system's default theme.
+                                        Choose between light, dark, or your system`&apos;`s default
+                                        theme.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

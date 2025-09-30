@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         });
 
         switch (action) {
-            case 'request':
+            case 'request': {
                 if (existingFriendship) {
                     return NextResponse.json(
                         { error: 'Friendship status already exists.' },
@@ -72,8 +72,8 @@ export async function POST(req: Request) {
                 });
 
                 return NextResponse.json({ message: 'Friend request sent.' });
-
-            case 'accept':
+            }
+            case 'accept': {
                 if (
                     !existingFriendship ||
                     existingFriendship.status !== 'pending' ||
@@ -102,8 +102,8 @@ export async function POST(req: Request) {
                 });
 
                 return NextResponse.json({ message: 'Friend request accepted.' });
-
-            case 'remove': // Used to reject a request
+            }
+            case 'remove': {
                 if (!existingFriendship) {
                     return NextResponse.json(
                         { error: 'No friendship to remove.' },
@@ -135,8 +135,8 @@ export async function POST(req: Request) {
                     return NextResponse.json({ message: 'Friend request declined.' });
                 }
                 return NextResponse.json({ message: 'Friendship removed.' });
-
-            case 'cancel': // Used to withdraw a sent request
+            }
+            case 'cancel': {
                 if (!existingFriendship) {
                     return NextResponse.json(
                         { error: 'No friendship to remove.' },
@@ -159,9 +159,10 @@ export async function POST(req: Request) {
                     description: `Cancelled friend request to ${friendUser?.username} .`,
                 });
                 return NextResponse.json({ message: 'Friend request cancelled.' });
-
-            default:
+            }
+            default: {
                 return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+            }
         }
     } catch (error) {
         console.error(error);

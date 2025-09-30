@@ -379,10 +379,11 @@ export function BreedingPairCard({
                                                                     Are you sure?
                                                                 </AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    This will remove "
-                                                                    {p.creatureName} ({p.code})"
-                                                                    from this pair's progeny log.
-                                                                    This action cannot be undone.
+                                                                    This will remove `&quot;`
+                                                                    {p.creatureName} ({p.code}
+                                                                    )`&quot;` from this
+                                                                    pair`&apos;`s progeny log. This
+                                                                    action cannot be undone.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>

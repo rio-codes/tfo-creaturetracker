@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -124,7 +125,8 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                         </Select>
                     </div>
                     <p className="text-xs text-dusk-purple dark:text-purple-400 col-span-4 py-5">
-                        Origins other than "Another Lab" can only be set if Generation is 1.
+                        Origins other than `&quot;`Another Lab`&quot;` can only be set if Generation
+                        is 1.
                     </p>
                 </div>
                 <div className="flex justify-end gap-2">

@@ -46,7 +46,7 @@ export default async function ActivityLogPage() {
                             ))
                         ) : (
                             <li className="p-4 text-center text-dusk-purple dark:text-purple-400">
-                                You haven't performed any actions yet.
+                                You haven&#39;t performed any actions yet.
                             </li>
                         )}
                     </ul>

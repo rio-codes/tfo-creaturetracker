@@ -20,8 +20,8 @@ export default function Page() {
                             <p>
                                 <b>
                                     Welcome to TFO.creaturetracker! Before you use our website and
-                                    services (collectively, the "Service"), please read these Terms
-                                    of Service ("Terms") carefully.
+                                    services (collectively, the &#34;Service&#34;), please read
+                                    these Terms of Service (&#34;Terms&#34;) carefully.
                                 </b>
                             </p>
                             <p>
@@ -37,8 +37,9 @@ export default function Page() {
                                 TFO.creaturetracker is an unofficial, non-commercial fan-made
                                 website. Our Service uses a publicly available Application
                                 Programming Interface (API) to fetch and display data, including
-                                text and images, from The Final Outpost (the "Source Site") to help
-                                track and manage breeding adoptable creatures from this site.
+                                text and images, from The Final Outpost (the &#34;Source Site&#34;)
+                                to help track and manage breeding adoptable creatures from this
+                                site.
                             </p>
                         </div>
 
@@ -124,7 +125,7 @@ export default function Page() {
                             <ul>
                                 <li>
                                     We are not responsible for the accuracy, content, or
-                                    availability of the data provided by the Source Site's API.
+                                    availability of the data provided by the Source Site&#39;s API.
                                 </li>
                                 <li>
                                     The Source Site may change or discontinue its API at any time,
@@ -146,14 +147,14 @@ export default function Page() {
                                 7. Disclaimers and Limitation of Liability
                             </h1>
                             <p>
-                                THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. WE
-                                MAKE NO WARRANTIES, EXPRESS OR IMPLIED, THAT THE SERVICE WILL BE
-                                UNINTERRUPTED, ERROR-FREE, OR SECURE. TO THE FULLEST EXTENT
-                                PERMITTED BY LAW, TFO.CREATURETRACKER AND ITS OPERATORS SHALL NOT BE
-                                LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
-                                PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER
-                                INCURRED DIRECTLY OR INDIRECTLY, ARISING FROM YOUR USE OF THE
-                                SERVICE.
+                                THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS
+                                AVAILABLE&#34; BASIS. WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED,
+                                THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE. TO
+                                THE FULLEST EXTENT PERMITTED BY LAW, TFO.CREATURETRACKER AND ITS
+                                OPERATORS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+                                CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR
+                                REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, ARISING FROM YOUR
+                                USE OF THE SERVICE.
                             </p>
                         </div>
                         <div className="py-5">
@@ -176,7 +177,7 @@ export default function Page() {
                             <h1 className="font-bold text-xl">10. Contact Us</h1>
                             <p>
                                 If you have any questions about these Terms, please contact us at{' '}
-                                <a href="mailto:rio.savvii@gmail.com">rio.savvii@gmail.com</a>.
+                                <a href="mailto:tfoct@mailbox.org">tfoct@mailbox.org</a>.
                             </p>
                         </div>
                     </CardContent>

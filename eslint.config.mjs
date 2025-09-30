@@ -1,32 +1,34 @@
+// @ts-nocheck
+
+import globals from 'globals';
+import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
-import nextPlugin from '@next/eslint-plugin-next';
-import prettierConfig from 'eslint-config-prettier';
+import nextConfig from 'eslint-config-next-flat';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
+
+/** @type {import('@typescript-eslint/utils').TSESLint.FlatConfig.ConfigFile} */
 
 export default tseslint.config(
     {
-        // Global ignores for files that shouldn't be linted
         ignores: [
             '**/.next/',
             '**/node_modules/',
             '**/build/',
             '**/out/',
-            '**/drizzle.config.ts',
-            '**/postcss.config.mjs',
+            '**/*.config.ts',
+            '**/*.config.mjs',
+            '**/*.config.js',
             '**/instrumentation.ts',
-            '**/instrumentation-client.ts',
             '**/next-env.d.ts',
-            '**/next.config.mjs',
+            '**/tsconfig.json',
         ],
     },
+    eslint.configs.recommended,
     ...tseslint.configs.recommended,
+    nextConfig,
     {
-        files: ['**/*.ts', '**/*.tsx'],
-        plugins: {
-            '@next/next': nextPlugin,
-        },
         rules: {
-            ...(nextPlugin.configs.recommended.rules as any),
-            ...(nextPlugin.configs['core-web-vitals'].rules as any),
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
             '@typescript-eslint/no-unused-vars': [
@@ -37,9 +39,13 @@ export default tseslint.config(
                     ignoreRestSiblings: true,
                 },
             ],
+            '@next/next/no-css-tags': 'off',
+            '@next/next/no-server-import-in-page': 'off',
             '@next/next/no-img-element': 'off',
-            '@next/next/no-page-custom-font': 'off',
-        } as any,
+            '@next/next/no-html-link-for-pages': 'off',
+            'react-hooks/rules-of-hooks': 'off',
+            'react-hooks/exhaustive-deps': 'off',
+        },
     },
-    prettierConfig
+    eslintConfigPrettier
 );

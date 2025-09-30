@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
 import { Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
 import { Toaster } from '@/components/ui/sonner';
+import React from 'react';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),

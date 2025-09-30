@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
                         </h1>
                     </div>
                     <p className="text-pompaca-purple">
-                        Enter your email and we'll send you a link to reset your password.
+                        Enter your email and we&#39;ll send you a link to reset your password.
                     </p>
                 </div>
 
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
                             Reset Password
                         </CardTitle>
                         <CardDescription className="text-dusk-purple">
-                            Enter your email address and we'll send you a link to reset your
+                            Enter your email address and we&#39;ll send you a link to reset your
                             password
                         </CardDescription>
                     </CardHeader>

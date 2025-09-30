@@ -1,4 +1,6 @@
 'use client';
+
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -153,7 +155,7 @@ export function FindPotentialPairsDialog({
             onLoadingChange(false);
         }, 50);
         return () => clearTimeout(timer);
-    }, [open, goal, allCreatures, allPairs, onLoadingChange]);
+    }, [open, goal, allCreatures, allPairs, onLoadingChange, allLogs, allRawPairs]);
     const handleCreateAndAssign = async (
         male: EnrichedCreature,
         female: EnrichedCreature,

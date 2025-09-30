@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -204,7 +205,7 @@ export function LogAsProgenyDialog({
                 <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden">
                     <DialogHeader>
                         <DialogTitle>
-                            Log "{creature?.creatureName} ({creature?.code})" as Progeny
+                            Log &#34;{creature?.creatureName} ({creature?.code})&#34; as Progeny
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">

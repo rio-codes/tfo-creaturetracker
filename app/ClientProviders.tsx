@@ -9,6 +9,7 @@ import { Footer } from '@/components/custom-layout-elements/footer';
 import { ThemeSyncer } from '@/components/misc-custom-components/theme-syncer';
 import { Analytics } from '@vercel/analytics/next';
 import HyperDX from '@hyperdx/browser';
+import React from 'react';
 
 if (typeof window !== 'undefined') {
     const apiKey = process.env.NEXT_PUBLIC_HYPERDX_API_KEY;

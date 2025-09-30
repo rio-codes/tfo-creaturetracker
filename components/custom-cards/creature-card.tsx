@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -101,12 +102,13 @@ export function CreatureCard({
     currentUser,
     isAdminView = false,
 }: CreatureCardProps) {
+    const router = useRouter();
+
     if (!creature) {
         return null;
     }
 
-    const router = useRouter();
-    const [isPinned, setIsPinned] = useState(creature.isPinned);
+    const [isPinned, setIsPinned] = useState(creature?.isPinned);
     const [isPinning, setIsPinning] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isFeaturing, setIsFeaturing] = useState(false);
@@ -617,7 +619,8 @@ export function CreatureCard({
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>
-                                            Remove "{creature.creatureName || creature.code}"?
+                                            Remove &#34;{creature.creatureName || creature.code}
+                                            &#34;?
                                         </AlertDialogTitle>
                                         <AlertDialogDescription>
                                             You can <strong>archive</strong> this creature to hide

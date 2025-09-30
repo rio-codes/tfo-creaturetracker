@@ -37,9 +37,9 @@ export default function HelpPage() {
                                             button.
                                         </li>
                                         <li>
-                                            In the dialog, you'll need to provide your TFO Tab ID.
-                                            You can find this in the URL of your creature tabs on
-                                            TFO. For example, if the URL is{' '}
+                                            In the dialog, you&#39;ll need to provide your TFO Tab
+                                            ID. You can find this in the URL of your creature tabs
+                                            on TFO. For example, if the URL is{' '}
                                             <code>
                                                 https://finaloutpost.net/tab/your_username/tab_name/12345/1/
                                             </code>
@@ -49,12 +49,12 @@ export default function HelpPage() {
                                         </li>
                                         <li>
                                             <strong>Important:</strong> Your creature tab on TFO
-                                            must be set to "Public" for the sync to work.
+                                            must be set to &#34;Public&#34; for the sync to work.
                                         </li>
                                         <li>
                                             You can save multiple tabs and choose which ones to sync
-                                            each time. Click "Sync All Checked" to import your
-                                            creatures.
+                                            each time. Click &#34;Sync All Checked&#34; to import
+                                            your creatures.
                                         </li>
                                     </ol>
                                 </AccordionContent>
@@ -70,10 +70,10 @@ export default function HelpPage() {
                                     <ul className="list-disc list-inside space-y-2 mt-2">
                                         <li>
                                             <strong>Creating a Goal:</strong> On the Research Goals
-                                            page, click "+ New Goal". You can specify a species,
-                                            name, and the desired genes. You can also create a goal
-                                            directly from a breeding pair's "Possible Outcomes"
-                                            dialog.
+                                            page, click &#34;+ New Goal&#34;. You can specify a
+                                            species, name, and the desired genes. You can also
+                                            create a goal directly from a breeding pair&#39;s
+                                            &#34;Possible Outcomes&#34; dialog.
                                         </li>
                                         <li>
                                             <strong>Phenotype vs. Genotype Mode:</strong>
@@ -82,8 +82,8 @@ export default function HelpPage() {
                                                     <strong>Phenotype Mode:</strong> This is the
                                                     default and recommended mode. It calculates odds
                                                     based on achieving a desired look (e.g.,
-                                                    "Steppes"), accepting any genotype that produces
-                                                    it.
+                                                    &#34;Steppes&#34;), accepting any genotype that
+                                                    produces it.
                                                 </li>
                                                 <li>
                                                     <strong>Genotype Mode:</strong> For advanced
@@ -95,9 +95,9 @@ export default function HelpPage() {
                                         <li>
                                             <strong>Goal Tracker:</strong> Clicking on a goal card
                                             takes you to its tracker page. Here, you can assign
-                                            breeding pairs to the goal and see their "Match Score" -
-                                            an average of the probabilities of each trait in your
-                                            goal.
+                                            breeding pairs to the goal and see their &#34;Match
+                                            Score&#34; - an average of the probabilities of each
+                                            trait in your goal.
                                             <br />
                                             <strong>Please note:</strong> this is not the actual
                                             probability of your pair having progeny that match your
@@ -110,10 +110,10 @@ export default function HelpPage() {
                                         </li>
                                         <li>
                                             <strong>Sharing a Goal:</strong> On the Goal Tracker
-                                            page, you'll find a share button. This generates a
+                                            page, you&#39;ll find a share button. This generates a
                                             public link that you can give to others. They can view
-                                            your goal's details, assigned pairs, and match scores
-                                            without needing to log in.
+                                            your goal&#39;s details, assigned pairs, and match
+                                            scores without needing to log in.
                                         </li>
                                     </ul>
                                 </AccordionContent>
@@ -129,31 +129,33 @@ export default function HelpPage() {
                                     <ul className="list-disc list-inside space-y-2 mt-2">
                                         <li>
                                             <strong>Creating a Pair:</strong> You can create a pair
-                                            from the Breeding Pairs page by clicking "+ New Pair",
-                                            or from a creature's card by clicking "Manage Breeding
-                                            Pairs".
+                                            from the Breeding Pairs page by clicking &#34;+ New
+                                            Pair&#34;, or from a creature&#39;s card by clicking
+                                            &#34;Manage Breeding Pairs&#34;.
                                         </li>
                                         <li>
-                                            <strong>Possible Outcomes:</strong> On a breeding pair's
-                                            card, click "Possible Outcomes" to see a detailed
-                                            breakdown of all potential genes and their probabilities
-                                            for the offspring. You can also generate a preview image
-                                            of any combination and save it as a new Research Goal.
+                                            <strong>Possible Outcomes:</strong> On a breeding
+                                            pair&#39;s card, click &#34;Possible Outcomes&#34; to
+                                            see a detailed breakdown of all potential genes and
+                                            their probabilities for the offspring. You can also
+                                            generate a preview image of any combination and save it
+                                            as a new Research Goal.
                                         </li>
                                         <li>
-                                            <strong>Logging Breedings:</strong> Click "Log Breeding"
-                                            to create a new log entry. You can add notes and link
-                                            any resulting progeny from your collection. This updates
-                                            the "Times Bred" count and adds the progeny to the
-                                            pair's list. Once you've logged creatures as progeny,
-                                            our system can use their pedigree to determine whether
-                                            your matches are inbred. We can't get this data from
-                                            TFO, so it's up to you to log it!
+                                            <strong>Logging Breedings:</strong> Click &#34;Log
+                                            Breeding&#34; to create a new log entry. You can add
+                                            notes and link any resulting progeny from your
+                                            collection. This updates the &#34;Times Bred&#34; count
+                                            and adds the progeny to the pair&#39;s list. Once
+                                            you&#39;ve logged creatures as progeny, our system can
+                                            use their pedigree to determine whether your matches are
+                                            inbred. We can&#39;t get this data from TFO, so it&#39;s
+                                            up to you to log it!
                                         </li>
                                         <li>
-                                            <strong>Viewing Logs:</strong> Click the "Logs" button
-                                            on a pair's card to see a history of all breeding
-                                            events, including notes and linked progeny.
+                                            <strong>Viewing Logs:</strong> Click the &#34;Logs&#34;
+                                            button on a pair&#39;s card to see a history of all
+                                            breeding events, including notes and linked progeny.
                                         </li>
                                     </ul>
                                 </AccordionContent>

@@ -10,8 +10,8 @@ export default function NotFound() {
             </h2>
             <img src="/images/misc/eyes_reganta.png"></img>
             <p className="mt-2 text-pompaca-purple dark:text-purple-400">
-                ʸᵉᵒʳᵐ Sorry, we couldn't....ʸᵉᵒʳᵐ we couldn't find the page you're looking
-                for....did you ʸᵉᵒʳᵐ hear that?
+                ʸᵉᵒʳᵐ Sorry, we couldn&#39;t....ʸᵉᵒʳᵐ we couldn&#39;t find the page you&#39;re
+                looking for....did you ʸᵉᵒʳᵐ hear that?
             </p>
             <Button
                 asChild

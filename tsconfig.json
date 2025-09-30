@@ -1,29 +1,30 @@
 {
     "compilerOptions": {
-        "lib": ["dom", "dom.iterable", "esnext"],
         "allowImportingTsExtensions": true,
         "allowJs": true,
-        "target": "esnext",
-        "skipLibCheck": true,
-        "strict": true,
-        "strictPropertyInitialization": false, // Keep this if you use classes with ORMs/DI
-        "noEmit": true,
+        "baseUrl": ".",
         "esModuleInterop": true,
-        "module": "esnext",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
+        "incremental": false,
         "isolatedModules": true,
         "jsx": "preserve",
-        "incremental": true,
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "paths": {
+            "@/*": ["./*"]
+        },
         "plugins": [
             {
                 "name": "next"
             }
         ],
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["./*"]
-        }
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "target": "esnext"
     },
     "include": [
         "types/next-auth.d.ts",
@@ -31,7 +32,7 @@
         "**/*.ts",
         "**/*.tsx",
         ".next/types/**/*.ts",
-        "eslint.config.ts"
+        "eslint.config.mjs"
     ],
     "exclude": ["node_modules", ".next"]
 }

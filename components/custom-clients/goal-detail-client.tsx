@@ -1,4 +1,6 @@
 'use client';
+
+import React from 'react';
 import { useMemo, useState, useEffect } from 'react';
 import { useMounted } from '@/hooks/use-mounted';
 import { useRouter } from 'next/navigation';
@@ -81,9 +83,9 @@ export function GoalDetailClient({
                 <div>
                     <p className="font-semibold">🪶 Phenotype Mode</p>
                     <p className="text-sm">
-                        Calculates odds based on achieving a desired look (e.g., "Steppes"),
+                        Calculates odds based on achieving a desired look (e.g., &#34;Steppes&#34;),
                         accepting any genotype that produces it. Match scores will be higher and
-                        "possible" goals more common. Recommended for most users.
+                        &#34;possible&#34; goals more common. Recommended for most users.
                     </p>
                 </div>
             </div>

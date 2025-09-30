@@ -117,7 +117,7 @@ export const columns: ColumnDef<EnrichedReport>[] = [
     },
     {
         id: 'actions',
-        cell: ({ row }) => {
+        cell: function Cell({ row }) {
             const router = useRouter();
             const report = row.original;
 

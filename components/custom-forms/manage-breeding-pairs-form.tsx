@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -62,7 +63,7 @@ export function ManageBreedingPairsForm({
     // Filter suitable mates and goals
     const suitableMates = useMemo(() => {
         return findSuitableMates(baseCreature, allCreatures);
-    }, [baseCreature, allCreatures, allPairs]);
+    }, [baseCreature, allCreatures]);
 
     const { maleParent, femaleParent } = useMemo(() => {
         if (!selectedMateId) {

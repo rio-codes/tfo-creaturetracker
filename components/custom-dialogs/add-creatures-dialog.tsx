@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { X, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -281,7 +282,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 <div>
                     <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 mb-4">
                         <span>
-                            Enter the Tab ID from your TFO tab's URL. For example, if the URL is
+                            Enter the Tab ID from your TFO tab&#39;s URL. For example, if the URL is
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
                                 .../tab/username/tab_name/12345/1/...
                             </code>
@@ -297,7 +298,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                         </span>
                         <br></br>
                         <span className="font-semibold text-sm py-1 mt-1">
-                            NOTE: The tab must be set to "Public" in TFO to fetch your creatures.
+                            NOTE: The tab must be set to &#34;Public&#34; in TFO to fetch your
+                            creatures.
                         </span>
                     </p>
                 </div>

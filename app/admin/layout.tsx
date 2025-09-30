@@ -1,5 +1,6 @@
 import { NavLink } from '@/components/custom-layout-elements/nav-link';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     return (

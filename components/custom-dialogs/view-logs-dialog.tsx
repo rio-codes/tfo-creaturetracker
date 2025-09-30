@@ -70,7 +70,7 @@ export function ViewLogsDialog({ pair, allCreatures, allLogs, children }: ViewLo
 
             router.refresh();
         } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred during deletion.');
+            setError(err.message ?? 'An unexpected error occurred during deletion.');
         } finally {
             setIsDeleting(null);
         }

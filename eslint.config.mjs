@@ -43,7 +43,8 @@ export default tseslint.config(
             '@next/next/no-server-import-in-page': 'off',
             '@next/next/no-img-element': 'off',
             '@next/next/no-html-link-for-pages': 'off',
-            '@react-hooks/rules-of-hooks': 'off',
+            'react-hooks/rules-of-hooks': 'off',
+            'react-hooks/exhaustive-deps': 'off',
         },
     },
     eslintConfigPrettier

@@ -1,8 +1,4 @@
-// @ts-nocheck
-
-import globals from 'globals';
 import eslint from '@eslint/js';
-import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import nextConfig from 'eslint-config-next-flat';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';

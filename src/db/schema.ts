@@ -196,7 +196,7 @@ export const creatures = pgTable(
         isArchived: boolean('is_archived').default(false).notNull(),
         generation: integer('generation').default(1).notNull(),
         g1Origin: text('g1_origin', {
-            enum: ['cupboard', 'genome-splicer', 'another-lab', 'quest'],
+            enum: ['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'],
         }),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),

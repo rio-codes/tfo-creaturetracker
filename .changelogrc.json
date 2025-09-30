@@ -1,6 +1,6 @@
 {
     "options": {
-        "preset": "gitmoji",
+        "preset": "conventionalcommits",
         "header": "TFOCT Changelog",
         "issueUrlFormat": "https://github.com/{{user}}/{{repository}}/issues/{{id}}",
         "commitUrlFormat": "https://github.com/{{user}}/{{repository}}/commit/{{hash}}",
@@ -18,7 +18,7 @@
             { "type": "perf", "section": "Performance" },
             { "type": "test", "section": "Tests" }
         ],
-        "preMajor": true,
+        "preMajor": false,
         "scope": [
             "collection",
             "breeding-pairs",
@@ -38,9 +38,6 @@
             "hyperdx",
             "docs",
             "release"
-        ],
-        "parserOpts": {
-            "preset": "gitmoji"
-        }
+        ]
     }
 }

@@ -8,7 +8,7 @@ import { logUserAction } from '@/lib/user-actions';
 
 const patchBodySchema = z.object({
     generation: z.number().int().positive().nullable(),
-    g1Origin: z.enum(['cupboard', 'genome-splicer', 'another-lab', 'quest']).nullable(),
+    g1Origin: z.enum(['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle']).nullable(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { creatureId: string } }) {

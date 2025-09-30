@@ -103,7 +103,7 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                         <Select
                             value={g1Origin}
                             onValueChange={(value) => {
-                                setG1Origin(value);
+                                setG1Origin(value as any);
                             }}
                         >
                             <SelectTrigger className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
@@ -119,6 +119,9 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                                 </SelectItem>
                                 <SelectItem value="genome-splicer" disabled={!isG1}>
                                     Genome Splicer
+                                </SelectItem>
+                                <SelectItem value="raffle" disabled={!isG1}>
+                                    Raffle
                                 </SelectItem>
                                 <SelectItem value="another-lab">Another Lab</SelectItem>
                             </SelectContent>

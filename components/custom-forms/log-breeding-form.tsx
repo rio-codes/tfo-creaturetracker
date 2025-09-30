@@ -9,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type { EnrichedCreature } from '@/types';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 
 type LogBreedingFormProps = {
-    pair: { id: string | undefined; species: string };
     allCreatures: EnrichedCreature[];
+    pair: { id: string | undefined; maleParent: EnrichedCreature; femaleParent: EnrichedCreature };
     onSuccess: () => void;
 };
 export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFormProps) {
@@ -23,10 +24,16 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Filter for potential offspring: same species, growth level 1 (capsule)
     const potentialProgeny = useMemo(() => {
-        return allCreatures.filter((c) => c?.species === pair?.species);
-    }, [allCreatures, pair?.species]);
+        if (!pair.maleParent?.species || !pair.femaleParent?.species) {
+            return [];
+        }
+        const possibleSpecies = getPossibleOffspringSpecies(
+            pair.maleParent.species,
+            pair.femaleParent.species
+        );
+        return allCreatures.filter((c) => c?.species && possibleSpecies.includes(c.species));
+    }, [allCreatures, pair.maleParent, pair.femaleParent]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

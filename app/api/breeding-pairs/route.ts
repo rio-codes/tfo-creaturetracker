@@ -17,7 +17,7 @@ const createPairSchema = z.object({
     species: z.string().min(1, 'Species is required.'),
     maleParentId: z.string('Invalid male parent ID.'),
     femaleParentId: z.string('Invalid female parent ID.'),
-    assignedGoalIds: z.array(z.string().uuid()).optional(),
+    assignedGoalIds: z.array(z.string('Invalid assigned goal ID(s).')).optional(),
 });
 
 export async function POST(req: Request) {

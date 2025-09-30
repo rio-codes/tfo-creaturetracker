@@ -1,13 +1,21 @@
-### 👩🏿‍🔬 TFO.CT Changelog 🧬
+# 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
-## <small>1.10.5 (2025-09-30)</small>
+## <small>1.10.5 (2025-09-29)</small>
 
-- fix(collection): 🐛 add raffle to G1 origins (#270) ([42209fe](https://github.com/rio-codes/tfo-creaturetracker/commit/42209fe)), closes [#270](https://github.com/rio-codes/tfo-creaturetracker/issues/270)
-- style(settings): 🥚 set source in headers function to domain root (#268) ([369c28e](https://github.com/rio-codes/tfo-creaturetracker/commit/369c28e)), closes [#268](https://github.com/rio-codes/tfo-creaturetracker/issues/268)
+- fix(pairs): 🚨 pass proper parameters to view logs dialog, fix type error in goal tracker
 
-## <small>1.10.4 (2025-09-30)</small>
+- fix(pairs): 🐛 check for possible offspring species in log as progeny dialog
 
-- chore(config): 🎨 upgrade ESLint config file to new "flat config" format (#267) ([df47e8e](https://github.com/rio-codes/tfo-creaturetracker/commit/df47e8e)), closes [#267](https://github.com/rio-codes/tfo-creaturetracker/issues/267)
+- style(config): 🎨 remove unused imports from eslint config
+- refactor(pairs): 🎨 implement null coalescing on error handling in view logs dialog
+- fix(api): 🐛 remove deprecated, unnecessary "uuid" zod prop
+- docs(release): 📝 update changelog, version bump to 1.10.5
+
+## <small>1.10.4 (2025-09-29)</small>
+
+- chore(config): 🎨 upgrade ESLint config file to new "flat config" format
+- style(settings): 🥚 set source in headers function to domain root
+- fix(collection): 🐛 add raffle to G1 origins
 
 ## <small>1.10.3 (2025-09-29)</small>
 
@@ -64,10 +72,10 @@
 
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([4005a99](https://github.com/rio-codes/tfo-creaturetracker/commit/4005a99))
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([a6e8d2a](https://github.com/rio-codes/tfo-creaturetracker/commit/a6e8d2a))
-- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 
 ## 1.8.0 (2025-09-27)
 
+- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 - docs(docs): 🎨 recreate changelog with proper semvers, automate changelog (#233) ([b203eca](https://github.com/rio-codes/tfo-creaturetracker/commit/b203eca)), closes [#233](https://github.com/rio-codes/tfo-creaturetracker/issues/233)
 - perf(db): ⚡️ set default generation "1" for all creatures in db schema (#232) ([2d4f62f](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4f62f)), closes [#232](https://github.com/rio-codes/tfo-creaturetracker/issues/232)
 

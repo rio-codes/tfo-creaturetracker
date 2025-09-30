@@ -111,7 +111,7 @@ export function PredictionsAccordion({ predictions, allCreatures }: PredictionsA
                                         </div>
                                     </div>
                                     <LogBreedingDialog
-                                        pair={pairForDialog}
+                                        pair={pairForDialog as any}
                                         allCreatures={allCreatures}
                                     >
                                         <Button

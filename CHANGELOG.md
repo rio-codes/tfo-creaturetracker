@@ -1,3 +1,14 @@
+### 👩🏿‍🔬 TFO.CT Changelog 🧬
+
+## <small>1.10.5 (2025-09-30)</small>
+
+- fix(collection): 🐛 add raffle to G1 origins (#270) ([42209fe](https://github.com/rio-codes/tfo-creaturetracker/commit/42209fe)), closes [#270](https://github.com/rio-codes/tfo-creaturetracker/issues/270)
+- style(settings): 🥚 set source in headers function to domain root (#268) ([369c28e](https://github.com/rio-codes/tfo-creaturetracker/commit/369c28e)), closes [#268](https://github.com/rio-codes/tfo-creaturetracker/issues/268)
+
+## <small>1.10.4 (2025-09-30)</small>
+
+- chore(config): 🎨 upgrade ESLint config file to new "flat config" format (#267) ([df47e8e](https://github.com/rio-codes/tfo-creaturetracker/commit/df47e8e)), closes [#267](https://github.com/rio-codes/tfo-creaturetracker/issues/267)
+
 ## <small>1.10.3 (2025-09-29)</small>
 
 - Create FUNDING.yml ([84cee0b](https://github.com/rio-codes/tfo-creaturetracker/commit/84cee0b))

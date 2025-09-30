@@ -11,7 +11,7 @@
         "start": "next start",
         "db:generate": "drizzle-kit generate",
         "db:push": "drizzle-kit push",
-        "changelog": "conventional-changelog --skip-unstable -p conventionalcommits -i CHANGELOG.md -n .changelogrc.json -r 1"
+        "changelog": "conventional-changelog -i CHANGELOG.md -n .changelogrc.json -r 0"
     },
     "pnpm": {
         "overrides": {

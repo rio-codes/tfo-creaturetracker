@@ -177,12 +177,11 @@ export function BreedingPairCard({
     const maleParent = pair!.maleParent;
     const femaleParent = pair!.femaleParent;
 
-    const pairForDialog = { id: pair!.id, species: pair!.species };
     return (
         <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
             {/*Notes Icon */}
             <div className="absolute top-2 left-2 z-10">
-                <ViewLogsDialog pair={pair} allCreatures={allCreatures} allLogs={allLogs}>
+                <ViewLogsDialog pair={pair} allCreatures={allCreatures}>
                     <Button
                         size="icon"
                         className="h-6 w-20 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
@@ -466,7 +465,7 @@ export function BreedingPairCard({
 
             {/* Footer Buttons */}
             <div className="flex w-full gap-x-1 justify-center p-2">
-                <LogBreedingDialog pair={pairForDialog} allCreatures={allCreatures}>
+                <LogBreedingDialog pair={pair} allCreatures={allCreatures}>
                     <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
                         Log
                         <br />

@@ -10,11 +10,11 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { LogBreedingForm } from '@/components/custom-forms/log-breeding-form';
-import type { EnrichedCreature } from '@/types';
+import type { EnrichedBreedingPair, EnrichedCreature } from '@/types';
 
 type LogBreedingDialogProps = {
-    pair: { id: string | undefined; species: string };
     allCreatures: EnrichedCreature[];
+    pair: EnrichedBreedingPair;
     children: React.ReactNode; // The trigger button
 };
 
@@ -34,7 +34,11 @@ export function LogBreedingDialog({ pair, allCreatures, children }: LogBreedingD
                     </DialogTitle>
                 </DialogHeader>
                 <LogBreedingForm
-                    pair={pair}
+                    pair={{
+                        id: pair.id,
+                        maleParent: pair.maleParent!,
+                        femaleParent: pair.femaleParent!,
+                    }}
                     allCreatures={allCreatures}
                     onSuccess={() => setIsOpen(false)}
                 />

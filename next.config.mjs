@@ -11,6 +11,19 @@ const nextConfig = {
         }
         return config;
     },
+    async headers() {
+        return [
+            {
+                source: '/about',
+                headers: [
+                    {
+                        key: 'X-Clacks-Overhead',
+                        value: 'GNU Terry Pratchett, David Bowie, Audre Lorde, Alexander Shulgin',
+                    },
+                ],
+            },
+        ];
+    },
 };
 
 export default nextConfig;

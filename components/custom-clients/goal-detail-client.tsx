@@ -83,10 +83,9 @@ export function GoalDetailClient({
                 <div>
                     <p className="font-semibold">🪶 Phenotype Mode</p>
                     <p className="text-sm">
-                        Calculates odds based on achieving a desired look (e.g.,
-                        `&quot;`Steppes`&quot;`), accepting any genotype that produces it. Match
-                        scores will be higher and `&quot;`possible`&quot;` goals more common.
-                        Recommended for most users.
+                        Calculates odds based on achieving a desired look (e.g., &#34;Steppes&#34;),
+                        accepting any genotype that produces it. Match scores will be higher and
+                        &#34;possible&#34; goals more common. Recommended for most users.
                     </p>
                 </div>
             </div>

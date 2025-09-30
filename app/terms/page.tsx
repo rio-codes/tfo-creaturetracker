@@ -20,8 +20,8 @@ export default function Page() {
                             <p>
                                 <b>
                                     Welcome to TFO.creaturetracker! Before you use our website and
-                                    services (collectively, the `&quot;`Service`&quot;`), please
-                                    read these Terms of Service (`&quot;`Terms`&quot;`) carefully.
+                                    services (collectively, the &#34;Service&#34;), please read
+                                    these Terms of Service (&#34;Terms&#34;) carefully.
                                 </b>
                             </p>
                             <p>
@@ -37,9 +37,9 @@ export default function Page() {
                                 TFO.creaturetracker is an unofficial, non-commercial fan-made
                                 website. Our Service uses a publicly available Application
                                 Programming Interface (API) to fetch and display data, including
-                                text and images, from The Final Outpost (the `&quot;`Source
-                                Site`&quot;`) to help track and manage breeding adoptable creatures
-                                from this site.
+                                text and images, from The Final Outpost (the &#34;Source Site&#34;)
+                                to help track and manage breeding adoptable creatures from this
+                                site.
                             </p>
                         </div>
 
@@ -125,8 +125,7 @@ export default function Page() {
                             <ul>
                                 <li>
                                     We are not responsible for the accuracy, content, or
-                                    availability of the data provided by the Source Site`&apos;`s
-                                    API.
+                                    availability of the data provided by the Source Site&#39;s API.
                                 </li>
                                 <li>
                                     The Source Site may change or discontinue its API at any time,
@@ -148,8 +147,8 @@ export default function Page() {
                                 7. Disclaimers and Limitation of Liability
                             </h1>
                             <p>
-                                THE SERVICE IS PROVIDED ON AN `&quot;`AS IS`&quot;` AND `&quot;`AS
-                                AVAILABLE`&quot;` BASIS. WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED,
+                                THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS
+                                AVAILABLE&#34; BASIS. WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED,
                                 THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR SECURE. TO
                                 THE FULLEST EXTENT PERMITTED BY LAW, TFO.CREATURETRACKER AND ITS
                                 OPERATORS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,

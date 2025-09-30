@@ -11,12 +11,11 @@ const newsItems = [
         content: (
             <>
                 <p>
-                    We`&apos;`re thrilled to have you here for the official launch of
-                    TFO.creaturetracker, which we have come to affectionately call
-                    `&quot;`tfoct`&quot;`. This is your dashboard to manage everything related to
-                    breeding creatures in The Final Outpost. Register{' '}
-                    <Link href="/register">here</Link> to get started. Then add your creatures to
-                    your{' '}
+                    We&#39;re thrilled to have you here for the official launch of
+                    TFO.creaturetracker, which we have come to affectionately call &#34;tfoct&#34;.
+                    This is your dashboard to manage everything related to breeding creatures in The
+                    Final Outpost. Register <Link href="/register">here</Link> to get started. Then
+                    add your creatures to your{' '}
                     <Link
                         href="/collection"
                         className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
@@ -68,7 +67,7 @@ export default function Page() {
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl md:text-3xl">
-                        Welcome to TFO.CT labs, let`&apos;`s do some science!
+                        Welcome to TFO.CT labs, let&#39;s do some science!
                     </h1>
                     <p className="text-pompaca-purple dark:text-purple-300 mt-2 text-lg">
                         This is your dashboard for managing creatures, breeding pairs, and research

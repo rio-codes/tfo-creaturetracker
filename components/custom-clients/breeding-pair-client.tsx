@@ -361,8 +361,8 @@ export function BreedingPairsClient({
                                 No Breeding Pairs Found
                             </h2>
                             <p className="text-dusk-purple dark:text-purple-400 mt-2">
-                                Try adjusting your search or filter, or click the `&quot;`+ New
-                                Pair`&quot;` button to get started.
+                                Try adjusting your search or filter, or click the &#34;+ New
+                                Pair&#34; button to get started.
                             </p>
                         </div>
                     ) : null}

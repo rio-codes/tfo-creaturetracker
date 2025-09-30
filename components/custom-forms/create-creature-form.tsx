@@ -259,7 +259,7 @@ export function CreateCreatureForm() {
                         ) : (
                             <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple/50 border rounded-md mx-auto">
                                 <p className="text-xs text-dusk-purple text-center p-2">
-                                    Click `&quot;`Preview Image`&quot;` to see the creature.
+                                    Click &#34;Preview Image&#34; to see the creature.
                                 </p>
                             </div>
                         )}

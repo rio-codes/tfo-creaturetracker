@@ -619,8 +619,8 @@ export function CreatureCard({
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>
-                                            Remove `&quot;`{creature.creatureName || creature.code}
-                                            `&quot;`?
+                                            Remove &#34;{creature.creatureName || creature.code}
+                                            &#34;?
                                         </AlertDialogTitle>
                                         <AlertDialogDescription>
                                             You can <strong>archive</strong> this creature to hide

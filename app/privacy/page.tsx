@@ -18,10 +18,10 @@ export default function Page() {
                     <CardContent className="flex-col py-5 text-md">
                         <div className="py-5">
                             <p>
-                                This Privacy Policy explains how TFO.creaturetracker
-                                (`&quot;`we,`&quot;` `&quot;`us,`&quot;` or `&quot;`our`&quot;`)
-                                collects, uses, and discloses information about you when you use our
-                                website and services (collectively, the `&quot;`Service`&quot;`).
+                                This Privacy Policy explains how TFO.creaturetracker (&#34;we,&#34;
+                                &#34;us,&#34; or &#34;our&#34;) collects, uses, and discloses
+                                information about you when you use our website and services
+                                (collectively, the &#34;Service&#34;).
                             </p>
                             <p>
                                 Your privacy is important to us. By using our Service, you agree to
@@ -52,8 +52,8 @@ export default function Page() {
                                             <li>
                                                 <b>Source Site Data: </b> When you create an account
                                                 and connect it to your profile on TFO (the
-                                                `&quot;`Source Site`&quot;`), you authorize us to
-                                                access and collect information from your Source Site
+                                                &#34;Source Site&#34;), you authorize us to access
+                                                and collect information from your Source Site
                                                 account via their API. This information is limited
                                                 to what the API makes available and may include your
                                                 public profile data, username, user ID, and other
@@ -79,7 +79,7 @@ export default function Page() {
                                                 administer our site and to improve your experience.
                                                 A cookie is a piece of information sent to your
                                                 browser from a website and stored on your
-                                                computer`&apos;`s hard drive. You can instruct your
+                                                computer&#39;s hard drive. You can instruct your
                                                 browser to refuse all cookies or to indicate when a
                                                 cookie is being sent.
                                             </li>
@@ -129,8 +129,8 @@ export default function Page() {
                                     </li>
                                     <li>
                                         <b>For Legal Reasons:</b> We may disclose your information
-                                        if we believe it`&apos;`s required by law, subpoena, or
-                                        other legal process.
+                                        if we believe it&#39;s required by law, subpoena, or other
+                                        legal process.
                                     </li>
                                     <li>
                                         <b>With Your Consent:</b> We may share your information with
@@ -160,7 +160,7 @@ export default function Page() {
                             <div className="py-5">
                                 <h1 className="font-bold text-xl">6. Third-Party Services</h1>
                                 <p>
-                                    Our Service is fundamentally linked to the Source Site`&apos;`s
+                                    Our Service is fundamentally linked to the Source Site&#39;s
                                     API. This Privacy Policy does not apply to the practices of the
                                     Source Site. We encourage you to review{' '}
                                     <a href="https://finaloutpost.net/privacypolicy/">
@@ -170,7 +170,7 @@ export default function Page() {
                                 </p>
                             </div>
                             <div className="py-5">
-                                <h1 className="font-bold text-xl">7. Children`&apos;`s Privacy</h1>
+                                <h1 className="font-bold text-xl">7. Children&#39;s Privacy</h1>
                                 <p>
                                     Our Service is not intended for children under the age of 13. We
                                     do not knowingly collect personally identifiable information

@@ -447,7 +447,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         </SelectContent>
                                     </Select>
                                     <FormDescription className="text-dusk-purple dark:text-purple-400">
-                                        Choose between light, dark, or your system`&apos;`s default
+                                        Choose between light, dark, or your system&#39;s default
                                         theme.
                                     </FormDescription>
                                     <FormMessage />

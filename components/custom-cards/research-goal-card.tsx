@@ -133,9 +133,9 @@ export function ResearchGoalCard({
                             ) : (
                                 <p className="dark:text-barely-lilac">
                                     Calculates odds based on achieving a desired look (e.g.,
-                                    `&quot;`Steppes`&quot;`), accepting any genotype that produces
-                                    it. Match scores will be higher and `&quot;`possible`&quot;`
-                                    goals more common. Recommended for most users.
+                                    &#34;Steppes&#34;), accepting any genotype that produces it.
+                                    Match scores will be higher and &#34;possible&#34; goals more
+                                    common. Recommended for most users.
                                 </p>
                             )}
                         </>

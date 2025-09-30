@@ -1,3 +1,22 @@
+# 🧬 TFO.CT Changelog 🧑🏿‍🔬
+
+## <small>1.10.5 (2025-09-29)</small>
+
+- fix(pairs): 🚨 pass proper parameters to view logs dialog, fix type error in goal tracker
+
+- fix(pairs): 🐛 check for possible offspring species in log as progeny dialog
+
+- style(config): 🎨 remove unused imports from eslint config
+- refactor(pairs): 🎨 implement null coalescing on error handling in view logs dialog
+- fix(api): 🐛 remove deprecated, unnecessary "uuid" zod prop
+- docs(release): 📝 update changelog, version bump to 1.10.5
+
+## <small>1.10.4 (2025-09-29)</small>
+
+- chore(config): 🎨 upgrade ESLint config file to new "flat config" format
+- style(settings): 🥚 set source in headers function to domain root
+- fix(collection): 🐛 add raffle to G1 origins
+
 ## <small>1.10.3 (2025-09-29)</small>
 
 - Create FUNDING.yml ([84cee0b](https://github.com/rio-codes/tfo-creaturetracker/commit/84cee0b))

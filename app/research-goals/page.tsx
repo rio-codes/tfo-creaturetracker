@@ -1,4 +1,4 @@
-import { fetchFilteredResearchGoals } from '@/lib/data';
+import { fetchFilteredResearchGoals, getAllEnrichedCreaturesForUser } from '@/lib/data';
 import { ResearchGoalClient } from '@/components/custom-clients/research-goal-client';
 import { Suspense } from 'react';
 
@@ -19,15 +19,17 @@ export default async function ResearchGoalsPage(props: {
     const searchParams = await props.searchParams;
     const session = await auth();
 
-    const [{ pinnedGoals, unpinnedGoals, totalPages }, currentUser] = await Promise.all([
-        fetchFilteredResearchGoals(searchParams),
-        session?.user?.id
-            ? (db.query.users.findFirst({
-                  where: eq(users.id, session.user.id),
-                  columns: { password: false },
-              }) as Promise<User | undefined>)
-            : Promise.resolve(undefined),
-    ]);
+    const [{ pinnedGoals, unpinnedGoals, totalPages }, currentUser, allCreatures] =
+        await Promise.all([
+            fetchFilteredResearchGoals(searchParams),
+            session?.user?.id
+                ? (db.query.users.findFirst({
+                      where: eq(users.id, session.user.id),
+                      columns: { password: false },
+                  }) as Promise<User | undefined>)
+                : Promise.resolve(undefined),
+            getAllEnrichedCreaturesForUser(),
+        ]);
 
     return (
         <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
@@ -38,6 +40,7 @@ export default async function ResearchGoalsPage(props: {
                         unpinnedGoals={unpinnedGoals}
                         totalPages={totalPages}
                         currentUser={currentUser ?? null}
+                        allCreatures={allCreatures}
                     />
                 </Suspense>
             </div>

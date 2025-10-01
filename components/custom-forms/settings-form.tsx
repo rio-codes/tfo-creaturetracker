@@ -86,6 +86,7 @@ const settingsFormSchema = z
         statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
         showStats: z.boolean().optional(),
         showFriendsList: z.boolean().optional(),
+        preserveFilters: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine(
@@ -127,6 +128,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             showLabLink: user.showLabLink ?? false,
             showStats: user.showStats ?? false,
             showFriendsList: user.showFriendsList ?? false,
+            preserveFilters: user.preserveFilters ?? false,
         },
     });
 
@@ -220,6 +222,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
             if (newImageUrl) sessionUpdateData.image = newImageUrl;
             if (updateData.theme && updateData.theme !== user.theme)
                 sessionUpdateData.theme = updateData.theme;
+
+            if (typeof updateData.preserveFilters === 'boolean') {
+                localStorage.setItem('preserveFilters', String(updateData.preserveFilters));
+            } else {
+                localStorage.removeItem('preserveFilters');
+            }
 
             await update(Object.keys(sessionUpdateData).length > 0 ? sessionUpdateData : undefined);
             // Refresh server components on the page
@@ -511,6 +519,27 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         <div className="space-y-1 leading-none">
                                             <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
                                                 Show Friends List on Profile
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="preserveFilters"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac">
+                                                Preserve Filters Between Sessions
                                             </FormLabel>
                                         </div>
                                     </FormItem>

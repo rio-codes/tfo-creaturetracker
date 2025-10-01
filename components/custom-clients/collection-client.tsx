@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { Switch } from '@mui/material';
+import { Dna, Feather } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, User } from '@/types';
@@ -34,7 +36,23 @@ import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
 import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-dialog';
-import { speciesList } from '@/constants/creature-data';
+import { structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
+
+declare module '@mui/material/styles' {
+    interface Palette {
+        custom: Palette['primary'];
+    }
+
+    interface PaletteOptions {
+        custom?: PaletteOptions['primary'];
+    }
+}
+
+declare module '@mui/material/Switch' {
+    interface SwitchPropsColorOverrides {
+        custom: true;
+    }
+}
 
 type CollectionClientProps = {
     pinnedCreatures: EnrichedCreature[];
@@ -46,6 +64,19 @@ type CollectionClientProps = {
     allEnrichedPairs: EnrichedBreedingPair[];
     allEnrichedGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
+    searchParams?: {
+        generation?: string;
+        g1Origin?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        page?: string;
+        query?: string;
+        stage?: string;
+        gender?: string;
+        species?: string;
+        showArchived?: string;
+        geneMode?: 'phenotype' | 'genotype';
+    };
 };
 
 function SortableCreatureCard(props: {
@@ -120,16 +151,15 @@ export function CollectionClient({
     allEnrichedPairs: allPairs,
     allEnrichedGoals: allGoals,
     currentUser,
+    searchParams: searchParamsFromProps, // Rename to avoid conflict
 }: CollectionClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
-            // Require the mouse to move by 5 pixels before activating
             activationConstraint: {
                 distance: 5,
             },
         }),
         useSensor(TouchSensor, {
-            // Press and hold for 250ms for touch devices
             activationConstraint: {
                 delay: 250,
                 tolerance: 5,
@@ -138,20 +168,47 @@ export function CollectionClient({
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
-    const searchParams = useSearchParams();
+    const currentSearchParams = useSearchParams(); // Keep this for building new URLs
     const pathname = usePathname();
-    const router = useRouter();
+    const { replace } = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
     const [unpinnedCreatures, setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
+    const [geneMode, setGeneMode] = useState<'phenotype' | 'genotype'>(
+        searchParamsFromProps?.geneMode || 'phenotype'
+    );
 
     useEffect(() => {
+        console.log('[CollectionClient] Component did mount.');
         setIsMounted(true);
     }, []);
 
     useEffect(() => {
+        console.log('[CollectionClient] Props updated. Received:', {
+            pinned: initialPinnedCreatures?.length,
+            unpinned: initialUnpinnedCreatures?.length,
+        });
         setPinnedCreatures(initialPinnedCreatures || []);
         setUnpinnedCreatures(initialUnpinnedCreatures || []);
     }, [initialPinnedCreatures, initialUnpinnedCreatures]);
+
+    useEffect(() => {
+        // This effect should only run once on mount to restore filters if the user
+        // navigates to the page without any search params.
+        const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
+        const hasSearchParams = currentSearchParams.toString().length > 0;
+
+        if (preserveFilters && !hasSearchParams) {
+            console.log('[CollectionClient] "Preserve Filters" is ON.');
+            const savedFilters = localStorage.getItem('collectionFilters');
+            if (savedFilters) {
+                console.log(
+                    '[CollectionClient] Found saved filters in localStorage, replacing URL:',
+                    savedFilters
+                );
+                replace(`${pathname}?${savedFilters}`);
+            }
+        }
+    }, []);
 
     const handleDragStart = (event: any) => {
         if (window.navigator.vibrate) {
@@ -193,29 +250,84 @@ export function CollectionClient({
 
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
-            const params = new URLSearchParams(searchParams);
+            const params = new URLSearchParams(currentSearchParams);
             params.set('page', '1');
+            const isCheckbox = typeof value === 'boolean';
 
-            if (filterName === 'showArchived') {
-                if (value) {
-                    params.set(filterName, 'true');
+            if (isCheckbox) {
+                if (value) params.set(filterName, 'true');
+                else params.delete(filterName);
+            } else {
+                if (value && value !== 'all') {
+                    params.set(filterName, String(value));
                 } else {
                     params.delete(filterName);
                 }
-            } else if (value && value !== 'all') {
-                params.set(filterName, String(value));
-            } else {
-                params.delete(filterName);
             }
-            router.replace(`${pathname}?${params.toString()}`);
+
+            const searchString = params.toString();
+            const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
+
+            if (preserveFilters) {
+                localStorage.setItem('collectionFilters', searchString);
+            } else {
+                localStorage.removeItem('collectionFilters');
+            }
+
+            console.log(
+                '[CollectionClient] handleFilterChange is navigating to:',
+                `${pathname}?${searchString}`
+            );
+            replace(`${pathname}?${searchString}`);
         },
         300
     );
 
-    const currentSpecies = searchParams.get('species') || 'all';
-    const currentStage = searchParams.get('stage') || 'all';
-    const currentQuery = searchParams.get('query') || '';
-    const showArchived = searchParams.get('showArchived') === 'true';
+    const ownedSpecies = useMemo(() => {
+        if (!allCreatures) return [];
+        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
+        return Array.from(speciesSet).sort() as string[];
+    }, [allCreatures]);
+
+    const geneCategories = useMemo(() => {
+        const selectedSpecies = searchParamsFromProps?.species;
+        if (!selectedSpecies || selectedSpecies === 'all') return [];
+        return Object.keys(
+            (structuredGeneData as AllSpeciesGeneData)[selectedSpecies] || {}
+        ).filter((cat) => cat !== 'Gender');
+    }, [searchParamsFromProps?.species]);
+
+    const geneOptions = useMemo(() => {
+        const selectedSpecies = searchParamsFromProps?.species;
+        const selectedGeneCategory = searchParamsFromProps?.geneCategory;
+        if (!selectedSpecies || selectedSpecies === 'all' || !selectedGeneCategory) return [];
+
+        const categoryData = (structuredGeneData as AllSpeciesGeneData)[selectedSpecies]?.[
+            selectedGeneCategory
+        ];
+        if (!categoryData) return [];
+
+        if (geneMode === 'phenotype') {
+            const phenotypes = new Set(categoryData.map((g) => g.phenotype));
+            return Array.from(phenotypes).map((p) => ({
+                value: p,
+                label: p,
+            }));
+        } else {
+            // genotype mode
+            return categoryData.map((g) => ({
+                value: g.genotype,
+                label: `${g.phenotype} (${g.genotype})`,
+            }));
+        }
+    }, [searchParamsFromProps?.species, searchParamsFromProps?.geneCategory, geneMode]);
+
+    const currentStage = searchParamsFromProps?.stage || 'all';
+    const currentQuery = searchParamsFromProps?.query || '';
+    const showArchived = searchParamsFromProps?.showArchived === 'true';
+    const currentGeneration = searchParamsFromProps?.generation || '';
+    const currentG1Origin = searchParamsFromProps?.g1Origin || 'all';
+    const g1Origins = ['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'];
 
     return (
         <div className="min-h-screen">
@@ -231,12 +343,12 @@ export function CollectionClient({
                 </Button>
                 <AddCreaturesDialog isOpen={isSyncDialogOpen} onClose={handleCloseDialog} />
                 {/* Search and Filters */}
-                <div className="flex flex-col lg:flex-row gap-4 mb-8">
+                <div className="flex flex-col gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
                         <Input
-                            placeholder="search for a creature..."
+                            placeholder="Search by name, code, origin, or genes..."
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) => handleFilterChange('query', e.target.value)}
@@ -244,55 +356,152 @@ export function CollectionClient({
                     </div>
 
                     {/* Gender Filters */}
-                    <select.Select
-                        defaultValue={searchParams.get('gender') || 'all'}
-                        onValueChange={(value) => handleFilterChange('gender', value)}
-                    >
-                        <select.SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
-                            <select.SelectValue placeholder="Filter by gender..." />
-                        </select.SelectTrigger>
-                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <select.SelectItem value="all">All Genders</select.SelectItem>
-                            <select.SelectItem value="female">Female</select.SelectItem>
-                            <select.SelectItem value="male">Male</select.SelectItem>
-                        </select.SelectContent>
-                    </select.Select>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <select.Select
+                            defaultValue={searchParamsFromProps?.gender || 'all'}
+                            onValueChange={(value) => handleFilterChange('gender', value)}
+                        >
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
+                                <select.SelectValue placeholder="Gender" />
+                            </select.SelectTrigger>
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <select.SelectItem value="all">All Genders</select.SelectItem>
+                                <select.SelectItem value="female">Female</select.SelectItem>
+                                <select.SelectItem value="male">Male</select.SelectItem>
+                            </select.SelectContent>
+                        </select.Select>
 
-                    {/* Stage Filter */}
-                    <select.Select
-                        value={currentStage}
-                        onValueChange={(e) => handleFilterChange('stage', e)}
-                    >
-                        <select.SelectTrigger className="w-32 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                            <select.SelectValue placeholder="Filter by stage..." />
-                        </select.SelectTrigger>
-                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <select.SelectItem value="all">All Stages</select.SelectItem>
-                            <select.SelectItem value="capsule">Capsule</select.SelectItem>
-                            <select.SelectItem value="juvenile">Juvenile</select.SelectItem>
-                            <select.SelectItem value="adult">Adult</select.SelectItem>
-                        </select.SelectContent>
-                    </select.Select>
+                        <select.Select
+                            value={currentStage}
+                            onValueChange={(e) => handleFilterChange('stage', e)}
+                        >
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                                <select.SelectValue placeholder="Stage" />
+                            </select.SelectTrigger>
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <select.SelectItem value="all">All Stages</select.SelectItem>
+                                <select.SelectItem value="capsule">Capsule</select.SelectItem>
+                                <select.SelectItem value="juvenile">Juvenile</select.SelectItem>
+                                <select.SelectItem value="adult">Adult</select.SelectItem>
+                            </select.SelectContent>
+                        </select.Select>
 
-                    {/* Species Filter */}
-                    <select.Select
-                        value={currentSpecies}
-                        onValueChange={(value) => handleFilterChange('species', value)}
-                    >
-                        <select.SelectTrigger className="w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                            <select.SelectValue placeholder="Filter by species..." />
-                        </select.SelectTrigger>
-                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                            <select.SelectItem value="all">All Species</select.SelectItem>
-                            {speciesList.map((species) => {
-                                return (
-                                    <select.SelectItem key={species} value={species}>
-                                        {species}
+                        <Input
+                            type="number"
+                            placeholder="Generation"
+                            className="bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                            defaultValue={currentGeneration}
+                            onChange={(e) => handleFilterChange('generation', e.target.value)}
+                        />
+
+                        <select.Select
+                            value={currentG1Origin}
+                            onValueChange={(value) => handleFilterChange('g1Origin', value)}
+                        >
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                                <select.SelectValue placeholder="G1 Origin" />
+                            </select.SelectTrigger>
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <select.SelectItem value="all">All Origins</select.SelectItem>
+                                {g1Origins.map((origin) => (
+                                    <select.SelectItem key={origin} value={origin}>
+                                        {origin.charAt(0).toUpperCase() + origin.slice(1)}
                                     </select.SelectItem>
-                                );
-                            })}
-                        </select.SelectContent>
-                    </select.Select>
+                                ))}
+                            </select.SelectContent>
+                        </select.Select>
+
+                        <select.Select
+                            value={searchParamsFromProps?.species || 'all'}
+                            onValueChange={(value) => {
+                                const params = new URLSearchParams(currentSearchParams);
+                                params.set('page', '1');
+                                params.set('species', value);
+                                params.delete('geneCategory');
+                                params.delete('geneQuery');
+                                replace(`${pathname}?${params.toString()}`);
+                            }}
+                        >
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                                <select.SelectValue placeholder="Species" />
+                            </select.SelectTrigger>
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <select.SelectItem value="all">All Species</select.SelectItem>
+                                {ownedSpecies.map((s) => (
+                                    <select.SelectItem key={s} value={s!}>
+                                        {s}
+                                    </select.SelectItem>
+                                ))}
+                            </select.SelectContent>
+                        </select.Select>
+                    </div>
+                    {searchParamsFromProps?.species && searchParamsFromProps.species !== 'all' && (
+                        <div className="flex flex-col md:flex-row gap-4 items-center">
+                            <select.Select
+                                value={searchParamsFromProps?.geneCategory || 'any'}
+                                onValueChange={(value) => handleFilterChange('geneCategory', value)}
+                            >
+                                <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                    <select.SelectValue placeholder="Filter by Genetic Trait" />
+                                </select.SelectTrigger>
+                                <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <select.SelectItem value="any">Any Trait</select.SelectItem>
+                                    {geneCategories.map((cat) => (
+                                        <select.SelectItem key={cat} value={cat}>
+                                            {cat}
+                                        </select.SelectItem>
+                                    ))}
+                                </select.SelectContent>
+                            </select.Select>
+
+                            {searchParamsFromProps?.geneCategory && (
+                                <>
+                                    <select.Select
+                                        value={searchParamsFromProps?.geneQuery || 'any'}
+                                        onValueChange={(value) =>
+                                            handleFilterChange('geneQuery', value)
+                                        }
+                                    >
+                                        <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                            <select.SelectValue placeholder="Select Gene" />
+                                        </select.SelectTrigger>
+                                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                            <select.SelectItem value="any">Any</select.SelectItem>
+                                            {geneOptions.map((opt) => (
+                                                <select.SelectItem
+                                                    key={opt.value}
+                                                    value={opt.value}
+                                                >
+                                                    {opt.label}
+                                                </select.SelectItem>
+                                            ))}
+                                        </select.SelectContent>
+                                    </select.Select>
+                                    <div className="flex items-center space-x-2">
+                                        <Label
+                                            htmlFor="gene-mode"
+                                            className="text-pompaca-purple dark:text-barely-lilac"
+                                        >
+                                            <Feather className="h-4 w-4" />
+                                        </Label>
+                                        <Switch
+                                            checked={geneMode === 'genotype'}
+                                            onChange={(event, checked) => {
+                                                const newMode = checked ? 'genotype' : 'phenotype';
+                                                setGeneMode(newMode);
+                                                handleFilterChange('geneMode', newMode);
+                                            }}
+                                            color="custom"
+                                            size="medium"
+                                        />
+                                        <Label className="text-pompaca-purple dark:text-barely-lilac">
+                                            <Dna className="h-4 w-4" />
+                                        </Label>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="flex items-center space-x-2 mb-8">
                     <Checkbox

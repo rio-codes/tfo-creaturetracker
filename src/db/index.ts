@@ -15,4 +15,4 @@ const client = postgres(connectionString, {
     ssl: 'require',
 });
 
-export const db = drizzle(client, { schema, logger: false });
+export const db = drizzle(client, { schema, logger: true });

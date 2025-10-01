@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type {
@@ -22,6 +22,7 @@ import {
 import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { BreedingPairCard } from '@/components/custom-cards/breeding-pair-card';
+import { useSearchParams } from 'next/navigation';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { AddBreedingPairDialog } from '@/components/custom-dialogs/add-breeding-pair-dialog';
 import { Input } from '@/components/ui/input';
@@ -41,7 +42,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { speciesList } from '@/constants/creature-data';
 import { Search } from 'lucide-react';
 
 type BreedingPairsClientProps = {
@@ -56,6 +56,9 @@ type BreedingPairsClientProps = {
         page?: string;
         query?: string;
         species?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        geneMode?: 'phenotype' | 'genotype';
     };
 };
 
@@ -162,6 +165,7 @@ export function BreedingPairsClient({
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+    const currentSearchParams = useSearchParams();
 
     useEffect(() => {
         setIsMounted(true);
@@ -171,6 +175,48 @@ export function BreedingPairsClient({
         setPinnedPairs(initialPinnedPairs);
         setUnpinnedPairs(initialUnpinnedPairs);
     }, [initialPinnedPairs, initialUnpinnedPairs]);
+
+    useEffect(() => {
+        const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
+        const hasSearchParams = currentSearchParams.toString().length > 0;
+
+        if (preserveFilters && !hasSearchParams) {
+            const savedFilters = localStorage.getItem('breedingPairsFilters');
+            if (savedFilters) {
+                router.replace(`${pathname}?${savedFilters}`);
+            }
+        }
+    }, []);
+
+    const handleFilterChange = useDebouncedCallback(
+        (filterName: string, value: string | boolean) => {
+            const params = new URLSearchParams(currentSearchParams);
+            params.set('page', '1');
+            const isCheckbox = typeof value === 'boolean';
+
+            if (isCheckbox) {
+                if (value) params.set(filterName, 'true');
+                else params.delete(filterName);
+            } else {
+                if (value && value !== 'all' && value !== 'any') {
+                    params.set(filterName, String(value));
+                } else {
+                    params.delete(filterName);
+                }
+            }
+
+            const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
+            const searchString = params.toString();
+
+            if (preserveFilters) {
+                localStorage.setItem('breedingPairsFilters', searchString);
+            } else {
+                localStorage.removeItem('breedingPairsFilters');
+            }
+            router.replace(`${pathname}?${searchString}`);
+        },
+        300
+    );
 
     const handleDragStart = (event: any) => {
         // Provide haptic feedback on mobile devices when a drag starts.
@@ -205,27 +251,11 @@ export function BreedingPairsClient({
         }
     };
 
-    const handleSearch = useDebouncedCallback((term: string) => {
-        const params = new URLSearchParams(searchParams);
-        params.set('page', '1');
-        if (term) {
-            params.set('query', term);
-        } else {
-            params.delete('query');
-        }
-        router.replace(`${pathname}?${params.toString()}`);
-    }, 300);
-
-    const handleSpeciesFilter = (species: string) => {
-        const params = new URLSearchParams(searchParams);
-        params.set('page', '1');
-        if (species && species !== 'all') {
-            params.set('species', species);
-        } else {
-            params.delete('species');
-        }
-        router.replace(`${pathname}?${params.toString()}`);
-    };
+    const ownedSpecies = useMemo(() => {
+        if (!allCreatures) return [];
+        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
+        return Array.from(speciesSet).sort() as string[];
+    }, [allCreatures]);
 
     return (
         <TooltipProvider>
@@ -243,32 +273,41 @@ export function BreedingPairsClient({
                         />
                     </div>
                     {/* Search and Filter Controls */}
-                    <div className="flex gap-4 mb-8">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
-                            <Input
-                                placeholder="Search by pair name, parent name, or code..."
-                                defaultValue={searchParams?.query || ''}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
-                            />
+                    <div className="flex flex-col gap-4 mb-8">
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                                <Input
+                                    placeholder="Search by pair name, parent name/code, or genes..."
+                                    defaultValue={searchParams?.query || ''}
+                                    onChange={(e) => handleFilterChange('query', e.target.value)}
+                                    className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                                />
+                            </div>
+                            <Select
+                                value={searchParams?.species || 'all'}
+                                onValueChange={(value) => {
+                                    const params = new URLSearchParams(currentSearchParams);
+                                    params.set('page', '1');
+                                    params.set('species', value);
+                                    params.delete('geneCategory');
+                                    params.delete('geneQuery');
+                                    router.replace(`${pathname}?${params.toString()}`);
+                                }}
+                            >
+                                <SelectTrigger className="w-full md:w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                    <SelectValue placeholder="Filter by species" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <SelectItem value="all">All Species</SelectItem>
+                                    {ownedSpecies.map((s) => (
+                                        <SelectItem key={s} value={s!}>
+                                            {s}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Select
-                            onValueChange={handleSpeciesFilter}
-                            defaultValue={searchParams?.species || 'all'}
-                        >
-                            <SelectTrigger className="w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
-                                <SelectValue placeholder="Filter by species" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                                <SelectItem value="all">All Species</SelectItem>
-                                {speciesList.map((species) => (
-                                    <SelectItem key={species} value={species!}>
-                                        {species}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
                     </div>
 
                     {/* Pinned Pairs */}

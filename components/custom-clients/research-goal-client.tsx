@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import type { EnrichedResearchGoal } from '@/types';
@@ -36,7 +36,7 @@ import { Button } from '@/components/ui/button';
 import { ResearchGoalCard } from '@/components/custom-cards/research-goal-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { AddGoalDialog } from '@/components/custom-dialogs/add-goal-dialog';
-import { speciesList } from '@/constants/creature-data';
+import { EnrichedCreature } from '@/types';
 import { User } from '@/types';
 
 type ResearchGoalClientProps = {
@@ -44,6 +44,7 @@ type ResearchGoalClientProps = {
     unpinnedGoals: EnrichedResearchGoal[];
     totalPages: number;
     currentUser?: User | null;
+    allCreatures: EnrichedCreature[];
 };
 
 function SortableGoalCard({
@@ -106,6 +107,7 @@ export function ResearchGoalClient({
     unpinnedGoals: initialUnpinnedGoals,
     totalPages,
     currentUser,
+    allCreatures,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
     const [unpinnedGoals, setUnpinnedGoals] = useState(initialUnpinnedGoals);
@@ -120,6 +122,12 @@ export function ResearchGoalClient({
         setPinnedGoals(initialPinnedGoals);
         setUnpinnedGoals(initialUnpinnedGoals);
     }, [initialPinnedGoals, initialUnpinnedGoals]);
+
+    const ownedSpecies = useMemo(() => {
+        if (!allCreatures) return [];
+        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
+        return Array.from(speciesSet).sort() as string[];
+    }, [allCreatures]);
 
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -216,7 +224,7 @@ export function ResearchGoalClient({
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                             <SelectItem value="all">All Species</SelectItem>
-                            {speciesList.map((species) => (
+                            {ownedSpecies.map((species) => (
                                 <SelectItem key={species} value={species}>
                                     {species}
                                 </SelectItem>

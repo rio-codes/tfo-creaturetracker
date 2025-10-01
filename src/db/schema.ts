@@ -69,6 +69,7 @@ export const users = pgTable('user', {
     statusEmoji: text('status_emoji'),
     showStats: boolean('show_stats').default(true).notNull(),
     showFriendsList: boolean('show_friends_list').default(true).notNull(),
+    preserveFilters: boolean('preserve_filters').default(false).notNull(),
 });
 
 export const accounts = pgTable(

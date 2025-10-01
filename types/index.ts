@@ -41,6 +41,7 @@ export type User = {
     statusEmoji?: string | null;
     showStats: boolean;
     showFriendsList: boolean;
+    preserveFilters: boolean;
 };
 
 export type EnrichedCreature =

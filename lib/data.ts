@@ -24,6 +24,7 @@ import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serial
 import { calculateGeneProbability } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
+import { structuredGeneData } from '../constants/creature-data';
 
 // ============================================================================
 // === HELPER FUNCTIONS =======================================================
@@ -286,13 +287,60 @@ export async function fetchFilteredCreatures(
         stage?: string;
         species?: string;
         showArchived?: string;
+        generation?: string;
+        g1Origin?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        geneMode?: 'phenotype' | 'genotype';
     } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
-    const { query, gender, stage, species, showArchived } = searchParams;
+    const {
+        query,
+        gender,
+        stage,
+        species,
+        showArchived,
+        generation,
+        g1Origin,
+        geneCategory,
+        geneQuery,
+        geneMode,
+    } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
+
+    let geneConditions;
+    if (
+        geneCategory &&
+        geneCategory !== 'any' &&
+        geneQuery &&
+        geneQuery !== 'any' &&
+        species &&
+        species !== 'all'
+    ) {
+        if (geneMode === 'genotype') {
+            geneConditions = ilike(creatures.genetics, `%${geneCategory}:${geneQuery}%`);
+        } else {
+            // Phenotype search
+            const speciesGeneInfo = structuredGeneData[species];
+            const categoryGenes = speciesGeneInfo?.[geneCategory];
+            if (categoryGenes) {
+                const matchingGenotypes = categoryGenes
+                    .filter((g) => g.phenotype === geneQuery)
+                    .map((g) => g.genotype);
+
+                if (matchingGenotypes.length > 0) {
+                    geneConditions = or(
+                        ...matchingGenotypes.map((gt) =>
+                            ilike(creatures.genetics, `%${geneCategory}:${gt}%`)
+                        )
+                    );
+                }
+            }
+        }
+    }
 
     // get logged-in user from db, determine setting for creatures per page and offset
     const user = await db.query.users.findFirst({
@@ -313,11 +361,19 @@ export async function fetchFilteredCreatures(
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
         query
-            ? or(ilike(creatures.code, `%${query}%`), ilike(creatures.creatureName, `%${query}%`))
+            ? or(
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`),
+                  ilike(creatures.genetics, `%${query}%`),
+                  ilike(creatures.g1Origin, `%${query}%`)
+              )
             : undefined,
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
+        generation ? eq(creatures.generation, Number(generation)) : undefined,
+        g1Origin && g1Origin !== 'all' ? eq(creatures.g1Origin, g1Origin as any) : undefined,
+        geneConditions,
     ].filter(Boolean);
 
     try {
@@ -435,10 +491,13 @@ export async function fetchBreedingPairsWithStats(
         page?: string;
         query?: string;
         species?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        geneMode?: 'phenotype' | 'genotype';
     } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
-    const { query, species } = searchParams;
+    const { query, species, geneCategory, geneQuery, geneMode } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
@@ -466,10 +525,29 @@ export async function fetchBreedingPairsWithStats(
             ? or(
                   ilike(breedingPairs.pairName, `%${query}%`),
                   ilike(maleCreatures.creatureName, `%${query}%`),
-                  ilike(maleCreatures.code, `%${query}%`), // Corrected this line
+                  ilike(maleCreatures.code, `%${query}%`),
                   ilike(femaleCreatures.creatureName, `%${query}%`),
-                  ilike(femaleCreatures.code, `%${query}%`) // Corrected this line
+                  ilike(femaleCreatures.code, `%${query}%`),
+                  ilike(maleCreatures.genetics, `%${query}%`),
+                  ilike(femaleCreatures.genetics, `%${query}%`)
               )
+            : undefined,
+        geneCategory && geneCategory !== 'any'
+            ? or(
+                  ilike(maleCreatures.genetics, `%${geneCategory}:%`),
+                  ilike(femaleCreatures.genetics, `%${geneCategory}:%`)
+              )
+            : undefined,
+        geneCategory && geneCategory !== 'any' && geneQuery && geneQuery !== 'any'
+            ? geneMode === 'genotype'
+                ? or(
+                      ilike(maleCreatures.genetics, `%${geneCategory}:${geneQuery}%`),
+                      ilike(femaleCreatures.genetics, `%${geneCategory}:${geneQuery}%`)
+                  )
+                : or(
+                      ilike(maleCreatures.genetics, `%${geneCategory}:%${geneQuery}%`),
+                      ilike(femaleCreatures.genetics, `%${geneCategory}:%${geneQuery}%`)
+                  )
             : undefined,
     ].filter((c): c is NonNullable<typeof c> => c !== undefined);
 

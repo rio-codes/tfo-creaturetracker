@@ -45,6 +45,7 @@ const settingsSchema = z
         statusEmoji: z.string().max(4, 'Invalid emoji.').optional().nullable(),
         showStats: z.boolean().optional(),
         showFriendsList: z.boolean().optional(),
+        preserveFilters: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine(

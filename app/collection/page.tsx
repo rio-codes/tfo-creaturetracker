@@ -26,9 +26,27 @@ export default async function CollectionPage({
         gender?: string;
         species?: string;
         showArchived?: string;
+        generation?: string;
+        g1Origin?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        geneMode?: 'phenotype' | 'genotype';
     };
 }) {
     const session = await auth();
+    const plainSearchParams = {
+        page: searchParams?.page,
+        query: searchParams?.query,
+        stage: searchParams?.stage,
+        gender: searchParams?.gender,
+        species: searchParams?.species,
+        showArchived: searchParams?.showArchived,
+        generation: searchParams?.generation,
+        g1Origin: searchParams?.g1Origin,
+        geneCategory: searchParams?.geneCategory,
+        geneQuery: searchParams?.geneQuery,
+        geneMode: searchParams?.geneMode,
+    };
 
     const [
         allRawPairs,
@@ -42,7 +60,7 @@ export default async function CollectionPage({
         getAllRawBreedingPairsForUser(),
         getAllEnrichedCreaturesForUser(),
         getAllBreedingPairsForUser(),
-        fetchFilteredCreatures(searchParams),
+        fetchFilteredCreatures(plainSearchParams),
         getAllResearchGoalsForUser(),
         getAllBreedingLogEntriesForUser(),
         session?.user?.id
@@ -72,6 +90,7 @@ export default async function CollectionPage({
                         allEnrichedPairs={allEnrichedPairs}
                         allEnrichedGoals={allEnrichedGoals}
                         allLogs={allLogs}
+                        searchParams={plainSearchParams}
                         currentUser={currentUser ?? null}
                     />
                 </Suspense>

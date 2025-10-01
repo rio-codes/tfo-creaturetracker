@@ -10,7 +10,7 @@ import {
     achievedGoals,
 } from '@/src/db/schema';
 import { auth } from '@/auth';
-import { and, ilike, or, eq, desc, count } from 'drizzle-orm';
+import { and, ilike, like, or, eq, desc, count, SQL } from 'drizzle-orm';
 import type {
     DbCreature,
     DbBreedingLogEntry,
@@ -24,7 +24,7 @@ import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serial
 import { calculateGeneProbability } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
-import { structuredGeneData } from '../constants/creature-data';
+import { structuredGeneData } from '@/constants/creature-data';
 
 // ============================================================================
 // === HELPER FUNCTIONS =======================================================
@@ -294,6 +294,9 @@ export async function fetchFilteredCreatures(
         geneMode?: 'phenotype' | 'genotype';
     } = {}
 ) {
+    console.log('--- [fetchFilteredCreatures] ---');
+    console.log('Received searchParams:', searchParams);
+
     const currentPage = Number(searchParams.page) || 1;
     const {
         query,
@@ -305,42 +308,29 @@ export async function fetchFilteredCreatures(
         g1Origin,
         geneCategory,
         geneQuery,
-        geneMode,
+        geneMode = 'phenotype', // Default to phenotype if not provided
     } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
 
-    let geneConditions;
-    if (
-        geneCategory &&
-        geneCategory !== 'any' &&
-        geneQuery &&
-        geneQuery !== 'any' &&
-        species &&
-        species !== 'all'
-    ) {
+    let geneString: string[] = [];
+    if (species && geneCategory && geneQuery && geneQuery !== 'any') {
         if (geneMode === 'genotype') {
-            geneConditions = ilike(creatures.genetics, `%${geneCategory}:${geneQuery}%`);
+            geneString = [`%${geneCategory}:${geneQuery}%`];
         } else {
-            // Phenotype search
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
             if (categoryGenes) {
                 const matchingGenotypes = categoryGenes
                     .filter((g) => g.phenotype === geneQuery)
                     .map((g) => g.genotype);
-
-                if (matchingGenotypes.length > 0) {
-                    geneConditions = or(
-                        ...matchingGenotypes.map((gt) =>
-                            ilike(creatures.genetics, `%${geneCategory}:${gt}%`)
-                        )
-                    );
-                }
+                geneString = matchingGenotypes.map((gt) => `%${geneCategory}:${gt}%`);
             }
         }
     }
+
+    console.log('Constructed geneString for query:', geneString);
 
     // get logged-in user from db, determine setting for creatures per page and offset
     const user = await db.query.users.findFirst({
@@ -373,15 +363,26 @@ export async function fetchFilteredCreatures(
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
         generation ? eq(creatures.generation, Number(generation)) : undefined,
         g1Origin && g1Origin !== 'all' ? eq(creatures.g1Origin, g1Origin as any) : undefined,
-        geneConditions,
     ].filter(Boolean);
+
+    if (geneQuery && geneCategory && geneString.length > 0) {
+        if (geneString.length > 1) {
+            const geneConditions = geneString.map((str) => like(creatures.genetics, str));
+            conditions.push(or(...geneConditions));
+        } else {
+            // If there's only one gene string, just add it as a simple ilike
+            conditions.push(like(creatures.genetics, geneString[0]));
+        }
+    }
+
+    console.log('Final query conditions count:', conditions.length);
 
     try {
         // Fetch all pinned creatures matching filters
         const pinnedCreaturesRaw = await db
             .select()
             .from(creatures)
-            .where(and(...conditions, eq(creatures.isPinned, true)))
+            .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
         const pinnedCreatures = pinnedCreaturesRaw.map(enrichAndSerializeCreature);
@@ -498,7 +499,7 @@ export async function fetchBreedingPairsWithStats(
 ) {
     const currentPage = Number(searchParams.page) || 1;
     const { query, species, geneCategory, geneQuery, geneMode } = searchParams;
-    const session = await auth();
+    const session = await auth(); // Corrected from `const { query, species, geneCategory, geneQuery, geneMode } = searchParams;`
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
 
@@ -512,7 +513,7 @@ export async function fetchBreedingPairsWithStats(
     const femaleCreatures = alias(creatures, 'female_creatures');
 
     // Build conditions for filtering
-    const conditions = [
+    const conditions: SQL<unknown>[] | undefined = [
         eq(breedingPairs.userId, userId),
         species && species !== 'all'
             ? or(
@@ -532,24 +533,35 @@ export async function fetchBreedingPairsWithStats(
                   ilike(femaleCreatures.genetics, `%${query}%`)
               )
             : undefined,
-        geneCategory && geneCategory !== 'any'
-            ? or(
-                  ilike(maleCreatures.genetics, `%${geneCategory}:%`),
-                  ilike(femaleCreatures.genetics, `%${geneCategory}:%`)
-              )
-            : undefined,
-        geneCategory && geneCategory !== 'any' && geneQuery && geneQuery !== 'any'
-            ? geneMode === 'genotype'
-                ? or(
-                      ilike(maleCreatures.genetics, `%${geneCategory}:${geneQuery}%`),
-                      ilike(femaleCreatures.genetics, `%${geneCategory}:${geneQuery}%`)
-                  )
-                : or(
-                      ilike(maleCreatures.genetics, `%${geneCategory}:%${geneQuery}%`),
-                      ilike(femaleCreatures.genetics, `%${geneCategory}:%${geneQuery}%`)
-                  )
-            : undefined,
     ].filter((c): c is NonNullable<typeof c> => c !== undefined);
+
+    if (species && geneCategory && geneQuery && geneQuery !== 'any') {
+        let geneStrings: string[] = [];
+        if (geneMode === 'genotype') {
+            geneStrings = [`%${geneCategory}:${geneQuery}%`];
+        } else {
+            // Phenotype mode
+            const speciesGeneInfo = structuredGeneData[species];
+            const categoryGenes = speciesGeneInfo?.[geneCategory];
+            if (categoryGenes) {
+                const matchingGenotypes = categoryGenes
+                    .filter((g) => g.phenotype === geneQuery)
+                    .map((g) => g.genotype);
+                geneStrings = matchingGenotypes.map((gt) => `%${geneCategory}:${gt}%`);
+            }
+        }
+
+        if (!geneStrings || geneStrings.length === 0) {
+            return { pairs: [], totalPages: 0 };
+        }
+
+        const geneConditions: SQL<unknown>[] = geneStrings.flatMap((str) => [
+            like(maleCreatures.genetics, str),
+            like(femaleCreatures.genetics, str),
+        ]);
+
+        conditions.push(or(...geneConditions) as SQL<unknown>);
+    }
 
     try {
         // Fetch all pinned pairs matching filters
@@ -649,7 +661,7 @@ export async function fetchBreedingPairsWithStats(
             .select({ value: count() })
             .from(breedingPairs)
             .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
+            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id)) // This line was missing from the original diff
             .where(and(...conditions, eq(breedingPairs.isPinned, false)));
 
         const totalPages = Math.ceil(totalCountResult[0].value / itemsPerPage);

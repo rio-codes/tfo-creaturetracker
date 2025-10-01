@@ -36,7 +36,7 @@ import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
 import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-dialog';
-import { speciesList, structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
+import { structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -69,6 +69,13 @@ type CollectionClientProps = {
         g1Origin?: string;
         geneCategory?: string;
         geneQuery?: string;
+        page?: string;
+        query?: string;
+        stage?: string;
+        gender?: string;
+        species?: string;
+        showArchived?: string;
+        geneMode?: 'phenotype' | 'genotype';
     };
 };
 
@@ -144,16 +151,15 @@ export function CollectionClient({
     allEnrichedPairs: allPairs,
     allEnrichedGoals: allGoals,
     currentUser,
+    searchParams: searchParamsFromProps, // Rename to avoid conflict
 }: CollectionClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
-            // Require the mouse to move by 5 pixels before activating
             activationConstraint: {
                 distance: 5,
             },
         }),
         useSensor(TouchSensor, {
-            // Press and hold for 250ms for touch devices
             activationConstraint: {
                 delay: 250,
                 tolerance: 5,
@@ -162,36 +168,47 @@ export function CollectionClient({
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
-    const searchParams = useSearchParams();
+    const currentSearchParams = useSearchParams(); // Keep this for building new URLs
     const pathname = usePathname();
     const { replace } = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
     const [unpinnedCreatures, setUnpinnedCreatures] = useState(initialUnpinnedCreatures || []);
-    const [selectedSpecies, setSelectedSpecies] = useState(searchParams.get('species') || 'all');
-    const [selectedGeneCategory, setSelectedGeneCategory] = useState(
-        searchParams.get('geneCategory') || ''
+    const [geneMode, setGeneMode] = useState<'phenotype' | 'genotype'>(
+        searchParamsFromProps?.geneMode || 'phenotype'
     );
-    const [geneMode, setGeneMode] = useState<'phenotype' | 'genotype'>('phenotype');
 
     useEffect(() => {
+        console.log('[CollectionClient] Component did mount.');
         setIsMounted(true);
     }, []);
 
     useEffect(() => {
+        console.log('[CollectionClient] Props updated. Received:', {
+            pinned: initialPinnedCreatures?.length,
+            unpinned: initialUnpinnedCreatures?.length,
+        });
         setPinnedCreatures(initialPinnedCreatures || []);
         setUnpinnedCreatures(initialUnpinnedCreatures || []);
     }, [initialPinnedCreatures, initialUnpinnedCreatures]);
 
     useEffect(() => {
+        // This effect should only run once on mount to restore filters if the user
+        // navigates to the page without any search params.
         const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
-        if (preserveFilters) {
+        const hasSearchParams = currentSearchParams.toString().length > 0;
+
+        if (preserveFilters && !hasSearchParams) {
+            console.log('[CollectionClient] "Preserve Filters" is ON.');
             const savedFilters = localStorage.getItem('collectionFilters');
             if (savedFilters) {
-                // Use replace to avoid adding to history
+                console.log(
+                    '[CollectionClient] Found saved filters in localStorage, replacing URL:',
+                    savedFilters
+                );
                 replace(`${pathname}?${savedFilters}`);
             }
         }
-    }, [pathname, replace]);
+    }, []);
 
     const handleDragStart = (event: any) => {
         if (window.navigator.vibrate) {
@@ -233,7 +250,7 @@ export function CollectionClient({
 
     const handleFilterChange = useDebouncedCallback(
         (filterName: string, value: string | boolean) => {
-            const params = new URLSearchParams(searchParams);
+            const params = new URLSearchParams(currentSearchParams);
             params.set('page', '1');
             const isCheckbox = typeof value === 'boolean';
 
@@ -248,11 +265,6 @@ export function CollectionClient({
                 }
             }
 
-            if (filterName === 'species' && (!value || value === 'all')) {
-                params.delete('geneCategory');
-                params.delete('geneQuery');
-            }
-
             const searchString = params.toString();
             const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
 
@@ -262,25 +274,32 @@ export function CollectionClient({
                 localStorage.removeItem('collectionFilters');
             }
 
+            console.log(
+                '[CollectionClient] handleFilterChange is navigating to:',
+                `${pathname}?${searchString}`
+            );
             replace(`${pathname}?${searchString}`);
         },
         300
     );
 
-    const handleSpeciesChange = (value: string) => {
-        setSelectedSpecies(value);
-        setSelectedGeneCategory('');
-        handleFilterChange('species', value);
-    };
+    const ownedSpecies = useMemo(() => {
+        if (!allCreatures) return [];
+        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
+        return Array.from(speciesSet).sort() as string[];
+    }, [allCreatures]);
 
     const geneCategories = useMemo(() => {
+        const selectedSpecies = searchParamsFromProps?.species;
         if (!selectedSpecies || selectedSpecies === 'all') return [];
         return Object.keys(
             (structuredGeneData as AllSpeciesGeneData)[selectedSpecies] || {}
         ).filter((cat) => cat !== 'Gender');
-    }, [selectedSpecies]);
+    }, [searchParamsFromProps?.species]);
 
     const geneOptions = useMemo(() => {
+        const selectedSpecies = searchParamsFromProps?.species;
+        const selectedGeneCategory = searchParamsFromProps?.geneCategory;
         if (!selectedSpecies || selectedSpecies === 'all' || !selectedGeneCategory) return [];
 
         const categoryData = (structuredGeneData as AllSpeciesGeneData)[selectedSpecies]?.[
@@ -301,13 +320,13 @@ export function CollectionClient({
                 label: `${g.phenotype} (${g.genotype})`,
             }));
         }
-    }, [selectedSpecies, selectedGeneCategory, geneMode]);
+    }, [searchParamsFromProps?.species, searchParamsFromProps?.geneCategory, geneMode]);
 
-    const currentStage = searchParams.get('stage') || 'all';
-    const currentQuery = searchParams.get('query') || '';
-    const showArchived = searchParams.get('showArchived') === 'true';
-    const currentGeneration = searchParams.get('generation') || '';
-    const currentG1Origin = searchParams.get('g1Origin') || 'all';
+    const currentStage = searchParamsFromProps?.stage || 'all';
+    const currentQuery = searchParamsFromProps?.query || '';
+    const showArchived = searchParamsFromProps?.showArchived === 'true';
+    const currentGeneration = searchParamsFromProps?.generation || '';
+    const currentG1Origin = searchParamsFromProps?.g1Origin || 'all';
     const g1Origins = ['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'];
 
     return (
@@ -339,7 +358,7 @@ export function CollectionClient({
                     {/* Gender Filters */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <select.Select
-                            defaultValue={searchParams.get('gender') || 'all'}
+                            defaultValue={searchParamsFromProps?.gender || 'all'}
                             onValueChange={(value) => handleFilterChange('gender', value)}
                         >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
@@ -392,28 +411,35 @@ export function CollectionClient({
                             </select.SelectContent>
                         </select.Select>
 
-                        <select.Select value={selectedSpecies} onValueChange={handleSpeciesChange}>
+                        <select.Select
+                            value={searchParamsFromProps?.species || 'all'}
+                            onValueChange={(value) => {
+                                const params = new URLSearchParams(currentSearchParams);
+                                params.set('page', '1');
+                                params.set('species', value);
+                                params.delete('geneCategory');
+                                params.delete('geneQuery');
+                                replace(`${pathname}?${params.toString()}`);
+                            }}
+                        >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Species" />
                             </select.SelectTrigger>
                             <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                 <select.SelectItem value="all">All Species</select.SelectItem>
-                                {speciesList.map((s) => (
-                                    <select.SelectItem key={s} value={s}>
+                                {ownedSpecies.map((s) => (
+                                    <select.SelectItem key={s} value={s!}>
                                         {s}
                                     </select.SelectItem>
                                 ))}
                             </select.SelectContent>
                         </select.Select>
                     </div>
-                    {selectedSpecies && selectedSpecies !== 'all' && (
+                    {searchParamsFromProps?.species && searchParamsFromProps.species !== 'all' && (
                         <div className="flex flex-col md:flex-row gap-4 items-center">
                             <select.Select
-                                value={selectedGeneCategory}
-                                onValueChange={(value) => {
-                                    setSelectedGeneCategory(value);
-                                    handleFilterChange('geneCategory', value);
-                                }}
+                                value={searchParamsFromProps?.geneCategory || 'any'}
+                                onValueChange={(value) => handleFilterChange('geneCategory', value)}
                             >
                                 <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
                                     <select.SelectValue placeholder="Filter by Genetic Trait" />
@@ -428,10 +454,10 @@ export function CollectionClient({
                                 </select.SelectContent>
                             </select.Select>
 
-                            {selectedGeneCategory && (
+                            {searchParamsFromProps?.geneCategory && (
                                 <>
                                     <select.Select
-                                        value={searchParams.get('geneQuery') || 'any'}
+                                        value={searchParamsFromProps?.geneQuery || 'any'}
                                         onValueChange={(value) =>
                                             handleFilterChange('geneQuery', value)
                                         }

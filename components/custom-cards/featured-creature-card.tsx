@@ -101,7 +101,11 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                 rel="noopener noreferrer"
                 className="flex-grow flex flex-col"
             >
-                <CardContent className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac">
+                <CardContent
+                    className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac min-w-0 overflow-x-clip max-w-9/10
+            whitespace-normal"
+                >
+                    {' '}
                     <img
                         src={creature.imageUrl}
                         alt={creature.creatureName || creature.code}
@@ -109,15 +113,15 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                     />
                     <div className="flex-1">
                         <CardTitle
-                            className="text-lg truncate text-pompaca-purple dark:text-purple-300"
+                            className="text-lg text-pompaca-purple dark:text-purple-300"
                             title={creature.creatureName || creature.code}
                         >
-                            {creature.creatureName || creature.code}
+                            <span className="text-wrap wrap-normal">
+                                {creature.creatureName} {' ('}
+                                {creature.code})
+                            </span>
                         </CardTitle>
                         <div className="text-sm text-pompaca-purple dark:text-purple-400 mt-2 space-y-1">
-                            <p>
-                                <strong>Code:</strong> {creature.code}
-                            </p>
                             <p>
                                 <strong>Species:</strong> {creature.species}
                             </p>

@@ -1,6 +1,6 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
-## 1.11.0 (2025-09-28)
+## 1.11.0 (2025-09-29)
 
 - feat(collection): ✨ add generation, origin, and gene-level filters (#275)
 

@@ -5,7 +5,6 @@
         "issueUrlFormat": "https://github.com/{{user}}/{{repository}}/issues/{{id}}",
         "commitUrlFormat": "https://github.com/{{user}}/{{repository}}/commit/{{hash}}",
         "compareUrlFormat": "https://github.com/{{user}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
-        "releaseCommitMessageFormat": "chore(release): 🔖{{currentTag}}",
         "withEmoji": true,
         "userUrlFormat": "https://github.com/{{user}}",
         "types": [
@@ -18,7 +17,7 @@
             { "type": "perf", "section": "Performance" },
             { "type": "test", "section": "Tests" }
         ],
-        "preMajor": false,
+        "preMajor": true,
         "scope": [
             "collection",
             "breeding-pairs",

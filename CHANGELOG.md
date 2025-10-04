@@ -1,11 +1,15 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.11.0 (2025-09-28)
+
+- feat(collection): ✨ add generation, origin, and gene-level filters (#275)
+
 ## <small>1.10.5 (2025-09-29)</small>
 
+- style(settings): 🥚 set source in headers function to domain root
+- fix(collection): 🐛 add raffle to G1 origins
 - fix(pairs): 🚨 pass proper parameters to view logs dialog, fix type error in goal tracker
-
 - fix(pairs): 🐛 check for possible offspring species in log as progeny dialog
-
 - style(config): 🎨 remove unused imports from eslint config
 - refactor(pairs): 🎨 implement null coalescing on error handling in view logs dialog
 - fix(api): 🐛 remove deprecated, unnecessary "uuid" zod prop

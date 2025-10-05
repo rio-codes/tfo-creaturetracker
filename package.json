@@ -16,12 +16,15 @@
     "pnpm": {
         "overrides": {
             "esbuild": "^0.25.0",
-            "@opentelemetry/api": "1.9.0"
+            "@opentelemetry/api": "^1.9.0",
+            "path-to-regexp": "^6.3.0",
+            "@conventional-changelog/git-client": "^2.0.0",
+            "@babel/runtime": "^7.26.10",
+            "undici": "^5.28.5"
         }
     },
     "dependencies": {
         "@auth/drizzle-adapter": "^1.10.0",
-        "@babel/runtime": "^7.28.4",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
@@ -97,7 +100,6 @@
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.3.1",
         "tsx": "^4.20.6",
-        "undici": "^7.16.0",
         "use-debounce": "^10.0.6",
         "vaul": "^1.1.2",
         "vercel": "^48.2.0",

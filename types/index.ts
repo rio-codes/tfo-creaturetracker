@@ -55,7 +55,7 @@ export type EnrichedCreature =
               phenotype: string;
           }[];
           generation: number | null;
-          g1_origin: string | null;
+          origin: string | null;
       })
     | null;
 

@@ -192,7 +192,7 @@ export async function POST(req: Request) {
                 const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
                 await db
                     .update(creatures)
-                    .set({ generation })
+                    .set({ generation, origin: 'bred' })
                     .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
             }
         }
@@ -302,7 +302,7 @@ export async function PUT(req: Request) {
                     const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
                     await db
                         .update(creatures)
-                        .set({ generation })
+                        .set({ generation, origin: 'bred' })
                         .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
                 }
             }
@@ -547,7 +547,7 @@ export async function PATCH(req: Request) {
 
             await tx
                 .update(creatures)
-                .set({ generation })
+                .set({ generation, origin: 'bred' })
                 .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
 
             const destinationPair = await db.query.breedingPairs.findFirst({

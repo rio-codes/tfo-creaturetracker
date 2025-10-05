@@ -448,19 +448,18 @@ export function CreatureCard({
                                         </DialogContent>
                                     </Dialog>
                                 )}
-                                {parentPair && creature.g1Origin === 'another-lab' && (
-                                    <span>{' / '}</span>  
+                                {parentPair && creature.origin === 'another-lab' && (
+                                    <span>{' / '}</span>
                                 )}
-                                {creature.g1Origin === 'another-lab' && (
-                                    <span>{'Another Lab'}</span>
-                                )}
-                                {creature.g1Origin === 'cupboard' && <span>{'Cupboard'}</span>}
-                                {creature.g1Origin === 'quest' && <span>{'Quest'}</span>}
-                                {creature.g1Origin === 'raffle' && <span>{'Raffle'}</span>}
-                                {creature.g1Origin === 'genome-splicer' && (
+                                {creature.origin === 'unknown' && <span>{'Unknown'}</span>}
+                                {creature.origin === 'another-lab' && <span>{'Another Lab'}</span>}
+                                {creature.origin === 'cupboard' && <span>{'Cupboard'}</span>}
+                                {creature.origin === 'quest' && <span>{'Quest'}</span>}
+                                {creature.origin === 'raffle' && <span>{'Raffle'}</span>}
+                                {creature.origin === 'genome-splicer' && (
                                     <span>{'Genome Splicer'}</span>
                                 )}
-                                {!parentPair && !creature.g1Origin && 'Unknown'}
+                                {!parentPair && !creature.origin && 'Unknown'}
                                 <span>
                                     {' (G'}
                                     {creature.generation}

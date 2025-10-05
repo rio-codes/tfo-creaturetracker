@@ -66,7 +66,7 @@ type CollectionClientProps = {
     currentUser?: User | null;
     searchParams?: {
         generation?: string;
-        g1Origin?: string;
+        origin?: string;
         geneCategory?: string;
         geneQuery?: string;
         page?: string;
@@ -326,8 +326,16 @@ export function CollectionClient({
     const currentQuery = searchParamsFromProps?.query || '';
     const showArchived = searchParamsFromProps?.showArchived === 'true';
     const currentGeneration = searchParamsFromProps?.generation || '';
-    const currentG1Origin = searchParamsFromProps?.g1Origin || 'all';
-    const g1Origins = ['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'];
+    const currentorigin = searchParamsFromProps?.origin || 'all';
+    const origins = [
+        'bred',
+        'unknown',
+        'cupboard',
+        'genome-splicer',
+        'another-lab',
+        'quest',
+        'raffle',
+    ];
 
     return (
         <div className="min-h-screen">
@@ -395,17 +403,19 @@ export function CollectionClient({
                         />
 
                         <select.Select
-                            value={currentG1Origin}
-                            onValueChange={(value) => handleFilterChange('g1Origin', value)}
+                            value={currentorigin}
+                            onValueChange={(value) => handleFilterChange('origin', value)}
                         >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                                <select.SelectValue placeholder="G1 Origin" />
+                                <select.SelectValue placeholder="Origin" />
                             </select.SelectTrigger>
                             <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                 <select.SelectItem value="all">All Origins</select.SelectItem>
-                                {g1Origins.map((origin) => (
+                                {origins.map((origin) => (
                                     <select.SelectItem key={origin} value={origin}>
-                                        {origin.charAt(0).toUpperCase() + origin.slice(1)}
+                                        {origin
+                                            .replace(/-/g, ' ')
+                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                                     </select.SelectItem>
                                 ))}
                             </select.SelectContent>

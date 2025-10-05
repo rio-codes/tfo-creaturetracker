@@ -363,7 +363,6 @@ export function CollectionClient({
                         />
                     </div>
 
-                    {/* Gender Filters */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <select.Select
                             defaultValue={searchParamsFromProps?.gender || 'all'}
@@ -395,6 +394,7 @@ export function CollectionClient({
                         </select.Select>
 
                         <Input
+                            min="1"
                             type="number"
                             placeholder="Generation"
                             className="bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"

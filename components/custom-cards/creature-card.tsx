@@ -368,9 +368,7 @@ export function CreatureCard({
                                                             </div>
                                                         </div>
 
-                                                        {/* Content Section */}
                                                         <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
-                                                            {/* Parent Details */}
                                                             <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
                                                                 <Collapsible>
                                                                     <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
@@ -562,57 +560,7 @@ export function CreatureCard({
                                         disabled={isDeleting || isArchiving}
                                     >
                                         <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
-                                            Remove from Collection
-                                        </span>
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Permanently?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Are you sure you want to delete this creature
-                                            permanently from the database? If you still own it it
-                                            will be added again on a resync if it is in one of your
-                                            synced tabs.
-                                            {(isParentOfPair || isProgeny) && (
-                                                <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
-                                                    Warning: This creature is part of a breeding
-                                                    pair or is logged as progeny. Deleting it
-                                                    permanently may break pedigree links, and if you
-                                                    no longer own the creature they cannot be
-                                                    restored. Inbreeding detection relies on these
-                                                    links to function.
-                                                </p>
-                                            )}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <Button
-                                            variant="destructive"
-                                            onClick={handleDeletePermanently}
-                                        >
-                                            {isDeleting ? (
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                            )}
-                                            Delete Permanently
-                                        </Button>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </>
-                    ) : (
-                        <>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
-                                        disabled={isDeleting || isArchiving}
-                                    >
-                                        <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
-                                            Delete Permanently
+                                            Remove From Collection
                                         </span>
                                     </Button>
                                 </AlertDialogTrigger>
@@ -660,6 +608,56 @@ export function CreatureCard({
                                             variant="destructive"
                                             onClick={handleDeletePermanently}
                                             disabled={isArchiving || isDeleting}
+                                        >
+                                            {isDeleting ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                            )}
+                                            Delete Permanently
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </>
+                    ) : (
+                        <>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                        disabled={isDeleting || isArchiving}
+                                    >
+                                        <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                                            Remove from Collection
+                                        </span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Permanently?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to delete this creature
+                                            permanently from the database? If you still own it it
+                                            will be added again on a resync if it is in one of your
+                                            synced tabs.
+                                            {(isParentOfPair || isProgeny) && (
+                                                <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                                                    Warning: This creature is part of a breeding
+                                                    pair or is logged as progeny. Deleting it
+                                                    permanently may break pedigree links, and if you
+                                                    no longer own the creature they cannot be
+                                                    restored. Inbreeding detection relies on these
+                                                    links to function.
+                                                </p>
+                                            )}
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={handleDeletePermanently}
                                         >
                                             {isDeleting ? (
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

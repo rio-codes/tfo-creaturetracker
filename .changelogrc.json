@@ -1,7 +1,7 @@
 {
     "options": {
-        "preset": "conventionalcommits",
-        "header": "TFOCT Changelog",
+        "preset": "gitmoji",
+        "header": "🧬 TFO.CT Changelog 🧑🏿‍🔬",
         "issueUrlFormat": "https://github.com/{{user}}/{{repository}}/issues/{{id}}",
         "commitUrlFormat": "https://github.com/{{user}}/{{repository}}/commit/{{hash}}",
         "compareUrlFormat": "https://github.com/{{user}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",

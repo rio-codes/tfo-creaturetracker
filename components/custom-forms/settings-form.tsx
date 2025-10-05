@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
@@ -30,7 +31,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import EmojiPicker, { EmojiClickData, Theme as EmojiTheme } from 'emoji-picker-react';
+import { Theme as EmojiTheme, EmojiStyle } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -104,6 +105,13 @@ type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 interface SettingsFormProps {
     user: User;
 }
+
+const EmojiPicker = dynamic(
+    () => {
+        return import('emoji-picker-react');
+    },
+    { ssr: false }
+);
 
 export function SettingsForm({ user }: SettingsFormProps) {
     const { update } = useSession();
@@ -382,14 +390,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0 border-0">
                                             <EmojiPicker
-                                                onEmojiClick={(emojiData: EmojiClickData) => {
+                                                onEmojiClick={(emojiData) => {
                                                     field.onChange(emojiData.emoji);
                                                 }}
-                                                theme={
-                                                    theme === 'dark'
-                                                        ? EmojiTheme.DARK
-                                                        : EmojiTheme.LIGHT
-                                                }
+                                                theme={theme as EmojiTheme}
+                                                emojiStyle={EmojiStyle.GOOGLE}
                                             />
                                         </PopoverContent>
                                     </Popover>

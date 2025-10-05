@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures } from '@/src/db/schema';
+import { creatures, breedingPairs, breedingLogEntries } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { logUserAction } from '@/lib/user-actions';
+import { calculateGeneration } from '@/lib/creature-utils';
 
 const patchBodySchema = z.object({
     generation: z.number().int().positive().nullable(),
-    g1Origin: z.enum(['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle']).nullable(),
+    origin: z
+        .enum(['unknown', 'cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'])
+        .nullable(),
 });
 
 export async function PATCH(request: Request, { params }: { params: { creatureId: string } }) {
@@ -27,35 +30,46 @@ export async function PATCH(request: Request, { params }: { params: { creatureId
             return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
         }
 
-        const { generation, g1Origin } = validation.data;
+        const { generation: manualGeneration, origin } = validation.data;
 
-        if (generation !== 1 && g1Origin && g1Origin !== 'another-lab') {
+        // Fetch data needed for generation calculation
+        const [allUserPairs, allUserLogs, creatureToUpdate] = await Promise.all([
+            db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
+            db.query.breedingLogEntries.findMany({ where: eq(breedingLogEntries.userId, userId) }),
+            db.query.creatures.findFirst({
+                where: and(eq(creatures.id, creatureId), eq(creatures.userId, userId)),
+            }),
+        ]);
+
+        if (!creatureToUpdate) {
+            return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
+        }
+
+        // If the creature is progeny, its generation is calculated. Otherwise, use manual input or fallback to 1.
+        const calculatedGeneration = calculateGeneration(creatureId, allUserPairs, allUserLogs);
+        const finalGeneration =
+            calculatedGeneration > 1 ? calculatedGeneration : manualGeneration || 1;
+
+        if (finalGeneration > 1 && origin && origin !== 'another-lab') {
             return NextResponse.json(
                 { error: 'Only "Another Lab" origin can be set for non-G1 creatures.' },
                 { status: 400 }
             );
         }
 
+        const finalOrigin =
+            finalGeneration > 1 && origin !== 'another-lab' ? 'unknown' : origin || 'unknown';
+
         const [updatedCreature] = await db
             .update(creatures)
-            .set({
-                generation: generation || 1,
-                g1Origin: generation === 1 || g1Origin === 'another-lab' ? g1Origin : null,
-            })
+            .set({ generation: finalGeneration, origin: finalOrigin })
             .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
             .returning();
 
-        if (generation !== 1) {
-            await logUserAction({
-                action: 'creature.update',
-                description: `Updated creature generation for creature "${updatedCreature.creatureName} (${updatedCreature.code})" to G${generation}`,
-            });
-        } else if (g1Origin) {
-            await logUserAction({
-                action: 'creature.update',
-                description: `Updated G1 creature origin to ${g1Origin.toString()}`,
-            });
-        }
+        await logUserAction({
+            action: 'creature.update',
+            description: `Manually updated creature "${updatedCreature.creatureName} (${updatedCreature.code})". Set Generation: G${finalGeneration}, Origin: ${finalOrigin}.`,
+        });
 
         return NextResponse.json(updatedCreature);
     } catch (error) {

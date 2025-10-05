@@ -27,7 +27,7 @@ export default async function CollectionPage({
         species?: string;
         showArchived?: string;
         generation?: string;
-        g1Origin?: string;
+        origin?: string;
         geneCategory?: string;
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
@@ -42,7 +42,7 @@ export default async function CollectionPage({
         species: searchParams?.species,
         showArchived: searchParams?.showArchived,
         generation: searchParams?.generation,
-        g1Origin: searchParams?.g1Origin,
+        origin: searchParams?.origin,
         geneCategory: searchParams?.geneCategory,
         geneQuery: searchParams?.geneQuery,
         geneMode: searchParams?.geneMode,

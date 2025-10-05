@@ -34,15 +34,15 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [generation, setGeneration] = useState<number | string>(creature?.generation ?? 1);
-    const [g1Origin, setG1Origin] = useState(creature?.g1Origin || 'none');
+    const [origin, setorigin] = useState(creature?.origin || 'none');
 
     const isG1 = generation === 1 || generation === '1';
 
     const handleGenerationChange = (value: string) => {
         setGeneration(value ? Number(value) : '');
         const newIsG1 = value === '1';
-        if (!newIsG1 && g1Origin !== 'another-lab') {
-            setG1Origin('none');
+        if (!newIsG1 && origin !== 'another-lab') {
+            setorigin('none');
         }
     };
 
@@ -50,13 +50,13 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
         setIsLoading(true);
 
         const generationValue = generation === '' ? null : Number(generation);
-        const originValue = g1Origin !== 'none' ? g1Origin : null;
+        const originValue = origin !== 'none' ? origin : null;
 
         try {
             const response = await fetch(`/api/creatures/${creature?.id}/generation`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ generation: generationValue, g1Origin: originValue }),
+                body: JSON.stringify({ generation: generationValue, origin: originValue }),
             });
 
             if (!response.ok) {
@@ -101,16 +101,16 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                             Origin:
                         </Label>
                         <Select
-                            value={g1Origin}
+                            value={origin}
                             onValueChange={(value) => {
-                                setG1Origin(value as any);
+                                setorigin(value as any);
                             }}
                         >
                             <SelectTrigger className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
                                 <SelectValue placeholder="Select origin..." />
                             </SelectTrigger>
                             <SelectContent className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
-                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="unknown">Unknown</SelectItem>
                                 <SelectItem value="cupboard" disabled={!isG1}>
                                     Cupboard
                                 </SelectItem>

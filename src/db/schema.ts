@@ -171,8 +171,16 @@ export const pendingRegistrations = pgTable('pending_registration', {
     expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
 });
 
-// Creature Functionality
 export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'unknown']);
+export const creatureOriginEnum = pgEnum('origin', [
+    'cupboard',
+    'genome-splicer',
+    'another-lab',
+    'quest',
+    'raffle',
+    'unknown',
+    'bred',
+]);
 
 export const creatures = pgTable(
     'creature',
@@ -196,9 +204,7 @@ export const creatures = pgTable(
         pinOrder: integer('pin_order'),
         isArchived: boolean('is_archived').default(false).notNull(),
         generation: integer('generation').default(1).notNull(),
-        g1Origin: text('g1_origin', {
-            enum: ['cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'],
-        }),
+        origin: creatureOriginEnum('origin').default('unknown').notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

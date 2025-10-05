@@ -288,7 +288,7 @@ export async function fetchFilteredCreatures(
         species?: string;
         showArchived?: string;
         generation?: string;
-        g1Origin?: string;
+        origin?: string;
         geneCategory?: string;
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
@@ -305,7 +305,7 @@ export async function fetchFilteredCreatures(
         species,
         showArchived,
         generation,
-        g1Origin,
+        origin,
         geneCategory,
         geneQuery,
         geneMode = 'phenotype', // Default to phenotype if not provided
@@ -355,14 +355,14 @@ export async function fetchFilteredCreatures(
                   ilike(creatures.code, `%${query}%`),
                   ilike(creatures.creatureName, `%${query}%`),
                   ilike(creatures.genetics, `%${query}%`),
-                  ilike(creatures.g1Origin, `%${query}%`)
+                  ilike(creatures.origin, `%${query}%`)
               )
             : undefined,
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
         generation ? eq(creatures.generation, Number(generation)) : undefined,
-        g1Origin && g1Origin !== 'all' ? eq(creatures.g1Origin, g1Origin as any) : undefined,
+        origin && origin !== 'all' ? eq(creatures.origin, origin as any) : undefined,
     ].filter(Boolean);
 
     if (geneQuery && geneCategory && geneString.length > 0) {

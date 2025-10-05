@@ -1,10 +1,35 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## <small>1.11.6 (2025-10-05)</small>
+
+- fix(admin): 🐛 fix urls on admin page ([#285](https://github.com/rio-codes/tfo-creaturetracker/issues/285))
+- fix(collection): 🐛 set minimum generation in filter input, fixes [#276](https://github.com/rio-codes/tfo-creaturetracker/issues/276) ([#286](https://github.com/rio-codes/tfo-creaturetracker/issues/286))
+- fix(collection): 🐛 change archived and unarchived removal dialogs ([#287](https://github.com/rio-codes/tfo-creaturetracker/issues/287))
+- fix(pairs): 🐛 exclude existing mates from possible pairs, fixes #260 (#288) ([42820e5](https://github.com/rio-codes/tfo-creaturetracker/commit/42820e5)), closes [#260](https://github.com/rio-codes/tfo-creaturetracker/issues/260) [#288](https://github.com/rio-codes/tfo-creaturetracker/issues/288) [#260](https://github.com/rio-codes/tfo-creaturetracker/issues/260)
+
+## <small>1.11.5 (2025-10-05)</small>
+
+- ci(config): 👷 add eslint and format github action ([22b9ece](https://github.com/rio-codes/tfo-creaturetracker/commit/22b9ece))
+- fix(deps): 🔒️ resolve dependabot alerts ([7fe3716](https://github.com/rio-codes/tfo-creaturetracker/commit/7fe3716))
+- fix(deps): 🔒️ update deps to fix vulnerable deps ([f5b6d4d](https://github.com/rio-codes/tfo-creaturetracker/commit/f5b6d4d))
+
+## <small>1.11.4 (2025-10-05)</small>
+
+- fix(deps): 🔒️ remove unneeded dependency introducing dangerous subdependencies ([e93b23d](https://github.com/rio-codes/tfo-creaturetracker/commit/e93b23d))
+- fix(deps): 🔒️ remove unneeded dependency introducing dangerous subdependencies ([7fb2535](https://github.com/rio-codes/tfo-creaturetracker/commit/7fb2535))
+- fix(deps): 🔒️ update serve-handler to fix vulnerable dependency ([e1f0ac9](https://github.com/rio-codes/tfo-creaturetracker/commit/e1f0ac9))
+- fix(profile): ♿️ add tooltip and aria-label to flair icon component for screen readers (#284) ([2fe36d1](https://github.com/rio-codes/tfo-creaturetracker/commit/2fe36d1)), closes [#284](https://github.com/rio-codes/tfo-creaturetracker/issues/284)
+
+## <small>1.11.3 (2025-10-05)</small>
+
+- fix(collection): 🐛 add 'unknown' and 'bred' origins, update database and filters, fix #277 (#283) ([aeeb94e](https://github.com/rio-codes/tfo-creaturetracker/commit/aeeb94e)), closes [#277](https://github.com/rio-codes/tfo-creaturetracker/issues/277) [#283](https://github.com/rio-codes/tfo-creaturetracker/issues/283)
+- style(docs): 📝 update minor changelog configs ([b7b3b39](https://github.com/rio-codes/tfo-creaturetracker/commit/b7b3b39))
+
 ## <small>1.11.2 (2025-10-05)</small>
 
-- fix(profile): 🎨 refactor emoji picker, enforce dark theme and noto emojis
-- style(config): 🎨 remove unnecessary code from globals.css
-- style(docs): 🎨 update changelog config
+- fix(profile): 🎨 refactor emoji picker, enforce dark theme and noto emojis ([6596360](https://github.com/rio-codes/tfo-creaturetracker/commit/6596360))
+- style(config): 🎨 remove unnecessary code from globals.css ([f047c87](https://github.com/rio-codes/tfo-creaturetracker/commit/f047c87))
+- style(docs): 🎨 update changelog config ([e8fe435](https://github.com/rio-codes/tfo-creaturetracker/commit/e8fe435))
 
 ## <small>1.11.1 (2025-10-05)</small>
 

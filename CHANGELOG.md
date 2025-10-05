@@ -1,25 +1,28 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
-## 1.11.0 (2025-09-29)
+## <small>1.11.2 (2025-10-05)</small>
 
-- feat(collection): ✨ add generation, origin, and gene-level filters (#275)
+- fix(profile): 🎨 refactor emoji picker, enforce dark theme and noto emojis
+- style(config): 🎨 remove unnecessary code from globals.css
+- style(docs): 🎨 update changelog config
 
-## <small>1.10.5 (2025-09-29)</small>
+## <small>1.11.1 (2025-10-05)</small>
 
-- style(settings): 🥚 set source in headers function to domain root
-- fix(collection): 🐛 add raffle to G1 origins
-- fix(pairs): 🚨 pass proper parameters to view logs dialog, fix type error in goal tracker
-- fix(pairs): 🐛 check for possible offspring species in log as progeny dialog
-- style(config): 🎨 remove unused imports from eslint config
-- refactor(pairs): 🎨 implement null coalescing on error handling in view logs dialog
-- fix(api): 🐛 remove deprecated, unnecessary "uuid" zod prop
-- docs(release): 📝 update changelog, version bump to 1.10.5
+- build(deps): ⬆️ update all dependencies to newest patch version, patch v1.11.1 ([d425800](https://github.com/rio-codes/tfo-creaturetracker/commit/d425800))
+- chore(docs): 📝 update changelog to include v1.11.0 ([d38dda1](https://github.com/rio-codes/tfo-creaturetracker/commit/d38dda1))
+- chore(docs): 📝 update changelog to include v1.11.0 ([5a15e7d](https://github.com/rio-codes/tfo-creaturetracker/commit/5a15e7d))
 
-## <small>1.10.4 (2025-09-29)</small>
+## 1.11.0 (2025-10-01)
 
-- chore(config): 🎨 upgrade ESLint config file to new "flat config" format
-- style(settings): 🥚 set source in headers function to domain root
-- fix(collection): 🐛 add raffle to G1 origins
+- feat(collection): ✨ add generation, origin, and gene-level filters (#275) ([398b8bc](https://github.com/rio-codes/tfo-creaturetracker/commit/398b8bc)), closes [#275](https://github.com/rio-codes/tfo-creaturetracker/issues/275) [#272](https://github.com/rio-codes/tfo-creaturetracker/issues/272) [#256](https://github.com/rio-codes/tfo-creaturetracker/issues/256)
+- fix(collection): 🐛 add raffle to G1 origins (#270) ([42209fe](https://github.com/rio-codes/tfo-creaturetracker/commit/42209fe)), closes [#270](https://github.com/rio-codes/tfo-creaturetracker/issues/270)
+- fix(pairs): 🐛 enable hybrid progeny assignment in log breeding dialog, other fixes (#272) ([3fb8de5](https://github.com/rio-codes/tfo-creaturetracker/commit/3fb8de5)), closes [#272](https://github.com/rio-codes/tfo-creaturetracker/issues/272) [#256](https://github.com/rio-codes/tfo-creaturetracker/issues/256)
+- docs(docs): 📝 update changelog, version ([52d7a0f](https://github.com/rio-codes/tfo-creaturetracker/commit/52d7a0f))
+- style(settings): 🥚 set source in headers function to domain root (#268) ([369c28e](https://github.com/rio-codes/tfo-creaturetracker/commit/369c28e)), closes [#268](https://github.com/rio-codes/tfo-creaturetracker/issues/268)
+
+## <small>1.10.4 (2025-09-30)</small>
+
+- chore(config): 🎨 upgrade ESLint config file to new "flat config" format (#267) ([df47e8e](https://github.com/rio-codes/tfo-creaturetracker/commit/df47e8e)), closes [#267](https://github.com/rio-codes/tfo-creaturetracker/issues/267)
 
 ## <small>1.10.3 (2025-09-29)</small>
 
@@ -76,10 +79,10 @@
 
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([4005a99](https://github.com/rio-codes/tfo-creaturetracker/commit/4005a99))
 - fix(ui): 🔒️ sanitize html in creature and breeding pair cards ([a6e8d2a](https://github.com/rio-codes/tfo-creaturetracker/commit/a6e8d2a))
+- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 
 ## 1.8.0 (2025-09-27)
 
-- feat(homepage): ✨ add fun statistics and random creature to homepage (#235) ([018fe22](https://github.com/rio-codes/tfo-creaturetracker/commit/018fe22)), closes [#235](https://github.com/rio-codes/tfo-creaturetracker/issues/235)
 - docs(docs): 🎨 recreate changelog with proper semvers, automate changelog (#233) ([b203eca](https://github.com/rio-codes/tfo-creaturetracker/commit/b203eca)), closes [#233](https://github.com/rio-codes/tfo-creaturetracker/issues/233)
 - perf(db): ⚡️ set default generation "1" for all creatures in db schema (#232) ([2d4f62f](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4f62f)), closes [#232](https://github.com/rio-codes/tfo-creaturetracker/issues/232)
 

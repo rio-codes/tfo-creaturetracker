@@ -1,6 +1,6 @@
 {
     "options": {
-        "preset": "gitmoji",
+        "preset": "conventionalcommits",
         "header": "🧬 TFO.CT Changelog 🧑🏿‍🔬",
         "issueUrlFormat": "https://github.com/{{user}}/{{repository}}/issues/{{id}}",
         "commitUrlFormat": "https://github.com/{{user}}/{{repository}}/commit/{{hash}}",

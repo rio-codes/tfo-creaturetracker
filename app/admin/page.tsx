@@ -313,7 +313,7 @@ export default async function AdminMetricsPage() {
                                     </Avatar>
                                     <div className="ml-4 space-y-1">
                                         <Link
-                                            href={`/admin/users/${funMetrics.topUser.id}`}
+                                            href={`/${funMetrics.topUser?.username}`}
                                             className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300"
                                         >
                                             {funMetrics.topUser.username || 'Unnamed User'}
@@ -370,7 +370,7 @@ export default async function AdminMetricsPage() {
                                     <p className="text-xs text-dusk-purple dark:text-purple-400">
                                         Bred {funMetrics.prolificPair.timesBred} times by{' '}
                                         <Link
-                                            href={`/admin/users/${funMetrics.prolificPair.breeder?.id}`}
+                                            href={`/${funMetrics.prolificPair.breeder?.username}`}
                                             className="hover:underline"
                                         >
                                             {funMetrics.prolificPair.breeder?.username || '...'}

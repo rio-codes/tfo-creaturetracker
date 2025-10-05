@@ -15,9 +15,9 @@ importers:
       '@auth/drizzle-adapter':
         specifier: ^1.10.0
         version: 1.10.0
-      '@commitlint/types':
-        specifier: ^20.0.0
-        version: 20.0.0
+      '@babel/runtime':
+        specifier: ^7.28.4
+        version: 7.28.4
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -33,9 +33,6 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.0)(react@19.2.0))(@types/react@19.2.0)(react@19.2.0)
-      '@eslint/eslintrc':
-        specifier: ^3.3.1
-        version: 3.3.1
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.64.0(react@19.2.0))
@@ -204,6 +201,9 @@ importers:
       obscenity:
         specifier: ^0.4.5
         version: 0.4.5
+      path-to-regexp:
+        specifier: ^8.3.0
+        version: 8.3.0
       postgres:
         specifier: ^3.4.7
         version: 3.4.7
@@ -243,6 +243,9 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
+      undici:
+        specifier: ^7.16.0
+        version: 7.16.0
       use-debounce:
         specifier: ^10.0.6
         version: 10.0.6(react@19.2.0)
@@ -262,6 +265,15 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.0.0
+      '@commitlint/types':
+        specifier: ^20.0.0
+        version: 20.0.0
+      '@conventional-changelog/git-client':
+        specifier: ^2.5.1
+        version: 2.5.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.2.0)
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
       '@eslint/js':
         specifier: ^9.37.0
         version: 9.37.0
@@ -5812,6 +5824,10 @@ packages:
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
+
+  undici@7.16.0:
+    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
+    engines: {node: '>=20.18.1'}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -12031,6 +12047,8 @@ snapshots:
   undici@5.29.0:
     dependencies:
       '@fastify/busboy': 2.1.1
+
+  undici@7.16.0: {}
 
   unicorn-magic@0.1.0: {}
 

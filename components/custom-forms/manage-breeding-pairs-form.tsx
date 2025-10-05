@@ -47,8 +47,6 @@ export function ManageBreedingPairsForm({
     const [isLoading, setIsLoading] = useState(false);
     const [isInbred, setIsInbred] = useState(false);
     const [error, setError] = useState('');
-
-    // State for predictions
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
 
@@ -60,10 +58,23 @@ export function ManageBreedingPairsForm({
         );
     }, [allPairs, baseCreature]);
 
-    // Filter suitable mates and goals
     const suitableMates = useMemo(() => {
-        return findSuitableMates(baseCreature, allCreatures);
-    }, [baseCreature, allCreatures]);
+        const existingPartnerIds = new Set(
+            allPairs
+                .filter(
+                    (p) =>
+                        p.maleParent?.id === baseCreature?.id ||
+                        p.femaleParent?.id === baseCreature?.id
+                )
+                .map((p) =>
+                    p.maleParent?.id === baseCreature?.id ? p.femaleParent?.id : p.maleParent?.id
+                )
+        );
+
+        return findSuitableMates(baseCreature, allCreatures).filter(
+            (mate) => !existingPartnerIds.has(mate?.id)
+        );
+    }, [baseCreature, allCreatures, allPairs]);
 
     const { maleParent, femaleParent } = useMemo(() => {
         if (!selectedMateId) {
@@ -109,7 +120,6 @@ export function ManageBreedingPairsForm({
         );
     };
 
-    // EFFECT: Fetch predictions whenever a mate is selected
     useEffect(() => {
         if (!selectedMateId) {
             setPredictions([]);
@@ -226,7 +236,6 @@ export function ManageBreedingPairsForm({
 
     return (
         <div className="space-y-6">
-            {/* Existing Pairs */}
             <div>
                 <h4 className="font-bold text-pompaca-purple mb-2">Existing Pairs</h4>
                 <div className="space-y-2 max-h-40 overflow-y-auto p-1">
@@ -255,7 +264,6 @@ export function ManageBreedingPairsForm({
                 </div>
             </div>
 
-            {/* Create New Pair */}
             <div>
                 <h4 className="font-bold text-pompaca-purple mb-2">Create New Pair</h4>
                 <form onSubmit={handleCreatePair} className="space-y-4">
@@ -272,7 +280,6 @@ export function ManageBreedingPairsForm({
                         placeholder="Select a mate..."
                     />
 
-                    {/* Pair Preview */}
                     {selectedMateId && (
                         <>
                             {isInbred && (
@@ -338,7 +345,6 @@ export function ManageBreedingPairsForm({
                         </>
                     )}
 
-                    {/* Prediction Display */}
                     {isPredictionLoading && (
                         <div className="text-center">
                             <Loader2 className="animate-spin" />
@@ -371,7 +377,6 @@ export function ManageBreedingPairsForm({
                     )}
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
-                    {/* Cancel Button */}
 
                     <Button
                         type="button"
@@ -382,7 +387,6 @@ export function ManageBreedingPairsForm({
                         Cancel
                     </Button>
 
-                    {/* Submit Button */}
                     <Button
                         type="submit"
                         disabled={isLoading || !selectedMateId}

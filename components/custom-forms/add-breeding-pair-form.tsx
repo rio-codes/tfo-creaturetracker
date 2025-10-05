@@ -110,12 +110,25 @@ export function AddPairForm({
         return { selectedMale: male, selectedFemale: female };
     }, [selectedMaleId, selectedFemaleId, allCreatures]);
 
+    const existingPartnerIds = useMemo(() => {
+        if (!baseCreature) return new Set();
+        return new Set(
+            allPairs
+                .filter(
+                    (p) =>
+                        p.maleParentId === baseCreature.id || p.femaleParentId === baseCreature.id
+                )
+                .map((p) =>
+                    p.maleParentId === baseCreature.id ? p.femaleParentId : p.maleParentId
+                )
+        );
+    }, [allPairs, baseCreature]);
+
     const { availableMales, availableFemales } = useMemo(() => {
         let males = allCreatures.filter((c) => c?.gender === 'male' && c.growthLevel === 3);
         let females = allCreatures.filter((c) => c?.gender === 'female' && c.growthLevel === 3);
 
         if (isHybridMode) {
-            // Hybrid mode: show all valid mates
             if (selectedFemale) {
                 males = males.filter(
                     (male) =>
@@ -130,7 +143,6 @@ export function AddPairForm({
                 );
             }
         } else {
-            // Standard mode: filter by selected species
             if (selectedSpecies) {
                 males = males.filter((c) => c?.species === selectedSpecies);
                 females = females.filter((c) => c?.species === selectedSpecies);
@@ -138,6 +150,11 @@ export function AddPairForm({
                 males = [];
                 females = [];
             }
+        }
+
+        if (baseCreature) {
+            males = males.filter((m) => !existingPartnerIds.has(m?.id));
+            females = females.filter((f) => !existingPartnerIds.has(f?.id));
         }
         return { availableMales: males, availableFemales: females };
     }, [
@@ -148,6 +165,8 @@ export function AddPairForm({
         allCreatures,
         selectedMaleId,
         selectedFemaleId,
+        existingPartnerIds,
+        baseCreature,
     ]);
 
     const assignableGoals = useMemo(() => {
@@ -199,7 +218,6 @@ export function AddPairForm({
 
     const handleHybridToggle = (checked: boolean) => {
         setIsHybridMode(checked);
-        // Reset selections when toggling mode
         setSelectedMaleId(baseCreature?.gender === 'male' ? baseCreature.id : undefined);
         setSelectedFemaleId(baseCreature?.gender === 'female' ? baseCreature.id : undefined);
         setSelectedSpecies(!checked && baseCreature ? baseCreature.species || '' : '');
@@ -265,7 +283,6 @@ export function AddPairForm({
                 return;
             }
 
-            // on success, show message, refresh data, and close the dialog
             setMessage(data.message);
             router.refresh();
             onSuccess();
@@ -304,7 +321,6 @@ export function AddPairForm({
                     </div>
                 )}
 
-                {/* Pair Preview */}
                 {(selectedMale || selectedFemale) && (
                     <div className="overflow-x-auto">
                         <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border text-xs min-w-max">
@@ -375,7 +391,6 @@ export function AddPairForm({
                     </SelectContent>
                 </Select>
 
-                {/* Parent Selectors */}
                 <CreatureCombobox
                     creatures={availableMales}
                     selectedCreatureId={selectedMaleId}
@@ -392,7 +407,6 @@ export function AddPairForm({
                     disabled={!isHybridMode && !selectedSpecies}
                 />
 
-                {/* Prediction Display */}
                 {isPredictionLoading && (
                     <div className="text-center">
                         <Loader2 className="animate-spin" />
@@ -421,7 +435,6 @@ export function AddPairForm({
                     </div>
                 )}
 
-                {/* Goal Selector (Multi-select) */}
                 {assignableGoals.length > 0 && (
                     <div className="space-y-2">
                         <Label>Assign Research Goals</Label>

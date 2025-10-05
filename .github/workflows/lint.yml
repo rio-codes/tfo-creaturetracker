@@ -1,0 +1,45 @@
+name: Lint and Format
+
+on:
+    pull_request:
+        # Run on PRs targeting the main branch
+        branches: [main]
+        types: [opened, synchronize, reopened]
+
+jobs:
+    lint-and-format:
+        name: Lint and Format
+        runs-on: ubuntu-latest
+        # Grant permissions to add labels to pull requests
+        permissions:
+            pull-requests: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  # Fetch all history for all branches and tags for commitlint
+                  fetch-depth: 0
+
+            - name: Set up pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Lint code with ESLint and Prettier Config
+              run: pnpm lint -c ./eslint.config.mjs
+
+            - name: Add "mergequeue" label on success
+              if: success()
+              run: gh pr edit ${{ github.event.pull_request.number }} --add-label "mergequeue"
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_REPO: ${{ github.repository }}

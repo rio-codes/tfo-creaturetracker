@@ -204,7 +204,7 @@ export const creatures = pgTable(
         pinOrder: integer('pin_order'),
         isArchived: boolean('is_archived').default(false).notNull(),
         generation: integer('generation').default(1).notNull(),
-        origin: creatureOriginEnum('origin').default('unknown').notNull(),
+        origin: creatureOriginEnum('origin').default('unknown'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
@@ -224,7 +224,7 @@ export const creatures = pgTable(
 );
 
 export const researchGoals = pgTable(
-    'research_goal',
+    'research_goals',
     {
         id: text('id')
             .primaryKey()
@@ -252,7 +252,7 @@ export const researchGoals = pgTable(
 );
 
 export const breedingPairs = pgTable(
-    'breeding_pair',
+    'breeding_pairs',
     {
         id: text('id')
             .primaryKey()
@@ -286,7 +286,7 @@ export const breedingPairs = pgTable(
 );
 
 export const breedingLogEntries = pgTable(
-    'breeding_log_entry',
+    'breeding_log_entries',
     {
         id: text('id')
             .primaryKey()

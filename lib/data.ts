@@ -661,7 +661,7 @@ export async function fetchBreedingPairsWithStats(
             .select({ value: count() })
             .from(breedingPairs)
             .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id)) // This line was missing from the original diff
+            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
             .where(and(...conditions, eq(breedingPairs.isPinned, false)));
 
         const totalPages = Math.ceil(totalCountResult[0].value / itemsPerPage);

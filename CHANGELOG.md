@@ -1,10 +1,16 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.12.0 (2025-10-07)
+
+- feat(pairs): ✨ breeding pairs with archived members will also be archived now (#296) ([41da37f](https://github.com/rio-codes/tfo-creaturetracker/commit/41da37f)), closes [#296](https://github.com/rio-codes/tfo-creaturetracker/issues/296)
+- fix(pairs): 🚑️ deploy fix to ensure all archived pairs are found ([c4dbd9e](https://github.com/rio-codes/tfo-creaturetracker/commit/c4dbd9e))
+- chore(docs): 📝 update CHANGELOG.md, bump patch version ([7455e12](https://github.com/rio-codes/tfo-creaturetracker/commit/7455e12))
+- build(deps): ⬆️ upgrade dependencies ([f37e21b](https://github.com/rio-codes/tfo-creaturetracker/commit/f37e21b))
+
 ## <small>1.11.8 (2025-10-07)</small>
 
-- build(deps): ⬆️ upgrade dependencies ([f37e21b](https://github.com/rio-codes/tfo-creaturetracker/commit/f37e21b))
-- build(deps): bump actions/checkout from 4 to 5 (#294) ([32da62c](https://github.com/rio-codes/tfo-creaturetracker/commit/32da62c)), closes [#294](https://github.com/rio-codes/tfo-creaturetracker/issues/294)
 - ci(config): 🚀 add github workflow for dev db branch, fix other workflows (#295) ([298db59](https://github.com/rio-codes/tfo-creaturetracker/commit/298db59)), closes [#295](https://github.com/rio-codes/tfo-creaturetracker/issues/295) [#293](https://github.com/rio-codes/tfo-creaturetracker/issues/293) [#294](https://github.com/rio-codes/tfo-creaturetracker/issues/294)
+- build(deps): bump actions/checkout from 4 to 5 (#294) ([32da62c](https://github.com/rio-codes/tfo-creaturetracker/commit/32da62c)), closes [#294](https://github.com/rio-codes/tfo-creaturetracker/issues/294)
 - Update db-backup.yml ([0f303b3](https://github.com/rio-codes/tfo-creaturetracker/commit/0f303b3))
 
 ## <small>1.11.7 (2025-10-06)</small>

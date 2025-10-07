@@ -1,6 +1,6 @@
 {
     "name": "tfo-creaturetracker",
-    "version": "1.11.6",
+    "version": "1.11.7",
     "private": true,
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm store prune && pnpm i && pnpm dev",
@@ -10,7 +10,7 @@
         "lint": "eslint .",
         "start": "next start",
         "db:generate": "drizzle-kit generate",
-        "db:push": "drizzle-kit push",
+        "db:push": "drizzle-kit push --url=process.env.DATABASE_URL --dialect=postgresql --schema='./src/db/schema.ts'",
         "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -n .changelogrc.json -r 0"
     },
     "pnpm": {
@@ -36,7 +36,7 @@
         "@hyperdx/node-opentelemetry": "^0.8.2",
         "@mui/material": "^7.3.4",
         "@opentelemetry/api": "1.9.0",
-        "@opentelemetry/instrumentation": "^0.205.0",
+        "@opentelemetry/instrumentation": "^0.206.0",
         "@radix-ui/react-accordion": "1.2.12",
         "@radix-ui/react-alert-dialog": "1.1.15",
         "@radix-ui/react-aspect-ratio": "1.1.7",
@@ -140,5 +140,5 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.45.0"
     },
-    "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
+    "packageManager": "pnpm@10.18.1+sha512.77a884a165cbba2d8d1c19e3b4880eee6d2fcabd0d879121e282196b80042351d5eb3ca0935fa599da1dc51265cc68816ad2bddd2a2de5ea9fdf92adbec7cd34"
 }

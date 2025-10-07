@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures } from '@/src/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { creatures, breedingPairs } from '@/src/db/schema';
+import { eq, and, or, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { logUserAction } from '@/lib/user-actions';
 
@@ -11,6 +11,7 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+    const userId = session.user.id;
 
     const { creatureId } = params;
     if (!creatureId) {
@@ -23,11 +24,61 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
     }
 
     try {
-        const result = await db
-            .update(creatures)
-            .set({ isArchived, updatedAt: new Date() })
-            .where(and(eq(creatures.id, creatureId), eq(creatures.userId, session.user.id)))
-            .returning();
+        const result = await db.transaction(async (tx) => {
+            const updateResult = await tx
+                .update(creatures)
+                .set({ isArchived, updatedAt: new Date() })
+                .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
+                .returning();
+
+            if (updateResult.length === 0) {
+                return []; // Abort transaction
+            }
+
+            if (isArchived) {
+                // If archiving a creature, archive all its pairs.
+                await tx
+                    .update(breedingPairs)
+                    .set({ isArchived: true })
+                    .where(
+                        and(
+                            eq(breedingPairs.userId, userId),
+                            or(
+                                eq(breedingPairs.maleParentId, creatureId),
+                                eq(breedingPairs.femaleParentId, creatureId)
+                            )
+                        )
+                    );
+            } else {
+                // If un-archiving, find pairs where this creature is a parent.
+                const pairsToConsider = await tx.query.breedingPairs.findMany({
+                    where: and(
+                        eq(breedingPairs.userId, userId),
+                        or(
+                            eq(breedingPairs.maleParentId, creatureId),
+                            eq(breedingPairs.femaleParentId, creatureId)
+                        )
+                    ),
+                    columns: { id: true, maleParentId: true, femaleParentId: true },
+                });
+
+                if (pairsToConsider.length > 0) {
+                    // Un-archive only those pairs where the OTHER parent is NOT archived.
+                    await tx
+                        .update(breedingPairs)
+                        .set({ isArchived: false })
+                        .where(
+                            and(
+                                inArray(
+                                    breedingPairs.id,
+                                    pairsToConsider.map((p) => p.id)
+                                )
+                            )
+                        );
+                }
+            }
+            return updateResult;
+        });
 
         if (result.length === 0) {
             return NextResponse.json(
@@ -36,6 +87,7 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
             );
         }
 
+        revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
         const creature = await db.query.creatures.findFirst({

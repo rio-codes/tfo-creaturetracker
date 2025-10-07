@@ -62,19 +62,41 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
                     columns: { id: true, maleParentId: true, femaleParentId: true },
                 });
 
+                const pairsToUnarchive: string[] = [];
                 if (pairsToConsider.length > 0) {
-                    // Un-archive only those pairs where the OTHER parent is NOT archived.
+                    const otherParentIds = pairsToConsider
+                        .map((p) =>
+                            p.maleParentId === creatureId ? p.femaleParentId : p.maleParentId
+                        )
+                        .filter((id): id is string => id !== null);
+
+                    if (otherParentIds.length > 0) {
+                        const otherParents = await tx.query.creatures.findMany({
+                            where: inArray(creatures.id, otherParentIds),
+                            columns: { id: true, isArchived: true },
+                        });
+
+                        const activeParentIds = new Set(
+                            otherParents.filter((p) => !p.isArchived).map((p) => p.id)
+                        );
+
+                        for (const pair of pairsToConsider) {
+                            const otherParentId =
+                                pair.maleParentId === creatureId
+                                    ? pair.femaleParentId
+                                    : pair.maleParentId;
+                            if (activeParentIds.has(otherParentId)) {
+                                pairsToUnarchive.push(pair.id);
+                            }
+                        }
+                    }
+                }
+
+                if (pairsToUnarchive.length > 0) {
                     await tx
                         .update(breedingPairs)
                         .set({ isArchived: false })
-                        .where(
-                            and(
-                                inArray(
-                                    breedingPairs.id,
-                                    pairsToConsider.map((p) => p.id)
-                                )
-                            )
-                        );
+                        .where(inArray(breedingPairs.id, pairsToUnarchive));
                 }
             }
             return updateResult;

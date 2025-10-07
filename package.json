@@ -102,7 +102,7 @@
         "tsx": "^4.20.6",
         "use-debounce": "^10.0.6",
         "vaul": "^1.1.2",
-        "vercel": "^48.2.2",
+        "vercel": "^48.2.5",
         "zod": "^4.1.12"
     },
     "devDependencies": {
@@ -118,8 +118,8 @@
         "@tailwindcss/postcss": "^4.1.14",
         "@types/jsdom": "^27.0.0",
         "@types/node": "^24.7.0",
-        "@types/react": "^19.2.1",
-        "@types/react-dom": "^19.2.0",
+        "@types/react": "^19.2.2",
+        "@types/react-dom": "^19.2.1",
         "@typescript-eslint/eslint-plugin": "^8.46.0",
         "@typescript-eslint/parser": "^8.46.0",
         "@typescript-eslint/utils": "^8.46.0",

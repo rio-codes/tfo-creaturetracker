@@ -37,10 +37,3 @@ jobs:
                   name: database-backup
                   path: ${{ env.BACKUP_FILENAME }}
                   retention-days: 14 # Optional: The number of days to retain the artifact
-
-            - name: Upload backup artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: database-backup
-                  path: ${{ env.BACKUP_FILENAME }}
-                  retention-days: 14 # Optional: The number of days to retain the artifact

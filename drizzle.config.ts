@@ -1,7 +1,7 @@
 import type { Config } from 'drizzle-kit';
 
 if (!process.env.DATABASE_URL) {
-    (await import('dotenv')).config({ path: '.env.local' });
+    require('dotenv').config({ path: '.env.local' });
 }
 
 export default {

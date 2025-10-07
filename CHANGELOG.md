@@ -1,11 +1,27 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## <small>1.11.8 (2025-10-07)</small>
+
+- build(deps): ⬆️ upgrade dependencies ([f37e21b](https://github.com/rio-codes/tfo-creaturetracker/commit/f37e21b))
+- build(deps): bump actions/checkout from 4 to 5 (#294) ([32da62c](https://github.com/rio-codes/tfo-creaturetracker/commit/32da62c)), closes [#294](https://github.com/rio-codes/tfo-creaturetracker/issues/294)
+- ci(config): 🚀 add github workflow for dev db branch, fix other workflows (#295) ([298db59](https://github.com/rio-codes/tfo-creaturetracker/commit/298db59)), closes [#295](https://github.com/rio-codes/tfo-creaturetracker/issues/295) [#293](https://github.com/rio-codes/tfo-creaturetracker/issues/293) [#294](https://github.com/rio-codes/tfo-creaturetracker/issues/294)
+- Update db-backup.yml ([0f303b3](https://github.com/rio-codes/tfo-creaturetracker/commit/0f303b3))
+
+## <small>1.11.7 (2025-10-06)</small>
+
+- fix(admin): 🐛 fix urls on admin page (#285) ([d66c9d3](https://github.com/rio-codes/tfo-creaturetracker/commit/d66c9d3)), closes [#285](https://github.com/rio-codes/tfo-creaturetracker/issues/285)
+- fix(collection): 🐛 change archived and unarchived removal dialogs (#287) ([23cd6e6](https://github.com/rio-codes/tfo-creaturetracker/commit/23cd6e6)), closes [#287](https://github.com/rio-codes/tfo-creaturetracker/issues/287)
+- fix(collection): 🐛 set minimum generation in filter input, fixes #276 (#286) ([29d02a0](https://github.com/rio-codes/tfo-creaturetracker/commit/29d02a0)), closes [#276](https://github.com/rio-codes/tfo-creaturetracker/issues/276) [#286](https://github.com/rio-codes/tfo-creaturetracker/issues/286) [#276](https://github.com/rio-codes/tfo-creaturetracker/issues/276)
+- fix(db): 🚑️ emergency db schema hotfix; revert table names ([77a42ea](https://github.com/rio-codes/tfo-creaturetracker/commit/77a42ea))
+- fix(pairs): 🐛 fix breeding pairs db query function (#289) ([ca3409c](https://github.com/rio-codes/tfo-creaturetracker/commit/ca3409c)), closes [#289](https://github.com/rio-codes/tfo-creaturetracker/issues/289)
+- build(deps): bump actions/setup-node from 4 to 5 (#290) ([8fad090](https://github.com/rio-codes/tfo-creaturetracker/commit/8fad090)), closes [#290](https://github.com/rio-codes/tfo-creaturetracker/issues/290)
+- ci(config): 🚑️ fix github workflows to use correct vers of postgresql and node ([93f71f8](https://github.com/rio-codes/tfo-creaturetracker/commit/93f71f8))
+- docs(docs): 📝 update CHANGELOG.md ([0ba1766](https://github.com/rio-codes/tfo-creaturetracker/commit/0ba1766))
+
 ## <small>1.11.6 (2025-10-05)</small>
 
-- fix(admin): 🐛 fix urls on admin page ([#285](https://github.com/rio-codes/tfo-creaturetracker/issues/285))
-- fix(collection): 🐛 set minimum generation in filter input, fixes [#276](https://github.com/rio-codes/tfo-creaturetracker/issues/276) ([#286](https://github.com/rio-codes/tfo-creaturetracker/issues/286))
-- fix(collection): 🐛 change archived and unarchived removal dialogs ([#287](https://github.com/rio-codes/tfo-creaturetracker/issues/287))
 - fix(pairs): 🐛 exclude existing mates from possible pairs, fixes #260 (#288) ([42820e5](https://github.com/rio-codes/tfo-creaturetracker/commit/42820e5)), closes [#260](https://github.com/rio-codes/tfo-creaturetracker/issues/260) [#288](https://github.com/rio-codes/tfo-creaturetracker/issues/288) [#260](https://github.com/rio-codes/tfo-creaturetracker/issues/260)
+- Update lint.yml ([7d32fc4](https://github.com/rio-codes/tfo-creaturetracker/commit/7d32fc4))
 
 ## <small>1.11.5 (2025-10-05)</small>
 

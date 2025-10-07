@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures } from '@/src/db/schema';
+import { creatures, breedingPairs } from '@/src/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -23,6 +23,17 @@ export async function POST(req: Request) {
             .set({ isArchived: true, updatedAt: new Date() })
             .where(and(eq(creatures.userId, session.user.id), inArray(creatures.id, creatureIds)));
 
+        await db
+            .update(breedingPairs)
+            .set({ isArchived: true })
+            .where(
+                and(
+                    eq(breedingPairs.userId, session.user.id),
+                    inArray(breedingPairs.maleParentId, creatureIds)
+                )
+            );
+
+        revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
 
         return NextResponse.json({ message: 'Creatures archived successfully.' });

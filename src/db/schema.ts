@@ -274,6 +274,7 @@ export const breedingPairs = pgTable(
         outcomesPreviewUrl: text('outcomes_preview_url'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
+        isArchived: boolean('is_archived').default(false).notNull(),
     },
     (table) => ({
         userIdx: index('pair_userId_idx').on(table.userId),

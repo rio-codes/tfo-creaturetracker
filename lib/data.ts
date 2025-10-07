@@ -495,11 +495,12 @@ export async function fetchBreedingPairsWithStats(
         geneCategory?: string;
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
+        showArchived?: string;
     } = {}
 ) {
     const currentPage = Number(searchParams.page) || 1;
-    const { query, species, geneCategory, geneQuery, geneMode } = searchParams;
-    const session = await auth(); // Corrected from `const { query, species, geneCategory, geneQuery, geneMode } = searchParams;`
+    const { query, species, geneCategory, geneQuery, geneMode, showArchived } = searchParams;
+    const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { pairs: [], totalPages: 0 };
 
@@ -515,6 +516,7 @@ export async function fetchBreedingPairsWithStats(
     // Build conditions for filtering
     const conditions: SQL<unknown>[] | undefined = [
         eq(breedingPairs.userId, userId),
+        showArchived !== 'true' ? eq(breedingPairs.isArchived, false) : undefined,
         species && species !== 'all'
             ? or(
                   eq(breedingPairs.species, species),

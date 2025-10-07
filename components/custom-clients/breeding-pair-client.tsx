@@ -33,6 +33,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -59,6 +61,7 @@ type BreedingPairsClientProps = {
         geneCategory?: string;
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
+        showArchived?: string;
     };
 };
 
@@ -307,6 +310,22 @@ export function BreedingPairsClient({
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="show-archived"
+                                checked={searchParams?.showArchived === 'true'}
+                                onCheckedChange={(checked) =>
+                                    handleFilterChange('showArchived', !!checked)
+                                }
+                                className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac"
+                            />
+                            <Label
+                                htmlFor="show-archived"
+                                className="text-pompaca-purple dark:text-purple-300"
+                            >
+                                Show archived pairs
+                            </Label>
                         </div>
                     </div>
 

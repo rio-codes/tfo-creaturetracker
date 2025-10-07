@@ -10,7 +10,7 @@
         "lint": "eslint .",
         "start": "next start",
         "db:generate": "drizzle-kit generate",
-        "db:push": "drizzle-kit push --url=$DATABASE_URL --dialect=postgresql --schema='./src/db/schema.ts'",
+        "db:push": "drizzle-kit push --url=process.env.DATABASE_URL --dialect=postgresql --schema='./src/db/schema.ts'",
         "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -n .changelogrc.json -r 0"
     },
     "pnpm": {

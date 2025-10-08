@@ -11,7 +11,8 @@ const updateStatusSchema = z.object({
     status: z.enum(['open', 'resolved', 'dismissed']),
 });
 
-export async function PATCH(req: Request, { params }: { params: { reportId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ reportId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (session?.user?.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

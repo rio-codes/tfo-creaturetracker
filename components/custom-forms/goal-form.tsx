@@ -43,73 +43,11 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(goal?.imageUrl || null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [_previewError, setPreviewError] = useState('');
-    const [localSpecies, setLocalSpecies] = useState(goal?.species || '');
-    const geneOptions = useMemo(() => {
-        if (!localSpecies || !structuredGeneData[localSpecies]) return {};
-        const optionsByCat: { [key: string]: GeneOption[] } = {};
-        const isDimorphic = structuredGeneData[species]?.Dimorphic === 'True';
-        const selectedGender = selectedGenes['Gender']?.phenotype as 'Male' | 'Female' | undefined;
-        for (const [category, genes] of Object.entries(structuredGeneData[species])) {
-            if (!Array.isArray(genes)) {
-                continue;
-            }
-            let categoryGenes = genes;
-            if (isDimorphic && category !== 'Gender' && selectedGender) {
-                categoryGenes = categoryGenes.filter(
-                    (g) => !g.gender || g.gender === selectedGender
-                );
-            }
-            if (goalMode === 'genotype') {
-                const phenotypeMap = new Map<string, string[]>();
-                for (const g of categoryGenes) {
-                    const existing = phenotypeMap.get(g.phenotype) || [];
-                    phenotypeMap.set(g.phenotype, [...existing, g.genotype]);
-                }
-                optionsByCat[category] = categoryGenes.map((gene) => {
-                    const genotypesForPhenotype = phenotypeMap.get(gene.phenotype) || [];
-                    return {
-                        value: gene.genotype,
-                        display:
-                            category === 'Gender'
-                                ? gene.genotype
-                                : `${gene.genotype} (${gene.phenotype})`,
-                        selection: {
-                            phenotype: gene.phenotype,
-                            genotype: gene.genotype,
-                            gender: gene.gender,
-                            isMultiGenotype: genotypesForPhenotype.length > 1,
-                        },
-                    };
-                });
-            } else {
-                const phenotypeMap = new Map<string, string[]>();
-                for (const g of categoryGenes) {
-                    const existing = phenotypeMap.get(g.phenotype) || [];
-                    phenotypeMap.set(g.phenotype, [...existing, g.genotype]);
-                }
-                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                    ([phenotype, genotypes]) => {
-                        const isMulti = genotypes.length > 1;
-                        return {
-                            value: phenotype,
-                            display:
-                                isMulti || category == 'Gender'
-                                    ? phenotype
-                                    : `${phenotype} (${genotypes[0]})`,
-                            selection: {
-                                phenotype: phenotype,
-                                genotype: genotypes[0],
-                                gender: categoryGenes.find((g) => g.phenotype === phenotype)
-                                    ?.gender,
-                                isMultiGenotype: isMulti,
-                            },
-                        };
-                    }
-                );
-            }
-        }
-        return optionsByCat;
-    }, [localSpecies, goalMode, selectedGenes, species]);
+    const [localSpecies, setLocalSpecies] = useState(goal?.species || species || '');
+    const geneOptions = useMemo(
+        () => getGeneOptions(localSpecies, goalMode, selectedGenes),
+        [localSpecies, goalMode, selectedGenes]
+    );
     const geneCategories = useMemo(
         () => (geneOptions ? Object.keys(geneOptions) : []),
         [geneOptions]
@@ -117,7 +55,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
 
     useEffect(() => {
         // This effect should run when the species changes to set initial gene selections.
-        if (localSpecies) {
+        if (localSpecies && Object.keys(structuredGeneData[localSpecies] || {}).length > 0) {
             if (isEditMode && goal?.genes && localSpecies === goal.species) {
                 const normalizedGenes: { [key: string]: GoalGene } = {};
                 for (const [category, geneData] of Object.entries(goal.genes)) {
@@ -128,7 +66,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 }
                 setSelectedGenes(normalizedGenes);
             } else if (!isEditMode) {
-                const defaultSelections: { [key: string]: GoalGene } = {};
+                const defaultSelections: { [key: string]: GoalGene } = { ...selectedGenes };
                 const tempGeneOptions = getGeneOptions(localSpecies, 'phenotype', {}); // Use a stable goalMode for defaults
                 for (const category of Object.keys(tempGeneOptions)) {
                     const options = tempGeneOptions[category];
@@ -148,7 +86,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 setSelectedGenes(defaultSelections);
             }
         }
-    }, [localSpecies, isEditMode, goal?.species, goal?.genes]);
+    }, [localSpecies, isEditMode, goal?.species]);
 
     const handleSpeciesChange = (newSpecies: string) => {
         setSpecies(newSpecies);
@@ -184,15 +122,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         for (const [category, genes] of Object.entries(structuredGeneData[species])) {
             if (!Array.isArray(genes)) continue;
 
-            const categoryGenes = genes.filter(
-                (g) =>
-                    !isDimorphic ||
-                    category === 'Gender' ||
-                    !g.gender ||
-                    g.gender === selectedGender
-            );
+            let categoryGenes: any[] = genes;
+            if (isDimorphic && category !== 'Gender' && selectedGender) {
+                // For dimorphic species, filter genes to only those matching the selected gender or those without a gender specification.
+                categoryGenes = genes.filter((g: any) => !g.gender || g.gender === selectedGender);
+            }
 
             const phenotypeMap = new Map<string, string[]>();
+
             for (const g of categoryGenes) {
                 const existing = phenotypeMap.get(g.phenotype) || [];
                 phenotypeMap.set(g.phenotype, [...existing, g.genotype]);

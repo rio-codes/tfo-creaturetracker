@@ -158,7 +158,7 @@ async function getHomepageStats(): Promise<HomepageStats> {
             const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
             imageUrl = await fetchAndUploadWithRetry(
                 bustedTfoImageUrl,
-                `pair-preview-${randomPair.id}`,
+                `admin-preview-${randomPair.id}-${Date.now()}`,
                 3
             );
         } catch (error) {

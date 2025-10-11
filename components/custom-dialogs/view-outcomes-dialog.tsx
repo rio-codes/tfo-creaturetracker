@@ -391,26 +391,27 @@ export function ViewOutcomesDialog({
                                 <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
-                                            ([category, selectedGenotype]) => {
-                                                const isDimorphic =
-                                                    structuredGeneData[pair.species!]?.Dimorphic ===
-                                                    'True';
-                                                const selectedGender = selectedGenotypes['Gender'];
-
-                                                let outcome = outcomes[category].find(
-                                                    (o) => o.genotype === selectedGenotype
+                                            ([category, genotype]) => {
+                                                // Find the phenotype from the structured data, as the 'outcomes' object may not have it for dimorphic genes.
+                                                const speciesGenes =
+                                                    structuredGeneData[pair.species!];
+                                                const categoryGenes = speciesGenes?.[
+                                                    category
+                                                ] as any[];
+                                                const geneInfo = categoryGenes?.find(
+                                                    (g) => g.genotype === genotype
                                                 );
+                                                const phenotype = geneInfo
+                                                    ? geneInfo.phenotype
+                                                    : 'Unknown';
 
-                                                if (isDimorphic && category !== 'Gender') {
-                                                    const genderSpecificOutcome = outcomes[
-                                                        category
-                                                    ].find(
-                                                        (o) =>
-                                                            o.genotype === selectedGenotype &&
-                                                            (o as any).gender === selectedGender
-                                                    );
-                                                    if (genderSpecificOutcome)
-                                                        outcome = genderSpecificOutcome;
+                                                // Find the probability from the outcomes data
+                                                const outcome = outcomes[category]?.find(
+                                                    (o) => o.genotype === genotype
+                                                );
+                                                if (!outcome) {
+                                                    // Should not happen if data is consistent
+                                                    return null;
                                                 }
                                                 return (
                                                     <div
@@ -431,8 +432,7 @@ export function ViewOutcomesDialog({
                                                             htmlFor={`optional-${category}`}
                                                             className="font-normal text-sm flex-grow cursor-pointer"
                                                         >
-                                                            {category}: {outcome?.phenotype} (
-                                                            {outcome?.genotype})
+                                                            {category}: {phenotype} ({genotype})
                                                         </Label>
                                                     </div>
                                                 );

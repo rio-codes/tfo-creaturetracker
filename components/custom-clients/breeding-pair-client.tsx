@@ -107,10 +107,11 @@ function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
     };
 
     const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
-        if (!creature?.imageUrl) return '';
-        if (creature.updatedAt)
-            return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
-        return creature.imageUrl;
+        if (!creature?.imageUrl) {
+            return '';
+        }
+        const timestamp = creature.updatedAt ? new Date(creature.updatedAt).getTime() : 'static';
+        return `${creature.imageUrl}?v=${timestamp}`;
     };
 
     return (

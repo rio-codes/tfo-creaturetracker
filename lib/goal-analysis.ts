@@ -22,10 +22,7 @@ export const analyzeProgenyAgainstGoal = (
             acc[gene.category] = gene;
             return acc;
         },
-        {} as Record<
-            string,
-            { category: string; genotype: string; phenotype: string }
-        >
+        {} as Record<string, { category: string; genotype: string; phenotype: string }>
     );
 
     let totalTraits = 0;
@@ -38,16 +35,13 @@ export const analyzeProgenyAgainstGoal = (
 
     for (const category in goalGenes) {
         if (Object.prototype.hasOwnProperty.call(goalGenes, category)) {
-            if (excludeGender && category === 'Gender') {
+            if ((excludeGender && category === 'Gender') || goalGenes[category].isOptional) {
                 continue;
             }
             totalTraits++;
             const goalGene = goalGenes[category];
             const creatureGene = creatureGenes[category];
-            const goalValue =
-                goal.goalMode === 'genotype'
-                    ? goalGene.genotype
-                    : goalGene.phenotype;
+            const goalValue = goal.goalMode === 'genotype' ? goalGene.genotype : goalGene.phenotype;
 
             if (!creatureGene) {
                 nonMatchingGenes.push({
@@ -59,15 +53,11 @@ export const analyzeProgenyAgainstGoal = (
             }
 
             const creatureValue =
-                goal.goalMode === 'genotype'
-                    ? creatureGene.genotype
-                    : creatureGene.phenotype;
+                goal.goalMode === 'genotype' ? creatureGene.genotype : creatureGene.phenotype;
 
             if (
-                (goal.goalMode === 'genotype' &&
-                    creatureGene.genotype === goalGene.genotype) ||
-                (goal.goalMode === 'phenotype' &&
-                    creatureGene.phenotype === goalGene.phenotype)
+                (goal.goalMode === 'genotype' && creatureGene.genotype === goalGene.genotype) ||
+                (goal.goalMode === 'phenotype' && creatureGene.phenotype === goalGene.phenotype)
             ) {
                 matchedTraits++;
             } else {

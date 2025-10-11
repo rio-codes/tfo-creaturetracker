@@ -321,9 +321,6 @@ export async function fetchFilteredCreatures(
         geneMode?: 'phenotype' | 'genotype';
     } = {}
 ) {
-    console.log('--- [fetchFilteredCreatures] ---');
-    console.log('Received searchParams:', searchParams);
-
     const currentPage = Number(searchParams.page) || 1;
     const {
         query,
@@ -391,16 +388,13 @@ export async function fetchFilteredCreatures(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
-    // filter by search query, gender, growth level, or species if specified
     const conditions = [
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
         query && isGeneSearch
-            ? // Case-sensitive search for genetics
-              like(creatures.genetics, `%${geneQueryValue}%`)
+            ? like(creatures.genetics, `%${geneQueryValue}%`)
             : query
-              ? // Case-insensitive search for other fields
-                or(
+              ? or(
                     ilike(creatures.code, `%${query}%`),
                     ilike(creatures.creatureName, `%${query}%`),
                     ilike(sql`${creatures.origin}::text`, `%${query}%`),
@@ -420,15 +414,11 @@ export async function fetchFilteredCreatures(
             const geneConditions = geneString.map((str) => like(creatures.genetics, str));
             conditions.push(or(...geneConditions));
         } else {
-            // If there's only one gene string, just add it as a simple ilike
             conditions.push(like(creatures.genetics, geneString[0]));
         }
     }
 
-    console.log('Final query conditions count:', conditions.length);
-
     try {
-        // Fetch all pairs and logs for the user to enrich the creature data
         const [allUserPairs, allUserLogs] = await Promise.all([
             db.query.breedingPairs.findMany({
                 where: eq(breedingPairs.userId, userId),
@@ -455,17 +445,38 @@ export async function fetchFilteredCreatures(
             if (p.femaleParentId) isParentSet.add(p.femaleParentId);
         });
 
-        const enrichCreatureWithPairData = (creature: DbCreature) => {
+        const enrichCreatureWithPairData = (creature: DbCreature): EnrichedCreature => {
             const enriched = enrichAndSerializeCreature(creature);
+            if (!enriched) {
+                return null;
+            }
             const parentPair = parentPairByProgenyId.get(creature.id);
             return {
                 ...enriched,
                 isParent: isParentSet.has(creature.id),
                 parentPair: parentPair
                     ? {
-                          ...parentPair,
+                          id: parentPair.id,
+                          userId: parentPair.userId,
+                          pairName: parentPair.pairName,
+                          species: parentPair.species,
+                          maleParentId: parentPair.maleParentId,
+                          femaleParentId: parentPair.femaleParentId,
+                          assignedGoalIds: parentPair.assignedGoalIds,
+                          isPinned: parentPair.isPinned,
+                          pinOrder: parentPair.pinOrder,
+                          outcomesPreviewUrl: parentPair.outcomesPreviewUrl,
+                          isArchived: parentPair.isArchived,
                           maleParent: enrichAndSerializeCreature(parentPair.maleParent),
                           femaleParent: enrichAndSerializeCreature(parentPair.femaleParent),
+                          createdAt: parentPair.createdAt.toISOString(),
+                          updatedAt: parentPair.updatedAt.toISOString(),
+                          timesBred: 0,
+                          progenyCount: 0,
+                          progeny: [],
+                          isInbred: false,
+                          logs: [],
+                          assignedGoals: [],
                       }
                     : null,
             };
@@ -475,12 +486,10 @@ export async function fetchFilteredCreatures(
         const pinnedCreaturesRaw = await db
             .select()
             .from(creatures)
-            .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
+            .where(and(...conditions, eq(creatures.isPinned, true)))
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
         const pinnedCreatures = pinnedCreaturesRaw.map(enrichCreatureWithPairData);
-
-        // Fetch paginated unpinned creatures
         const unpinnedConditions = [...conditions, eq(creatures.isPinned, false)];
         const offset = (currentPage - 1) * itemsPerPage;
 

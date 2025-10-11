@@ -62,8 +62,8 @@ export default async function CollectionPage(props: {
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
                         totalPages={totalPages}
-                        pinnedCreatures={pinnedCreatures || []}
-                        unpinnedCreatures={unpinnedCreatures || []}
+                        pinnedCreatures={pinnedCreatures}
+                        unpinnedCreatures={unpinnedCreatures}
                         searchParams={plainSearchParams}
                         currentUser={currentUser ?? null}
                     />

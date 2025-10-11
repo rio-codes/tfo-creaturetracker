@@ -193,10 +193,10 @@ export async function POST(req: Request) {
             });
 
             for (const progenyId of newProgenyIds) {
-                const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+                const generation = await calculateGeneration(progenyId, allUserPairs, allUserLogs);
                 await db
                     .update(creatures)
-                    .set({ generation, origin: 'bred' })
+                    .set({ generation: generation || 2, origin: 'bred' })
                     .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
                 if (parentPair?.maleParent && parentPair?.femaleParent) {
                     const newGeneration =
@@ -321,10 +321,14 @@ export async function PUT(req: Request) {
                 });
 
                 for (const progenyId of newProgenyIds) {
-                    const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+                    const generation = await calculateGeneration(
+                        progenyId,
+                        allUserPairs,
+                        allUserLogs
+                    );
                     await db
                         .update(creatures)
-                        .set({ generation, origin: 'bred' })
+                        .set({ generation: generation || 2, origin: 'bred' })
                         .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
                     if (parentPair?.maleParent && parentPair?.femaleParent) {
                         const newGeneration =
@@ -601,11 +605,11 @@ export async function PATCH(req: Request) {
                     .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
             }
 
-            const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
+            const generation = await calculateGeneration(progenyId, allUserPairs, allUserLogs);
 
             await tx
                 .update(creatures)
-                .set({ generation, origin: 'bred' })
+                .set({ generation: generation || 2, origin: 'bred' })
                 .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
 
             const destinationPair = await db.query.breedingPairs.findFirst({

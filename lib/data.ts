@@ -9,8 +9,7 @@ import {
     users,
     achievedGoals,
 } from '@/src/db/schema';
-import { auth } from '@/auth';
-import { and, ilike, like, or, eq, desc, count, SQL } from 'drizzle-orm';
+import { and, ilike, like, or, eq, desc, count, SQL, sql } from 'drizzle-orm';
 import type {
     DbCreature,
     DbBreedingLogEntry,
@@ -25,6 +24,7 @@ import { calculateGeneProbability } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
+import { auth } from '@/auth';
 
 // ============================================================================
 // === HELPER FUNCTIONS =======================================================
@@ -341,6 +341,33 @@ export async function fetchFilteredCreatures(
     const itemsPerPage = user?.collectionItemsPerPage ?? 12;
 
     // filter by growth level if specified
+    let phenotypeGeneStrings: string[] = [];
+    if (query) {
+        for (const speciesName in structuredGeneData) {
+            const speciesGenes = structuredGeneData[speciesName];
+            if (speciesGenes) {
+                for (const category in speciesGenes) {
+                    const genes = speciesGenes[category];
+                    if (Array.isArray(genes)) {
+                        for (const gene of genes as { genotype: string; phenotype: string }[]) {
+                            if (gene.phenotype.toLowerCase().includes(query.toLowerCase())) {
+                                phenotypeGeneStrings.push(`%${category}:${gene.genotype}%`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    const isGenotypePattern = (q: string) => {
+        // Only match if the query consists of pairs of A, B, C and nothing else.
+        const validGeneChars = /^[abcABC]+$/;
+        return /^(?:[a-zA-Z]{2})+$/.test(q) && validGeneChars.test(q);
+    };
+    const isGeneSearch = query?.startsWith('gene:') || isGenotypePattern(query || '');
+    const geneQueryValue = query?.startsWith('gene:') ? query.substring(5) : query;
+
     const stageToGrowthLevel: { [key: string]: number } = {
         capsule: 1,
         juvenile: 2,
@@ -352,14 +379,19 @@ export async function fetchFilteredCreatures(
     const conditions = [
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
-        query
-            ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`),
-                  ilike(creatures.genetics, `%${query}%`),
-                  ilike(creatures.origin, `%${query}%`)
-              )
-            : undefined,
+        query && isGeneSearch
+            ? // Case-sensitive search for genetics
+              like(creatures.genetics, `%${geneQueryValue}%`)
+            : query
+              ? // Case-insensitive search for other fields
+                or(
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`),
+                    ilike(sql`${creatures.origin}::text`, `%${query}%`),
+                    ilike(creatures.species, `%${query}%`),
+                    ...phenotypeGeneStrings.map((str) => like(creatures.genetics, str))
+                )
+              : undefined,
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,

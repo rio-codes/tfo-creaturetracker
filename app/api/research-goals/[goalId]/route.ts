@@ -69,6 +69,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
     try {
         const body = await req.json();
+        console.log(
+            'Received PATCH request on /api/research-goals/[goalId]:',
+            JSON.stringify(body, null, 2)
+        );
         const validatedFields = editGoalSchema.safeParse(body);
 
         if (!validatedFields.success) {

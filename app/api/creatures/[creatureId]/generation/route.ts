@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures, breedingPairs, breedingLogEntries } from '@/src/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
 import { logUserAction } from '@/lib/user-actions';
-import { calculateGeneration } from '@/lib/creature-utils';
+import { updateDescendantGenerations } from '@/lib/creature-utils';
 
-const patchBodySchema = z.object({
-    generation: z.number().int().positive().nullable(),
+const updateGenerationSchema = z.object({
+    generation: z.number().int().positive().default(1),
     origin: z
         .enum(['unknown', 'cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'])
         .nullable(),
@@ -20,61 +21,87 @@ export async function PATCH(request: Request, props: { params: Promise<{ creatur
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
     const userId = session.user.id;
     try {
-        const { creatureId } = params;
         const body = await request.json();
-        const validation = patchBodySchema.safeParse(body);
+        const validated = updateGenerationSchema.safeParse(body);
 
-        if (!validation.success) {
-            return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
-        }
-
-        const { generation: manualGeneration, origin } = validation.data;
-
-        // Fetch data needed for generation calculation
-        const [allUserPairs, allUserLogs, creatureToUpdate] = await Promise.all([
-            db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
-            db.query.breedingLogEntries.findMany({ where: eq(breedingLogEntries.userId, userId) }),
-            db.query.creatures.findFirst({
-                where: and(eq(creatures.id, creatureId), eq(creatures.userId, userId)),
-            }),
-        ]);
-
-        if (!creatureToUpdate) {
-            return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
-        }
-
-        // If the creature is progeny, its generation is calculated. Otherwise, use manual input or fallback to 1.
-        const calculatedGeneration = calculateGeneration(creatureId, allUserPairs, allUserLogs);
-        const finalGeneration =
-            calculatedGeneration > 1 ? calculatedGeneration : manualGeneration || 1;
-
-        if (finalGeneration > 1 && origin && origin !== 'another-lab') {
+        if (!validated.success) {
             return NextResponse.json(
-                { error: 'Only "Another Lab" origin can be set for non-G1 creatures.' },
+                { error: validated.error.flatten().fieldErrors },
                 { status: 400 }
             );
         }
 
-        const finalOrigin =
-            finalGeneration > 1 && origin !== 'another-lab' ? 'unknown' : origin || 'unknown';
+        const { generation, origin } = validated.data;
 
-        const [updatedCreature] = await db
-            .update(creatures)
-            .set({ generation: finalGeneration, origin: finalOrigin })
-            .where(and(eq(creatures.id, creatureId), eq(creatures.userId, userId)))
-            .returning();
+        await db.transaction(async (tx) => {
+            const [updatedCreature] = await tx
+                .update(creatures)
+                .set({ generation, origin })
+                .where(and(eq(creatures.id, params.creatureId), eq(creatures.userId, userId)))
+                .returning();
 
-        await logUserAction({
-            action: 'creature.update',
-            description: `Manually updated creature "${updatedCreature.creatureName} (${updatedCreature.code})". Set Generation: G${finalGeneration}, Origin: ${finalOrigin}.`,
+            if (!updatedCreature) {
+                throw new Error('Creature not found or you do not have permission to edit it.');
+            }
+
+            // Start the recursive update for all descendants
+            await updateDescendantGenerations(params.creatureId, userId);
+
+            // After updating all descendants, we need to recalculate their generations
+            const [allUserPairs, allUserLogs] = await Promise.all([
+                tx.query.breedingPairs.findMany({
+                    where: eq(breedingPairs.userId, userId),
+                    with: { maleParent: true, femaleParent: true },
+                }),
+                tx.query.breedingLogEntries.findMany({
+                    where: eq(breedingLogEntries.userId, userId),
+                }),
+            ]);
+
+            const allCreatures = await tx.query.creatures.findMany({
+                where: eq(creatures.userId, userId),
+            });
+
+            for (const creature of allCreatures) {
+                if (creature.origin === 'bred') {
+                    const log = allUserLogs.find(
+                        (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
+                    );
+                    if (log) {
+                        const pair = allUserPairs.find((p) => p.id === log.pairId);
+                        if (pair && pair.maleParent && pair.femaleParent) {
+                            const newGen =
+                                Math.max(
+                                    pair.maleParent.generation ?? 1,
+                                    pair.femaleParent.generation ?? 1
+                                ) + 1;
+                            if (creature.generation !== newGen) {
+                                await tx
+                                    .update(creatures)
+                                    .set({ generation: newGen })
+                                    .where(eq(creatures.id, creature.id));
+                            }
+                        }
+                    }
+                }
+            }
+
+            await logUserAction({
+                action: 'creature.update.generation',
+                description: `Updated ${updatedCreature.creatureName}'s generation to ${generation}.`,
+            });
         });
 
-        return NextResponse.json(updatedCreature);
-    } catch (error) {
-        console.error('[CREATURE_GENERATION_PATCH]', error);
-        return new NextResponse('Internal Server Error', { status: 500 });
+        revalidatePath('/collection', 'layout');
+
+        return NextResponse.json({ message: 'Generation updated successfully.' });
+    } catch (error: any) {
+        console.error('Failed to update generation:', error);
+        return NextResponse.json(
+            { error: error.message || 'An internal error occurred.' },
+            { status: 500 }
+        );
     }
 }

@@ -38,6 +38,35 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
 
     const isG1 = generation === 1 || generation === '1';
 
+    // do not allow generation to be manually changed if creature is logged as progeny
+    const isProgeny = creature?.origin === 'bred';
+    if (isProgeny) {
+        return (
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>{children}</DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] bg-barely-lilac dark:bg-pompaca-purple">
+                    <DialogHeader>
+                        <DialogTitle>
+                            Set Generation for {creature?.creatureName || creature?.code}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                            This creature is logged as progeny of a breeding pair. Its generation is
+                            automatically determined and cannot be manually changed.
+                        </p>
+                        <p className="mt-2 text-sm text-dusk-purple dark:text-purple-400">
+                            Current Generation: <strong>G{creature.generation}</strong>
+                        </p>
+                    </div>
+                    <div className="flex justify-end">
+                        <Button onClick={() => setIsOpen(false)}>Close</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
+    }
+
     const handleGenerationChange = (value: string) => {
         setGeneration(value ? Number(value) : '');
         const newIsG1 = value === '1';

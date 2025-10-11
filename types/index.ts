@@ -56,6 +56,8 @@ export type EnrichedCreature =
           }[];
           generation: number | null;
           origin: string | null;
+          isParent?: boolean;
+          parentPair?: EnrichedBreedingPair | null;
       })
     | null;
 

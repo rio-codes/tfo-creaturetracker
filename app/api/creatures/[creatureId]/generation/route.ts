@@ -47,7 +47,7 @@ export async function PATCH(request: Request, props: { params: Promise<{ creatur
             }
 
             // Start the recursive update for all descendants
-            await updateDescendantGenerations(params.creatureId, userId, tx);
+            await updateDescendantGenerations(params.creatureId, userId);
 
             // After updating all descendants, we need to recalculate their generations
             const [allUserPairs, allUserLogs] = await Promise.all([

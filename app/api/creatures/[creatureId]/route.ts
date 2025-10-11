@@ -45,7 +45,8 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
     }
 }
 
-export async function PATCH(req: Request, { params }: { params: { creatureId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -99,7 +100,8 @@ export async function PATCH(req: Request, { params }: { params: { creatureId: st
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { creatureId: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

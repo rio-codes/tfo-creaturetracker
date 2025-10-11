@@ -14,7 +14,8 @@ const patchBodySchema = z.object({
         .nullable(),
 });
 
-export async function PATCH(request: Request, { params }: { params: { creatureId: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

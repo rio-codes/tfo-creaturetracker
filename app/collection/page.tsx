@@ -16,23 +16,24 @@ import type { User } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CollectionPage({
-    searchParams,
-}: {
-    searchParams?: {
-        page?: string;
-        query?: string;
-        stage?: string;
-        gender?: string;
-        species?: string;
-        showArchived?: string;
-        generation?: string;
-        origin?: string;
-        geneCategory?: string;
-        geneQuery?: string;
-        geneMode?: 'phenotype' | 'genotype';
-    };
-}) {
+export default async function CollectionPage(
+    props: {
+        searchParams?: Promise<{
+            page?: string;
+            query?: string;
+            stage?: string;
+            gender?: string;
+            species?: string;
+            showArchived?: string;
+            generation?: string;
+            origin?: string;
+            geneCategory?: string;
+            geneQuery?: string;
+            geneMode?: 'phenotype' | 'genotype';
+        }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const session = await auth();
     const plainSearchParams = {
         page: searchParams?.page,

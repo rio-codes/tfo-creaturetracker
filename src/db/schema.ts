@@ -90,12 +90,12 @@ export const accounts = pgTable(
         session_state: text('session_state'),
         isTfoVerified: boolean('is_tfo_verified').default(false).notNull(),
     },
-    (account) => ({
-        compoundKey: primaryKey({
+    (account) => [
+        primaryKey({
             columns: [account.provider, account.providerAccountId],
         }),
-        userIdx: index('account_userId_idx').on(account.userId),
-    })
+        index('account_userId_idx').on(account.userId),
+    ]
 );
 
 export const sessions = pgTable(
@@ -107,9 +107,7 @@ export const sessions = pgTable(
             .references(() => users.id, { onDelete: 'cascade' }),
         expires: timestamp('expires', { mode: 'date' }).notNull(),
     },
-    (session) => ({
-        userIdx: index('session_userId_idx').on(session.userId),
-    })
+    (session) => [index('session_userId_idx').on(session.userId)]
 );
 
 export const verificationTokens = pgTable(
@@ -119,9 +117,7 @@ export const verificationTokens = pgTable(
         token: text('token').notNull(),
         expires: timestamp('expires', { mode: 'date' }).notNull(),
     },
-    (vt) => ({
-        compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-    })
+    (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })]
 );
 
 // Account Management
@@ -145,11 +141,11 @@ export const friendships = pgTable(
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
     },
-    (t) => ({
-        pk: primaryKey({ columns: [t.userOneId, t.userTwoId] }),
-        userOneIdx: index('friendship_userOne_idx').on(t.userOneId),
-        userTwoIdx: index('friendship_userTwo_idx').on(t.userTwoId),
-    })
+    (t) => [
+        primaryKey({ columns: [t.userOneId, t.userTwoId] }),
+        index('friendship_userOne_idx').on(t.userOneId),
+        index('friendship_userTwo_idx').on(t.userTwoId),
+    ]
 );
 
 export const accountVerifications = pgTable('account_verification', {
@@ -208,8 +204,8 @@ export const creatures = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
-    (table) => {
-        return {
+    (table) => [
+        {
             userCreatureCodeIndex: uniqueIndex('user_creature_code_idx').on(
                 table.userId,
                 table.code
@@ -219,8 +215,8 @@ export const creatures = pgTable(
             genderIdx: index('creature_gender_idx').on(table.gender),
             pinnedIdx: index('creature_pinned_idx').on(table.isPinned),
             createdIdx: index('creature_created_at_idx').on(table.createdAt),
-        };
-    }
+        },
+    ]
 );
 
 export const researchGoals = pgTable(
@@ -243,12 +239,12 @@ export const researchGoals = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
-    (table) => ({
-        userIdx: index('goal_userId_idx').on(table.userId),
-        speciesIdx: index('goal_species_idx').on(table.species),
-        pinnedIdx: index('goal_pinned_idx').on(table.isPinned),
-        createdIdx: index('goal_created_at_idx').on(table.createdAt),
-    })
+    (table) => [
+        index('goal_userId_idx').on(table.userId),
+        index('goal_species_idx').on(table.species),
+        index('goal_pinned_idx').on(table.isPinned),
+        index('goal_created_at_idx').on(table.createdAt),
+    ]
 );
 
 export const breedingPairs = pgTable(
@@ -276,14 +272,17 @@ export const breedingPairs = pgTable(
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
         isArchived: boolean('is_archived').default(false).notNull(),
     },
-    (table) => ({
-        userIdx: index('pair_userId_idx').on(table.userId),
-        maleParentIdx: index('pair_maleParentId_idx').on(table.maleParentId),
-        femaleParentIdx: index('pair_femaleParentId_idx').on(table.femaleParentId),
-        speciesIdx: index('pair_species_idx').on(table.species),
-        pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
-        createdIdx: index('pair_created_at_idx').on(table.createdAt),
-    })
+    (table) => [
+        {
+            userPairNameIndex: uniqueIndex('user_pair_name_idx').on(table.userId, table.pairName),
+            userIdx: index('pair_userId_idx').on(table.userId),
+            maleParentIdx: index('pair_maleParentId_idx').on(table.maleParentId),
+            femaleParentIdx: index('pair_femaleParentId_idx').on(table.femaleParentId),
+            speciesIdx: index('pair_species_idx').on(table.species),
+            pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
+            createdIdx: index('pair_created_at_idx').on(table.createdAt),
+        },
+    ]
 );
 
 export const breedingLogEntries = pgTable(
@@ -307,10 +306,15 @@ export const breedingLogEntries = pgTable(
         notes: text('notes'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
-    (table) => ({
-        userIdx: index('log_userId_idx').on(table.userId),
-        pairIdx: index('log_pairId_idx').on(table.pairId),
-    })
+    (table) => [
+        {
+            userLogPairIndex: uniqueIndex('user_log_pair_idx').on(table.userId, table.pairId),
+            userIdx: index('log_pairId_idx').on(table.pairId),
+            progeny1Idx: index('log_progeny1Id_idx').on(table.progeny1Id),
+            progeny2Idx: index('log_progeny2Id_idx').on(table.progeny2Id),
+            pairIdx: index('log_pairId_idx').on(table.pairId),
+        },
+    ]
 );
 
 export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
@@ -344,12 +348,14 @@ export const achievedGoals = pgTable(
             .references(() => creatures.id, { onDelete: 'cascade' }),
         achievedAt: timestamp('achieved_at').defaultNow().notNull(),
     },
-    (table) => ({
-        userIdx: index('achieved_goal_userId_idx').on(table.userId),
-        goalIdx: index('achieved_goal_goalId_idx').on(table.goalId),
-        logEntryIdx: index('achieved_goal_logEntryId_idx').on(table.logEntryId),
-        progenyIdx: index('achieved_goal_progenyId_idx').on(table.matchingProgenyId),
-    })
+    (table) => [
+        {
+            userIdx: index('achieved_goal_userId_idx').on(table.userId),
+            goalIdx: index('achieved_goal_goalId_idx').on(table.goalId),
+            logEntryIdx: index('achieved_goal_logEntryId_idx').on(table.logEntryId),
+            progenyIdx: index('achieved_goal_progenyId_idx').on(table.matchingProgenyId),
+        },
+    ]
 );
 
 export const userTabs = pgTable(
@@ -365,12 +371,23 @@ export const userTabs = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
-    (table) => {
-        return {
-            userTabUnique: uniqueIndex('user_tab_unique_idx').on(table.userId, table.tabId),
-        };
-    }
+    (table) => [
+        {
+            userIdx: index('user_tabs_userId_idx').on(table.userId),
+            tabIdIdx: index('user_tabs_tabId_idx').on(table.tabId),
+        },
+    ]
 );
+
+// to implement later with tab sorting
+// export const userTabUnique = pgTable(
+//     'user_tab_unique',
+//     {
+//         return {
+//             userTabUnique: uniqueIndex('user_tab_unique_idx').on(table.userId, table.tabId),
+//         };
+//     }
+// );
 
 export const reports = pgTable('report', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -401,8 +418,8 @@ export const userActionLog = pgTable(
         description: text('description').notNull(),
         link: text('link'), // e.g., '/research-goals/goal-id'
     },
-    (table) => ({
-        userIdx: index('user_action_log_userId_idx').on(table.userId),
-        timestampIdx: index('user_action_log_timestamp_idx').on(table.timestamp),
-    })
+    (table) => [
+        index('user_action_log_userId_idx').on(table.userId),
+        index('user_action_log_timestamp_idx').on(table.timestamp),
+    ]
 );

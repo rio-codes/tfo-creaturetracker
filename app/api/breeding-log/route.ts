@@ -187,6 +187,10 @@ export async function POST(req: Request) {
                     where: eq(breedingLogEntries.userId, userId),
                 }),
             ]);
+            const parentPair = await db.query.breedingPairs.findFirst({
+                where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
+                with: { maleParent: true, femaleParent: true },
+            });
 
             for (const progenyId of newProgenyIds) {
                 const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
@@ -194,27 +198,38 @@ export async function POST(req: Request) {
                     .update(creatures)
                     .set({ generation, origin: 'bred' })
                     .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+                if (parentPair?.maleParent && parentPair?.femaleParent) {
+                    const newGeneration =
+                        Math.max(
+                            parentPair.maleParent.generation ?? 1,
+                            parentPair.femaleParent.generation ?? 1
+                        ) + 1;
+                    await db
+                        .update(creatures)
+                        .set({ generation: newGeneration, origin: 'bred' })
+                        .where(
+                            and(inArray(creatures.id, newProgenyIds), eq(creatures.userId, userId))
+                        );
+                }
             }
+
+            revalidatePath('/breeding-pairs');
+            revalidatePath('/collection');
+
+            await logUserAction({
+                action: 'log.create',
+                description: `Logged a new breeding event for pair "${pair.pairName}"`,
+            });
+
+            return NextResponse.json(
+                { message: 'Breeding event logged successfully!' },
+                { status: 201 }
+            );
         }
-
-        revalidatePath('/breeding-pairs');
-        revalidatePath('/collection');
-
-        await logUserAction({
-            action: 'log.create',
-            description: `Logged a new breeding event for pair "${pair.pairName}"`,
-        });
-
-        return NextResponse.json(
-            { message: 'Breeding event logged successfully!' },
-            { status: 201 }
-        );
     } catch (error) {
         console.error('Failed to log breeding event:', error);
         return NextResponse.json(
-            {
-                error: error instanceof Error ? error.message : 'An internal error occurred.',
-            },
+            { error: error instanceof Error ? error.message : 'An internal error occurred.' },
             { status: 500 }
         );
     }
@@ -297,6 +312,13 @@ export async function PUT(req: Request) {
                         where: eq(breedingLogEntries.userId, userId),
                     }),
                 ]);
+                const parentPair = await tx.query.breedingPairs.findFirst({
+                    where: and(
+                        eq(breedingPairs.id, existingLog.pairId),
+                        eq(breedingPairs.userId, userId)
+                    ),
+                    with: { maleParent: true, femaleParent: true },
+                });
 
                 for (const progenyId of newProgenyIds) {
                     const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
@@ -304,32 +326,49 @@ export async function PUT(req: Request) {
                         .update(creatures)
                         .set({ generation, origin: 'bred' })
                         .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+                    if (parentPair?.maleParent && parentPair?.femaleParent) {
+                        const newGeneration =
+                            Math.max(
+                                parentPair.maleParent.generation ?? 1,
+                                parentPair.femaleParent.generation ?? 1
+                            ) + 1;
+                        await tx
+                            .update(creatures)
+                            .set({ generation: newGeneration, origin: 'bred' })
+                            .where(
+                                and(
+                                    inArray(creatures.id, newProgenyIds),
+                                    eq(creatures.userId, userId)
+                                )
+                            );
+                    }
                 }
+
+                const pair = await db.query.breedingPairs.findFirst({
+                    where: and(
+                        eq(breedingPairs.id, existingLog.pairId),
+                        eq(breedingPairs.userId, userId)
+                    ),
+                });
+
+                await logUserAction({
+                    action: 'log.update',
+                    description: `Updated breeding event for pair "${pair?.pairName}"`,
+                });
+
+                revalidatePath('/breeding-pairs');
+                revalidatePath('/collection');
+
+                return NextResponse.json(
+                    { message: 'Log entry updated successfully!' },
+                    { status: 200 }
+                );
             }
-
-            const pair = await db.query.breedingPairs.findFirst({
-                where: and(
-                    eq(breedingPairs.id, existingLog.pairId),
-                    eq(breedingPairs.userId, userId)
-                ),
-            });
-
-            await logUserAction({
-                action: 'log.update',
-                description: `Updated breeding event for pair "${pair?.pairName}"`,
-            });
         });
-
-        revalidatePath('/breeding-pairs');
-        revalidatePath('/collection');
-
-        return NextResponse.json({ message: 'Log entry updated successfully!' }, { status: 200 });
     } catch (error) {
         console.error('Failed to update breeding log:', error);
         return NextResponse.json(
-            {
-                error: error instanceof Error ? error.message : 'An internal error occurred.',
-            },
+            { error: error instanceof Error ? error.message : 'An internal error occurred.' },
             { status: 500 }
         );
     }
@@ -536,12 +575,31 @@ export async function PATCH(req: Request) {
                 logEntryId
             );
 
+            const parentPair = await tx.query.breedingPairs.findFirst({
+                where: and(
+                    eq(breedingPairs.id, destinationLog.pairId),
+                    eq(breedingPairs.userId, userId)
+                ),
+                with: { maleParent: true, femaleParent: true },
+            });
+
             const [allUserPairs, allUserLogs] = await Promise.all([
                 db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
                 db.query.breedingLogEntries.findMany({
                     where: eq(breedingLogEntries.userId, userId),
                 }),
             ]);
+            if (parentPair?.maleParent && parentPair?.femaleParent) {
+                const newGeneration =
+                    Math.max(
+                        parentPair.maleParent.generation ?? 1,
+                        parentPair.femaleParent.generation ?? 1
+                    ) + 1;
+                await tx
+                    .update(creatures)
+                    .set({ generation: newGeneration, origin: 'bred' })
+                    .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+            }
 
             const generation = calculateGeneration(progenyId, allUserPairs, allUserLogs);
 

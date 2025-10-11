@@ -341,7 +341,7 @@ export async function fetchFilteredCreatures(
     const itemsPerPage = user?.collectionItemsPerPage ?? 12;
 
     // filter by growth level if specified
-    let phenotypeGeneStrings: string[] = [];
+    const phenotypeGeneStrings: string[] = [];
     if (query) {
         for (const speciesName in structuredGeneData) {
             const speciesGenes = structuredGeneData[speciesName];

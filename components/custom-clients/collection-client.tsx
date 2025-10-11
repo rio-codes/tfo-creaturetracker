@@ -6,9 +6,7 @@ import { Dna, Feather } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, User } from '@/types';
-import type { DbBreedingPair } from '@/types';
-import type { DbBreedingLogEntry } from '@/types';
+import type { EnrichedCreature, User } from '@/types';
 import {
     DndContext,
     closestCenter,
@@ -63,11 +61,6 @@ type CollectionClientProps = {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allEnrichedCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-    allEnrichedPairs: EnrichedBreedingPair[];
-    allEnrichedGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
     searchParams?: {
         generation?: string;
@@ -84,20 +77,16 @@ type CollectionClientProps = {
     };
 };
 
-function SortableCreatureCard(props: {
+type SortableCreatureCardProps = {
     creature: EnrichedCreature;
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allEnrichedPairs: EnrichedBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-    allGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
-    _isAdminView?: boolean;
-}) {
-    const { creature, ...restProps } = props;
+    isAdminView?: boolean;
+};
+
+function SortableCreatureCard({ creature, ...restProps }: SortableCreatureCardProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: creature!.id,
     });
@@ -152,11 +141,6 @@ export function CollectionClient({
     pinnedCreatures: initialPinnedCreatures,
     unpinnedCreatures: initialUnpinnedCreatures,
     totalPages,
-    allEnrichedCreatures: allCreatures,
-    allRawPairs,
-    allLogs,
-    allEnrichedPairs: allPairs,
-    allEnrichedGoals: allGoals,
     currentUser,
     searchParams: searchParamsFromProps, // Rename to avoid conflict
 }: CollectionClientProps) {
@@ -291,10 +275,14 @@ export function CollectionClient({
     );
 
     const ownedSpecies = useMemo(() => {
-        if (!allCreatures) return [];
-        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
+        const speciesSet = new Set(
+            initialPinnedCreatures
+                .concat(initialUnpinnedCreatures)
+                .map((c) => c?.species)
+                .filter(Boolean)
+        );
         return Array.from(speciesSet).sort() as string[];
-    }, [allCreatures]);
+    }, [initialPinnedCreatures, initialUnpinnedCreatures]);
 
     const geneCategories = useMemo(() => {
         const selectedSpecies = searchParamsFromProps?.species;
@@ -363,7 +351,7 @@ export function CollectionClient({
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
                         <Input
-                            placeholder="Search by name, code, origin, or genes..."
+                            placeholder="Search by name, code, species, origin, or genes..."
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentQuery}
                             onChange={(e) => handleFilterChange('query', e.target.value)}
@@ -572,16 +560,11 @@ export function CollectionClient({
                                         {pinnedCreatures.map((creature) => (
                                             <SortableCreatureCard
                                                 key={creature!.id}
+                                                creature={creature}
                                                 pinnedCreatures={pinnedCreatures}
                                                 unpinnedCreatures={unpinnedCreatures}
                                                 totalPages={totalPages}
-                                                creature={creature}
-                                                allCreatures={allCreatures}
-                                                allRawPairs={allRawPairs}
-                                                allEnrichedPairs={allPairs}
-                                                allLogs={allLogs}
-                                                allGoals={allGoals}
-                                                _isAdminView={false}
+                                                isAdminView={false}
                                                 currentUser={currentUser}
                                             />
                                         ))}
@@ -595,15 +578,10 @@ export function CollectionClient({
                             {pinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
+                                    creature={creature}
                                     pinnedCreatures={pinnedCreatures}
                                     unpinnedCreatures={unpinnedCreatures}
                                     totalPages={totalPages}
-                                    creature={creature}
-                                    allCreatures={allCreatures}
-                                    allRawPairs={allRawPairs}
-                                    allEnrichedPairs={allPairs}
-                                    allLogs={allLogs}
-                                    allGoals={allGoals}
                                     currentUser={currentUser}
                                 />
                             ))}
@@ -621,15 +599,10 @@ export function CollectionClient({
                             {unpinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
+                                    creature={creature}
                                     pinnedCreatures={pinnedCreatures}
                                     unpinnedCreatures={unpinnedCreatures}
                                     totalPages={totalPages}
-                                    creature={creature}
-                                    allCreatures={allCreatures}
-                                    allRawPairs={allRawPairs}
-                                    allEnrichedPairs={allPairs}
-                                    allLogs={allLogs}
-                                    allGoals={allGoals}
                                     currentUser={currentUser}
                                 />
                             ))}

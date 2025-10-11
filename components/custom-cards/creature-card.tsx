@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -32,14 +32,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import type {
-    EnrichedBreedingPair,
-    EnrichedResearchGoal,
-    EnrichedCreature,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-    User,
-} from '@/types';
+import type { EnrichedCreature, User } from '@/types';
 import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
 import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
@@ -52,11 +45,6 @@ interface CreatureCardProps {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-    allEnrichedPairs?: EnrichedBreedingPair[];
-    allGoals?: EnrichedResearchGoal[];
     isAdminView?: boolean;
     currentUser?: User | null;
 }
@@ -92,16 +80,7 @@ const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) =
     return creature.imageUrl;
 };
 
-export function CreatureCard({
-    creature,
-    allCreatures,
-    allEnrichedPairs: allPairs,
-    allRawPairs,
-    allLogs,
-    allGoals,
-    currentUser,
-    isAdminView = false,
-}: CreatureCardProps) {
+export function CreatureCard({ creature, currentUser, isAdminView = false }: CreatureCardProps) {
     const router = useRouter();
 
     if (!creature) {
@@ -117,18 +96,9 @@ export function CreatureCard({
         currentUser?.featuredCreatureIds?.includes(creature.id) ?? false
     );
 
-    const parentPair = useMemo(
-        () => allPairs?.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id)),
-        [allPairs, creature.id]
-    );
-
-    const isParentOfPair = useMemo(() => {
-        return allRawPairs.some(
-            (p) => p.maleParentId === creature.id || p.femaleParentId === creature.id
-        );
-    }, [allRawPairs, creature.id]);
-
-    const isProgeny = !!parentPair;
+    const parentPair = creature.parentPair || null; // This line is causing the error
+    const isParentOfPair = creature.isParent || false;
+    const isProgeny = !!creature.parentPair;
 
     const handleFeatureToggle = async () => {
         if (!currentUser) return;
@@ -437,11 +407,11 @@ export function CreatureCard({
                                         <DialogContent className="p-0 border-0 bg-transparent max-w-md w-full sm:max-w-md ">
                                             <BreedingPairCard
                                                 pair={parentPair}
-                                                allCreatures={allCreatures!}
-                                                allGoals={allGoals!}
-                                                allPairs={allRawPairs!}
-                                                allLogs={allLogs!}
                                                 _isAdminView={isAdminView}
+                                                allCreatures={[]}
+                                                allGoals={[]}
+                                                allPairs={[]}
+                                                allLogs={[]}
                                             />
                                         </DialogContent>
                                     </Dialog>
@@ -520,33 +490,16 @@ export function CreatureCard({
             </div>
             <CardFooter className="flex flex-col items-center p-4 pt-0">
                 <div className="flex w-full justify-center gap-2 text-sm">
-                    {!isAdminView &&
-                    allCreatures &&
-                    allPairs &&
-                    allLogs &&
-                    allGoals &&
-                    !creature.isArchived ? (
+                    {!isAdminView && !creature.isArchived ? (
                         <>
-                            <ManageBreedingPairsDialog
-                                baseCreature={creature}
-                                allCreatures={allCreatures}
-                                allPairs={allPairs}
-                                allGoals={allGoals}
-                                allRawPairs={allRawPairs}
-                                allLogs={allLogs}
-                            >
+                            <ManageBreedingPairsDialog baseCreature={creature}>
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
                             </ManageBreedingPairsDialog>
-                            <LogAsProgenyDialog
-                                creature={creature}
-                                allCreatures={allCreatures}
-                                allEnrichedPairs={allPairs}
-                                allLogs={allLogs}
-                            >
+                            <LogAsProgenyDialog creature={creature}>
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny

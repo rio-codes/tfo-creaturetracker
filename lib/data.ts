@@ -9,8 +9,7 @@ import {
     users,
     achievedGoals,
 } from '@/src/db/schema';
-import { auth } from '@/auth';
-import { and, ilike, like, or, eq, desc, count, SQL } from 'drizzle-orm';
+import { and, ilike, like, or, eq, desc, count, SQL, sql } from 'drizzle-orm';
 import type {
     DbCreature,
     DbBreedingLogEntry,
@@ -25,6 +24,34 @@ import { calculateGeneProbability } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
+import { auth } from '@/auth';
+
+// --- Performance Optimization: Pre-compute phenotype search map ---
+const phenotypeToGeneStringMap = new Map<string, string[]>();
+
+function buildPhenotypeMap() {
+    if (phenotypeToGeneStringMap.size > 0) return; // Build only once
+
+    for (const speciesName in structuredGeneData) {
+        const speciesGenes = structuredGeneData[speciesName];
+        if (speciesGenes) {
+            for (const category in speciesGenes) {
+                const genes = speciesGenes[category];
+                if (Array.isArray(genes)) {
+                    for (const gene of genes as { genotype: string; phenotype: string }[]) {
+                        const phenotypeKey = gene.phenotype.toLowerCase();
+                        if (!phenotypeToGeneStringMap.has(phenotypeKey)) {
+                            phenotypeToGeneStringMap.set(phenotypeKey, []);
+                        }
+                        phenotypeToGeneStringMap
+                            .get(phenotypeKey)!
+                            .push(`%${category}:${gene.genotype}%`);
+                    }
+                }
+            }
+        }
+    }
+}
 
 // ============================================================================
 // === HELPER FUNCTIONS =======================================================
@@ -341,6 +368,22 @@ export async function fetchFilteredCreatures(
     const itemsPerPage = user?.collectionItemsPerPage ?? 12;
 
     // filter by growth level if specified
+    buildPhenotypeMap(); // Ensure the map is built
+
+    const phenotypeGeneStrings = query
+        ? Array.from(phenotypeToGeneStringMap.entries())
+              .filter(([phenotypeKey]) => phenotypeKey.includes(query.toLowerCase()))
+              .flatMap(([, geneStrings]) => geneStrings)
+        : [];
+
+    const isGenotypePattern = (q: string) => {
+        // Only match if the query consists of pairs of A, B, C and nothing else.
+        const validGeneChars = /^[abcABC]+$/;
+        return /^(?:[a-zA-Z]{2})+$/.test(q) && validGeneChars.test(q);
+    };
+    const isGeneSearch = query?.startsWith('gene:') || isGenotypePattern(query || '');
+    const geneQueryValue = query?.startsWith('gene:') ? query.substring(5) : query;
+
     const stageToGrowthLevel: { [key: string]: number } = {
         capsule: 1,
         juvenile: 2,
@@ -352,14 +395,19 @@ export async function fetchFilteredCreatures(
     const conditions = [
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
-        query
-            ? or(
-                  ilike(creatures.code, `%${query}%`),
-                  ilike(creatures.creatureName, `%${query}%`),
-                  ilike(creatures.genetics, `%${query}%`),
-                  ilike(creatures.origin, `%${query}%`)
-              )
-            : undefined,
+        query && isGeneSearch
+            ? // Case-sensitive search for genetics
+              like(creatures.genetics, `%${geneQueryValue}%`)
+            : query
+              ? // Case-insensitive search for other fields
+                or(
+                    ilike(creatures.code, `%${query}%`),
+                    ilike(creatures.creatureName, `%${query}%`),
+                    ilike(sql`${creatures.origin}::text`, `%${query}%`),
+                    ilike(creatures.species, `%${query}%`),
+                    ...phenotypeGeneStrings.map((str) => like(creatures.genetics, str))
+                )
+              : undefined,
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
@@ -380,6 +428,49 @@ export async function fetchFilteredCreatures(
     console.log('Final query conditions count:', conditions.length);
 
     try {
+        // Fetch all pairs and logs for the user to enrich the creature data
+        const [allUserPairs, allUserLogs] = await Promise.all([
+            db.query.breedingPairs.findMany({
+                where: eq(breedingPairs.userId, userId),
+                with: { maleParent: true, femaleParent: true },
+            }),
+            db.query.breedingLogEntries.findMany({
+                where: eq(breedingLogEntries.userId, userId),
+            }),
+        ]);
+
+        // Create maps for efficient lookups
+        const parentPairByProgenyId = new Map<string, any>();
+        for (const log of allUserLogs) {
+            const pair = allUserPairs.find((p) => p.id === log.pairId);
+            if (pair) {
+                if (log.progeny1Id) parentPairByProgenyId.set(log.progeny1Id, pair);
+                if (log.progeny2Id) parentPairByProgenyId.set(log.progeny2Id, pair);
+            }
+        }
+
+        const isParentSet = new Set<string>();
+        allUserPairs.forEach((p) => {
+            if (p.maleParentId) isParentSet.add(p.maleParentId);
+            if (p.femaleParentId) isParentSet.add(p.femaleParentId);
+        });
+
+        const enrichCreatureWithPairData = (creature: DbCreature) => {
+            const enriched = enrichAndSerializeCreature(creature);
+            const parentPair = parentPairByProgenyId.get(creature.id);
+            return {
+                ...enriched,
+                isParent: isParentSet.has(creature.id),
+                parentPair: parentPair
+                    ? {
+                          ...parentPair,
+                          maleParent: enrichAndSerializeCreature(parentPair.maleParent),
+                          femaleParent: enrichAndSerializeCreature(parentPair.femaleParent),
+                      }
+                    : null,
+            };
+        };
+
         // Fetch all pinned creatures matching filters
         const pinnedCreaturesRaw = await db
             .select()
@@ -387,7 +478,7 @@ export async function fetchFilteredCreatures(
             .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
-        const pinnedCreatures = pinnedCreaturesRaw.map(enrichAndSerializeCreature);
+        const pinnedCreatures = pinnedCreaturesRaw.map(enrichCreatureWithPairData);
 
         // Fetch paginated unpinned creatures
         const unpinnedConditions = [...conditions, eq(creatures.isPinned, false)];
@@ -401,7 +492,7 @@ export async function fetchFilteredCreatures(
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedCreatures = unpinnedCreaturesRaw.map(enrichAndSerializeCreature);
+        const unpinnedCreatures = unpinnedCreaturesRaw.map(enrichCreatureWithPairData);
 
         // Get total count for pagination (only for unpinned)
         const totalCountResult = await db

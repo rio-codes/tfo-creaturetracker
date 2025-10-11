@@ -41,20 +41,19 @@ import {
 type LogAsProgenyDialogProps = {
     children: React.ReactNode;
     creature: EnrichedCreature;
+};
+
+type ProgenyLogData = {
     allCreatures: EnrichedCreature[];
     allEnrichedPairs: EnrichedBreedingPair[];
     allLogs: DbBreedingLogEntry[];
 };
 
-export function LogAsProgenyDialog({
-    children,
-    creature,
-    allCreatures,
-    allEnrichedPairs,
-    allLogs,
-}: LogAsProgenyDialogProps) {
+export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [data, setData] = useState<ProgenyLogData | null>(null);
+    const [isDataLoading, setIsDataLoading] = useState(false);
     const [selectedPairId, setSelectedPairId] = useState<string | undefined>();
     const [logAction, setLogAction] = useState<'new' | 'existing'>('new');
     const [selectedLogId, setSelectedLogId] = useState<string | undefined>();
@@ -65,27 +64,51 @@ export function LogAsProgenyDialog({
 
     useEffect(() => {
         if (!open) {
+            // Reset state on close
+            setData(null);
             setSelectedPairId(undefined);
             setLogAction('new');
             setSelectedLogId(undefined);
             setNotes('');
             setError('');
+            setIsDataLoading(false);
         }
     }, [open]);
+
+    useEffect(() => {
+        if (open && !data) {
+            const fetchData = async () => {
+                setIsDataLoading(true);
+                setError('');
+                try {
+                    const response = await fetch('/api/breeding-management-data');
+                    if (!response.ok) throw new Error('Failed to load data.');
+                    const fetchedData = await response.json();
+                    setData(fetchedData);
+                } catch (err: any) {
+                    setError(err.message);
+                } finally {
+                    setIsDataLoading(false);
+                }
+            };
+            fetchData();
+        }
+    }, [open, data]);
 
     let existingLogEntry: DbBreedingLogEntry | null = null;
     let existingPair: EnrichedBreedingPair | null = null;
 
     if (creature) {
         ({ existingLogEntry, existingPair } = useMemo(() => {
-            const log = allLogs.find(
+            if (!creature.id) return { existingLogEntry: null, existingPair: null };
+            const log = data?.allLogs.filter(
                 (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
-            );
+            )[0];
             if (!log) return { existingLogEntry: null, existingPair: null };
 
-            const pair = allEnrichedPairs.find((p) => p.id === log.pairId);
+            const pair = data?.allEnrichedPairs.find((p) => p.id === log.pairId);
             return { existingLogEntry: log, existingPair: pair || null };
-        }, [allLogs, creature.id, allEnrichedPairs]));
+        }, [data, creature.id]));
     }
 
     useEffect(() => {
@@ -96,28 +119,32 @@ export function LogAsProgenyDialog({
 
     const suitablePairs = useMemo(() => {
         if (!creature || !creature.species) return [];
-        return allEnrichedPairs.filter((pair) => {
-            if (!pair?.maleParent?.species || !pair?.femaleParent?.species) {
-                return false;
-            }
-            const possibleOffspring = getPossibleOffspringSpecies(
-                pair.maleParent.species,
-                pair.femaleParent.species
-            );
-            return possibleOffspring.includes(creature.species!);
-        });
-    }, [allEnrichedPairs, creature]);
+        return (
+            data?.allEnrichedPairs.filter((pair) => {
+                if (!pair?.maleParent?.species || !pair?.femaleParent?.species) {
+                    return false;
+                }
+                const possibleOffspring = getPossibleOffspringSpecies(
+                    pair.maleParent.species,
+                    pair.femaleParent.species
+                );
+                return possibleOffspring.includes(creature.species!);
+            }) || []
+        );
+    }, [data, creature]);
 
     const availableLogs = useMemo(() => {
         if (!selectedPairId) return [];
-        return allLogs.filter(
-            (log) => log.pairId === selectedPairId && (!log.progeny1Id || !log.progeny2Id)
+        return (
+            data?.allLogs.filter(
+                (log) => log.pairId === selectedPairId && (!log.progeny1Id || !log.progeny2Id)
+            ) || []
         );
-    }, [allLogs, selectedPairId]);
+    }, [data, selectedPairId]);
 
     const getProgenyName = (progenyId: string | null) => {
         if (!progenyId) return 'Empty Slot';
-        const progeny = allCreatures.find((c) => c?.id === progenyId);
+        const progeny = data?.allCreatures.find((c) => c?.id === progenyId);
         return progeny
             ? `${progeny.creatureName || 'Unnamed'} (${progeny.code})`
             : 'Unknown Progeny';
@@ -208,6 +235,11 @@ export function LogAsProgenyDialog({
                             Log &#34;{creature?.creatureName} ({creature?.code})&#34; as Progeny
                         </DialogTitle>
                     </DialogHeader>
+                    {isDataLoading && (
+                        <div className="flex justify-center items-center h-40">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                        </div>
+                    )}
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="pair-select">

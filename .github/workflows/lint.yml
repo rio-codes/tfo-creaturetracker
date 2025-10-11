@@ -34,9 +34,6 @@ jobs:
             - name: Lint code with ESLint and Prettier Config
               run: pnpm lint -c ./eslint.config.mjs
 
-            - name: Add "mergequeue" label on success
-              if: success()
-              run: gh pr edit ${{ github.event.pull_request.number }} --add-label "mergequeue"
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GH_REPO: ${{ github.repository }}

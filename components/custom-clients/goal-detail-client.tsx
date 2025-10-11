@@ -255,8 +255,25 @@ export function GoalDetailClient({
                                                         <span className="text-xs"> (Opt.)</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell>{gene.phenotype}</TableCell>
-                                                <TableCell>{gene.genotype}</TableCell>
+                                                {gene.isOptional ? (
+                                                    <TableCell colSpan={2}>
+                                                        Any
+                                                        {gene.excludedValues &&
+                                                            gene.excludedValues.length > 0 && (
+                                                                <span className="text-xs italic">
+                                                                    {' '}
+                                                                    (except:{' '}
+                                                                    {gene.excludedValues.join(', ')}
+                                                                    )
+                                                                </span>
+                                                            )}
+                                                    </TableCell>
+                                                ) : (
+                                                    <>
+                                                        <TableCell>{gene.phenotype}</TableCell>
+                                                        <TableCell>{gene.genotype}</TableCell>
+                                                    </>
+                                                )}
                                             </TableRow>
                                         ))}
                                 </TableBody>

@@ -24,6 +24,7 @@ const goalSchema = z.object({
             phenotype: z.string(),
             isMultiGenotype: z.boolean(),
             isOptional: z.boolean(),
+            excludedValues: z.array(z.string()).optional(),
         })
     ),
     goalMode: z.enum(['genotype', 'phenotype']),

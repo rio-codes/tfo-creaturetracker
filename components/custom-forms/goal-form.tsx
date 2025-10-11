@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
-import { Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { MultiSelect } from '@/components/misc-custom-components/multi-select';
+import { Loader2, Trash2 } from 'lucide-react';
 import type { EnrichedResearchGoal, GoalGene } from '@/types';
 type GeneOption = {
     value: string;
@@ -33,7 +34,9 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
     const isEditMode = !!goal;
     const [name, setName] = useState(goal?.name || '');
     const [species, setSpecies] = useState(goal?.species || '');
-    const [goalMode, setGoalMode] = useState(goal?.goalMode || 'phenotype');
+    const [goalMode, setGoalMode] = useState<'phenotype' | 'genotype'>(
+        goal?.goalMode || 'phenotype'
+    );
     const [selectedGenes, setSelectedGenes] = useState<{
         [key: string]: GoalGene;
     }>(goal?.genes || {});
@@ -78,6 +81,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                             genotype: gene.genotype,
                             gender: gene.gender,
                             isMultiGenotype: genotypesForPhenotype.length > 1,
+                            isOptional: selectedGenes[category]?.isOptional ?? false,
+                            excludedValues: selectedGenes[category]?.excludedValues || [],
                         },
                     };
                 });
@@ -102,6 +107,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                                 gender: categoryGenes.find((g) => g.phenotype === phenotype)
                                     ?.gender,
                                 isMultiGenotype: isMulti,
+                                isOptional: selectedGenes[category]?.isOptional ?? false,
+                                excludedValues: selectedGenes[category]?.excludedValues || [],
                             },
                         };
                     }
@@ -116,7 +123,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
     );
 
     useEffect(() => {
-        // This effect should run when the species changes to set initial gene selections.
         if (localSpecies) {
             if (isEditMode && goal?.genes && localSpecies === goal.species) {
                 const normalizedGenes: { [key: string]: GoalGene } = {};
@@ -124,6 +130,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     normalizedGenes[category] = {
                         ...(geneData as GoalGene),
                         isOptional: geneData.isOptional ?? false,
+                        excludedValues: geneData.excludedValues || [],
                     };
                 }
                 setSelectedGenes(normalizedGenes);
@@ -142,6 +149,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                         defaultSelections[category] = {
                             ...defaultOption.selection,
                             isOptional: false,
+                            excludedValues: [],
                         };
                     }
                 }
@@ -164,13 +172,13 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 [category]: {
                     ...selectedOption.selection,
                     isOptional: prev[category]?.isOptional ?? false,
+                    excludedValues: prev[category]?.excludedValues || [],
                 },
             }));
         }
         setPreviewImageUrl(null);
     };
 
-    // Helper function to avoid repeating logic and to use in useEffect without dependency issues
     const getGeneOptions = (
         species: string,
         goalMode: 'phenotype' | 'genotype',
@@ -210,10 +218,11 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                         genotype: gene.genotype,
                         gender: gene.gender,
                         isMultiGenotype: (phenotypeMap.get(gene.phenotype) || []).length > 1,
+                        isOptional: selectedGenes[category]?.isOptional ?? false,
+                        excludedValues: selectedGenes[category]?.excludedValues || [],
                     },
                 }));
             } else {
-                // phenotype mode
                 optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
                     ([phenotype, genotypes]) => ({
                         value: phenotype,
@@ -226,6 +235,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                             genotype: genotypes[0],
                             gender: categoryGenes.find((g) => g.phenotype === phenotype)?.gender,
                             isMultiGenotype: genotypes.length > 1,
+                            isOptional: selectedGenes[category]?.isOptional ?? false,
+                            excludedValues: selectedGenes[category]?.excludedValues || [],
                         },
                     })
                 );
@@ -242,11 +253,28 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 [category]: {
                     ...prev[category],
                     isOptional: !prev[category].isOptional,
+                    // Reset exclusions when toggling optional off
+                    excludedValues: !prev[category].isOptional ? prev[category].excludedValues : [],
                 },
             };
         });
         setPreviewImageUrl(null);
     };
+
+    const handleExclusionChange = (category: string, newExclusions: string[]) => {
+        setSelectedGenes((prev) => {
+            if (!prev[category]) return prev;
+            return {
+                ...prev,
+                [category]: {
+                    ...prev[category],
+                    excludedValues: newExclusions,
+                },
+            };
+        });
+        setPreviewImageUrl(null);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -343,7 +371,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             <div className="space-y-2">
                 <Label>Goal Mode</Label>
                 <RadioGroup
-                    value={goalMode}
+                    value={goalMode as string}
                     onValueChange={(value) => setGoalMode(value as 'genotype' | 'phenotype')}
                     className="flex space-x-4"
                 >
@@ -413,49 +441,73 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                                         : selectedGenes[category]?.genotype || '';
                                 const options = geneOptions[category] || [];
                                 return (
-                                    <div
-                                        key={category}
-                                        className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4"
-                                    >
-                                        <Label className="font-medium dark:text-barely-lilac">
-                                            {category}
-                                        </Label>
-                                        <Select
-                                            value={selectedValue}
-                                            onValueChange={(value) =>
-                                                handleGeneChange(category, value)
-                                            }
-                                        >
-                                            <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
-                                                <SelectValue
-                                                    placeholder={`Select ${category}...`}
+                                    <div key={category} className="space-y-2">
+                                        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4">
+                                            <Label className="font-medium dark:text-barely-lilac">
+                                                {category}
+                                            </Label>
+                                            <Select
+                                                value={selectedValue}
+                                                onValueChange={(value) =>
+                                                    handleGeneChange(category, value)
+                                                }
+                                                disabled={selectedGenes[category]?.isOptional}
+                                            >
+                                                <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac disabled:opacity-50 disabled:cursor-not-allowed">
+                                                    <SelectValue
+                                                        placeholder={`Select ${category}...`}
+                                                    />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                                                    {options.map((option) => (
+                                                        <SelectItem
+                                                            key={option.value}
+                                                            value={option.value}
+                                                        >
+                                                            {option.display}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Checkbox
+                                                checked={
+                                                    selectedGenes[category]?.isOptional || false
+                                                }
+                                                onCheckedChange={() =>
+                                                    handleOptionalToggle(category)
+                                                }
+                                                className="mr-2"
+                                            />
+                                        </div>
+                                        {selectedGenes[category]?.isOptional && (
+                                            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 pl-2">
+                                                <div />
+                                                <MultiSelect
+                                                    options={options.map((o) => ({
+                                                        value: o.value,
+                                                        label: o.display,
+                                                    }))}
+                                                    selected={
+                                                        selectedGenes[category]?.excludedValues ||
+                                                        []
+                                                    }
+                                                    onChange={(newExclusions) =>
+                                                        handleExclusionChange(
+                                                            category,
+                                                            newExclusions
+                                                        )
+                                                    }
+                                                    placeholder="Exclude values..."
+                                                    className="bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
                                                 />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
-                                                {options.map((option) => (
-                                                    <SelectItem
-                                                        key={option.value}
-                                                        value={option.value}
-                                                    >
-                                                        {option.display}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Checkbox
-                                            checked={selectedGenes[category]?.isOptional || false}
-                                            onCheckedChange={() => handleOptionalToggle(category)}
-                                            className="mr-2"
-                                        />
+                                                <div />
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
                         </div>
                         <ScrollBar orientation="vertical" />
-                        <div className="absolute top-0 right-0 h-full w-3 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                            <ChevronUp className="h-4 w-3 text-barely-lilac" />
-                            <ChevronDown className="h-4 w-3 text-barely-lilac" />
-                        </div>
                     </ScrollArea>
                 </div>
             )}

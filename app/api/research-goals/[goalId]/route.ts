@@ -24,6 +24,7 @@ const editGoalSchema = z.object({
             genotype: z.string(),
             isMultiGenotype: z.boolean(),
             isOptional: z.boolean().default(false),
+            excludedValues: z.array(z.string()).optional(),
         })
     ),
     goalMode: z.enum(goalModeEnum.enumValues),
@@ -54,64 +55,6 @@ export async function GET(req: Request, props: { params: Promise<{ goalId: strin
         return NextResponse.json(goal);
     } catch (error) {
         console.error('Failed to fetch goal:', error);
-        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
-    }
-}
-
-export async function PUT(req: Request, props: { params: Promise<{ goalId: string }> }) {
-    const params = await props.params;
-    const session = await auth();
-    if (!session?.user?.id || session.user.role !== 'admin') {
-        return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-    }
-
-    const goalId = params.goalId;
-    if (!goalId) {
-        return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 });
-    }
-
-    const { isPinned } = await req.json();
-
-    if (typeof isPinned !== 'boolean') {
-        return NextResponse.json({ error: 'Invalid value for isPinned' }, { status: 400 });
-    }
-
-    try {
-        const [updatedGoal] = await db
-            .update(researchGoals)
-            .set({ isPinned, updatedAt: new Date() })
-            .where(eq(researchGoals.id, goalId))
-            .returning();
-
-        if (!updatedGoal) {
-            return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
-        }
-
-        await logUserAction({
-            action: 'goal.update',
-            description: `Pinned research goal "${updatedGoal.name}"`,
-            link: `/research-goals/${updatedGoal.id}`,
-        });
-
-        if (session.user.role === 'admin') {
-            await logAdminAction({
-                action: isPinned ? 'research_goal.admin_pin' : 'research_goal.admin_unpin',
-                targetType: 'research_goal',
-                targetUserId: updatedGoal.userId,
-                targetId: goalId,
-                details: { goalName: updatedGoal.name, isPinned },
-            });
-        }
-
-        revalidatePath('/research-goals');
-        revalidatePath(`/research-goals/${goalId}`);
-
-        return NextResponse.json({
-            message: `Goal ${isPinned ? 'pinned' : 'unpinned'} successfully`,
-            goal: updatedGoal,
-        });
-    } catch (error) {
-        console.error('Failed to update goal pin status:', error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
@@ -196,7 +139,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             .set({
                 name,
                 species,
-                genes,
+                genes: validatedFields.data.genes, // Use the full validated genes object
                 goalMode,
                 imageUrl: newImageUrl,
                 updatedAt: new Date(),

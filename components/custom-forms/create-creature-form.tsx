@@ -58,6 +58,8 @@ export function CreateCreatureForm() {
                     genotype: gene.genotype,
                     gender: gene.gender,
                     isMultiGenotype: false,
+                    isOptional: false,
+                    excludedValues: [],
                 },
             }));
         }

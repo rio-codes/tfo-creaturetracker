@@ -22,10 +22,7 @@ export const analyzeProgenyAgainstGoal = (
             acc[gene.category] = gene;
             return acc;
         },
-        {} as Record<
-            string,
-            { category: string; genotype: string; phenotype: string }
-        >
+        {} as Record<string, { category: string; genotype: string; phenotype: string }>
     );
 
     let totalTraits = 0;
@@ -44,10 +41,7 @@ export const analyzeProgenyAgainstGoal = (
             totalTraits++;
             const goalGene = goalGenes[category];
             const creatureGene = creatureGenes[category];
-            const goalValue =
-                goal.goalMode === 'genotype'
-                    ? goalGene.genotype
-                    : goalGene.phenotype;
+            const goalValue = goal.goalMode === 'genotype' ? goalGene.genotype : goalGene.phenotype;
 
             if (!creatureGene) {
                 nonMatchingGenes.push({
@@ -59,17 +53,27 @@ export const analyzeProgenyAgainstGoal = (
             }
 
             const creatureValue =
-                goal.goalMode === 'genotype'
-                    ? creatureGene.genotype
-                    : creatureGene.phenotype;
+                goal.goalMode === 'genotype' ? creatureGene.genotype : creatureGene.phenotype;
 
             if (
-                (goal.goalMode === 'genotype' &&
-                    creatureGene.genotype === goalGene.genotype) ||
-                (goal.goalMode === 'phenotype' &&
-                    creatureGene.phenotype === goalGene.phenotype)
+                (goal.goalMode === 'genotype' && creatureGene.genotype === goalGene.genotype) ||
+                (goal.goalMode === 'phenotype' && creatureGene.phenotype === goalGene.phenotype)
             ) {
                 matchedTraits++;
+            } else if (goalGene.isOptional) {
+                // For optional genes, we still get a match unless the value is explicitly excluded.
+                const excluded = goalGene.excludedValues || [];
+                if (excluded.includes(creatureValue)) {
+                    // This is an optional gene, but the creature has an excluded value.
+                    // It's a mismatch.
+                    nonMatchingGenes.push({
+                        category,
+                        creatureValue: `${creatureValue} (Excluded)`,
+                        goalValue: `Any (except ${excluded.join(', ')})`,
+                    });
+                } else {
+                    matchedTraits++;
+                }
             } else {
                 nonMatchingGenes.push({ category, creatureValue, goalValue });
             }

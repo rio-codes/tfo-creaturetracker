@@ -115,14 +115,26 @@ export function ViewOutcomesDialog({
             const response = await fetch('/api/research-goals/from-outcomes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    goalName: newGoalName,
-                    species: pair.species,
-                    pairId: pair.id,
-                    selectedGenotypes: selectedGenotypes,
-                    goalMode: goalMode,
-                    optionalGenes: optionalGenes,
-                }),
+                body: JSON.stringify(
+                    Object.fromEntries(
+                        Object.entries(selectedGenotypes).map(([category, genotype]) => {
+                            const outcome = outcomes![category].find(
+                                (o) => o.genotype === genotype
+                            )!;
+                            const isOptional = !!optionalGenes[category];
+                            return [
+                                category,
+                                {
+                                    phenotype: outcome.phenotype,
+                                    genotype: outcome.genotype,
+                                    isMultiGenotype: false, // This can be refined if needed
+                                    isOptional: isOptional,
+                                    excludedValues: [], // Exclusions can't be set here
+                                },
+                            ];
+                        })
+                    )
+                ),
             });
 
             if (!response.ok) {

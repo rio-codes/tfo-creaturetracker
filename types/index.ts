@@ -65,6 +65,7 @@ export type GoalGene = {
     phenotype: string;
     isMultiGenotype: boolean;
     isOptional: boolean;
+    excludedValues: string[];
 };
 
 export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt' | 'genes'> & {

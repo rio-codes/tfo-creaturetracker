@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -17,13 +16,11 @@ import {
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2 } from 'lucide-react';
 import type { GoalGene } from '@/types';
-
 type GeneOption = {
     value: string;
     display: string;
-    selection: Omit<GoalGene, 'isOptional'>;
+    selection: Omit<GoalGene, 'isOptional'> & { gender?: 'Male' | 'Female' };
 };
-
 export function CreateCreatureForm() {
     const router = useRouter();
     const [creatureName, setCreatureName] = useState('');
@@ -37,35 +34,39 @@ export function CreateCreatureForm() {
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [previewError, setPreviewError] = useState('');
-
     const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
         const optionsByCat: { [key: string]: GeneOption[] } = {};
-
+        const isDimorphic = structuredGeneData[species]?.Dimorphic === 'True';
+        const selectedGender = selectedGenes['Gender']?.phenotype as 'Male' | 'Female' | undefined;
         for (const [category, genes] of Object.entries(structuredGeneData[species])) {
-            optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
-                (gene) => ({
-                    value: gene.genotype,
-                    display:
-                        category === 'Gender'
-                            ? gene.genotype
-                            : `${gene.phenotype} (${gene.genotype})`,
-                    selection: {
-                        phenotype: gene.phenotype,
-                        genotype: gene.genotype,
-                        isMultiGenotype: false, // Not relevant for creature creation
-                    },
-                })
-            );
+            if (!Array.isArray(genes)) {
+                continue;
+            }
+            let categoryGenes = genes;
+            if (isDimorphic && category !== 'Gender' && selectedGender) {
+                categoryGenes = categoryGenes.filter(
+                    (g) => !g.gender || g.gender === selectedGender
+                );
+            }
+            optionsByCat[category] = categoryGenes.map((gene) => ({
+                value: gene.genotype,
+                display:
+                    category === 'Gender' ? gene.genotype : `${gene.phenotype} (${gene.genotype})`,
+                selection: {
+                    phenotype: gene.phenotype,
+                    genotype: gene.genotype,
+                    gender: gene.gender,
+                    isMultiGenotype: false,
+                },
+            }));
         }
         return optionsByCat;
     }, [species]);
-
     const geneCategories = useMemo(
         () => (geneOptions ? Object.keys(geneOptions) : []),
         [geneOptions]
     );
-
     useEffect(() => {
         if (species && geneCategories.length > 0) {
             const defaultSelections: { [key: string]: GoalGene } = {};
@@ -87,7 +88,6 @@ export function CreateCreatureForm() {
             setSelectedGenes(defaultSelections);
         }
     }, [species, geneCategories, geneOptions]);
-
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
         const selectedOption = options?.find((opt) => opt.value === selectedValue);
@@ -99,7 +99,6 @@ export function CreateCreatureForm() {
         }
         setPreviewImageUrl(null);
     };
-
     const handlePreview = async () => {
         setIsPreviewLoading(true);
         setPreviewError('');
@@ -121,7 +120,6 @@ export function CreateCreatureForm() {
             setIsPreviewLoading(false);
         }
     };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -140,8 +138,7 @@ export function CreateCreatureForm() {
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to create creature.');
-
-            alert('Creature created successfully!'); // Replace with a toast
+            alert('Creature created successfully!');
             router.push('/admin/creatures');
         } catch (err: any) {
             setError(err.message);
@@ -149,13 +146,11 @@ export function CreateCreatureForm() {
             setIsLoading(false);
         }
     };
-
     return (
         <form
             onSubmit={handleSubmit}
             className="space-y-4 text-pompaca-purple dark:text-purple-300"
         >
-            {/* Top section for name, code, species */}
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -200,10 +195,8 @@ export function CreateCreatureForm() {
                     </Select>
                 </div>
             </div>
-
             {species && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    {/* Left Column: Gene Selectors */}
                     <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50">
                         <div className="space-y-4">
                             {geneCategories.map((category) => (
@@ -233,8 +226,6 @@ export function CreateCreatureForm() {
                             ))}
                         </div>
                     </ScrollArea>
-
-                    {/* Right Column: Preview */}
                     <div className="space-y-4 pt-2">
                         <div className="flex items-center gap-2">
                             <Button
@@ -258,17 +249,13 @@ export function CreateCreatureForm() {
                             />
                         ) : (
                             <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple/50 border rounded-md mx-auto">
-                                <p className="text-xs text-dusk-purple text-center p-2">
-                                    Click &#34;Preview Image&#34; to see the creature.
-                                </p>
+                                <p className="text-xs text-dusk-purple text-center p-2">Click &</p>
                             </div>
                         )}
                     </div>
                 </div>
             )}
-
             {error && <p className="text-sm text-red-500">{error}</p>}
-
             <div className="flex justify-end pt-4">
                 <Button
                     type="submit"

@@ -27,6 +27,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import type { Gene } from '@/constants/creature-data';
 
 type AmbiguousCategory = {
     category: string;
@@ -60,14 +61,13 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
     const newMode = goal?.goalMode === 'genotype' ? 'phenotype' : 'genotype';
 
     const handleModeSwitch = async () => {
-        // check for ambiguity if switching to genotype mode
         if (goal?.goalMode === 'phenotype') {
             const ambiguous: AmbiguousCategory[] = [];
             const speciesData = structuredGeneData[goal.species];
-            // create array of ambiguous genes
+
             for (const [category, geneInfo] of Object.entries(goal.genes)) {
                 if ((geneInfo as GeneInfo).isMultiGenotype) {
-                    const options = speciesData?.[category]?.filter(
+                    const options = (speciesData?.[category] as Gene[] | undefined)?.filter(
                         (g) => g.phenotype === (geneInfo as GeneInfo).phenotype
                     );
                     ambiguous.push({

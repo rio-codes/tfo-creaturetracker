@@ -36,7 +36,12 @@ import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
 import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-dialog';
-import { structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
+import {
+    structuredGeneData,
+    AllSpeciesGeneData,
+    type Gene,
+    type GeneCategory,
+} from '@/constants/creature-data';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -105,9 +110,11 @@ function SortableCreatureCard(props: {
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <CreatureCard creature={creature} {...restProps} />
-        </div>
+        <>
+            <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+                <CreatureCard creature={creature} {...restProps} />
+            </div>
+        </>
     );
 }
 
@@ -302,20 +309,20 @@ export function CollectionClient({
         const selectedGeneCategory = searchParamsFromProps?.geneCategory;
         if (!selectedSpecies || selectedSpecies === 'all' || !selectedGeneCategory) return [];
 
-        const categoryData = (structuredGeneData as AllSpeciesGeneData)[selectedSpecies]?.[
-            selectedGeneCategory
-        ];
+        const categoryData: GeneCategory | undefined = (structuredGeneData as AllSpeciesGeneData)[
+            selectedSpecies
+        ]?.[selectedGeneCategory] as GeneCategory | undefined;
         if (!categoryData) return [];
 
         if (geneMode === 'phenotype') {
-            const phenotypes = new Set(categoryData.map((g) => g.phenotype));
+            const phenotypes = new Set(categoryData.map((g: Gene) => g.phenotype));
             return Array.from(phenotypes).map((p) => ({
                 value: p,
                 label: p,
             }));
         } else {
             // genotype mode
-            return categoryData.map((g) => ({
+            return categoryData.map((g: Gene) => ({
                 value: g.genotype,
                 label: `${g.phenotype} (${g.genotype})`,
             }));

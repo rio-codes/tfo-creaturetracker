@@ -86,19 +86,21 @@ function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
     };
 
     return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
-        >
-            <img
-                src={goal.imageUrl || '/images/misc/placeholder.png'}
-                alt={goal.name}
-                className="w-full h-full object-contain"
-            />
-        </div>
+        <>
+            <div
+                ref={setNodeRef}
+                style={style}
+                {...attributes}
+                {...listeners}
+                className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
+            >
+                <img
+                    src={goal.imageUrl || '/images/misc/placeholder.png'}
+                    alt={goal.name}
+                    className="w-full h-full object-contain"
+                />
+            </div>
+        </>
     );
 }
 
@@ -110,18 +112,13 @@ export function ResearchGoalClient({
     allCreatures,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
-    const [unpinnedGoals, setUnpinnedGoals] = useState(initialUnpinnedGoals);
+    const [unpinnedGoals, _setUnpinnedGoals] = useState(initialUnpinnedGoals);
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    useEffect(() => {
-        setPinnedGoals(initialPinnedGoals);
-        setUnpinnedGoals(initialUnpinnedGoals);
-    }, [initialPinnedGoals, initialUnpinnedGoals]);
 
     const ownedSpecies = useMemo(() => {
         if (!allCreatures) return [];

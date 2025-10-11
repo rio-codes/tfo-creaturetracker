@@ -1,5 +1,5 @@
 import type { DbResearchGoal, EnrichedResearchGoal } from '@/types';
-import { structuredGeneData } from '../constants/creature-data';
+import { structuredGeneData } from '@/constants/creature-data';
 
 // serialize dates and add enriched gene data to research goal object
 
@@ -27,16 +27,26 @@ export const enrichAndSerializeGoal = (
                     finalPhenotype = selection.phenotype;
                 } else if (typeof selection === 'string') {
                     finalGenotype = selection;
-                    const categoryData = speciesGeneData[category];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === finalGenotype
-                    );
+                    const categoryData = speciesGeneData[category] as {
+                        genotype: string;
+                        phenotype: string;
+                    }[];
+                    const matchedGene = categoryData?.find((g) => g.genotype === finalGenotype);
                     finalPhenotype = matchedGene?.phenotype || 'Unknown';
                 } else continue;
 
                 let isMulti = false;
                 if (goalMode === 'phenotype') {
                     const categoryData = speciesGeneData[category];
+                    const genotypesForPhenotype = (
+                        categoryData as { genotype: string; phenotype: string }[]
+                    )?.filter((g) => g.phenotype === finalPhenotype);
+                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                } else {
+                    const categoryData = speciesGeneData[category] as {
+                        genotype: string;
+                        phenotype: string;
+                    }[];
                     const genotypesForPhenotype = categoryData?.filter(
                         (g) => g.phenotype === finalPhenotype
                     );

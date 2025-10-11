@@ -51,7 +51,9 @@ export function validateGoalData(
         if (!categoryData) {
             throw new Error(`Invalid gene category "${category}" for species "${species}".`);
         }
-        const isValidGenotype = categoryData.some((gene) => gene.genotype === selectedGenotype);
+        const isValidGenotype = Array.isArray(categoryData)
+            ? categoryData.some((gene) => gene.genotype === selectedGenotype)
+            : false;
         if (!isValidGenotype) {
             throw new Error(`Invalid genotype "${selectedGenotype}" for category "${category}".`);
         }

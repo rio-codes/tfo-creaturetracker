@@ -1,5 +1,6 @@
 import type { EnrichedCreature, GoalGene } from '@/types';
-import { structuredGeneData } from '../constants/creature-data';
+import { structuredGeneData, speciesGenes, RawSpeciesGenes } from '@/constants/creature-data';
+import { getPhenotypeForGenotype } from '@/lib/genetics-utils';
 
 // NEW helper to split multi-locus genotypes
 function splitMultiLocusGenotype(genotype: string): string[] {
@@ -16,23 +17,13 @@ function getAlleles(genotype: string): [string, string] {
 type Outcome = {
     genotype: string;
     phenotype: string;
+    gender?: 'Male' | 'Female';
     probability: number;
 };
 
 export type OutcomesByCategory = {
     [category: string]: Outcome[];
 };
-
-function getPhenotypeForGenotype(
-    genotype: string,
-    categoryGeneData: { genotype: string; phenotype: string }[]
-): string {
-    const directMatch = categoryGeneData.find((g) => g.genotype === genotype);
-    if (directMatch) {
-        return directMatch.phenotype;
-    }
-    return 'Unknown';
-}
 
 // NEW helper to calculate all outcomes for a single category, handling multi-locus genes
 function calculateOutcomesForCategory(
@@ -42,8 +33,9 @@ function calculateOutcomesForCategory(
 ): Outcome[] {
     if (!maleParent || !femaleParent || !maleParent.geneData || !femaleParent.geneData) return [];
     const species = maleParent.species;
-    if (!species || !structuredGeneData[species]) return [];
-    const speciesGenes = structuredGeneData[species];
+    if (!species || !speciesGenes[species] || !structuredGeneData[species]) {
+        return [];
+    }
 
     const maleGene = maleParent.geneData.find((g) => g.category === category);
     const femaleGene = femaleParent.geneData.find((g) => g.category === category);
@@ -52,7 +44,10 @@ function calculateOutcomesForCategory(
     const maleLoci = splitMultiLocusGenotype(maleGene.genotype);
     const femaleLoci = splitMultiLocusGenotype(femaleGene.genotype);
     if (maleLoci.length !== femaleLoci.length) return [];
-    if (maleLoci.length === 0) return [];
+    if (maleLoci.length === 0) {
+        // Handle cases like gender which might not have standard genotypes
+        return [];
+    }
 
     const outcomesByLocus: {
         [locusIndex: number]: { genotype: string; probability: number }[];
@@ -101,7 +96,8 @@ function calculateOutcomesForCategory(
 
     return combinedOutcomes.map((combo) => ({
         ...combo,
-        phenotype: getPhenotypeForGenotype(combo.genotype, speciesGenes[category] as any),
+        // Phenotype is resolved later, as it can depend on gender
+        phenotype: getPhenotypeForGenotype(species, category, combo.genotype),
     }));
 }
 
@@ -114,10 +110,11 @@ export function calculateAllPossibleOutcomes(
     }
 
     const species = maleParent.species;
-    if (!species || !structuredGeneData[species]) return {};
+    if (!species || !speciesGenes[species] || !structuredGeneData[species]) {
+        return {};
+    }
 
     const outcomes: OutcomesByCategory = {};
-    const speciesGenes = structuredGeneData[species];
 
     // Handle Gender separately as it doesn't follow standard allele inheritance.
     outcomes['Gender'] = [
@@ -161,10 +158,23 @@ export function calculateGeneProbability(
         const matchingOutcome = allOutcomes.find((o) => o.genotype === targetGene.genotype);
         return matchingOutcome?.probability || 0;
     } else {
-        // phenotype mode
-        const matchingPhenotypeProb = allOutcomes
-            .filter((o) => o.phenotype === targetGene.phenotype)
-            .reduce((sum, o) => sum + o.probability, 0);
-        return matchingPhenotypeProb;
+        // PHENOTYPE MODE
+        let totalProbability = 0;
+        const isDimorphic =
+            (speciesGenes as RawSpeciesGenes)[maleParent.species!]?.Dimorphic === 'True';
+        const targetGender = targetGene.gender;
+
+        for (const outcome of allOutcomes) {
+            const outcomePhenotype = getPhenotypeForGenotype(
+                maleParent.species!,
+                category,
+                outcome.genotype,
+                isDimorphic ? targetGender : undefined
+            );
+            if (outcomePhenotype === targetGene.phenotype) {
+                totalProbability += outcome.probability;
+            }
+        }
+        return totalProbability;
     }
 }

@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 
+import { structuredGeneData } from '@/constants/creature-data';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 
 type Outcome = {
@@ -390,10 +391,27 @@ export function ViewOutcomesDialog({
                                 <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
-                                            ([category, genotype]) => {
-                                                const outcome = outcomes[category].find(
-                                                    (o) => o.genotype === genotype
+                                            ([category, selectedGenotype]) => {
+                                                const isDimorphic =
+                                                    structuredGeneData[pair.species!]?.Dimorphic ===
+                                                    'True';
+                                                const selectedGender = selectedGenotypes['Gender'];
+
+                                                let outcome = outcomes[category].find(
+                                                    (o) => o.genotype === selectedGenotype
                                                 );
+
+                                                if (isDimorphic && category !== 'Gender') {
+                                                    const genderSpecificOutcome = outcomes[
+                                                        category
+                                                    ].find(
+                                                        (o) =>
+                                                            o.genotype === selectedGenotype &&
+                                                            (o as any).gender === selectedGender
+                                                    );
+                                                    if (genderSpecificOutcome)
+                                                        outcome = genderSpecificOutcome;
+                                                }
                                                 return (
                                                     <div
                                                         key={category}

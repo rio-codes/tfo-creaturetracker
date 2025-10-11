@@ -7,9 +7,10 @@ import { compare } from 'bcrypt-ts';
 import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DbUser } from '@/types';
+import { Adapter } from 'next-auth/adapters';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    adapter: DrizzleAdapter(db),
+    adapter: DrizzleAdapter(db) as Adapter,
     session: {
         strategy: 'jwt',
     },

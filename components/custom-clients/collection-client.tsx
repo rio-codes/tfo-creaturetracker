@@ -6,7 +6,9 @@ import { Dna, Feather } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { EnrichedCreature, User } from '@/types';
+import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, User } from '@/types';
+import type { DbBreedingPair } from '@/types';
+import type { DbBreedingLogEntry } from '@/types';
 import {
     DndContext,
     closestCenter,
@@ -61,6 +63,11 @@ type CollectionClientProps = {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
+    allEnrichedCreatures: EnrichedCreature[];
+    allRawPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+    allEnrichedPairs: EnrichedBreedingPair[];
+    allEnrichedGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
     searchParams?: {
         generation?: string;
@@ -77,16 +84,20 @@ type CollectionClientProps = {
     };
 };
 
-type SortableCreatureCardProps = {
+function SortableCreatureCard(props: {
     creature: EnrichedCreature;
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
+    allCreatures: EnrichedCreature[];
+    allRawPairs: DbBreedingPair[];
+    allEnrichedPairs: EnrichedBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+    allGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
-    isAdminView?: boolean;
-};
-
-function SortableCreatureCard({ creature, ...restProps }: SortableCreatureCardProps) {
+    _isAdminView?: boolean;
+}) {
+    const { creature, ...restProps } = props;
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: creature!.id,
     });
@@ -141,6 +152,11 @@ export function CollectionClient({
     pinnedCreatures: initialPinnedCreatures,
     unpinnedCreatures: initialUnpinnedCreatures,
     totalPages,
+    allEnrichedCreatures: allCreatures,
+    allRawPairs,
+    allLogs,
+    allEnrichedPairs: allPairs,
+    allEnrichedGoals: allGoals,
     currentUser,
     searchParams: searchParamsFromProps, // Rename to avoid conflict
 }: CollectionClientProps) {
@@ -275,14 +291,10 @@ export function CollectionClient({
     );
 
     const ownedSpecies = useMemo(() => {
-        const speciesSet = new Set(
-            initialPinnedCreatures
-                .concat(initialUnpinnedCreatures)
-                .map((c) => c?.species)
-                .filter(Boolean)
-        );
+        if (!allCreatures) return [];
+        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
         return Array.from(speciesSet).sort() as string[];
-    }, [initialPinnedCreatures, initialUnpinnedCreatures]);
+    }, [allCreatures]);
 
     const geneCategories = useMemo(() => {
         const selectedSpecies = searchParamsFromProps?.species;
@@ -560,11 +572,16 @@ export function CollectionClient({
                                         {pinnedCreatures.map((creature) => (
                                             <SortableCreatureCard
                                                 key={creature!.id}
-                                                creature={creature}
                                                 pinnedCreatures={pinnedCreatures}
                                                 unpinnedCreatures={unpinnedCreatures}
                                                 totalPages={totalPages}
-                                                isAdminView={false}
+                                                creature={creature}
+                                                allCreatures={allCreatures}
+                                                allRawPairs={allRawPairs}
+                                                allEnrichedPairs={allPairs}
+                                                allLogs={allLogs}
+                                                allGoals={allGoals}
+                                                _isAdminView={false}
                                                 currentUser={currentUser}
                                             />
                                         ))}
@@ -578,10 +595,15 @@ export function CollectionClient({
                             {pinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
-                                    creature={creature}
                                     pinnedCreatures={pinnedCreatures}
                                     unpinnedCreatures={unpinnedCreatures}
                                     totalPages={totalPages}
+                                    creature={creature}
+                                    allCreatures={allCreatures}
+                                    allRawPairs={allRawPairs}
+                                    allEnrichedPairs={allPairs}
+                                    allLogs={allLogs}
+                                    allGoals={allGoals}
                                     currentUser={currentUser}
                                 />
                             ))}
@@ -599,10 +621,15 @@ export function CollectionClient({
                             {unpinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
-                                    creature={creature}
                                     pinnedCreatures={pinnedCreatures}
                                     unpinnedCreatures={unpinnedCreatures}
                                     totalPages={totalPages}
+                                    creature={creature}
+                                    allCreatures={allCreatures}
+                                    allRawPairs={allRawPairs}
+                                    allEnrichedPairs={allPairs}
+                                    allLogs={allLogs}
+                                    allGoals={allGoals}
                                     currentUser={currentUser}
                                 />
                             ))}

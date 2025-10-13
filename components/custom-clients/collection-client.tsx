@@ -283,6 +283,11 @@ export function CollectionClient({
         300
     );
 
+    const handleClearFilters = () => {
+        localStorage.removeItem('collectionFilters');
+        replace(pathname);
+    };
+
     const ownedSpecies = useMemo(() => {
         if (!allCreatures) return [];
         const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
@@ -352,15 +357,24 @@ export function CollectionClient({
                 <AddCreaturesDialog isOpen={isSyncDialogOpen} onClose={handleCloseDialog} />
                 {/* Search and Filters */}
                 <div className="flex flex-col gap-4 mb-8">
-                    {/* Search Bar */}
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
-                        <Input
-                            placeholder="Search by name, code, species, origin, or genes..."
-                            className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
-                            defaultValue={currentQuery}
-                            onChange={(e) => handleFilterChange('query', e.target.value)}
-                        />
+                    <div className="flex flex-col md:flex-row gap-4 items-center">
+                        {/* Search Bar */}
+                        <div className="relative flex-1 w-full">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                            <Input
+                                placeholder="Search by name, code, species, origin, or genes..."
+                                className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                                defaultValue={currentQuery}
+                                onChange={(e) => handleFilterChange('query', e.target.value)}
+                            />
+                        </div>
+                        <Button
+                            onClick={handleClearFilters}
+                            variant="outline"
+                            className="w-full md:w-auto bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                        >
+                            Clear Filters
+                        </Button>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

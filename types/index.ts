@@ -60,7 +60,6 @@ export type EnrichedCreature =
     | null;
 
 export type GoalGene = {
-    gender: 'Male' | 'Female' | undefined;
     genotype: string;
     phenotype: string;
     isMultiGenotype: boolean;

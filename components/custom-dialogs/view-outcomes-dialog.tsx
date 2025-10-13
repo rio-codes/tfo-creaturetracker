@@ -36,7 +36,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 
-import { structuredGeneData } from '@/constants/creature-data';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 
 type Outcome = {
@@ -391,28 +390,10 @@ export function ViewOutcomesDialog({
                                 <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
-                                            ([category, genotype]) => {
-                                                // Find the phenotype from the structured data, as the 'outcomes' object may not have it for dimorphic genes.
-                                                const speciesGenes =
-                                                    structuredGeneData[pair.species!];
-                                                const categoryGenes = speciesGenes?.[
-                                                    category
-                                                ] as any[];
-                                                const geneInfo = categoryGenes?.find(
-                                                    (g) => g.genotype === genotype
-                                                );
-                                                const phenotype = geneInfo
-                                                    ? geneInfo.phenotype
-                                                    : 'Unknown';
-
-                                                // Find the probability from the outcomes data
+                                            ([category, selectedGenotype]) => {
                                                 const outcome = outcomes[category]?.find(
-                                                    (o) => o.genotype === genotype
+                                                    (o) => o.genotype === selectedGenotype
                                                 );
-                                                if (!outcome) {
-                                                    // Should not happen if data is consistent
-                                                    return null;
-                                                }
                                                 return (
                                                     <div
                                                         key={category}
@@ -432,7 +413,9 @@ export function ViewOutcomesDialog({
                                                             htmlFor={`optional-${category}`}
                                                             className="font-normal text-sm flex-grow cursor-pointer"
                                                         >
-                                                            {category}: {phenotype} ({genotype})
+                                                            {category}:{' '}
+                                                            {outcome?.phenotype || 'N/A'} (
+                                                            {selectedGenotype})
                                                         </Label>
                                                     </div>
                                                 );

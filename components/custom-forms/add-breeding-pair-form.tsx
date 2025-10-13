@@ -27,9 +27,9 @@ import {
     getPossibleOffspringSpecies,
     checkForInbreeding,
     validatePairing,
+    speciesList,
 } from '@/lib/breeding-rules';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { speciesList } from '@/constants/creature-data';
 
 type AddPairFormProps = {
     allCreatures: EnrichedCreature[];

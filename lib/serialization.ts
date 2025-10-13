@@ -1,6 +1,5 @@
 import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { structuredGeneData } from '@/constants/creature-data';
-import { getPhenotypeForGenotype } from './genetics-utils';
 
 // serialize dates and add rich gene data to creature object
 export const enrichAndSerializeCreature = (creature: DbCreature | null): EnrichedCreature => {
@@ -19,16 +18,12 @@ export const enrichAndSerializeCreature = (creature: DbCreature | null): Enriche
                 .map((genePair) => {
                     const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
-                    const phenotype = getPhenotypeForGenotype(
-                        creature.species!,
-                        category,
-                        genotype,
-                        creature.gender as 'Male' | 'Female'
-                    );
+                    const categoryData = speciesGeneData[category];
+                    const matchedGene = categoryData?.find((g) => g.genotype === genotype);
                     return {
                         category,
                         genotype,
-                        phenotype: phenotype,
+                        phenotype: matchedGene?.phenotype || 'Unknown',
                     };
                 })
                 .filter(
@@ -69,17 +64,6 @@ export const enrichAndSerializeGoal = (
             let isMulti = false;
             if (goalMode === 'phenotype') {
                 const categoryData = speciesGeneData[category];
-                for (const gene of categoryData as { genotype: string; phenotype: string }[]) {
-                    if (gene.phenotype === finalPhenotype) {
-                        finalGenotype = gene.genotype;
-                        break;
-                    }
-                }
-            } else {
-                const categoryData = speciesGeneData[category] as {
-                    genotype: string;
-                    phenotype: string;
-                }[];
                 const genotypesForPhenotype = categoryData?.filter(
                     (g) => g.phenotype === finalPhenotype
                 );

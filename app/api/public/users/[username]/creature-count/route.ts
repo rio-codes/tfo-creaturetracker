@@ -12,8 +12,10 @@ const querySchema = z.object({
 
 const BADGE_COLOR = 'D0BCFF';
 
-export async function GET(req: Request, props: { params: Promise<{ username: string }> }) {
-    const params = await props.params;
+export async function GET(
+    req: Request,
+    { params }: { params: { username: string } }
+) {
     try {
         const { username } = params;
         const { searchParams } = new URL(req.url);

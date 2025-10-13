@@ -71,8 +71,12 @@ export function ViewItemDialog({
                         creature={data.creature!}
                         pinnedCreatures={[]} // Not applicable in admin view
                         unpinnedCreatures={[]} // Not applicable in admin view
-                        totalPages={1} // Not applicable in admin view, but required by CreatureCard
-                        currentUser={null} // Not applicable in admin view
+                        totalPages={1} // Not applicable in admin view
+                        allCreatures={data.allCreatures!}
+                        allEnrichedPairs={data.allEnrichedPairs || []}
+                        allRawPairs={data.allRawPairs!}
+                        allLogs={data.allLogs!}
+                        allGoals={data.allGoals}
                         isAdminView={true}
                     />
                 );

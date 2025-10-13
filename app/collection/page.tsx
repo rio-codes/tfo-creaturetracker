@@ -1,4 +1,11 @@
-import { fetchFilteredCreatures } from '@/lib/data';
+import {
+    fetchFilteredCreatures,
+    getAllEnrichedCreaturesForUser,
+    getAllBreedingPairsForUser,
+    getAllResearchGoalsForUser,
+    getAllBreedingLogEntriesForUser,
+    getAllRawBreedingPairsForUser,
+} from '@/lib/data';
 import { CollectionClient } from '@/components/custom-clients/collection-client';
 import { Suspense } from 'react';
 import { auth } from '@/auth';
@@ -9,23 +16,24 @@ import type { User } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CollectionPage({
-    searchParams,
-}: {
-    searchParams?: {
-        page?: string;
-        query?: string;
-        stage?: string;
-        gender?: string;
-        species?: string;
-        showArchived?: string;
-        generation?: string;
-        origin?: string;
-        geneCategory?: string;
-        geneQuery?: string;
-        geneMode?: 'phenotype' | 'genotype';
-    };
-}) {
+export default async function CollectionPage(
+    props: {
+        searchParams?: Promise<{
+            page?: string;
+            query?: string;
+            stage?: string;
+            gender?: string;
+            species?: string;
+            showArchived?: string;
+            generation?: string;
+            origin?: string;
+            geneCategory?: string;
+            geneQuery?: string;
+            geneMode?: 'phenotype' | 'genotype';
+        }>;
+    }
+) {
+    const searchParams = await props.searchParams;
     const session = await auth();
     const plainSearchParams = {
         page: searchParams?.page,
@@ -41,8 +49,21 @@ export default async function CollectionPage({
         geneMode: searchParams?.geneMode,
     };
 
-    const [filteredData, currentUser] = await Promise.all([
+    const [
+        allRawPairs,
+        allEnrichedCreatures,
+        allEnrichedPairs,
+        filteredData,
+        allEnrichedGoals,
+        allLogs,
+        currentUser,
+    ] = await Promise.all([
+        getAllRawBreedingPairsForUser(),
+        getAllEnrichedCreaturesForUser(),
+        getAllBreedingPairsForUser(),
         fetchFilteredCreatures(plainSearchParams),
+        getAllResearchGoalsForUser(),
+        getAllBreedingLogEntriesForUser(),
         session?.user?.id
             ? (db.query.users.findFirst({
                   where: eq(users.id, session.user.id),
@@ -63,8 +84,13 @@ export default async function CollectionPage({
                 <Suspense fallback={<div>Loading collection...</div>}>
                     <CollectionClient
                         totalPages={totalPages}
-                        pinnedCreatures={pinnedCreatures}
-                        unpinnedCreatures={unpinnedCreatures}
+                        pinnedCreatures={pinnedCreatures || []}
+                        unpinnedCreatures={unpinnedCreatures || []}
+                        allRawPairs={allRawPairs}
+                        allEnrichedCreatures={allEnrichedCreatures}
+                        allEnrichedPairs={allEnrichedPairs}
+                        allEnrichedGoals={allEnrichedGoals}
+                        allLogs={allLogs}
                         searchParams={plainSearchParams}
                         currentUser={currentUser ?? null}
                     />

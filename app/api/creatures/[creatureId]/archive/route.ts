@@ -6,8 +6,7 @@ import { eq, and, or, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { logUserAction } from '@/lib/user-actions';
 
-export async function PATCH(req: Request, props: { params: Promise<{ creatureId: string }> }) {
-    const params = await props.params;
+export async function PATCH(req: Request, { params }: { params: { creatureId: string } }) {
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

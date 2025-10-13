@@ -412,8 +412,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
     };
 }
 
-export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
-    const params = await props.params;
+export default async function UserProfilePage({ params }: { params: { username: string } }) {
     const session = await auth();
     const pathUsername = params.username;
     let dbUsername: string;

@@ -9,8 +9,10 @@ import type { User } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CollectionPage(props: {
-    searchParams?: Promise<{
+export default async function CollectionPage({
+    searchParams,
+}: {
+    searchParams?: {
         page?: string;
         query?: string;
         stage?: string;
@@ -22,9 +24,8 @@ export default async function CollectionPage(props: {
         geneCategory?: string;
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
-    }>;
+    };
 }) {
-    const searchParams = await props.searchParams;
     const session = await auth();
     const plainSearchParams = {
         page: searchParams?.page,

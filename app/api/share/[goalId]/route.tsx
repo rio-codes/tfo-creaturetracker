@@ -13,8 +13,7 @@ async function getPlaceholderImage(baseUrl: string): Promise<Response> {
     });
 }
 
-export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
-    const params = await props.params;
+export async function GET(req: Request, { params }: { params: { goalId: string } }) {
     const goalId = params.goalId;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tfo.creaturetracker.net';
 

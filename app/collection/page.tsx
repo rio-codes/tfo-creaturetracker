@@ -16,6 +16,7 @@ import type { User } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
+<<<<<<< HEAD
 export default async function CollectionPage(
     props: {
         searchParams?: Promise<{
@@ -34,6 +35,25 @@ export default async function CollectionPage(
     }
 ) {
     const searchParams = await props.searchParams;
+=======
+export default async function CollectionPage({
+    searchParams,
+}: {
+    searchParams?: {
+        page?: string;
+        query?: string;
+        stage?: string;
+        gender?: string;
+        species?: string;
+        showArchived?: string;
+        generation?: string;
+        origin?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        geneMode?: 'phenotype' | 'genotype';
+    };
+}) {
+>>>>>>> 6ebdd102 (fix(goals): 🚑️ revert merge branch main into dev-issue291)
     const session = await auth();
     const plainSearchParams = {
         page: searchParams?.page,

@@ -390,9 +390,9 @@ export function ViewOutcomesDialog({
                                 <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
-                                            ([category, genotype]) => {
-                                                const outcome = outcomes[category].find(
-                                                    (o) => o.genotype === genotype
+                                            ([category, selectedGenotype]) => {
+                                                const outcome = outcomes[category]?.find(
+                                                    (o) => o.genotype === selectedGenotype
                                                 );
                                                 return (
                                                     <div
@@ -413,7 +413,9 @@ export function ViewOutcomesDialog({
                                                             htmlFor={`optional-${category}`}
                                                             className="font-normal text-sm flex-grow cursor-pointer"
                                                         >
-                                                            {category}: {phenotype} ({genotype})
+                                                            {category}:{' '}
+                                                            {outcome?.phenotype || 'N/A'} (
+                                                            {selectedGenotype})
                                                         </Label>
                                                     </div>
                                                 );

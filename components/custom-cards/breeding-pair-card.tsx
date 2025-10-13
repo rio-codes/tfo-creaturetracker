@@ -62,6 +62,7 @@ type BreedingPairCardProps = {
     allPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
     _isAdminView?: boolean;
+    _isContextView?: boolean;
 };
 
 const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature }) => {
@@ -118,6 +119,7 @@ export function BreedingPairCard({
     allPairs,
     allLogs,
     _isAdminView = false,
+    _isContextView = false,
 }: BreedingPairCardProps) {
     const router = useRouter();
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
@@ -201,21 +203,23 @@ export function BreedingPairCard({
                     </div>
                 )}
                 {/* Pin Icon */}
-                <div className="absolute top-1 right-1 z-10">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handlePinToggle}
-                        disabled={isPinning || pair.isArchived}
-                        className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
-                    >
-                        {isPinned ? (
-                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
-                        ) : (
-                            <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
-                        )}
-                    </Button>
-                </div>
+                {!_isContextView && (
+                    <div className="absolute top-1 right-1 z-10">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handlePinToggle}
+                            disabled={isPinning || pair.isArchived}
+                            className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                        >
+                            {isPinned ? (
+                                <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
+                            ) : (
+                                <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                            )}
+                        </Button>
+                    </div>
+                )}
                 {/* Header Section */}
                 <div className="relative p-4">
                     {/* Title */}

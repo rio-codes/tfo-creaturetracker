@@ -10,12 +10,12 @@ import {
     Pin,
     PinOff,
     Loader2,
-    X,
     UserRoundPlus,
     UserRoundMinus,
     Trash2,
     Pencil,
 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
     AlertDialog,
     AlertDialogCancel,
@@ -29,7 +29,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import type {
@@ -45,7 +44,6 @@ import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';
 import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
-import { sanitizeHtml } from '@/lib/sanitize';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -60,37 +58,6 @@ interface CreatureCardProps {
     isAdminView?: boolean;
     currentUser?: User | null;
 }
-
-const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature | null }) => {
-    if (!creature?.geneData || creature.geneData.length === 0) {
-        return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
-    }
-    const summary = creature.geneData
-        .filter((g) => g.category !== 'Gender')
-        .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
-        .join(', ');
-
-    const cleanSummary = await sanitizeHtml(summary);
-
-    return (
-        <p
-            className="pt-1 text-xs text-dusk-purple break-words"
-            dangerouslySetInnerHTML={{ __html: cleanSummary }}
-            title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
-        />
-    );
-};
-
-const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) => {
-    if (!creature?.imageUrl) {
-        return '';
-    }
-
-    if (creature.updatedAt) {
-        return `${creature.imageUrl}?v=${new Date(creature.updatedAt).getTime()}`;
-    }
-    return creature.imageUrl;
-};
 
 export function CreatureCard({
     creature,
@@ -323,117 +290,37 @@ export function CreatureCard({
                                 <strong>Parents/Origin:</strong>{' '}
                                 {parentPair && (
                                     <Dialog>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <DialogTrigger asChild>
-                                                        <span className="underline decoration-dotted cursor-pointer">
-                                                            {parentPair.pairName}
-                                                        </span>
-                                                    </DialogTrigger>
-                                                </TooltipTrigger>
-                                                <TooltipContent className="p-0 border-0 bg-transparent max-w-md w-full hidden md:block">
-                                                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
-                                                        {/* Header Section */}
-                                                        <div className="relative p-4">
-                                                            {/* Title */}
-                                                            <h3
-                                                                className="text-xl font-bold text-center"
-                                                                title={parentPair.pairName}
-                                                            >
-                                                                {parentPair.pairName}
-                                                            </h3>
-                                                            {/* Parent Images */}
-                                                            <div className="flex justify-center items-center gap-2 mt-2">
-                                                                <img
-                                                                    src={getCacheBustedImageUrl(
-                                                                        parentPair.maleParent
-                                                                    )}
-                                                                    alt={
-                                                                        parentPair.maleParent!.code
-                                                                    }
-                                                                    className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                                                />
-                                                                <X className="text-dusk-purple" />
-                                                                <img
-                                                                    src={getCacheBustedImageUrl(
-                                                                        parentPair.femaleParent
-                                                                    )}
-                                                                    alt={
-                                                                        parentPair.femaleParent!
-                                                                            .code
-                                                                    }
-                                                                    className="w-30 h-30 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
-                                                                />
-                                                            </div>
-                                                        </div>
+                                        <>
+                                            {/* Mobile: Opens a Dialog */}
+                                            <DialogTrigger asChild>
+                                                <span className="underline decoration-dotted cursor-pointer md:hidden">
+                                                    {parentPair.pairName}
+                                                </span>
+                                            </DialogTrigger>
 
-                                                        <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
-                                                            <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
-                                                                <Collapsible>
-                                                                    <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                                                                        <p className="truncate">
-                                                                            <span className="font-semibold text-pompaca-purple dark:text-purple-300">
-                                                                                M:
-                                                                            </span>{' '}
-                                                                            {parentPair.maleParent!
-                                                                                .creatureName ||
-                                                                                'Unnamed'}{' '}
-                                                                            (
-                                                                            {
-                                                                                parentPair
-                                                                                    .maleParent!
-                                                                                    .code
-                                                                            }
-                                                                            )
-                                                                        </p>
-                                                                        <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                                                    </CollapsibleTrigger>
-                                                                    <CollapsibleContent>
-                                                                        <ParentGeneSummary
-                                                                            creature={
-                                                                                parentPair.maleParent
-                                                                            }
-                                                                        />
-                                                                    </CollapsibleContent>
-                                                                </Collapsible>
-                                                                <Collapsible>
-                                                                    <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left">
-                                                                        <p className="truncate">
-                                                                            <span className="font-semibold text-pompaca-purple dark:text-purple-300">
-                                                                                F:
-                                                                            </span>{' '}
-                                                                            {parentPair
-                                                                                .femaleParent!
-                                                                                .creatureName ||
-                                                                                'Unnamed'}{' '}
-                                                                            (
-                                                                            {
-                                                                                parentPair
-                                                                                    .femaleParent!
-                                                                                    .code
-                                                                            }
-                                                                            )
-                                                                        </p>
-                                                                        <ChevronDown className="h-4 w-4 ml-1 flex-shrink-0 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
-                                                                    </CollapsibleTrigger>
-                                                                    <CollapsibleContent>
-                                                                        <ParentGeneSummary
-                                                                            creature={
-                                                                                parentPair.femaleParent
-                                                                            }
-                                                                        />
-                                                                    </CollapsibleContent>
-                                                                </Collapsible>
-                                                            </div>
-                                                            <div className="text-center text-sm text-pompaca-purple">
-                                                                Bred {parentPair.timesBred} times
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                            {/* Desktop: Opens a Popover */}
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <span className="hidden md:inline underline decoration-dotted cursor-pointer">
+                                                        {parentPair.pairName}
+                                                    </span>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                    side="top"
+                                                    className="p-0 border-0 bg-transparent max-w-md w-full"
+                                                >
+                                                    <BreedingPairCard
+                                                        pair={parentPair}
+                                                        allCreatures={allCreatures!}
+                                                        allGoals={allGoals!}
+                                                        allPairs={allRawPairs!}
+                                                        allLogs={allLogs!}
+                                                        _isAdminView={isAdminView}
+                                                        _isContextView={true}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </>
                                         <DialogContent className="p-0 border-0 bg-transparent max-w-md w-full sm:max-w-md ">
                                             <BreedingPairCard
                                                 pair={parentPair}
@@ -442,6 +329,7 @@ export function CreatureCard({
                                                 allPairs={allRawPairs!}
                                                 allLogs={allLogs!}
                                                 _isAdminView={isAdminView}
+                                                _isContextView={true}
                                             />
                                         </DialogContent>
                                     </Dialog>

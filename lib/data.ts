@@ -345,13 +345,11 @@ export async function fetchFilteredCreatures(
         } else {
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
-            if (categoryGenes && Array.isArray(categoryGenes)) {
-                for (const gene of categoryGenes as { genotype: string; phenotype: string }[]) {
-                    if (gene.phenotype === geneQuery) {
-                        geneString.push(`%${geneCategory}:${gene.genotype}%`);
-                        break;
-                    }
-                }
+            if (categoryGenes) {
+                const matchingGenotypes = categoryGenes
+                    .filter((g) => g.phenotype === geneQuery)
+                    .map((g) => g.genotype);
+                geneString = matchingGenotypes.map((gt) => `%${geneCategory}:${gt}%`);
             }
         }
     }
@@ -646,9 +644,7 @@ export async function fetchBreedingPairsWithStats(
         } else {
             // Phenotype mode
             const speciesGeneInfo = structuredGeneData[species];
-            const categoryGenes = speciesGeneInfo?.[geneCategory] as
-                | { genotype: string; phenotype: string }[]
-                | undefined;
+            const categoryGenes = speciesGeneInfo?.[geneCategory];
             if (categoryGenes) {
                 const matchingGenotypes = categoryGenes
                     .filter((g) => g.phenotype === geneQuery)

@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,81 +19,141 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { EnrichedResearchGoal, GoalGene } from '@/types';
+
 type GeneOption = {
     value: string;
     display: string;
+    // We need the full selection object to be available in the option
     selection: Omit<GoalGene, 'isOptional'>;
 };
+
 type GoalFormProps = {
+    // If a `goal` is provided, we're in "edit" mode. If not, "create" mode.
     goal?: EnrichedResearchGoal;
-    onSuccess: () => void;
+    onSuccess: () => void; // To close the parent dialog
     isAdminView?: boolean;
 };
+
 export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps) {
     const router = useRouter();
     const isEditMode = !!goal;
+
     const [name, setName] = useState(goal?.name || '');
     const [species, setSpecies] = useState(goal?.species || '');
     const [goalMode, setGoalMode] = useState(goal?.goalMode || 'phenotype');
     const [selectedGenes, setSelectedGenes] = useState<{
         [key: string]: GoalGene;
     }>(goal?.genes || {});
+
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState('');
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(goal?.imageUrl || null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [_previewError, setPreviewError] = useState('');
-    const [localSpecies, setLocalSpecies] = useState(goal?.species || species || '');
-    const geneOptions = useMemo(
-        () => getGeneOptions(localSpecies, goalMode, selectedGenes),
-        [localSpecies, goalMode, selectedGenes]
-    );
+
+    // generate gene options for selected species depending on goal moad
+    const geneOptions = useMemo(() => {
+        if (!species || !structuredGeneData[species]) return {};
+        const optionsByCat: { [key: string]: GeneOption[] } = {};
+
+        for (const [category, genes] of Object.entries(structuredGeneData[species])) {
+            if (goalMode === 'genotype') {
+                const phenotypeMap = new Map<string, string[]>();
+                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                    const existing = phenotypeMap.get(gene.phenotype) || [];
+                    phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
+                });
+
+                optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
+                    (gene) => {
+                        const genotypesForPhenotype = phenotypeMap.get(gene.phenotype) || [];
+                        return {
+                            value: gene.genotype,
+                            display:
+                                category === 'Gender'
+                                    ? gene.genotype
+                                    : `${gene.genotype} (${gene.phenotype})`,
+                            selection: {
+                                phenotype: gene.phenotype,
+                                genotype: gene.genotype,
+                                isMultiGenotype: genotypesForPhenotype.length > 1,
+                            },
+                        };
+                    }
+                );
+            } else {
+                // PHENOTYPE MODE
+                const phenotypeMap = new Map<string, string[]>();
+                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                    const existing = phenotypeMap.get(gene.phenotype) || [];
+                    phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
+                });
+
+                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
+                    ([phenotype, genotypes]) => {
+                        const isMulti = genotypes.length > 1;
+                        return {
+                            value: phenotype, // The value is now the PHENOTYPE
+                            display:
+                                isMulti || category == 'Gender'
+                                    ? phenotype
+                                    : `${phenotype} (${genotypes[0]})`,
+                            selection: {
+                                phenotype: phenotype,
+                                genotype: genotypes[0], // Use the first as the representative
+                                isMultiGenotype: isMulti,
+                            },
+                        };
+                    }
+                );
+            }
+        }
+        return optionsByCat;
+    }, [species, goalMode]);
+
     const geneCategories = useMemo(
         () => (geneOptions ? Object.keys(geneOptions) : []),
         [geneOptions]
     );
 
+    // --- EFFECT FOR DEFAULT VALUES IN CREATE MODE ---
+    // This effect handles initializing the gene selections for both create and edit modes.
     useEffect(() => {
-        // This effect should run when the species changes to set initial gene selections.
-        if (localSpecies && Object.keys(structuredGeneData[localSpecies] || {}).length > 0) {
-            if (isEditMode && goal?.genes && localSpecies === goal.species) {
-                const normalizedGenes: { [key: string]: GoalGene } = {};
-                for (const [category, geneData] of Object.entries(goal.genes)) {
-                    normalizedGenes[category] = {
-                        ...(geneData as GoalGene),
-                        isOptional: geneData.isOptional ?? false,
+        // For EDIT mode, normalize existing goal data to ensure `isOptional` exists.
+        if (isEditMode && goal?.genes) {
+            const normalizedGenes: { [key: string]: GoalGene } = {};
+            for (const [category, geneData] of Object.entries(goal.genes)) {
+                normalizedGenes[category] = {
+                    ...(geneData as GoalGene), // Cast to handle old data
+                    isOptional: geneData.isOptional ?? false,
+                };
+            }
+            setSelectedGenes(normalizedGenes);
+            // For CREATE mode, set default genes when species changes.
+        } else if (!isEditMode && species && geneCategories.length > 0) {
+            const defaultSelections: { [key: string]: GoalGene } = {};
+            for (const category of geneCategories) {
+                const options = geneOptions[category];
+                if (options && options.length > 0) {
+                    let defaultOption = options[0];
+                    if (category === 'Gender') {
+                        defaultOption =
+                            options.find((opt) => opt.selection.genotype === 'Female') ||
+                            options[0];
+                    }
+                    // Add the missing isOptional flag
+                    defaultSelections[category] = {
+                        ...defaultOption.selection,
+                        isOptional: false,
                     };
                 }
-                setSelectedGenes(normalizedGenes);
-            } else if (!isEditMode) {
-                const defaultSelections: { [key: string]: GoalGene } = { ...selectedGenes };
-                const tempGeneOptions = getGeneOptions(localSpecies, 'phenotype', {}); // Use a stable goalMode for defaults
-                for (const category of Object.keys(tempGeneOptions)) {
-                    const options = tempGeneOptions[category];
-                    if (options && options.length > 0) {
-                        let defaultOption = options[0];
-                        if (category === 'Gender') {
-                            defaultOption =
-                                options.find((opt) => opt.selection.phenotype === 'Female') ||
-                                options[0];
-                        }
-                        defaultSelections[category] = {
-                            ...defaultOption.selection,
-                            isOptional: false,
-                        };
-                    }
-                }
-                setSelectedGenes(defaultSelections);
             }
+            console.log(defaultSelections);
+            setSelectedGenes(defaultSelections);
         }
-    }, [localSpecies, isEditMode, goal?.species]);
+    }, [species, geneCategories, isEditMode, geneOptions, goal?.genes]);
 
-    const handleSpeciesChange = (newSpecies: string) => {
-        setSpecies(newSpecies);
-        setLocalSpecies(newSpecies);
-        setSelectedGenes({});
-    };
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
         const selectedOption = options?.find((opt) => opt.value === selectedValue);
@@ -108,69 +169,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         setPreviewImageUrl(null);
     };
 
-    // Helper function to avoid repeating logic and to use in useEffect without dependency issues
-    const getGeneOptions = (
-        species: string,
-        goalMode: 'phenotype' | 'genotype',
-        selectedGenes: { [key: string]: GoalGene }
-    ) => {
-        if (!species || !structuredGeneData[species]) return {};
-        const optionsByCat: { [key: string]: GeneOption[] } = {};
-        const isDimorphic = structuredGeneData[species]?.Dimorphic === 'True';
-        const selectedGender = selectedGenes['Gender']?.phenotype as 'Male' | 'Female' | undefined;
-
-        for (const [category, genes] of Object.entries(structuredGeneData[species])) {
-            if (!Array.isArray(genes)) continue;
-
-            let categoryGenes: any[] = genes;
-            if (isDimorphic && category !== 'Gender' && selectedGender) {
-                // For dimorphic species, filter genes to only those matching the selected gender or those without a gender specification.
-                categoryGenes = genes.filter((g: any) => !g.gender || g.gender === selectedGender);
-            }
-
-            const phenotypeMap = new Map<string, string[]>();
-
-            for (const g of categoryGenes) {
-                const existing = phenotypeMap.get(g.phenotype) || [];
-                phenotypeMap.set(g.phenotype, [...existing, g.genotype]);
-            }
-
-            if (goalMode === 'genotype') {
-                optionsByCat[category] = categoryGenes.map((gene) => ({
-                    value: gene.genotype,
-                    display:
-                        category === 'Gender'
-                            ? gene.genotype
-                            : `${gene.genotype} (${gene.phenotype})`,
-                    selection: {
-                        phenotype: gene.phenotype,
-                        genotype: gene.genotype,
-                        gender: gene.gender,
-                        isMultiGenotype: (phenotypeMap.get(gene.phenotype) || []).length > 1,
-                    },
-                }));
-            } else {
-                // phenotype mode
-                optionsByCat[category] = Array.from(phenotypeMap.entries()).map(
-                    ([phenotype, genotypes]) => ({
-                        value: phenotype,
-                        display:
-                            genotypes.length > 1 || category === 'Gender'
-                                ? phenotype
-                                : `${phenotype} (${genotypes[0]})`,
-                        selection: {
-                            phenotype,
-                            genotype: genotypes[0],
-                            gender: categoryGenes.find((g) => g.phenotype === phenotype)?.gender,
-                            isMultiGenotype: genotypes.length > 1,
-                        },
-                    })
-                );
-            }
-        }
-        return optionsByCat;
-    };
-
     const handleOptionalToggle = (category: string) => {
         setSelectedGenes((prev) => {
             if (!prev[category]) return prev;
@@ -182,8 +180,9 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 },
             };
         });
-        setPreviewImageUrl(null);
+        setPreviewImageUrl(null); // Invalidate preview
     };
+    // send form contents to api route based on create or update mode
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -202,8 +201,10 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 throw new Error(
                     data.error || `Failed to ${isEditMode ? 'update' : 'create'} goal.`
                 );
-            onSuccess();
-            router.refresh();
+
+            onSuccess(); // Close dialog
+            router.refresh(); // Re-fetch data for current route
+
             if (!isEditMode && data.goalId) {
                 router.push(`/research-goals/${data.goalId}`);
             }
@@ -213,6 +214,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             setIsLoading(false);
         }
     };
+
+    // delete goal via api
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete the goal "${goal?.name}"?`)) return;
         setIsDeleting(true);
@@ -225,6 +228,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete goal.');
+            // Reload the page to ensure the underlying admin table is updated.
             window.location.reload();
         } catch (err: any) {
             setError(err.message);
@@ -232,6 +236,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             setIsDeleting(false);
         }
     };
+
     const handlePreview = async () => {
         setIsPreviewLoading(true);
         setPreviewError('');
@@ -253,10 +258,12 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             setIsPreviewLoading(false);
         }
     };
+
     const handleRandomizeOptional = () => {
         const newSelectedGenes = { ...selectedGenes };
         let changed = false;
         for (const category in newSelectedGenes) {
+            // Only randomize genes that are marked as optional
             if (newSelectedGenes[category].isOptional) {
                 const options = geneOptions[category];
                 if (options && options.length > 0) {
@@ -264,7 +271,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     const randomOption = options[randomIndex];
                     newSelectedGenes[category] = {
                         ...randomOption.selection,
-                        isOptional: true,
+                        isOptional: true, // Ensure it remains optional
                     };
                     changed = true;
                 }
@@ -272,11 +279,13 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         }
         if (changed) {
             setSelectedGenes(newSelectedGenes);
-            setPreviewImageUrl(null);
+            setPreviewImageUrl(null); // Invalidate preview since genes changed
         }
     };
+
     return (
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+            {/* Goal Mode Selector */}
             <div className="space-y-2">
                 <Label>Goal Mode</Label>
                 <RadioGroup
@@ -313,9 +322,11 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     required
                 />
             </div>
+
+            {/* species and gene selectors */}
             <div className="space-y-2 mb-3">
                 <Label htmlFor="species-select">Species</Label>
-                <Select value={species} onValueChange={handleSpeciesChange} required>
+                <Select value={species} onValueChange={(value) => setSpecies(value)} required>
                     <SelectTrigger
                         id="species-select"
                         className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-barely-lilac"
@@ -348,6 +359,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                                     goalMode === 'phenotype'
                                         ? selectedGenes[category]?.phenotype || ''
                                         : selectedGenes[category]?.genotype || '';
+
                                 const options = geneOptions[category] || [];
                                 return (
                                     <div
@@ -389,6 +401,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                             })}
                         </div>
                         <ScrollBar orientation="vertical" />
+                        {/* Fake Scrollbar Hint for UI consistency */}
                         <div className="absolute top-0 right-0 h-full w-3 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
                             <ChevronUp className="h-4 w-3 text-barely-lilac" />
                             <ChevronDown className="h-4 w-3 text-barely-lilac" />
@@ -396,6 +409,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     </ScrollArea>
                 </div>
             )}
+
+            {/* preview section */}
             <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-2">
                     <Button
@@ -425,6 +440,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 )}
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
+
+            {/* submit buttons */}
             <div className="flex justify-between items-center pt-4">
                 {isEditMode && (
                     <Button

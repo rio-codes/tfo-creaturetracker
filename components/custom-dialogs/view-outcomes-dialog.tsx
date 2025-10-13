@@ -36,7 +36,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 
-import { structuredGeneData } from '@/constants/creature-data';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 
 type Outcome = {
@@ -392,27 +391,9 @@ export function ViewOutcomesDialog({
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
                                             ([category, genotype]) => {
-                                                // Find the phenotype from the structured data, as the 'outcomes' object may not have it for dimorphic genes.
-                                                const speciesGenes =
-                                                    structuredGeneData[pair.species!];
-                                                const categoryGenes = speciesGenes?.[
-                                                    category
-                                                ] as any[];
-                                                const geneInfo = categoryGenes?.find(
-                                                    (g) => g.genotype === genotype
-                                                );
-                                                const phenotype = geneInfo
-                                                    ? geneInfo.phenotype
-                                                    : 'Unknown';
-
-                                                // Find the probability from the outcomes data
-                                                const outcome = outcomes[category]?.find(
+                                                const outcome = outcomes[category].find(
                                                     (o) => o.genotype === genotype
                                                 );
-                                                if (!outcome) {
-                                                    // Should not happen if data is consistent
-                                                    return null;
-                                                }
                                                 return (
                                                     <div
                                                         key={category}

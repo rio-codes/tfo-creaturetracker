@@ -53,7 +53,7 @@ export default function RegisterForm() {
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple dark:border-purple-400 shadow-lg">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple dark:border-purple-400 hallowsnight:border-cimo-crimson shadow-lg">
             <CardHeader className="text-center">
                 <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Create Account
@@ -125,7 +125,7 @@ export default function RegisterForm() {
                         <Checkbox
                             id="terms"
                             onCheckedChange={(checked: CheckedState) => setAgreeToTerms(!!checked)}
-                            className="border-pompaca-purple"
+                            className="border-pompaca-purple hallowsnight:border-cimo-crimson dark:border-purple-400"
                         />
                         <Label
                             htmlFor="terms"
@@ -149,7 +149,7 @@ export default function RegisterForm() {
                     </div>
                     <Button
                         type="submit"
-                        className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="w-full bg-pompaca-purple hover:bg-dusk-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                         disabled={!agreeToTerms}
                     >
                         Create Account

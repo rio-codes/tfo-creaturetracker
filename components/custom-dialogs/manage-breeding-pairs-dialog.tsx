@@ -86,7 +86,7 @@ export function ManageBreedingPairsDialog({
                 <div className="min-h-[300px]">
                     {isLoading && (
                         <div className="flex justify-center items-center h-full">
-                            <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple" />
+                            <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple hallowsnight:text-cimo-crimson" />
                         </div>
                     )}
                     {error && <p className="text-red-500 text-center">{error}</p>}

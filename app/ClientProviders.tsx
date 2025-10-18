@@ -83,7 +83,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
     return (
-        <ThemeProvider defaultTheme="system">
+        <ThemeProvider defaultTheme="hallowsnight">
             <SessionProvider>
                 <ThemeSyncer />
                 <AppContent>{children}</AppContent>

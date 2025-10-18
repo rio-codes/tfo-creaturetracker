@@ -6,9 +6,7 @@ import { Dna, Feather } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal, User } from '@/types';
-import type { DbBreedingPair } from '@/types';
-import type { DbBreedingLogEntry } from '@/types';
+import type { EnrichedCreature, User } from '@/types';
 import {
     DndContext,
     closestCenter,
@@ -36,7 +34,7 @@ import { CreatureCard } from '@/components/custom-cards/creature-card';
 import { Pagination } from '@/components/misc-custom-components/pagination';
 import { Button } from '@/components/ui/button';
 import { AddCreaturesDialog } from '@/components/custom-dialogs/add-creatures-dialog';
-import { structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
+import { structuredGeneData, AllSpeciesGeneData, speciesList } from '@/constants/creature-data';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -58,11 +56,6 @@ type CollectionClientProps = {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allEnrichedCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-    allEnrichedPairs: EnrichedBreedingPair[];
-    allEnrichedGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
     searchParams?: {
         generation?: string;
@@ -84,11 +77,6 @@ function SortableCreatureCard(props: {
     pinnedCreatures: EnrichedCreature[];
     unpinnedCreatures: EnrichedCreature[];
     totalPages: number;
-    allCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allEnrichedPairs: EnrichedBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-    allGoals: EnrichedResearchGoal[];
     currentUser?: User | null;
     _isAdminView?: boolean;
 }) {
@@ -145,11 +133,6 @@ export function CollectionClient({
     pinnedCreatures: initialPinnedCreatures,
     unpinnedCreatures: initialUnpinnedCreatures,
     totalPages,
-    allEnrichedCreatures: allCreatures,
-    allRawPairs,
-    allLogs,
-    allEnrichedPairs: allPairs,
-    allEnrichedGoals: allGoals,
     currentUser,
     searchParams: searchParamsFromProps, // Rename to avoid conflict
 }: CollectionClientProps) {
@@ -192,8 +175,6 @@ export function CollectionClient({
     }, [initialPinnedCreatures, initialUnpinnedCreatures]);
 
     useEffect(() => {
-        // This effect should only run once on mount to restore filters if the user
-        // navigates to the page without any search params.
         const preserveFilters = localStorage.getItem('preserveFilters') === 'true';
         const hasSearchParams = currentSearchParams.toString().length > 0;
 
@@ -288,12 +269,6 @@ export function CollectionClient({
         replace(pathname);
     };
 
-    const ownedSpecies = useMemo(() => {
-        if (!allCreatures) return [];
-        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
-        return Array.from(speciesSet).sort() as string[];
-    }, [allCreatures]);
-
     const geneCategories = useMemo(() => {
         const selectedSpecies = searchParamsFromProps?.species;
         if (!selectedSpecies || selectedSpecies === 'all') return [];
@@ -319,7 +294,6 @@ export function CollectionClient({
                 label: p,
             }));
         } else {
-            // genotype mode
             return categoryData.map((g) => ({
                 value: g.genotype,
                 label: `${g.phenotype} (${g.genotype})`,
@@ -451,7 +425,7 @@ export function CollectionClient({
                             </select.SelectTrigger>
                             <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 <select.SelectItem value="all">All Species</select.SelectItem>
-                                {ownedSpecies.map((s) => (
+                                {speciesList.map((s) => (
                                     <select.SelectItem key={s} value={s!}>
                                         {s}
                                     </select.SelectItem>
@@ -587,11 +561,6 @@ export function CollectionClient({
                                                 unpinnedCreatures={unpinnedCreatures}
                                                 totalPages={totalPages}
                                                 creature={creature}
-                                                allCreatures={allCreatures}
-                                                allRawPairs={allRawPairs}
-                                                allEnrichedPairs={allPairs}
-                                                allLogs={allLogs}
-                                                allGoals={allGoals}
                                                 _isAdminView={false}
                                                 currentUser={currentUser}
                                             />

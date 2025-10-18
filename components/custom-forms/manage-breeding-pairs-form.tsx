@@ -288,14 +288,14 @@ export function ManageBreedingPairsForm({
                                         </div>
                                     )}
                                     {maleParent && femaleParent && (
-                                        <X className="text-dusk-purple mt-10" />
+                                        <X className="text-dusk-purple mt-10 hallowsnight:text-cimo-crimson" />
                                     )}
                                     {femaleParent && (
                                         <div className="flex flex-col items-center w-36">
                                             <img
                                                 src={femaleParent.imageUrl || '/placeholder.png'}
                                                 alt={femaleParent.code}
-                                                className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                                className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple hallowsnight:border-blood-bay-wine rounded-lg"
                                             />
                                             <Collapsible className="w-full">
                                                 <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
@@ -354,7 +354,7 @@ export function ManageBreedingPairsForm({
                         type="button"
                         onClick={onActionComplete}
                         variant="outline"
-                        className="w-full border-pompaca-purple text-pompaca-purple hover:bg-pompaca-purple/10 dark:border-purple-400 dark:text-purple-400 hallowsnight:text-blood-bay-wine dark:hover:bg-purple-400/10"
+                        className="w-full border-pompaca-purple text-pompaca-purple hover:bg-pompaca-purple/10 dark:border-purple-400 dark:text-purple-400 hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson hallowsnight:border-abyss dark:hover:bg-purple-400/10"
                     >
                         Cancel
                     </Button>
@@ -362,7 +362,7 @@ export function ManageBreedingPairsForm({
                     <Button
                         type="submit"
                         disabled={isLoading || !selectedMateId}
-                        className="w-full bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="w-full bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         {isLoading ? <Loader2 className="animate-spin" /> : 'Create Pair'}
                     </Button>

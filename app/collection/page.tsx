@@ -1,11 +1,3 @@
-import {
-    fetchFilteredCreatures,
-    getAllEnrichedCreaturesForUser,
-    getAllBreedingPairsForUser,
-    getAllResearchGoalsForUser,
-    getAllBreedingLogEntriesForUser,
-    getAllRawBreedingPairsForUser,
-} from '@/lib/data';
 import { CollectionClient } from '@/components/custom-clients/collection-client';
 import { Suspense } from 'react';
 import { auth } from '@/auth';
@@ -13,6 +5,7 @@ import { db } from '@/src/db';
 import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { User } from '@/types';
+import { fetchFilteredCreatures } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,22 +39,9 @@ export default async function CollectionPage(props: {
         geneQuery: searchParams?.geneQuery,
         geneMode: searchParams?.geneMode,
     };
+    const filteredData = await fetchFilteredCreatures(plainSearchParams);
 
-    const [
-        allRawPairs,
-        allEnrichedCreatures,
-        allEnrichedPairs,
-        filteredData,
-        allEnrichedGoals,
-        allLogs,
-        currentUser,
-    ] = await Promise.all([
-        getAllRawBreedingPairsForUser(),
-        getAllEnrichedCreaturesForUser(),
-        getAllBreedingPairsForUser(),
-        fetchFilteredCreatures(plainSearchParams),
-        getAllResearchGoalsForUser(),
-        getAllBreedingLogEntriesForUser(),
+    const [currentUser] = await Promise.all([
         session?.user?.id
             ? (db.query.users.findFirst({
                   where: eq(users.id, session.user.id),
@@ -84,11 +64,6 @@ export default async function CollectionPage(props: {
                         totalPages={totalPages}
                         pinnedCreatures={pinnedCreatures || []}
                         unpinnedCreatures={unpinnedCreatures || []}
-                        allRawPairs={allRawPairs}
-                        allEnrichedCreatures={allEnrichedCreatures}
-                        allEnrichedPairs={allEnrichedPairs}
-                        allEnrichedGoals={allEnrichedGoals}
-                        allLogs={allLogs}
                         searchParams={plainSearchParams}
                         currentUser={currentUser ?? null}
                     />

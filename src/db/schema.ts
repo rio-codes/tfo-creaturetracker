@@ -76,7 +76,7 @@ export const accounts = pgTable(
     'account',
     {
         userId: text('userId')
-            .notNull() // .notNull() is redundant here as primaryKey implies it.
+            .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
         type: text('type').$type<AdapterAccount['type']>().notNull(),
         provider: text('provider').notNull(),
@@ -308,7 +308,7 @@ export const breedingLogEntries = pgTable(
     },
     (table) => [
         {
-            userLogPairIndex: uniqueIndex('user_log_pair_idx').on(table.userId, table.pairId),
+            userLogPairIndex: index('user_log_pair_idx').on(table.userId, table.pairId),
             userIdx: index('log_pairId_idx').on(table.pairId),
             progeny1Idx: index('log_progeny1Id_idx').on(table.progeny1Id),
             progeny2Idx: index('log_progeny2Id_idx').on(table.progeny2Id),
@@ -374,6 +374,7 @@ export const userTabs = pgTable(
     },
     (table) => [
         {
+            userTabKey: uniqueIndex('user_tab_key').on(table.userId, table.tabId),
             userIdx: index('user_tabs_userId_idx').on(table.userId),
             tabIdIdx: index('user_tabs_tabId_idx').on(table.tabId),
         },

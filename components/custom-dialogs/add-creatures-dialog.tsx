@@ -476,7 +476,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                             Select/Deselect All
                         </Label>
                     </div>
-                    <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-2">
+                    <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-2">
                         {isLoadingTabs ? (
                             <div className="flex justify-center items-center h-full">
                                 <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
@@ -505,22 +505,22 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={userTabs.map((t) => t.id)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            {userTabs.map((tab) => {
+                                                return <SortableTabItem key={tab.id} tab={tab} />;
+                                            })}
+                                        </SortableContext>
+                                    </DndContext>
                                 </div>
                             ))
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={userTabs.map((t) => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    {userTabs.map((tab) => {
-                                        return <SortableTabItem key={tab.id} tab={tab} />;
-                                    })}
-                                </SortableContext>
-                            </DndContext>
                         ) : (
                             <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                                 No saved tabs yet.

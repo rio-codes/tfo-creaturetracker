@@ -1,11 +1,57 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
-## 1.12.0 (2025-10-07)
+## <small>1.13.1 (2025-10-18)</small>
 
-- feat(pairs): ✨ breeding pairs with archived members will also be archived now (#296) ([41da37f](https://github.com/rio-codes/tfo-creaturetracker/commit/41da37f)), closes [#296](https://github.com/rio-codes/tfo-creaturetracker/issues/296)
+- fix(db): 🚑️ emergency db schema update ([f8fbef0](https://github.com/rio-codes/tfo-creaturetracker/commit/f8fbef0))
+- fix(ui): ⚡️ fix issues with hallowsnight mode, collection perf upgrade ([26dd1c8](https://github.com/rio-codes/tfo-creaturetracker/commit/26dd1c8))
+- fix(ui): 🚑️ fix add creatures dialog after corrupt merge ([3f1c743](https://github.com/rio-codes/tfo-creaturetracker/commit/3f1c743))
+
+## 1.13.0 (2025-10-18)
+
+- feat(ui): 👻 add hallowsnight theme and update blog (#321) ([405d15b](https://github.com/rio-codes/tfo-creaturetracker/commit/405d15b)), closes [#321](https://github.com/rio-codes/tfo-creaturetracker/issues/321)
+- feat(collection): ✨ add "clear filters" button to search ([1516180](https://github.com/rio-codes/tfo-creaturetracker/commit/1516180))
+- feat(collection): ✨ implement drag and drop for tab order in sync dialog (#319) ([aa66bf1](https://github.com/rio-codes/tfo-creaturetracker/commit/aa66bf1)), closes [#319](https://github.com/rio-codes/tfo-creaturetracker/issues/319)
+- feat(ui): ✨ display online users in footer (#320) ([96c06f0](https://github.com/rio-codes/tfo-creaturetracker/commit/96c06f0)), closes [#320](https://github.com/rio-codes/tfo-creaturetracker/issues/320)
+
+## <small>1.12.2 (2025-10-18)</small>
+
+- refactor(lib): 🎨 comprehensive refactor to improve performance while scaling (#318) ([6fc582f](https://github.com/rio-codes/tfo-creaturetracker/commit/6fc582f)), closes [#318](https://github.com/rio-codes/tfo-creaturetracker/issues/318)
+- build(deps): bump actions/setup-node from 5 to 6 (#316) ([a2e074c](https://github.com/rio-codes/tfo-creaturetracker/commit/a2e074c)), closes [#316](https://github.com/rio-codes/tfo-creaturetracker/issues/316)
+- fix(collection): 🐛 fix parent tooltip for responsive design on creature card ([4de446b](https://github.com/rio-codes/tfo-creaturetracker/commit/4de446b))
+- fix(goals): 🚑️ fix build errors in outcome logic and auth ([a117d84](https://github.com/rio-codes/tfo-creaturetracker/commit/a117d84))
+- fix(goals): 🚑️ resolve merge conflict ([faf0619](https://github.com/rio-codes/tfo-creaturetracker/commit/faf0619))
+- fix(goals): 🚑️ revert dimorpic species commit to fix goal issues ([2cd2683](https://github.com/rio-codes/tfo-creaturetracker/commit/2cd2683))
+- fix(goals): 🚑️ revert merge branch main into dev-issue291 ([9cd8e07](https://github.com/rio-codes/tfo-creaturetracker/commit/9cd8e07))
+- fix(goals): 🚑️ update pnpm lockfile ([309d549](https://github.com/rio-codes/tfo-creaturetracker/commit/309d549))
+- fix(goals): 🚨 revert pnpm lockfile ([e255179](https://github.com/rio-codes/tfo-creaturetracker/commit/e255179))
+
+## <small>1.12.1 (2025-10-13)</small>
+
+- revert dimorphic species changes (#315) ([4e769bb](https://github.com/rio-codes/tfo-creaturetracker/commit/4e769bb)), closes [#315](https://github.com/rio-codes/tfo-creaturetracker/issues/315)
+- fix(collection): ⏪ load data for each component as needed rather than passing large arrays" (#313) ([0444520](https://github.com/rio-codes/tfo-creaturetracker/commit/0444520)), closes [#313](https://github.com/rio-codes/tfo-creaturetracker/issues/313) [rio-codes/tfo-creaturetracker#312](https://github.com/rio-codes/tfo-creaturetracker/issues/312)
+- fix(collection): 🐛 fix all search queries including regex for genes, add species and phenotye (#311 ([50c3287](https://github.com/rio-codes/tfo-creaturetracker/commit/50c3287)), closes [#311](https://github.com/rio-codes/tfo-creaturetracker/issues/311)
+- fix(goals): 🐛 skip gene category in progeny analysis if isOptional, fixes #302 (#309) ([7a7437e](https://github.com/rio-codes/tfo-creaturetracker/commit/7a7437e)), closes [#302](https://github.com/rio-codes/tfo-creaturetracker/issues/302) [#309](https://github.com/rio-codes/tfo-creaturetracker/issues/309) [#302](https://github.com/rio-codes/tfo-creaturetracker/issues/302)
+- fix(goals): 🚑️ fix errors related to dimorphic gene change ([50ef522](https://github.com/rio-codes/tfo-creaturetracker/commit/50ef522))
+- feat(profile): 💃🏾 allow larger profile pic for lyri's dancing gif ([20d6325](https://github.com/rio-codes/tfo-creaturetracker/commit/20d6325))
+- perf(collection): ⚡️ load data for each component as needed rather than passing large arrays (#312) ([bbd1a9a](https://github.com/rio-codes/tfo-creaturetracker/commit/bbd1a9a)), closes [#312](https://github.com/rio-codes/tfo-creaturetracker/issues/312)
+- chore(db): 🔧 update pgTable structure to avoid upcoming deprecation, fixes #269 (#310) ([2a4a921](https://github.com/rio-codes/tfo-creaturetracker/commit/2a4a921)), closes [#269](https://github.com/rio-codes/tfo-creaturetracker/issues/269) [#310](https://github.com/rio-codes/tfo-creaturetracker/issues/310) [#269](https://github.com/rio-codes/tfo-creaturetracker/issues/269)
+
+## <small>1.12.2 (2025-10-11)</small>
+
+- fix(breeding-log): 🐛 automatically determine gen and prevent manual cfg (#308) ([845e485](https://github.com/rio-codes/tfo-creaturetracker/commit/845e485)), closes [#308](https://github.com/rio-codes/tfo-creaturetracker/issues/308) [#300](https://github.com/rio-codes/tfo-creaturetracker/issues/300)
+- ci(config) : 👷🏿‍♀️ remove aviator label to stop automerge ([a88c313](https://github.com/rio-codes/tfo-creaturetracker/commit/a88c313))
+
+## <small>1.12.1 (2025-10-11)</small>
+
+- fix(goals): 🐛 implement dimorphic species genes, fix types throughout codebase (#307) ([00b8a5c](https://github.com/rio-codes/tfo-creaturetracker/commit/00b8a5c)), closes [#307](https://github.com/rio-codes/tfo-creaturetracker/issues/307)
 - fix(pairs): 🚑️ deploy fix to ensure all archived pairs are found ([c4dbd9e](https://github.com/rio-codes/tfo-creaturetracker/commit/c4dbd9e))
-- chore(docs): 📝 update CHANGELOG.md, bump patch version ([7455e12](https://github.com/rio-codes/tfo-creaturetracker/commit/7455e12))
 - build(deps): ⬆️ upgrade dependencies ([f37e21b](https://github.com/rio-codes/tfo-creaturetracker/commit/f37e21b))
+- build(deps): bump actions/checkout from 4 to 5 (#298) ([d4d36e6](https://github.com/rio-codes/tfo-creaturetracker/commit/d4d36e6)), closes [#298](https://github.com/rio-codes/tfo-creaturetracker/issues/298)
+- build(deps): bump tj-actions/branch-names from 8 to 9 (#299) ([6ce43ed](https://github.com/rio-codes/tfo-creaturetracker/commit/6ce43ed)), closes [#299](https://github.com/rio-codes/tfo-creaturetracker/issues/299)
+- refactor(ui): 🎨 apply codemod to await searchParams, fixes [#292](https://github.com/rio-codes/tfo- '[352948f](https://github.com/rio-codes/tfo-creaturetracker/commit/352948f')
+- docs(docs): ✨ update changelog with new feature ([f099a41](https://github.com/rio-codes/tfo-creaturetracker/commit/f099a41))
+- feat(pairs): ✨ breeding pairs with archived members will also be archived now (#296) ([41da37f](https://github.com/rio-codes/tfo-creaturetracker/commit/41da37f)), closes [#296](https://github.com/rio-codes/tfo-creaturetracker/issues/296)
+- chore(docs): 📝 update CHANGELOG.md, bump patch version ([7455e12](https://github.com/rio-codes/tfo-creaturetracker/commit/7455e12))
 
 ## <small>1.11.8 (2025-10-07)</small>
 

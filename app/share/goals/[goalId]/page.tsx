@@ -15,10 +15,11 @@ import Image from 'next/image';
 import { EnrichedCreature } from '@/types';
 
 type Props = {
-    params: { goalId: string };
+    params: Promise<{ goalId: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const params = await props.params;
     const goalId = params.goalId;
     const goal = await db.query.researchGoals.findFirst({
         where: eq(researchGoals.id, goalId),
@@ -106,7 +107,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function SharedGoalPage({ params }: Props) {
+export default async function SharedGoalPage(props: Props) {
+    const params = await props.params;
     const goal = await getGoalById(params.goalId);
 
     if (!goal) {

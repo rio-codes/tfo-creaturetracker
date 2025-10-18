@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 'use client';
 
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { X, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { X, Loader2, PlusCircle, Trash2, GripVertical, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,22 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { alertService } from '@/services/alert.service';
+import {
+    DndContext,
+    closestCenter,
+    MouseSensor,
+    TouchSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { JSX } from 'react/jsx-runtime';
 
 type DialogProps = {
     isOpen: boolean;
@@ -39,6 +56,7 @@ type UserTab = {
     tabId: number;
     tabName: string | null;
     isSyncEnabled: boolean;
+    displayOrder: number | null;
 };
 
 export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
@@ -52,7 +70,19 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [missingCreatures, setMissingCreatures] = useState<MissingCreature[]>([]);
     const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
+    const [editingTabId, setEditingTabId] = useState<number | null>(null);
+    const [editingTabName, setEditingTabName] = useState('');
+
     const router = useRouter();
+
+    const sensors = useSensors(
+        useSensor(MouseSensor, {
+            activationConstraint: { distance: 5 },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: { delay: 250, tolerance: 5 },
+        })
+    );
 
     const fetchUserTabs = async () => {
         setIsLoadingTabs(true);
@@ -73,6 +103,8 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         if (isOpen) {
             fetchUserTabs();
         }
+        setEditingTabId(null);
+        setEditingTabName('');
     }, [isOpen]);
 
     if (!isOpen) {
@@ -252,6 +284,54 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         await fetch(`/api/users/tabs/${tabId}`, { method: 'DELETE' });
     };
 
+    const handleDragEnd = async (event: any) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = userTabs.findIndex((t) => t.id === active.id);
+            const newIndex = userTabs.findIndex((t) => t.id === over.id);
+            const newOrder = arrayMove(userTabs, oldIndex, newIndex);
+            setUserTabs(newOrder); // Optimistic update
+
+            const orderedIds = newOrder.map((t) => t.id);
+            try {
+                await fetch('/api/users/tabs/reorder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderedIds }),
+                });
+            } catch (error) {
+                console.error('Failed to save new order', error);
+                fetchUserTabs();
+                alertService.error('Failed to save tab order.');
+            }
+        }
+    };
+
+    const handleRename = async (tabId: number) => {
+        if (!editingTabName.trim()) {
+            setEditingTabId(null);
+            return;
+        }
+
+        const originalTabs = [...userTabs];
+        setUserTabs((prev) =>
+            prev.map((t) => (t.id === tabId ? { ...t, tabName: editingTabName } : t))
+        );
+        setEditingTabId(null);
+
+        try {
+            const res = await fetch(`/api/users/tabs/${tabId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tabName: editingTabName }),
+            });
+            if (!res.ok) throw new Error('Failed to rename tab.');
+        } catch (error) {
+            setUserTabs(originalTabs);
+            alertService.error(error instanceof Error ? error.message : 'Failed to rename tab.');
+        }
+    };
+
     const handleClose = () => {
         onClose();
         setTimeout(() => {
@@ -260,8 +340,75 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             setStatus('idle');
             setMessage('');
             setShowAddForm(false);
+            setEditingTabId(null);
         }, 300);
     };
+
+    function SortableTabItem({ tab }: { tab: UserTab }): JSX.Element {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+            useSortable({ id: tab.id });
+
+        const style: React.CSSProperties = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+            zIndex: isDragging ? 10 : undefined,
+        };
+
+        return (
+            <div ref={setNodeRef} style={style} className="flex items-center justify-between p-1">
+                <div className="flex items-center space-x-2 flex-grow">
+                    <div {...attributes} {...listeners} className="cursor-grab touch-none p-1">
+                        <GripVertical className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <Checkbox
+                        id={`tab-${tab.id}`}
+                        checked={tab.isSyncEnabled}
+                        onCheckedChange={() => handleToggleSync(tab)}
+                    />
+                    {editingTabId === tab.id ? (
+                        <Input
+                            value={editingTabName}
+                            onChange={(e) => setEditingTabName(e.target.value)}
+                            onBlur={() => handleRename(tab.id)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleRename(tab.id)}
+                            autoFocus
+                            className="h-8"
+                        />
+                    ) : (
+                        <Label
+                            htmlFor={`tab-${tab.id}`}
+                            className="text-pompaca-purple dark:text-purple-300"
+                        >
+                            {tab.tabName || `Tab ${tab.tabId}`}
+                        </Label>
+                    )}
+                </div>
+                <div className="flex items-center">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                            setEditingTabId(tab.id);
+                            setEditingTabName(tab.tabName || `Tab ${tab.tabId}`);
+                        }}
+                        className="h-6 w-6"
+                    >
+                        {' '}
+                        <Edit className="h-4 w-4" />{' '}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteTab(tab.id)}
+                        className="h-6 w-6 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
+                    >
+                        {' '}
+                        <Trash2 className="h-4 w-4" />{' '}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center">
@@ -360,6 +507,20 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                                     </Button>
                                 </div>
                             ))
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={userTabs.map((t) => t.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {userTabs.map((tab) => {
+                                        return <SortableTabItem key={tab.id} tab={tab} />;
+                                    })}
+                                </SortableContext>
+                            </DndContext>
                         ) : (
                             <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                                 No saved tabs yet.

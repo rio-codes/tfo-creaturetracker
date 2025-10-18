@@ -17,350 +17,350 @@ importers:
   .:
     dependencies:
       '@auth/drizzle-adapter':
-        specifier: 1.11.0
+        specifier: ^1.11.0
         version: 1.11.0
       '@dnd-kit/core':
-        specifier: 6.3.1
+        specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@dnd-kit/sortable':
-        specifier: 10.0.0
+        specifier: ^10.0.0
         version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@dnd-kit/utilities':
-        specifier: 3.2.2
+        specifier: ^3.2.2
         version: 3.2.2(react@19.2.0)
       '@emotion/react':
-        specifier: 11.14.0
+        specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.2)(react@19.2.0)
       '@emotion/styled':
-        specifier: 11.14.1
+        specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@hookform/resolvers':
-        specifier: 5.2.2
+        specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.65.0(react@19.2.0))
       '@hyperdx/browser':
-        specifier: 0.21.2
+        specifier: ^0.21.2
         version: 0.21.2(zone.js@0.14.10)
       '@hyperdx/cli':
-        specifier: 0.1.0
+        specifier: ^0.1.0
         version: 0.1.0
       '@hyperdx/node-opentelemetry':
-        specifier: 0.9.0
+        specifier: ^0.9.0
         version: 0.9.0
       '@mui/icons-material':
         specifier: ^7.3.4
         version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@mui/material':
-        specifier: 7.3.4
+        specifier: ^7.3.4
         version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@opentelemetry/api':
         specifier: ^1.9.0
         version: 1.9.0
       '@opentelemetry/instrumentation':
-        specifier: 0.206.0
+        specifier: ^0.206.0
         version: 0.206.0(@opentelemetry/api@1.9.0)
       '@radix-ui/react-accordion':
-        specifier: 1.2.12
+        specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-alert-dialog':
-        specifier: 1.1.15
+        specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-aspect-ratio':
-        specifier: 1.1.7
+        specifier: ^1.1.7
         version: 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-avatar':
-        specifier: 1.1.10
+        specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-checkbox':
-        specifier: 1.3.3
+        specifier: ^1.3.3
         version: 1.3.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-collapsible':
-        specifier: 1.1.12
+        specifier: ^1.1.12
         version: 1.1.12(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-context-menu':
-        specifier: 2.2.16
+        specifier: ^2.2.16
         version: 2.2.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-dialog':
-        specifier: 1.1.15
+        specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-dropdown-menu':
-        specifier: 2.1.16
+        specifier: ^2.1.16
         version: 2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-hover-card':
-        specifier: 1.1.15
+        specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-label':
-        specifier: 2.1.7
+        specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-menubar':
-        specifier: 1.1.16
+        specifier: ^1.1.16
         version: 1.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-navigation-menu':
-        specifier: 1.2.14
+        specifier: ^1.2.14
         version: 1.2.14(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-popover':
-        specifier: 1.1.15
+        specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-progress':
-        specifier: 1.1.7
+        specifier: ^1.1.7
         version: 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-radio-group':
-        specifier: 1.3.8
+        specifier: ^1.3.8
         version: 1.3.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-scroll-area':
-        specifier: 1.2.10
+        specifier: ^1.2.10
         version: 1.2.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-select':
-        specifier: 2.2.6
+        specifier: ^2.2.6
         version: 2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-separator':
-        specifier: 1.1.7
+        specifier: ^1.1.7
         version: 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-slider':
-        specifier: 1.3.6
+        specifier: ^1.3.6
         version: 1.3.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-slot':
-        specifier: 1.2.3
+        specifier: ^1.2.3
         version: 1.2.3(@types/react@19.2.2)(react@19.2.0)
       '@radix-ui/react-switch':
-        specifier: 1.2.6
+        specifier: ^1.2.6
         version: 1.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-tabs':
-        specifier: 1.1.13
+        specifier: ^1.1.13
         version: 1.1.13(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-toggle':
-        specifier: 1.1.10
+        specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-toggle-group':
-        specifier: 1.1.11
+        specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-tooltip':
-        specifier: 1.2.8
+        specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tanstack/react-table':
-        specifier: 8.21.3
+        specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@vercel/analytics':
-        specifier: 1.5.0
+        specifier: ^1.5.0
         version: 1.5.0(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@vercel/blob':
-        specifier: 2.0.0
+        specifier: ^2.0.0
         version: 2.0.0
       Stack:
         specifier: link:@mui/material/Stack
         version: link:@mui/material/Stack
       adapters:
-        specifier: link:@auth/core/adapters
-        version: link:@auth/core/adapters
+        specifier: ^link:@auth/core/adapters
+        version: link:^link:@auth/core/adapters
       bcrypt-ts:
-        specifier: 7.1.0
+        specifier: ^7.1.0
         version: 7.1.0
       class-variance-authority:
-        specifier: 0.7.1
+        specifier: ^0.7.1
         version: 0.7.1
       clsx:
-        specifier: 2.1.1
+        specifier: ^2.1.1
         version: 2.1.1
       cmdk:
-        specifier: 1.1.1
+        specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       date-fns:
-        specifier: 4.1.0
+        specifier: ^4.1.0
         version: 4.1.0
       dompurify:
-        specifier: 3.3.0
+        specifier: ^3.3.0
         version: 3.3.0
       dotenv:
-        specifier: 17.2.3
+        specifier: ^17.2.3
         version: 17.2.3
       drizzle-orm:
-        specifier: 0.44.6
+        specifier: ^0.44.6
         version: 0.44.6(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(postgres@3.4.7)
       embla-carousel-react:
-        specifier: 8.6.0
+        specifier: ^8.6.0
         version: 8.6.0(react@19.2.0)
       emoji-picker-react:
-        specifier: 4.14.1
+        specifier: ^4.14.1
         version: 4.14.1(react@19.2.0)
       globals:
-        specifier: 16.4.0
+        specifier: ^16.4.0
         version: 16.4.0
       image-size:
-        specifier: 2.0.2
+        specifier: ^2.0.2
         version: 2.0.2
       input-otp:
-        specifier: 1.4.2
+        specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       jsdom:
-        specifier: 27.0.1
+        specifier: ^27.0.1
         version: 27.0.1(postcss@8.5.6)
       lucide-react:
-        specifier: 0.546.0
+        specifier: ^0.546.0
         version: 0.546.0(react@19.2.0)
       next:
-        specifier: 15.5.6
+        specifier: ^15.5.6
         version: 15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       next-auth:
-        specifier: 5.0.0-beta.29
+        specifier: ^5.0.0-beta.29
         version: 5.0.0-beta.29(next@15.5.6(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       next-themes:
-        specifier: 0.4.6
+        specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       obscenity:
-        specifier: 0.4.5
+        specifier: ^0.4.5
         version: 0.4.5
       path-to-regexp:
         specifier: ^6.3.0
         version: 6.3.0
       postgres:
-        specifier: 3.4.7
+        specifier: ^3.4.7
         version: 3.4.7
       react:
-        specifier: 19.2.0
+        specifier: ^19.2.0
         version: 19.2.0
       react-day-picker:
-        specifier: 9.11.1
+        specifier: ^9.11.1
         version: 9.11.1(react@19.2.0)
       react-dom:
-        specifier: 19.2.0
+        specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-hook-form:
-        specifier: 7.65.0
+        specifier: ^7.65.0
         version: 7.65.0(react@19.2.0)
       react-icons:
-        specifier: 5.5.0
+        specifier: ^5.5.0
         version: 5.5.0(react@19.2.0)
       react-resizable-panels:
-        specifier: 3.0.6
+        specifier: ^3.0.6
         version: 3.0.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-router-dom:
-        specifier: 7.9.4
+        specifier: ^7.9.4
         version: 7.9.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       resend:
-        specifier: 6.2.0
+        specifier: ^6.2.0
         version: 6.2.0
       serve-handler:
-        specifier: 6.1.6
+        specifier: ^6.1.6
         version: 6.1.6
       sonner:
-        specifier: 2.0.7
+        specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       tailwind-merge:
-        specifier: 3.3.1
+        specifier: ^3.3.1
         version: 3.3.1
       tsx:
-        specifier: 4.20.6
+        specifier: ^4.20.6
         version: 4.20.6
       use-debounce:
-        specifier: 10.0.6
+        specifier: ^10.0.6
         version: 10.0.6(react@19.2.0)
       vaul:
-        specifier: 1.1.2
+        specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       vercel:
-        specifier: 48.4.0
+        specifier: ^48.4.0
         version: 48.4.0
       zod:
-        specifier: 4.1.12
+        specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
       '@commitlint/cli':
-        specifier: 20.1.0
+        specifier: ^20.1.0
         version: 20.1.0(@types/node@24.8.1)(typescript@5.9.3)
       '@commitlint/config-conventional':
-        specifier: 20.0.0
+        specifier: ^20.0.0
         version: 20.0.0
       '@commitlint/types':
-        specifier: 20.0.0
+        specifier: ^20.0.0
         version: 20.0.0
       '@conventional-changelog/git-client':
         specifier: ^2.0.0
         version: 2.5.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.2.0)
       '@eslint/eslintrc':
-        specifier: 3.3.1
+        specifier: ^3.3.1
         version: 3.3.1
       '@eslint/js':
-        specifier: 9.38.0
+        specifier: ^9.38.0
         version: 9.38.0
       '@gitmoji/parser-opts':
-        specifier: 1.4.0
+        specifier: ^1.4.0
         version: 1.4.0
       '@izi-p/conventional-changelog-gitmoji':
-        specifier: 0.2.6
+        specifier: ^0.2.6
         version: 0.2.6
       '@next/eslint-plugin-next':
-        specifier: 15.5.6
+        specifier: ^15.5.6
         version: 15.5.6
       '@tailwindcss/postcss':
-        specifier: 4.1.14
+        specifier: ^4.1.14
         version: 4.1.14
       '@types/jsdom':
-        specifier: 27.0.0
+        specifier: ^27.0.0
         version: 27.0.0
       '@types/node':
-        specifier: 24.8.1
+        specifier: ^24.8.1
         version: 24.8.1
       '@types/react':
-        specifier: 19.2.2
+        specifier: ^19.2.2
         version: 19.2.2
       '@types/react-dom':
-        specifier: 19.2.2
+        specifier: ^19.2.2
         version: 19.2.2(@types/react@19.2.2)
       '@typescript-eslint/eslint-plugin':
-        specifier: 8.46.1
+        specifier: ^8.46.1
         version: 8.46.1(@typescript-eslint/parser@8.46.1(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser':
-        specifier: 8.46.1
+        specifier: ^8.46.1
         version: 8.46.1(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/utils':
-        specifier: 8.46.1
+        specifier: ^8.46.1
         version: 8.46.1(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       commitlint-plugin-gitmoji:
-        specifier: 2.2.6
+        specifier: ^2.2.6
         version: 2.2.6
       conventional-changelog:
-        specifier: 7.1.1
+        specifier: ^7.1.1
         version: 7.1.1(conventional-commits-filter@5.0.0)
       conventional-changelog-core:
-        specifier: 9.0.0
+        specifier: ^9.0.0
         version: 9.0.0(conventional-commits-filter@5.0.0)
       drizzle-kit:
-        specifier: 0.31.5
+        specifier: ^0.31.5
         version: 0.31.5
       eslint:
-        specifier: 9.38.0
+        specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
       eslint-config-next:
-        specifier: 15.5.6
+        specifier: ^15.5.6
         version: 15.5.6(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       eslint-config-next-flat:
-        specifier: 0.1.2
+        specifier: ^0.1.2
         version: 0.1.2
       eslint-config-prettier:
-        specifier: 10.1.8
+        specifier: ^10.1.8
         version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
       postcss:
-        specifier: 8.5.6
+        specifier: ^8.5.6
         version: 8.5.6
       prettier:
-        specifier: 3.6.2
+        specifier: ^3.6.2
         version: 3.6.2
       prop-types:
-        specifier: 15.8.1
+        specifier: ^15.8.1
         version: 15.8.1
       rxjs:
-        specifier: 7.8.2
+        specifier: ^7.8.2
         version: 7.8.2
       tailwindcss:
-        specifier: 4.1.14
+        specifier: ^4.1.14
         version: 4.1.14
       tw-animate-css:
-        specifier: 1.4.0
+        specifier: ^1.4.0
         version: 1.4.0
       typescript:
-        specifier: 5.9.3
+        specifier: ^5.9.3
         version: 5.9.3
       typescript-eslint:
-        specifier: 8.46.1
+        specifier: ^8.46.1
         version: 8.46.1(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
 
 packages:

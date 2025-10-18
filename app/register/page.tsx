@@ -2,17 +2,17 @@ import RegistrationFlow from '@/components/custom-forms/registration-flow';
 
 export default function RegisterPage() {
     return (
-        <div className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac min-h-screen flex items-center justify-center px-4 py-8">
+        <div className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-h-screen flex items-center justify-center px-4 py-8">
             <div className="w-full max-w-md">
                 {/* Logo/Branding */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-2 mb-4">
                         <div className="text-3xl">🧬</div>
-                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             TFO.creaturetracker
                         </h1>
                     </div>
-                    <p className="text-pompaca-purple dark:text-purple-300">
+                    <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         a breeding tracker for The Final Oupost
                     </p>
                 </div>

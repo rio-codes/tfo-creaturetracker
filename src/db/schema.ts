@@ -34,7 +34,7 @@ export const goalModeEnum = pgEnum('goal_mode', ['genotype', 'phenotype']);
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
 export const friendshipStatusEnum = pgEnum('friendship_status', ['pending', 'accepted', 'blocked']);
-export const themeEnum = pgEnum('theme', ['light', 'dark', 'system']);
+export const themeEnum = pgEnum('theme', ['light', 'dark', 'system', 'hallowsnight']);
 
 export const users = pgTable('user', {
     id: text('id').notNull().primaryKey(),
@@ -368,6 +368,7 @@ export const userTabs = pgTable(
         tabId: integer('tab_id').notNull(),
         tabName: text('tab_name'),
         isSyncEnabled: boolean('is_sync_enabled').default(true).notNull(),
+        displayOrder: integer('display_order').default(0).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
@@ -378,16 +379,6 @@ export const userTabs = pgTable(
         },
     ]
 );
-
-// to implement later with tab sorting
-// export const userTabUnique = pgTable(
-//     'user_tab_unique',
-//     {
-//         return {
-//             userTabUnique: uniqueIndex('user_tab_unique_idx').on(table.userId, table.tabId),
-//         };
-//     }
-// );
 
 export const reports = pgTable('report', {
     id: uuid('id').defaultRandom().primaryKey(),

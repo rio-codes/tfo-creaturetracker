@@ -58,12 +58,12 @@ export default async function AdminCreaturesPage(props: {
     const { creatures, pagination } = await fetchAdminCreatures(searchParams);
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
             <CardHeader>
-                <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Creature Management
                 </CardTitle>
-                <CardDescription className="text-dusk-purple dark:text-purple-400">
+                <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     View and manage all creatures in the database.
                 </CardDescription>
             </CardHeader>

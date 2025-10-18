@@ -162,7 +162,7 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac [&>button]:hidden">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson [&>button]:hidden">
                 <DialogHeader>
                     <DialogTitle>Edit Log Entry</DialogTitle>
                 </DialogHeader>
@@ -180,7 +180,7 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                     placeholder="Any notes about this breeding event..."
-                                    className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                 />
                             </div>
                             {renderProgenySelect(
@@ -203,7 +203,7 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                     <DialogClose asChild>
                         <Button
                             type="button"
-                            className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                         >
                             Cancel
                         </Button>
@@ -211,7 +211,7 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                     <Button
                         onClick={handleSubmit}
                         disabled={isLoading || isContextLoading}
-                        className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                        className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                     >
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save Changes

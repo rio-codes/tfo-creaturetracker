@@ -295,12 +295,12 @@ export function AddPairForm({
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple">
+            <div className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                 <Input
                     placeholder="Pair Name (e.g., Silver Project)"
                     value={pairName}
                     onChange={(e) => setPairName(e.target.value)}
-                    className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                     required
                 />
                 <div className="flex items-center space-x-2">
@@ -323,7 +323,7 @@ export function AddPairForm({
 
                 {(selectedMale || selectedFemale) && (
                     <div className="overflow-x-auto">
-                        <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border text-xs min-w-max">
+                        <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg border text-xs min-w-max">
                             {selectedMale && (
                                 <div className="flex flex-col items-center w-36">
                                     <img
@@ -379,10 +379,10 @@ export function AddPairForm({
                     required={!isHybridMode}
                     disabled={isHybridMode}
                 >
-                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-xs">
+                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs">
                         <SelectValue placeholder="Select Species..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                         {speciesList.map((s) => (
                             <SelectItem key={s} value={s} className="w-3/4">
                                 {s}
@@ -413,7 +413,7 @@ export function AddPairForm({
                     </div>
                 )}
                 {predictions.length > 0 && (
-                    <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple">
+                    <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                         <h5 className="font-bold">Goal Predictions for this Pairing:</h5>
                         {predictions.map((pred) => (
                             <div key={pred.goalId} className="flex justify-between items-center">
@@ -438,7 +438,7 @@ export function AddPairForm({
                 {assignableGoals.length > 0 && (
                     <div className="space-y-2">
                         <Label>Assign Research Goals</Label>
-                        <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
+                        <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                             {assignableGoals.map((goal) => (
                                 <div key={goal.id} className="flex items-center space-x-2">
                                     <Checkbox

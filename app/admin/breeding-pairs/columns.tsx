@@ -85,11 +85,11 @@ export const columns: ColumnDef<AdminBreedingPair>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="end"
-                        className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
+                        className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                     >
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-red-600"
                             onClick={() => handleDeleteBreedingPair(pair.id, pair.pairName)}
                         >
                             Delete Pair

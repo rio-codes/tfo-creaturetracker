@@ -75,7 +75,7 @@ export function FeaturedGoalCard({
     };
 
     return (
-        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
             {currentUser && (
                 <div className="absolute top-2 right-2 z-10">
                     <TooltipProvider>
@@ -91,9 +91,9 @@ export function FeaturedGoalCard({
                                     {isFeaturing ? (
                                         <Loader2 className="h-5 w-5 animate-spin" />
                                     ) : isFeatured ? (
-                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                                     ) : (
-                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                                     )}
                                 </Button>
                             </TooltipTrigger>
@@ -107,7 +107,7 @@ export function FeaturedGoalCard({
                 </div>
             )}
             <CardContent
-                className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac min-w-0 overflow-x-clip max-w-9/10
+                className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-w-0 overflow-x-clip max-w-9/10
             whitespace-normal"
             >
                 <img
@@ -117,25 +117,25 @@ export function FeaturedGoalCard({
                 />
                 <div className="flex-1 min-w-0">
                     <CardTitle
-                        className="text-lg text-pompaca-purple dark:text-purple-300"
+                        className="text-lg text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                         title={goal.name}
                     >
                         {goal.name}
                     </CardTitle>
-                    <div className="text-sm text-pompaca-purple dark:text-purple-400">
+                    <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                         <p>
                             <strong>Species:</strong> {goal.species}
                         </p>
                     </div>
                     <div className="mt-2">
-                        <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">
+                        <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Target Genes:
                         </p>
-                        <ScrollArea className="h-24 mt-1 rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple/50 whitespace-norma ">
-                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400 ">
+                        <ScrollArea className="h-24 mt-1 rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple hallowsnight:bg-abyss/50 whitespace-norma ">
+                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ">
                                 {geneEntries.map(([category, geneData]) => (
                                     <div key={category}>
-                                        <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                        <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                             {category}:
                                         </span>
                                         <div className="pl-2">
@@ -145,13 +145,13 @@ export function FeaturedGoalCard({
                                 ))}
                             </div>
                             <ScrollBar orientation="vertical" />
-                            <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                                <ChevronUp className=" h-4 w-4 text-barely-lilac" />
-                                <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                            <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple hallowsnight:bg-blood-bay-wine">
+                                <ChevronUp className=" h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                <ChevronDown className="h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
                             </div>
                         </ScrollArea>
                     </div>
-                    <div className="mt-4 text-sm text-pompaca-purple dark:text-purple-400">
+                    <div className="mt-4 text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                         {achievement ? (
                             <p className="font-semibold text-green-600 dark:text-green-400">
                                 <Award className="inline-block mr-2 h-5 w-5 text-yellow-500" />

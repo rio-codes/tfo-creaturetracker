@@ -24,11 +24,11 @@ export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProp
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-30 text-sm/tight">
+                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-30 text-sm/tight hallowsnight:text-cimo-crimson hallowsnight:bg-blood-bay-wine">
                     <span className="text-wrap wrap-normal text-xs">Edit / Delete Goal</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto [&>button]:hidden">
+            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-h-3/4 overflow-y-auto [&>button]:hidden">
                 <DialogHeader>
                     <DialogTitle>Edit Research Goal</DialogTitle>
                 </DialogHeader>

@@ -6,10 +6,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <div className="space-y-6 p-10 pb-16 bg-barely-lilac dark:bg-deep-purple min-h-screen">
             <div className="space-y-0.5">
-                <h2 className="text-2xl font-bold tracking-tight text-pompaca-purple dark:text-purple-300">
+                <h2 className="text-2xl font-bold tracking-tight text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Admin Dashboard
                 </h2>
-                <p className="text-dusk-purple dark:text-purple-400">
+                <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     Manage users, content, and application settings.
                 </p>
             </div>

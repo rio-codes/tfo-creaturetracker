@@ -43,19 +43,24 @@ export function AddBreedingPairDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger
-                className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
+                className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                 asChild
             >
                 {children || (
-                    <Button className="bg-pompaca-purple text-barely-lilac">+ New Pair</Button>
+                    <Button
+                        className="bg-pompaca-purple text-barely-lilac hallowsnight:bg-blood-bay-wine dark:bg-purple-400 dark:text-slate-950 hallowsnight:text-cimo-crimson"
+                        onClick={() => setIsOpen(true)}
+                    >
+                        + New Pair
+                    </Button>
                 )}
             </DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-[85vh] overflow-y-auto w-full max-w-2xl [&>button]:hidden"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-h-[85vh] overflow-y-auto w-full max-w-2xl [&>button]:hidden"
             >
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Create New Breeding Pair
                     </DialogTitle>
                 </DialogHeader>

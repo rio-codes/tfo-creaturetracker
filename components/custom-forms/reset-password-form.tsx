@@ -65,21 +65,21 @@ export default function ResetPasswordForm() {
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-2 mb-4">
                         <div className="text-3xl">🧬</div>
-                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             TFO.creaturetracker
                         </h1>
                     </div>
-                    <p className="text-pompaca-purple dark:text-purple-400">
+                    <p className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                         a breeding tracker for The Final Oupost
                     </p>
                 </div>
                 {/* Reset Form */}
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple dark:border-purple-400 shadow-lg">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple dark:border-purple-400 shadow-lg">
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Reset Your Password
                         </CardTitle>
-                        <CardDescription className="text-pompaca-purple dark:text-purple-400">
+                        <CardDescription className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             Enter your new password below.
                         </CardDescription>
                     </CardHeader>
@@ -88,7 +88,7 @@ export default function ResetPasswordForm() {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="password"
-                                    className="text-pompaca-purple dark:text-purple-300 font-medium"
+                                    className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium"
                                 >
                                     New Password
                                 </Label>
@@ -98,14 +98,14 @@ export default function ResetPasswordForm() {
                                     placeholder="Enter your new password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                                     required
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="password"
-                                    className="text-pompaca-purple dark:text-purple-300 font-medium"
+                                    className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium"
                                 >
                                     Confirm Password
                                 </Label>
@@ -115,7 +115,7 @@ export default function ResetPasswordForm() {
                                     placeholder="Confirm new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                                     required
                                 />
                             </div>

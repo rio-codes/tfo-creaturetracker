@@ -85,7 +85,7 @@ export function ViewItemDialog({
         <Dialog open={!!item} onOpenChange={handleOpenChange}>
             <DialogContent className="max-w-4xl bg-barely-lilac dark:bg-deep-purple border-pompaca-purple/50">
                 <DialogHeader>
-                    <DialogTitle className="capitalize text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="capitalize text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         View {item?.type}
                     </DialogTitle>
                 </DialogHeader>

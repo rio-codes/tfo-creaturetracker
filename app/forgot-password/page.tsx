@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 min-h-screen flex items-center justify-center px-4">
+        <div className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson min-h-screen flex items-center justify-center px-4">
             <div className="w-full max-w-md">
                 {/* Logo/Branding */}
                 <div className="text-center mb-8">

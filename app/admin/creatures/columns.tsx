@@ -77,10 +77,10 @@ export const columns: ColumnDef<AdminCreature>[] = [
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                    <DropdownMenuContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            className="bg-ebena-lavender dark:bg-pompaca-purple "
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet "
                             asChild
                         >
                             <Link
@@ -91,7 +91,7 @@ export const columns: ColumnDef<AdminCreature>[] = [
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                            className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-red-600"
                             onClick={() => handleDeleteCreature(creature.id, creature.code)}
                         >
                             Delete Creature

@@ -135,7 +135,7 @@ export const columns: ColumnDef<User>[] = [
         cell: ({ row }) => (
             <Badge
                 variant="outline"
-                className="border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300"
+                className="border-pompaca-purple/50 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
             >
                 {row.original.role}
             </Badge>
@@ -168,19 +168,19 @@ export const columns: ColumnDef<User>[] = [
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                    <DropdownMenuContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
                             onClick={() => handleImpersonate(user.id)}
-                            className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                         >
                             Impersonate User
                         </DropdownMenuItem>
                         <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                            <DropdownMenuSubTrigger className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                 <span>Set Flair</span>
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac">
+                            <DropdownMenuSubContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                 <DropdownMenuItem
                                     onClick={() => handleSetFlair(user.id, 'researcher')}
                                 >
@@ -218,12 +218,12 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={() => handleSuspendUser(user.id, user.status)}
-                            className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                         >
                             {user.status === 'active' ? 'Suspend User' : 'Unsuspend User'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                            className="bg-ebena-lavender dark:bg-pompaca-purple text-red-600"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-red-600"
                             onClick={() => handleDeleteUser(user.id, user.username)}
                         >
                             Delete User

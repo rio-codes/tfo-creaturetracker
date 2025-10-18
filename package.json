@@ -1,6 +1,6 @@
 {
     "name": "tfo-creaturetracker",
-    "version": "1.12.2",
+    "version": "1.13.0",
     "private": true,
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm store prune && pnpm i && pnpm dev",
@@ -34,6 +34,7 @@
         "@hyperdx/browser": "0.21.2",
         "@hyperdx/cli": "0.1.0",
         "@hyperdx/node-opentelemetry": "0.9.0",
+        "@mui/icons-material": "^7.3.4",
         "@mui/material": "7.3.4",
         "@opentelemetry/api": "1.9.0",
         "@opentelemetry/instrumentation": "0.206.0",
@@ -66,6 +67,7 @@
         "@tanstack/react-table": "8.21.3",
         "@vercel/analytics": "1.5.0",
         "@vercel/blob": "2.0.0",
+        "Stack": "link:@mui/material/Stack",
         "adapters": "link:@auth/core/adapters",
         "bcrypt-ts": "7.1.0",
         "class-variance-authority": "0.7.1",

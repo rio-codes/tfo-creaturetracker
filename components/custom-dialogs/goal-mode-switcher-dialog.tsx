@@ -143,7 +143,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                         </span>
                     </Badge>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Switch to {newMode} mode?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -165,21 +165,21 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
             <Dialog open={isConversionDialogOpen} onOpenChange={setIsConversionDialogOpen}>
                 <DialogContent
                     onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                    className="bg-barely-lilac dark:bg-pompaca-purple"
+                    className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
                 >
                     <DialogHeader>
-                        <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                        <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Resolve Ambiguous Genes
                         </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
-                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             To switch to Genotype Mode, please select a specific genotype for each
                             trait.
                         </p>
                         {ambiguousCategories.map((cat) => (
                             <div key={cat.category} className="mt-2">
-                                <Label className="text-pompaca-purple dark:text-barely-lilac">
+                                <Label className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                     {cat.category} ({cat.phenotype})
                                 </Label>
                                 <Select
@@ -190,10 +190,10 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                                         }))
                                     }
                                 >
-                                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         <SelectValue placeholder="Select a specific genotype..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         {cat.options?.map((opt: any) => (
                                             <SelectItem key={opt.genotype} value={opt.genotype}>
                                                 {opt.genotype}

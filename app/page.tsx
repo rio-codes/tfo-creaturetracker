@@ -190,6 +190,34 @@ async function getHomepageStats(): Promise<HomepageStats> {
 // Placeholder for news items. You can fetch this from a CMS or a local file.
 const newsItems = [
     {
+        title: "It's Nearly Hallowsnight, Don't Stray from the Paths",
+        date: 'October 18th, 2025', // Example date
+        content: (
+            <>
+                <details>
+                    <summary>This place is changing, stay close to the labs if you can...</summary>
+                    <p>
+                        You may find that your assigned computer system has gained
+                        some...enhancements in the coming days. I know, I know, your creatures seem
+                        a bit different than you recall, and we all wonder how we got here, truly.
+                        You&#39;ll get used to the feeling. But we have to do the only thing we can
+                        do...science!
+                    </p>
+                    <p>
+                        Keep creating those goals, and by all means keep bringing in creatures from
+                        the labs we came from! I hear some new creatures have surfaced in the archi-
+                        I MEAN connection to the Final Outpost! How lovely! Have you seen them yet?
+                        There will be treats for you and yours on Hallowsnight if you bring in as
+                        many new research subjects as you can, and as long as you STAY ON THE PATHS
+                        you will be safe and sound. Merry Hallowsnight and good luck navigating the
+                        currents! Oh, and if you aren&#39;t pleased with my festive color palette
+                        you can change it at the bottom of the page as usual.
+                    </p>
+                </details>
+            </>
+        ),
+    },
+    {
         title: 'So Much Good Stuff!',
         date: 'September 26th, 2025', // Example date
         content: (
@@ -207,7 +235,7 @@ const newsItems = [
                                 Yup, just like our big sister site TFO and many others, we now have
                                 an{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="/account/activity"
                                 >
                                     Activity Log
@@ -258,7 +286,7 @@ const newsItems = [
                                 cleanup under the hood. If you want to see what&#39;s going on under
                                 there, one of our useful internal updates is this{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="https://github.com/rio-codes/tfo-creaturetracker/blob/main/CHANGELOG.md"
                                 >
                                     changelog
@@ -269,7 +297,7 @@ const newsItems = [
                                 <br />
                                 Also, one of our new users,{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400   hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss   hover:underline font-semibold"
                                     href="/Solarion"
                                 >
                                     Solarion
@@ -279,14 +307,14 @@ const newsItems = [
                                 registration, thank you so much! If you run into any bugs yourself,
                                 feel free to{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="mailto:tfoct@mailbox.org"
                                 >
                                     email
                                 </Link>{' '}
                                 us, hop into the{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="https://discord.gg/PMtE3jrXYR"
                                 >
                                     Discord
@@ -294,7 +322,7 @@ const newsItems = [
                                 , or if you are feeling really ambitious submit a bug report issue
                                 on our{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="https://github.com/rio-codes/tfo-creaturetracker/issues"
                                 >
                                     GitHub
@@ -310,7 +338,7 @@ const newsItems = [
                             href="https://patreon.com/tfoct"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                            className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                         >
                             Patreon
                         </a>{' '}
@@ -346,14 +374,14 @@ const newsItems = [
                                 <FlairIcon tier="tenured_prof" /> (Tenured Professor). Finally, the
                                 admins (
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="/lyricism"
                                 >
                                     lyricism
                                 </Link>{' '}
                                 and{' '}
                                 <Link
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                     href="/koda_curvata"
                                 >
                                     koda_curvata
@@ -383,7 +411,7 @@ const newsItems = [
                                 to <FlairIcon tier="beta_tester" />{' '}
                                 <Link
                                     href="/Notherox"
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                 >
                                     Notherox
                                 </Link>{' '}
@@ -403,7 +431,7 @@ const newsItems = [
                                 <FlairIcon tier="beta_tester" />
                                 <Link
                                     href="/Notherox"
-                                    className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                                    className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                                 >
                                     Notherox
                                 </Link>
@@ -418,7 +446,7 @@ const newsItems = [
                             href="https://patreon.com/tfoct"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                            className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                         >
                             Patreon
                         </a>{' '}
@@ -440,14 +468,14 @@ const newsItems = [
                     Final Outpost.{' '}
                     <Link
                         href="/register"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                     >
                         Register here
                     </Link>{' '}
                     to get started. Then add your creatures to your{' '}
                     <Link
                         href="/collection"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                     >
                         Collection
                     </Link>{' '}
@@ -460,7 +488,7 @@ const newsItems = [
                         href="https://patreon.com/tfoct"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                     >
                         Patreon
                     </a>
@@ -469,7 +497,7 @@ const newsItems = [
                         href="https://discord.gg/PMtE3jrXYR"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
                     >
                         Discord
                     </a>{' '}
@@ -483,15 +511,16 @@ const newsItems = [
 export default async function Page() {
     const stats = await getHomepageStats();
     return (
-        <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple text-midnight-purple dark:text-barely-lilac p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-midnight-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl md:text-3xl">
-                        Welcome to TFO.CT labs, let&#39;s do some science!
+                        Safe Hallowsnight to You, TFO.CT Researchers. Stay warm...
                     </h1>
-                    <p className="text-pompaca-purple dark:text-purple-300 mt-2 text-lg">
-                        This is your dashboard for managing creatures, breeding pairs, and research
-                        goals in The Final Outpost.
+                    <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson/80 mt-2 text-lg">
+                        Welcome back to your dashboard for managing creatures, breeding pairs, and
+                        research goals in The Final Outpost. I don&#39;t blame you for being a bit
+                        spun about.
                     </p>
                 </header>
 
@@ -500,182 +529,194 @@ export default async function Page() {
                     <div className="lg:col-span-2">
                         <h2 className="text-2xl font-bold mb-4">Get Started</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <ActionButton
-                                href="/collection"
-                                imgSrc="/images/navigation/collection_button_home.png"
-                                title="My Collection"
-                                description="View and manage all your creatures."
-                            />
-                            <ActionButton
-                                href="/breeding-pairs"
-                                imgSrc="/images/navigation/breeding_pairs_button_home.png"
-                                title="Breeding Pairs"
-                                description="Create and track your breeding projects."
-                            />
-                            <ActionButton
-                                href="/research-goals"
-                                imgSrc="/images/navigation/research_goals_button_home.png"
-                                title="Research Goals"
-                                description="Define and pursue specific genetic goals."
-                            />
+                            <div className="hallowsnight:opacity-100">
+                                <ActionButton
+                                    href="/collection"
+                                    imgSrc="/images/navigation/collection_button_home.png"
+                                    title="My Collection"
+                                    description="View and manage all your creatures."
+                                />
+                            </div>
+                            <div className="hallowsnight:opacity-100">
+                                <ActionButton
+                                    href="/breeding-pairs"
+                                    imgSrc="/images/navigation/breeding_pairs_button_home.png"
+                                    title="Breeding Pairs"
+                                    description="Create and track your breeding projects."
+                                />
+                            </div>
+                            <div className="hallowsnight:opacity-100">
+                                <ActionButton
+                                    href="/research-goals"
+                                    imgSrc="/images/navigation/research_goals_button_home.png"
+                                    title="Research Goals"
+                                    description="Define and pursue specific genetic goals."
+                                />
+                            </div>
                         </div>
 
                         <div className="mt-8">
                             <h2 className="text-2xl font-bold mb-4">Stats</h2>
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Total Creatures
-                                        </CardTitle>
-                                        <PawPrint className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
-                                            {stats.totalCreatures}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Total Breeding Pairs
-                                        </CardTitle>
-                                        <Heart className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
-                                            {stats.totalPairs}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Total Research Goals
-                                        </CardTitle>
-                                        <Target className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
-                                            {stats.totalGoals}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Most Popular Species
-                                        </CardTitle>
-                                        <Dna className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        {stats.popularSpecies ? (
-                                            <div className="flex flex-col h-full md:gap-y-53">
-                                                <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
-                                                    {stats.popularSpecies.species}
+                            <div className="hallowsnight:opacity-100">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Total Creatures
+                                            </CardTitle>
+                                            <PawPrint className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                {stats.totalCreatures}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Total Breeding Pairs
+                                            </CardTitle>
+                                            <Heart className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                {stats.totalPairs}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Total Research Goals
+                                            </CardTitle>
+                                            <Target className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                {stats.totalGoals}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Most Popular Species
+                                            </CardTitle>
+                                            <Dna className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent>
+                                            {stats.popularSpecies ? (
+                                                <div className="flex flex-col h-full md:gap-y-53">
+                                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                        {stats.popularSpecies.species}
 
-                                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
-                                                        with {stats.popularSpecies.count} total
-                                                        creatures
-                                                    </p>
+                                                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
+                                                            with {stats.popularSpecies.count} total
+                                                            creatures
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss mt-2">
+                                                        It&#39;s horses, isn&#39;t it. I bet
+                                                        anything it&#39;s horses.
+                                                    </div>
                                                 </div>
-                                                <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 mt-2">
-                                                    It&#39;s horses, isn&#39;t it. I bet anything
-                                                    it&#39;s horses.
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
-                                                No data.
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Most Prolific Pair
-                                        </CardTitle>
-                                        <Rabbit className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        {stats.prolificPair ? (
-                                            <div className="flex flex-col h-full md:gap-y-45">
-                                                <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
-                                                    {stats.prolificPair.name || 'Unnamed Pair'}
-                                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
-                                                        Bred {stats.prolificPair.timesBred} times
-                                                    </p>
-                                                </div>
-                                                <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 mt-2">
-                                                    That&#39;s...a lot of capsules. I&#39;m suddenly
-                                                    so... thirsty...
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
-                                                No data.
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-ebena-lavender/50 dark:bg-black/20 border-0">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
-                                            Look!
-                                        </CardTitle>
-                                        <Sparkles className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
-                                    </CardHeader>
-                                    <CardContent className="text-center">
-                                        {stats.randomCreature?.image ? (
-                                            <div className="pt-2">
-                                                <img
-                                                    src={stats.randomCreature.image}
-                                                    alt={
-                                                        stats.randomCreature.species || 'A creature'
-                                                    }
-                                                    className="rounded-md object-scale-down aspect-square w-full"
-                                                />
-                                                <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 text-pretty">
-                                                    A wild{' '}
-                                                    <span className="font-bold">
-                                                        {stats.randomCreature.species}
-                                                    </span>{' '}
-                                                    with the code{' '}
-                                                    <span>{stats.randomCreature.code}</span>{' '}
-                                                    appeared!
+                                            ) : (
+                                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss pt-2">
+                                                    No data.
                                                 </p>
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
-                                                Could not generate a creature.
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Most Prolific Pair
+                                            </CardTitle>
+                                            <Rabbit className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent>
+                                            {stats.prolificPair ? (
+                                                <div className="flex flex-col h-full md:gap-y-45">
+                                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                        {stats.prolificPair.name || 'Unnamed Pair'}
+                                                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
+                                                            Bred {stats.prolificPair.timesBred}{' '}
+                                                            times
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-md relative y-5 font-normal align-text-bottom text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss mt-2">
+                                                        That&#39;s...a lot of capsules. I&#39;m
+                                                        suddenly so... thirsty...
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss pt-2">
+                                                    No data.
+                                                </p>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">
+                                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                Look!
+                                            </CardTitle>
+                                            <Sparkles className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss" />
+                                        </CardHeader>
+                                        <CardContent className="text-center">
+                                            {stats.randomCreature?.image ? (
+                                                <div className="pt-2">
+                                                    <img
+                                                        src={stats.randomCreature.image}
+                                                        alt={
+                                                            stats.randomCreature.species ||
+                                                            'A creature'
+                                                        }
+                                                        className="rounded-md object-scale-down aspect-square w-full"
+                                                    />
+                                                    <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss text-pretty">
+                                                        A wild{' '}
+                                                        <span className="font-bold">
+                                                            {stats.randomCreature.species}
+                                                        </span>{' '}
+                                                        with the code{' '}
+                                                        <span>{stats.randomCreature.code}</span>{' '}
+                                                        appeared!
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss pt-2">
+                                                    Could not generate a creature.
+                                                </p>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                     {/* News Column */}
                     <aside className="lg:col-span-1">
-                        <div className="bg-ebena-lavender/50 dark:bg-black/20 p-6 rounded-lg h-full">
-                            <h2 className="text-2xl font-bold mb-4 border-b border-pompaca-purple/20 dark:border-barely-lilac/20 pb-2">
-                                News & Updates
-                            </h2>
-                            <div className="space-y-6">
-                                {newsItems.map((item, index) => (
-                                    <div key={index}>
-                                        <h3 className="font-semibold text-lg">{item.title}</h3>
-                                        <time className="text-sm text-pompaca-purple dark:text-purple-300/80">
-                                            {item.date}
-                                        </time>
-                                        <div className="text-pompaca-purple dark:text-purple-300 mt-1">
-                                            {item.content}
+                        <div className="hallowsnight:opacity-100">
+                            <div className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 p-6 rounded-lg h-full">
+                                <h2 className="text-2xl font-bold mb-4 border-b border-pompaca-purple/20 dark:border-barely-lilac/20 pb-2">
+                                    News & Updates
+                                </h2>
+
+                                <div className="space-y-6">
+                                    {newsItems.map((item, index) => (
+                                        <div key={index}>
+                                            <h3 className="font-semibold text-lg">{item.title}</h3>
+                                            <time className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-blood-bay-wine">
+                                                {item.date}
+                                            </time>
+                                            <div className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-abyss mt-1">
+                                                {item.content}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -699,8 +740,8 @@ function ActionButton({
 }) {
     return (
         <Link href={href} className="group block">
-            <div className="bg-ebena-lavender/50 dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 dark:group-hover:bg-black/30 h-full flex flex-col justify-between">
-                <div className="relative w-60 h-60 mx-auto mb-4">
+            <div className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 dark:group-hover:bg-black/30 hallowsnight:group-hover:bg-blood-bay-wine/80 h-full flex flex-col justify-between">
+                <div className="relative w-60 h-60 mx-auto mb-4 hallowsnight:grayscale-100">
                     <Image
                         src={imgSrc}
                         alt={`${title} icon`}
@@ -711,7 +752,7 @@ function ActionButton({
                 </div>
                 <div>
                     <h3 className="font-bold text-xl">{title}</h3>
-                    <p className="text-sm text-pompaca-purple dark:text-purple-300">
+                    <p className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         {description}
                     </p>
                 </div>

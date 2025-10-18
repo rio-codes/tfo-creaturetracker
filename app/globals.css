@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant hallowsnight (&:where([data-theme=hallowsnight], [data-theme=hallowsnight] *));
 
 @theme {
   --default-font-family: Tektur, monospace;
@@ -16,4 +17,9 @@
   --color-dusk-purple: #7C6BA7;
   --color-dna-teal: #00BFA5;
   --color-dna-magenta: #EE8CFF;
+
+  --color-cimo-crimson: #b40202;
+  --color-ruzafolio-scarlet: #440606;
+  --color-blood-bay-wine: #260000;
+  --color-abyss: #050000;
 }

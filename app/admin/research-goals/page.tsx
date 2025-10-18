@@ -56,12 +56,12 @@ export default async function AdminResearchGoalsPage(props: {
     const { goals, pagination } = await fetchAdminResearchGoals(searchParams);
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
             <CardHeader>
-                <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Research Goal Management
                 </CardTitle>
-                <CardDescription className="text-dusk-purple dark:text-purple-400">
+                <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     View and manage all research goals in the database.
                 </CardDescription>
             </CardHeader>

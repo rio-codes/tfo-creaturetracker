@@ -80,25 +80,25 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-w-2xl"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-2xl"
             >
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Breeding Logs for {pair.pairName}
                     </DialogTitle>
                 </DialogHeader>
-                <ScrollArea className="h-[60vh] rounded-md border p-4 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
+                <ScrollArea className="h-[60vh] rounded-md border p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50">
                     {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
                     {sortedLogs.length > 0 ? (
                         <ul className="space-y-4">
                             {sortedLogs.map((log) => (
                                 <li
                                     key={log.id}
-                                    className="p-3 rounded-md bg-barely-lilac dark:bg-pompaca-purple/50"
+                                    className="p-3 rounded-md bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50"
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
-                                            <p className="font-bold text-pompaca-purple dark:text-purple-300">
+                                            <p className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                 {format(new Date(log.createdAt), 'PPP p')}
                                             </p>
                                         </div>
@@ -127,7 +127,7 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
                                                         )}
                                                     </Button>
                                                 </AlertDialogTrigger>
-                                                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                                                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>
                                                             Are you sure?
@@ -152,7 +152,7 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
                                             </AlertDialog>
                                         </div>
                                     </div>
-                                    <div className="text-sm space-y-1 text-dusk-purple dark:text-purple-400">
+                                    <div className="text-sm space-y-1 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         <p>
                                             <strong>Progeny 1:</strong>{' '}
                                             {getProgenyName(log.progeny1Id)}
@@ -163,7 +163,7 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
                                         </p>
                                         {log.notes && (
                                             <div className="pt-2">
-                                                <p className="font-semibold text-pompaca-purple dark:text-purple-300">
+                                                <p className="font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                     Notes:
                                                 </p>
                                                 <blockquote className="border-l-2 border-dusk-purple pl-2 italic">
@@ -176,7 +176,7 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-center text-dusk-purple dark:text-purple-400 italic">
+                        <p className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic">
                             No breeding events have been logged for this pair.
                         </p>
                     )}

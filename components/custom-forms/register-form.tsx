@@ -53,12 +53,12 @@ export default function RegisterForm() {
     };
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple dark:border-purple-400 shadow-lg">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple dark:border-purple-400 shadow-lg">
             <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300">
+                <CardTitle className="text-2xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Create Account
                 </CardTitle>
-                <CardDescription className="text-pompaca-purple dark:text-purple-400">
+                <CardDescription className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     Join and track your breeding goals
                 </CardDescription>
             </CardHeader>
@@ -73,7 +73,7 @@ export default function RegisterForm() {
                     <div className="space-y-2">
                         <Label
                             htmlFor="email"
-                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium"
                         >
                             Email
                         </Label>
@@ -83,14 +83,14 @@ export default function RegisterForm() {
                             placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                             required
                         />
                     </div>
                     <div className="space-y-2">
                         <Label
                             htmlFor="username"
-                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium"
                         >
                             Username
                         </Label>
@@ -100,14 +100,14 @@ export default function RegisterForm() {
                             placeholder="your TFO username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                             required
                         />
                     </div>
                     <div className="space-y-2">
                         <Label
                             htmlFor="password"
-                            className="text-pompaca-purple dark:text-purple-300 font-medium"
+                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium"
                         >
                             Password
                         </Label>
@@ -117,7 +117,7 @@ export default function RegisterForm() {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 placeholder:text-dusk-purple dark:placeholder:text-purple-400"
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson placeholder:text-dusk-purple dark:placeholder:text-purple-400"
                             required
                         />
                     </div>
@@ -129,19 +129,19 @@ export default function RegisterForm() {
                         />
                         <Label
                             htmlFor="terms"
-                            className="text-sm text-pompaca-purple dark:text-purple-300"
+                            className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                         >
                             I agree to the{' '}
                             <Link
                                 href="/terms"
-                                className="text-dusk-purple dark:text-purple-400 hover:underline"
+                                className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline"
                             >
                                 Terms of Service
                             </Link>{' '}
                             and{' '}
                             <Link
                                 href="/privacy"
-                                className="text-dusk-purple dark:text-purple-400 hover:underline"
+                                className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline"
                             >
                                 Privacy Policy
                             </Link>
@@ -157,11 +157,11 @@ export default function RegisterForm() {
                 </form>
 
                 <div className="mt-6 text-center">
-                    <p className="text-pompaca-purple dark:text-purple-300">
+                    <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Already have an account?{' '}
                         <Link
                             href="/login"
-                            className="text-dusk-purple dark:text-purple-400 font-medium hover:underline"
+                            className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine font-medium hover:underline"
                         >
                             Sign in here
                         </Link>

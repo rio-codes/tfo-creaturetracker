@@ -8,9 +8,9 @@ import {
 
 export default function HelpPage() {
     return (
-        <div className="bg-barely-lilac text-pompaca-purple dark:bg-deep-purple dark:text-barely-lilac min-h-screen flex items-center justify-center px-4 py-5">
+        <div className="bg-barely-lilac text-pompaca-purple dark:bg-deep-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-h-screen flex items-center justify-center px-4 py-5">
             <div className="w-full max-w-6xl">
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple w-full shadow-lg">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet w-full shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-3xl">Help & FAQ</CardTitle>
                         <CardDescription className="text-xl">

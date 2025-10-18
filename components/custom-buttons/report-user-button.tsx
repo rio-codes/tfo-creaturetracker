@@ -90,7 +90,7 @@ export function ReportUserButton({ reportedUserId, reportedUsername }: ReportUse
                     <Flag className="mr-2 h-4 w-4" /> Report User
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-ebena-lavender dark:bg-pompaca-purple">
+            <DialogContent className="sm:max-w-[425px] bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                 <DialogHeader>
                     <DialogTitle>Report {reportedUsername}</DialogTitle>
                     <DialogDescription>
@@ -109,7 +109,7 @@ export function ReportUserButton({ reportedUserId, reportedUsername }: ReportUse
                                     <FormControl>
                                         <Textarea
                                             placeholder="Describe the issue..."
-                                            className="min-h-[100px] bg-barely-lilac dark:bg-midnight-purple"
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss"
                                             {...field}
                                         />
                                     </FormControl>

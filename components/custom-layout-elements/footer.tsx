@@ -1,12 +1,12 @@
 'use client';
-import { Switch } from '@mui/material';
+import { ToggleButton, ToggleButtonGroup, Stack } from '@mui/material';
 import Link from 'next/link';
 import { Moon, Sun, Users } from 'lucide-react';
-import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import { AltRoute } from '@mui/icons-material';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -53,7 +53,7 @@ export function Footer() {
     }, [fetchOnlineCount]);
 
     const handleThemeChange = useCallback(
-        async (newTheme: 'light' | 'dark') => {
+        async (newTheme: 'light' | 'dark' | 'hallowsnight') => {
             const originalTheme = resolvedTheme; // Capture the theme before changing
 
             // Optimistically update the UI
@@ -73,7 +73,7 @@ export function Footer() {
                         await update({ theme: newTheme });
                     } else {
                         // Revert on failure and notify user
-                        setTheme(originalTheme as 'light' | 'dark');
+                        setTheme(originalTheme as 'light' | 'dark' | 'hallowsnight');
                         toast.error('Could Not Save Preference', {
                             description:
                                 'Your theme preference could not be saved. Please try again.',
@@ -82,7 +82,7 @@ export function Footer() {
                     }
                 } catch (error) {
                     // Revert on failure and notify user
-                    setTheme(originalTheme as 'light' | 'dark');
+                    setTheme(originalTheme as 'light' | 'dark' | 'hallowsnight');
                     toast.error('Network Error', {
                         description:
                             'Your theme preference could not be saved. Please check your connection.',
@@ -95,7 +95,7 @@ export function Footer() {
     );
     const year = new Date().getFullYear();
     return (
-        <footer className="items-center w-full bg-ebena-lavender dark:bg-pompaca-purple dark:text-barely-lilac text-pompaca-purple px-4 py-4 mt-auto">
+        <footer className="items-center w-full bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet dark:text-barely-lilac hallowsnight:text-cimo-crimson text-pompaca-purple px-4 py-4 mt-auto">
             <div className="flex flex-wrap justify-between text-sm max-w-full">
                 <div className="mb-4 md:mb-0">
                     <span>
@@ -164,28 +164,31 @@ export function Footer() {
                                 </div>
                             )}
 
-                            <Label
-                                htmlFor="theme-switch"
-                                className="text-pompaca-purple dark:text-barely-lilac"
-                            >
-                                <Sun className="h-4 w-4" />
-                            </Label>
-                            <Switch
-                                id="theme-switch"
-                                checked={resolvedTheme === 'dark' || theme === 'dark'}
-                                onChange={() => {
-                                    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
-                                    handleThemeChange(newTheme);
-                                }}
-                                color="custom"
-                                size="medium"
-                            />
-                            <Label
-                                htmlFor="theme-switch"
-                                className="text-pompaca-purple  dark:text-barely-lilac"
-                            >
-                                <Moon className="h-4 w-4" />
-                            </Label>
+                            <Stack direction="row" spacing={4}>
+                                <ToggleButtonGroup
+                                    value={theme}
+                                    onChange={(event, newTheme) => {
+                                        if (newTheme) {
+                                            handleThemeChange(newTheme);
+                                        }
+                                    }}
+                                    exclusive
+                                    aria-label="theme"
+                                >
+                                    <ToggleButton value="light" aria-label="light mode">
+                                        <Sun className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                    </ToggleButton>
+                                    <ToggleButton value="dark" aria-label="dark mode">
+                                        <Moon className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                    </ToggleButton>
+                                    <ToggleButton
+                                        value="hallowsnight"
+                                        aria-label="hallowsnight mode"
+                                    >
+                                        <AltRoute className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Stack>
                         </div>
                     )}
                 </div>

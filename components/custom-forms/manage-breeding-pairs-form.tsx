@@ -215,7 +215,7 @@ export function ManageBreedingPairsForm({
                         existingPairs.map((pair) => (
                             <div
                                 key={pair.id}
-                                className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple p-2 rounded-md"
+                                className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss p-2 rounded-md"
                             >
                                 <span className="text-ellipsis">{pair.pairName}</span>
                                 <Button
@@ -229,7 +229,7 @@ export function ManageBreedingPairsForm({
                             </div>
                         ))
                     ) : (
-                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             This creature is not in any pairs.
                         </p>
                     )}
@@ -243,7 +243,7 @@ export function ManageBreedingPairsForm({
                         placeholder="New Pair Name (Optional)"
                         value={newPairName}
                         onChange={(e) => setNewPairName(e.target.value)}
-                        className="bg-ebena-lavender dark:bg-midnight-purple"
+                        className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                     />
                     <CreatureCombobox
                         creatures={suitableMates}
@@ -264,7 +264,7 @@ export function ManageBreedingPairsForm({
                                 </div>
                             )}
                             <div className="overflow-x-auto">
-                                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg border min-w-max">
+                                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg border min-w-max">
                                     {maleParent && (
                                         <div className="flex flex-col items-center w-36">
                                             <img
@@ -323,7 +323,7 @@ export function ManageBreedingPairsForm({
                         </div>
                     )}
                     {predictions.length > 0 && (
-                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple">
+                        <div className="space-y-2 text-sm p-2 border rounded-md bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                             <h5 className="font-bold">Goal Predictions for this Pairing:</h5>
                             {predictions.map((pred) => (
                                 <div
@@ -354,7 +354,7 @@ export function ManageBreedingPairsForm({
                         type="button"
                         onClick={onActionComplete}
                         variant="outline"
-                        className="w-full border-pompaca-purple text-pompaca-purple hover:bg-pompaca-purple/10 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-400/10"
+                        className="w-full border-pompaca-purple text-pompaca-purple hover:bg-pompaca-purple/10 dark:border-purple-400 dark:text-purple-400 hallowsnight:text-blood-bay-wine dark:hover:bg-purple-400/10"
                     >
                         Cancel
                     </Button>

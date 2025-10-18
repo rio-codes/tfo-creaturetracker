@@ -57,7 +57,7 @@ export function ReportsDataTable<TData, TValue>({ columns, data }: DataTableProp
                     onChange={(event) =>
                         table.getColumn('reported')?.setFilterValue(event.target.value)
                     }
-                    className="max-w-sm bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac"
+                    className="max-w-sm bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                 />
             </div>
             <div className="rounded-md border border-pompaca-purple/50">

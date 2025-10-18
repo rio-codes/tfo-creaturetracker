@@ -41,7 +41,7 @@ export function InfoDisplay({
                     <DialogTrigger asChild>{trigger}</DialogTrigger>
                     <DialogContent
                         onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                        className={`bg-barely-lilac dark:bg-pompaca-purple ${dialogClassName}`}
+                        className={`bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet ${dialogClassName}`}
                     >
                         <div className="p-4 text-pompaca-purple">{content}</div>
                     </DialogContent>

@@ -64,7 +64,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
         }
     };
     return (
-        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
             {currentUser && (
                 <div className="absolute top-2 right-2 z-10">
                     <TooltipProvider>
@@ -80,9 +80,9 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                                     {isFeaturing ? (
                                         <Loader2 className="h-5 w-5 animate-spin" />
                                     ) : isFeatured ? (
-                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                        <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                                     ) : (
-                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                                     )}
                                 </Button>
                             </TooltipTrigger>
@@ -102,7 +102,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                 className="flex-grow flex flex-col"
             >
                 <CardContent
-                    className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac min-w-0 overflow-x-clip max-w-9/10
+                    className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-w-0 overflow-x-clip max-w-9/10
             whitespace-normal"
                 >
                     {' '}
@@ -113,7 +113,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                     />
                     <div className="flex-1">
                         <CardTitle
-                            className="text-lg text-pompaca-purple dark:text-purple-300"
+                            className="text-lg text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                             title={creature.creatureName || creature.code}
                         >
                             <span className="text-wrap wrap-normal">
@@ -121,7 +121,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                                 {creature.code})
                             </span>
                         </CardTitle>
-                        <div className="text-sm text-pompaca-purple dark:text-purple-400 mt-2 space-y-1">
+                        <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2 space-y-1">
                             <p>
                                 <strong>Species:</strong> {creature.species}
                             </p>
@@ -133,14 +133,14 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                             </p>
                         </div>
                         <div className="mt-2">
-                            <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300">
+                            <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Genetics:
                             </p>
-                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple/50 overflow-x-scroll wrap-normal">
-                                <div className="text-xs font-mono text-pompaca-purple dark:text-purple-400 ">
+                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple hallowsnight:bg-abyss/50 overflow-x-scroll wrap-normal">
+                                <div className="text-xs font-mono text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ">
                                     {creature.geneData?.map((gene) => (
                                         <div key={gene.category}>
-                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                            <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                 {gene.category}:
                                             </span>
                                             <div className="pl-2 ">

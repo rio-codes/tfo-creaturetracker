@@ -130,7 +130,7 @@ function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-square flex items-center justify-center"
         >
             <img
                 src={creature?.imageUrl || '/images/misc/placeholder.png'}
@@ -345,12 +345,12 @@ export function CollectionClient({
     return (
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-5">
+                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-5">
                     Collection
                 </h1>
                 <Button
                     onClick={() => handleOpenSyncDialog()}
-                    className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
+                    className="text-xl mb-8 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson dark:text-slate-950 drop-shadow-md drop-shadow-gray-500"
                 >
                     + Add or Update Creatures
                 </Button>
@@ -360,10 +360,10 @@ export function CollectionClient({
                     <div className="flex flex-col md:flex-row gap-4 items-center">
                         {/* Search Bar */}
                         <div className="relative flex-1 w-full">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine h-4 w-4 z-10" />
                             <Input
                                 placeholder="Search by name, code, species, origin, or genes..."
-                                className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                                className="pl-10 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 hallowsnight:placeholder:text-cimo-crimson drop-shadow-sm drop-shadow-gray-500"
                                 defaultValue={currentQuery}
                                 onChange={(e) => handleFilterChange('query', e.target.value)}
                             />
@@ -371,7 +371,7 @@ export function CollectionClient({
                         <Button
                             onClick={handleClearFilters}
                             variant="outline"
-                            className="w-full md:w-auto bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                            className="w-full md:w-auto bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 hallowsnight:border-cimo-crimsondrop-shadow-sm drop-shadow-gray-500"
                         >
                             Clear Filters
                         </Button>
@@ -382,10 +382,10 @@ export function CollectionClient({
                             defaultValue={searchParamsFromProps?.gender || 'all'}
                             onValueChange={(value: string) => handleFilterChange('gender', value)}
                         >
-                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
                                 <select.SelectValue placeholder="Gender" />
                             </select.SelectTrigger>
-                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 <select.SelectItem value="all">All Genders</select.SelectItem>
                                 <select.SelectItem value="female">Female</select.SelectItem>
                                 <select.SelectItem value="male">Male</select.SelectItem>
@@ -396,10 +396,10 @@ export function CollectionClient({
                             value={currentStage}
                             onValueChange={(e: string) => handleFilterChange('stage', e)}
                         >
-                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Stage" />
                             </select.SelectTrigger>
-                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 <select.SelectItem value="all">All Stages</select.SelectItem>
                                 <select.SelectItem value="capsule">Capsule</select.SelectItem>
                                 <select.SelectItem value="juvenile">Juvenile</select.SelectItem>
@@ -411,7 +411,7 @@ export function CollectionClient({
                             min="1"
                             type="number"
                             placeholder="Generation"
-                            className="bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentGeneration}
                             onChange={(e) => handleFilterChange('generation', e.target.value)}
                         />
@@ -420,10 +420,10 @@ export function CollectionClient({
                             value={currentorigin}
                             onValueChange={(value: string) => handleFilterChange('origin', value)}
                         >
-                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Origin" />
                             </select.SelectTrigger>
-                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 <select.SelectItem value="all">All Origins</select.SelectItem>
                                 {origins.map((origin) => (
                                     <select.SelectItem key={origin} value={origin}>
@@ -446,10 +446,10 @@ export function CollectionClient({
                                 replace(`${pathname}?${params.toString()}`);
                             }}
                         >
-                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                            <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Species" />
                             </select.SelectTrigger>
-                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                            <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 <select.SelectItem value="all">All Species</select.SelectItem>
                                 {ownedSpecies.map((s) => (
                                     <select.SelectItem key={s} value={s!}>
@@ -467,10 +467,10 @@ export function CollectionClient({
                                     handleFilterChange('geneCategory', value)
                                 }
                             >
-                                <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson drop-shadow-sm drop-shadow-gray-500">
                                     <select.SelectValue placeholder="Filter by Genetic Trait" />
                                 </select.SelectTrigger>
-                                <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     <select.SelectItem value="any">Any Trait</select.SelectItem>
                                     {geneCategories.map((cat) => (
                                         <select.SelectItem key={cat} value={cat}>
@@ -488,10 +488,10 @@ export function CollectionClient({
                                             handleFilterChange('geneQuery', value)
                                         }
                                     >
-                                        <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                        <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson drop-shadow-sm drop-shadow-gray-500">
                                             <select.SelectValue placeholder="Select Gene" />
                                         </select.SelectTrigger>
-                                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                        <select.SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                             <select.SelectItem value="any">Any</select.SelectItem>
                                             {geneOptions.map((opt) => (
                                                 <select.SelectItem
@@ -506,7 +506,7 @@ export function CollectionClient({
                                     <div className="flex items-center space-x-2">
                                         <Label
                                             htmlFor="gene-mode"
-                                            className="text-pompaca-purple dark:text-barely-lilac"
+                                            className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                         >
                                             <Feather className="h-4 w-4" />
                                         </Label>
@@ -520,7 +520,7 @@ export function CollectionClient({
                                             color="custom"
                                             size="medium"
                                         />
-                                        <Label className="text-pompaca-purple dark:text-barely-lilac">
+                                        <Label className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                             <Dna className="h-4 w-4" />
                                         </Label>
                                     </div>
@@ -536,11 +536,11 @@ export function CollectionClient({
                         onCheckedChange={(checked: boolean) =>
                             handleFilterChange('showArchived', !!checked)
                         }
-                        className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac"
+                        className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac hallowsnight:border-cimo-crimson hallowsnight:data-[state=checked]:bg-cimo-crimson hallowsnight:data-[state=checked]:text-blood-bay-wine"
                     />
                     <Label
                         htmlFor="show-archived"
-                        className="text-pompaca-purple dark:text-purple-300"
+                        className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                     >
                         Show archived creatures
                     </Label>
@@ -549,7 +549,7 @@ export function CollectionClient({
                 {pinnedCreatures.length > 0 && (
                     <div className="mb-12">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 hallowsnight:border-cimo-crimson pb-2">
                                 Pinned Creatures
                             </h2>
                             {isMounted && (
@@ -560,7 +560,7 @@ export function CollectionClient({
                                     >
                                         Reorder
                                     </Button>
-                                    <p className="hidden md:block text-xs text-pompaca-purple dark:text-purple-400">
+                                    <p className="hidden md:block text-xs text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         (Drag and drop to rearrange pinned cards)
                                     </p>
                                 </>
@@ -618,7 +618,7 @@ export function CollectionClient({
                 {/* Unpinned Creatures */}
                 {unpinnedCreatures.length > 0 && (
                     <div>
-                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
                             All Creatures
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -635,12 +635,12 @@ export function CollectionClient({
                 )}
 
                 {pinnedCreatures.length === 0 && unpinnedCreatures.length === 0 ? (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300"></h2>
-                        <p className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"></h2>
+                        <p className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             No Creatures Found
                         </p>
-                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                        <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
                             Try adjusting your filters or use the button above to sync your
                             collection.
                         </p>
@@ -653,7 +653,7 @@ export function CollectionClient({
 
                 {/* Reorder Dialog for Mobile */}
                 <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
-                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Reorder Pinned Creatures</DialogTitle>
                         </DialogHeader>
@@ -682,7 +682,7 @@ export function CollectionClient({
                         <DialogFooter className="pt-4 sm:justify-center">
                             <Button
                                 onClick={() => setIsReorderDialogOpen(false)}
-                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                             >
                                 Done
                             </Button>

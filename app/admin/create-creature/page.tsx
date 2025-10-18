@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export default function CreateCreaturePage() {
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
             <CardHeader>
-                <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Create Creature
                 </CardTitle>
-                <CardDescription className="text-dusk-purple dark:text-purple-400">
+                <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     Use this form to create a new creature in the database.
                 </CardDescription>
             </CardHeader>

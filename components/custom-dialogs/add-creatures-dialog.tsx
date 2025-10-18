@@ -482,45 +482,20 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                                 <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                             </div>
                         ) : userTabs.length > 0 ? (
-                            userTabs.map((tab) => (
-                                <div key={tab.id} className="flex items-center justify-between p-1">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id={`tab-${tab.id}`}
-                                            checked={tab.isSyncEnabled}
-                                            onCheckedChange={() => handleToggleSync(tab)}
-                                        />
-                                        <Label
-                                            htmlFor={`tab-${tab.id}`}
-                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
-                                        >
-                                            {tab.tabName || `Tab ${tab.tabId}`}
-                                        </Label>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleDeleteTab(tab.id)}
-                                        className="h-6 w-6 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                    <DndContext
-                                        sensors={sensors}
-                                        collisionDetection={closestCenter}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        <SortableContext
-                                            items={userTabs.map((t) => t.id)}
-                                            strategy={verticalListSortingStrategy}
-                                        >
-                                            {userTabs.map((tab) => {
-                                                return <SortableTabItem key={tab.id} tab={tab} />;
-                                            })}
-                                        </SortableContext>
-                                    </DndContext>
-                                </div>
-                            ))
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={userTabs.map((t) => t.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {userTabs.map((tab) => (
+                                        <SortableTabItem key={tab.id} tab={tab} />
+                                    ))}
+                                </SortableContext>
+                            </DndContext>
                         ) : (
                             <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                                 No saved tabs yet.

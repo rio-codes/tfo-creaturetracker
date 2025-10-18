@@ -33,7 +33,7 @@ export const columns: ColumnDef<EnrichedAuditLogEntry>[] = [
             return (
                 <div className="flex flex-col">
                     <span>{date.toLocaleDateString()}</span>
-                    <span className="text-xs text-dusk-purple dark:text-purple-400">
+                    <span className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                         {date.toLocaleTimeString()}
                     </span>
                 </div>
@@ -90,19 +90,19 @@ export const columns: ColumnDef<EnrichedAuditLogEntry>[] = [
                         <Button
                             variant="outline"
                             size="sm"
-                            className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50"
+                            className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50"
                         >
                             View
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-barely-lilac dark:bg-deep-purple">
                         <DialogHeader>
-                            <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                            <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Action Details
                             </DialogTitle>
                         </DialogHeader>
-                        <pre className="mt-2 w-full rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4 overflow-x-auto">
-                            <code className="text-pompaca-purple dark:text-purple-300">
+                        <pre className="mt-2 w-full rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-4 overflow-x-auto">
+                            <code className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 {JSON.stringify(details, null, 2)}
                             </code>
                         </pre>

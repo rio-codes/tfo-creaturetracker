@@ -56,7 +56,7 @@ export function SocialLinks({ links }: SocialLinksProps) {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <a href={link} target="_blank" rel="noopener noreferrer">
-                                        <Icon className="h-6 w-6 text-pompaca-purple dark:text-purple-300 hover:opacity-80 transition-opacity" />
+                                        <Icon className="h-6 w-6 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson hover:opacity-80 transition-opacity" />
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>{link}</TooltipContent>

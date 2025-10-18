@@ -139,11 +139,11 @@ export default async function SharedGoalPage(props: Props) {
         .sort((a, b) => b.analysis.score - a.analysis.score);
 
     return (
-        <div className="shared-goal-page-container bg-barely-lilac dark:bg-deep-purple min-h-screen">
+        <div className="shared-goal-page-container bg-barely-lilac dark:bg-deep-purple hallowsnight:bg-abyss min-h-screen">
             <main className="container mx-auto px-4 py-8">
                 <SharedGoalHeader goal={goal} />
                 <div className="text-center my-6">
-                    <p className="text-sm md:text-base text-pompaca-purple dark:text-purple-300 max-w-3xl mx-auto">
+                    <p className="text-sm md:text-base text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson max-w-3xl mx-auto">
                         This is a research goal from{' '}
                         <a
                             href="https://tfo.creaturetracker.net"
@@ -169,7 +169,7 @@ export default async function SharedGoalPage(props: Props) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                     <SharedGoalInfo goal={goal} />
-                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
+                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border flex flex-col items-center justify-center p-4">
                         <Image
                             width={150}
                             height={150}
@@ -180,7 +180,7 @@ export default async function SharedGoalPage(props: Props) {
                     </Card>
                 </div>
                 <div className="mt-10">
-                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 mb-4">
+                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                         Breeding Pairs
                     </h2>
                     <SharedPredictionsAccordion predictions={predictions} />

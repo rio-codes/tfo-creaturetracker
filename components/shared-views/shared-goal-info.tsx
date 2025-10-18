@@ -18,7 +18,7 @@ export function SharedGoalInfo({ goal }: SharedGoalInfoProps) {
     const gender = goal?.genes['Gender']?.phenotype;
 
     return (
-        <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
+        <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border">
             <CardContent className="p-6 flex flex-col gap-6">
                 <div className="grid grid-cols-2 gap-6">
                     <div className="text-lg font-semibold">

@@ -44,18 +44,18 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
         return (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>{children}</DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] bg-barely-lilac dark:bg-pompaca-purple">
+                <DialogContent className="sm:max-w-[425px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <DialogHeader>
                         <DialogTitle>
                             Set Generation for {creature?.creatureName || creature?.code}
                         </DialogTitle>
                     </DialogHeader>
                     <div className="py-4">
-                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             This creature is logged as progeny of a breeding pair. Its generation is
                             automatically determined and cannot be manually changed.
                         </p>
-                        <p className="mt-2 text-sm text-dusk-purple dark:text-purple-400">
+                        <p className="mt-2 text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             Current Generation: <strong>G{creature.generation}</strong>
                         </p>
                     </div>
@@ -106,7 +106,7 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-barely-lilac dark:bg-pompaca-purple">
+            <DialogContent className="sm:max-w-[425px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                 <DialogHeader>
                     <DialogTitle>
                         Set Generation for {creature?.creatureName || creature?.code}
@@ -123,7 +123,7 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                             min="1"
                             value={generation}
                             onChange={(e) => handleGenerationChange(e.target.value)}
-                            className="min-w-0 max-w-15 text-left bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple"
+                            className="min-w-0 max-w-15 text-left bg-ebena-lavender dark:text-barely-lilac hallowsnight:text-cimo-crimson dark:bg-midnight-purple hallowsnight:bg-abyss"
                         />
 
                         <Label htmlFor="g1-origin" className="text-left">
@@ -135,10 +135,10 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                                 setorigin(value as any);
                             }}
                         >
-                            <SelectTrigger className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
+                            <SelectTrigger className="bg-ebena-lavender dark:text-barely-lilac hallowsnight:text-cimo-crimson dark:bg-midnight-purple hallowsnight:bg-abyss">
                                 <SelectValue placeholder="Select origin..." />
                             </SelectTrigger>
-                            <SelectContent className="bg-ebena-lavender dark:text-barely-lilac dark:bg-midnight-purple">
+                            <SelectContent className="bg-ebena-lavender dark:text-barely-lilac hallowsnight:text-cimo-crimson dark:bg-midnight-purple hallowsnight:bg-abyss">
                                 <SelectItem value="unknown">Unknown</SelectItem>
                                 <SelectItem value="cupboard" disabled={!isG1}>
                                     Cupboard
@@ -156,7 +156,7 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                             </SelectContent>
                         </Select>
                     </div>
-                    <p className="text-xs text-dusk-purple dark:text-purple-400 col-span-4 py-5">
+                    <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine col-span-4 py-5">
                         Origins other than &#34;Another Lab&#34; can only be set if Generation is 1.
                     </p>
                 </div>

@@ -120,7 +120,7 @@ function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-video flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-video flex items-center justify-center"
         >
             <div className="flex items-center gap-1">
                 <img
@@ -266,7 +266,7 @@ export function BreedingPairsClient({
             <div className="min-h-screen">
                 <div className="container mx-auto px-4 py-5">
                     <div className="flex-col justify-between items-center">
-                        <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-5">
+                        <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-5">
                             Breeding Pairs
                         </h1>
                         <AddBreedingPairDialog
@@ -280,12 +280,12 @@ export function BreedingPairsClient({
                     <div className="flex flex-col gap-4 mb-8">
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine h-4 w-4 z-10" />
                                 <Input
                                     placeholder="Search by pair name, parent name/code, or genes..."
                                     defaultValue={searchParams?.query || ''}
                                     onChange={(e) => handleFilterChange('query', e.target.value)}
-                                    className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                                    className="pl-10 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm hallowsnight:placeholder:text-cimo-crimson drop-shadow-gray-500"
                                 />
                             </div>
                             <Select
@@ -299,10 +299,10 @@ export function BreedingPairsClient({
                                     router.replace(`${pathname}?${params.toString()}`);
                                 }}
                             >
-                                <SelectTrigger className="w-full md:w-[200px] bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
+                                <SelectTrigger className="w-full md:w-[200px] bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson drop-shadow-sm drop-shadow-gray-500">
                                     <SelectValue placeholder="Filter by species" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     <SelectItem value="all">All Species</SelectItem>
                                     {ownedSpecies.map((s) => (
                                         <SelectItem key={s} value={s!}>
@@ -323,7 +323,7 @@ export function BreedingPairsClient({
                             />
                             <Label
                                 htmlFor="show-archived"
-                                className="text-pompaca-purple dark:text-purple-300"
+                                className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                             >
                                 Show archived pairs
                             </Label>
@@ -334,7 +334,7 @@ export function BreedingPairsClient({
                     {pinnedPairs.length > 0 && (
                         <div className="mb-12">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
                                     Pinned Pairs
                                 </h2>
                                 {isMounted && (
@@ -345,7 +345,7 @@ export function BreedingPairsClient({
                                         >
                                             Reorder
                                         </Button>
-                                        <p className="hidden md:block text-xs text-dusk-purple dark:text-purple-400">
+                                        <p className="hidden md:block text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                             (Drag and drop to rearrange pinned cards)
                                         </p>
                                     </>
@@ -392,7 +392,7 @@ export function BreedingPairsClient({
                     {/* Unpinned Pairs */}
                     {unpinnedPairs.length > 0 && (
                         <div>
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
                                 All Pairs
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -408,11 +408,11 @@ export function BreedingPairsClient({
                     )}
 
                     {pinnedPairs?.length === 0 && unpinnedPairs?.length === 0 ? (
-                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
+                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 No Breeding Pairs Found
                             </h2>
-                            <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                            <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
                                 Try adjusting your search or filter, or click the &#34;+ New
                                 Pair&#34; button to get started.
                             </p>
@@ -425,7 +425,7 @@ export function BreedingPairsClient({
 
                     {/* Reorder Dialog for Mobile */}
                     <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
-                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
                             <DialogHeader>
                                 <DialogTitle>Reorder Pinned Pairs</DialogTitle>
                             </DialogHeader>

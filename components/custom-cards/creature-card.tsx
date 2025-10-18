@@ -195,7 +195,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
 
     return (
         <Card
-            className={`relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
+            className={`relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
         >
             <div className={`${creature.isArchived ? 'opacity-50' : 'opacity-100'}`}>
                 {creature.isArchived && (
@@ -211,12 +211,12 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                         onClick={handlePinToggle}
                         disabled={isPinning || creature.isArchived}
                         aria-label={isPinned ? 'Unpin goal' : 'Pin goal'}
-                        className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                        className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         {isPinned ? (
-                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
+                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson fill-pompaca-purple dark:fill-purple-300" />
                         ) : (
-                            <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                            <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         )}
                     </Button>
                 </div>
@@ -235,9 +235,9 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                         {isFeaturing ? (
                                             <Loader2 className="h-5 w-5 animate-spin" />
                                         ) : isFeatured ? (
-                                            <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                            <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                                         ) : (
-                                            <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                            <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                                         )}
                                     </Button>
                                 </TooltipTrigger>
@@ -335,7 +335,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-2 w-2 p-2 ml-1 text-dusk-purple hover:text-pompaca-purple dark:hover:text-purple-300"
+                                                className="h-2 w-2 p-2 ml-1 text-dusk-purple hover:text-pompaca-purple dark:hover:text-purple-300 hallowsnight:text-cimo-crimson"
                                                 aria-label="Edit generation"
                                             >
                                                 <Pencil className="h-2 w-2" />
@@ -351,16 +351,16 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                         <strong>Genetics:</strong>
                     </div>
                     <div>
-                        <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple/50">
+                        <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50">
                             <div className="text-sm space-y-1 ">
                                 <div className="whitespace-pre-line pr-4">
                                     {creature.geneData && creature.geneData.length > 0 ? (
-                                        <div className="pl-2 text-dusk-purple dark:text-purple-400 text-xs font-mono mt-1 space-y-1">
+                                        <div className="pl-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson text-xs font-mono mt-1 space-y-1">
                                             {creature.geneData.map(
                                                 (gene) =>
                                                     gene && (
                                                         <div key={gene.category}>
-                                                            <span className="font-bold text-pompaca-purple dark:text-purple-300">
+                                                            <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                                 {gene.category}:
                                                             </span>
                                                             <div className="pl-2">
@@ -379,9 +379,9 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                 </div>
                             </div>
                             <ScrollBar orientation="vertical" />
-                            <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                                <ChevronUp className=" h-4 w-4 text-barely-lilac" />
-                                <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                            <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple hallowsnight:bg-blood-bay-wine">
+                                <ChevronUp className=" h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                <ChevronDown className="h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
                             </div>
                         </ScrollArea>
                     </div>
@@ -392,14 +392,14 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                     {!isAdminView && !creature.isArchived ? (
                         <>
                             <ManageBreedingPairsDialog baseCreature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
                             </ManageBreedingPairsDialog>
                             <LogAsProgenyDialog creature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny
                                     </span>
@@ -408,7 +408,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16"
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                                         disabled={isDeleting || isArchiving}
                                     >
                                         <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
@@ -416,7 +416,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                         </span>
                                     </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <AlertDialogContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>
                                             Remove &#34;{creature.creatureName || creature.code}
@@ -457,7 +457,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                             Archive
                                         </Button>
                                         <Button
-                                            className="text-pompaca-purple dark:text-purple-300"
+                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                             variant="destructive"
                                             onClick={handleDeletePermanently}
                                             disabled={isArchiving || isDeleting}
@@ -540,7 +540,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                     href={`https://finaloutpost.net/view/${creature!.code}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 text-center py-2 hover:underline"
+                    className="mt-3 text-md font-semibold text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine text-center py-2 hover:underline"
                 >
                     View on TFO
                 </Link>

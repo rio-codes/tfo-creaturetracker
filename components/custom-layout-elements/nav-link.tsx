@@ -23,8 +23,8 @@ export function NavLink({
             className={cn(
                 'justify-start rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-pompaca-purple/10 dark:hover:bg-midnight-purple',
                 isActive
-                    ? 'bg-ebena-lavender dark:bg-pompaca-purple font-semibold text-pompaca-purple dark:text-purple-300'
-                    : 'text-dusk-purple dark:text-purple-400',
+                    ? 'bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson'
+                    : 'text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine',
                 className
             )}
         >

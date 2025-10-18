@@ -75,7 +75,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
     const gender = goal?.genes['Gender'].phenotype;
 
     const goalModeInfoContent = (
-        <div className="p-2 max-w-xs dark:text-barely-lilac text-pompaca-purple">
+        <div className="p-2 max-w-xs dark:text-barely-lilac hallowsnight:text-cimo-crimson text-pompaca-purple">
             <h4 className="font-bold mb-2 border-b pb-1">Goal Modes</h4>
             <div className="space-y-3 mt-2">
                 <div>
@@ -196,7 +196,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
             <meta property="og:image" content="{imageUrl}" />
             <div className="flex-col gap-4">
                 <div className="flex justify-between items-start gap-4">
-                    <h1 className="min-w-0 text-4xl font-bold text-pompaca-purple dark:text-purple-300">
+                    <h1 className="min-w-0 text-4xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Goal: {goal?.name}
                     </h1>
                     <ShareGoalButton goal={goal} />
@@ -215,7 +215,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             <GoalModeSwitcher goal={goal} />
                             <InfoDisplay
                                 trigger={
-                                    <Info className="h-5 w-5 cursor-pointer text-pompaca-purple dark:text-barely-lilac" />
+                                    <Info className="h-5 w-5 cursor-pointer text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson" />
                                 }
                                 content={goalModeInfoContent}
                             />
@@ -226,7 +226,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
             </div>
             {/* Top Section: Goal Details */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
+                <Card className="md:col-span-2 bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border">
                     <CardContent className="p-6 flex flex-col gap-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="text-lg font-semibold">
@@ -270,7 +270,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border flex flex-col items-center justify-center p-4">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border flex flex-col items-center justify-center p-4">
                     <div className="relative group">
                         <img
                             key={imageUrl}
@@ -298,12 +298,12 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
             {/* Bottom Section */}
             <div className="mt-10">
                 <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:items-center mb-4">
-                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Breeding Pairs
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-2">
                         <Button
-                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                             onClick={() => {
                                 setIsFindingPairs(true);
                                 setFindPairsDialogOpen(true);
@@ -324,7 +324,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             onLoadingChange={setIsFindingPairs}
                         />
                         <AssignPairDialog goal={goal} predictions={initialPredictions}>
-                            <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950">
+                            <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                 Manage Breeding Pairs
                             </Button>
                         </AssignPairDialog>
@@ -334,7 +334,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                     <PredictionsAccordion predictions={assignedPredictions} goal={goal} />
                 ) : (
                     <div className="w-full space-y-2">
-                        <div className="h-16 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg animate-pulse"></div>
+                        <div className="h-16 bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet rounded-lg animate-pulse"></div>
                     </div>
                 )}
             </div>
@@ -342,7 +342,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
             {/* Progeny Analysis Section */}
             <div className="mt-10">
                 <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:items-center mb-4">
-                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Progeny Analysis
                     </h2>
                     <div className="flex items-center space-x-2">
@@ -354,14 +354,14 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                         <Label htmlFor="excludeGender">Exclude Gender</Label>
                     </div>
                 </div>
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border">
                     <CardContent className="p-4">
                         {scoredProgeny.length > 0 ? (
                             <ul className="space-y-3">
                                 {scoredProgeny.map((progeny) => (
                                     <li
                                         key={progeny.id}
-                                        className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple border border-pompaca-purple dark:border-barely-lilac"
+                                        className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border border-pompaca-purple dark:border-barely-lilac"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center">
@@ -375,7 +375,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                                                         {progeny.creatureName || 'Unnamed'} (
                                                         {progeny.code}) (G{progeny.generation})
                                                     </p>
-                                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                                    <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                         From: {progeny.parentPairName}
                                                     </p>
                                                 </div>
@@ -396,14 +396,14 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                                         </div>
                                         {progeny.analysis.nonMatchingGenes.length > 0 && (
                                             <div className="mt-2 pl-16 text-xs space-y-1">
-                                                <p className="font-semibold text-dusk-purple dark:text-purple-400">
+                                                <p className="font-semibold text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                     Mismatched Traits:
                                                 </p>
-                                                <ul className="list-disc list-inside text-dusk-purple dark:text-purple-400">
+                                                <ul className="list-disc list-inside text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                     {progeny.analysis.nonMatchingGenes.map(
                                                         (gene) => (
                                                             <li key={gene.category}>
-                                                                <span className="font-medium text-pompaca-purple dark:text-purple-300">
+                                                                <span className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                                     {gene.category}:
                                                                 </span>{' '}
                                                                 {gene.creatureValue} (Goal:{' '}
@@ -418,7 +418,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-center text-dusk-purple dark:text-purple-400 italic py-4">
+                            <p className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                                 No adult progeny have been logged for the assigned pairs.
                             </p>
                         )}
@@ -426,10 +426,10 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             <div
                                 className={`mt-4 pt-4 ${scoredProgeny.length > 0 ? 'border-t border-pompaca-purple/20 dark:border-purple-400/30' : ''}`}
                             >
-                                <h4 className="font-semibold text-dusk-purple dark:text-purple-400">
+                                <h4 className="font-semibold text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                     Immature Progeny
                                 </h4>
-                                <p className="text-xs text-dusk-purple dark:text-purple-400 italic mb-2">
+                                <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic mb-2">
                                     The following progeny will be available for analysis once they
                                     become adults.
                                 </p>
@@ -437,7 +437,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                                     {immatureProgeny.map((progeny) => (
                                         <li
                                             key={progeny!.id}
-                                            className="flex justify-between items-center text-pompaca-purple dark:text-purple-300"
+                                            className="flex justify-between items-center text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                         >
                                             <ResponsiveCreatureLink
                                                 displayText={`${progeny!.creatureName || 'Unnamed'} (${progeny!.code})`}

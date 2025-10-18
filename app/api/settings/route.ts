@@ -19,7 +19,7 @@ const settingsSchema = z
         collectionItemsPerPage: z.coerce.number().min(3).max(30).optional(),
         goalsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
         pairsItemsPerPage: z.coerce.number().min(3).max(30).optional(),
-        theme: z.enum(['light', 'dark', 'system']).optional(),
+        theme: z.enum(['light', 'dark', 'system', 'hallowsnight']).optional(),
         goalConversions: z.any().optional(),
         bio: z.string().max(500, 'Bio must be 500 characters or less.').optional().nullable(),
         featuredCreatureIds: z

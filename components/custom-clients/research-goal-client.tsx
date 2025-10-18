@@ -91,7 +91,7 @@ function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50 aspect-square flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-square flex items-center justify-center"
         >
             <img
                 src={goal.imageUrl || '/images/misc/placeholder.png'}
@@ -196,7 +196,7 @@ export function ResearchGoalClient({
     return (
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-5">
-                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 mb-8">
+                <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-8">
                     Research Goals
                 </h1>
                 <AddGoalDialog />
@@ -205,10 +205,10 @@ export function ResearchGoalClient({
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple dark:text-purple-400 h-4 w-4 z-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple hallowsnight:text-cimo-crimson dark:text-purple-400 hallowsnight:text-blood-bay-wine h-4 w-4 z-10" />
                         <Input
                             placeholder="search for a goal by name..."
-                            className="pl-10 bg-ebena-lavender dark:bg-midnight-purple border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                            className="pl-10 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm hallowsnight:placeholder:text-cimo-crimson drop-shadow-gray-500"
                             defaultValue={searchParams.get('query') || ''}
                             onChange={(e) => handleFilterChange('query', e.target.value)}
                         />
@@ -219,10 +219,10 @@ export function ResearchGoalClient({
                         defaultValue={searchParams.get('species') || 'all'}
                         onValueChange={(value) => handleFilterChange('species', value)}
                     >
-                        <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                        <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             <SelectItem value="all">All Species</SelectItem>
                             {ownedSpecies.map((species) => (
                                 <SelectItem key={species} value={species}>
@@ -237,7 +237,7 @@ export function ResearchGoalClient({
                 {pinnedGoals.length > 0 && (
                     <div className="mb-12">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 border-b-2 border-pompaca-purple/30 pb-2">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
                                 Pinned Goals
                             </h2>
                             {isMounted && (
@@ -291,7 +291,7 @@ export function ResearchGoalClient({
                 {/* Unpinned Goals */}
                 {unpinnedGoals.length > 0 && (
                     <div>
-                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
                             All Goals
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -307,11 +307,11 @@ export function ResearchGoalClient({
                 )}
 
                 {pinnedGoals.length === 0 && unpinnedGoals.length === 0 ? (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300">
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             No Goals Found
                         </h2>
-                        <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                        <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
                             Try adjusting your search or filter, or create a new goal.
                         </p>
                     </div>
@@ -324,7 +324,7 @@ export function ResearchGoalClient({
 
                 {/* Reorder Dialog for Mobile */}
                 <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
-                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple max-w-[95vw] sm:max-w-lg">
+                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Reorder Pinned Goals</DialogTitle>
                         </DialogHeader>

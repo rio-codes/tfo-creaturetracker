@@ -414,20 +414,20 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         <div className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center">
             {/* Main Dialog */}
             <div
-                className="bg-barely-lilac dark:bg-pompaca-purple rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Add or Update Creatures
                     </h2>
                     <Button variant="ghost" size="icon" onClick={handleClose}>
-                        <X className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                        <X className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     </Button>
                 </div>
 
                 <div>
-                    <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 mb-4">
+                    <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mb-4">
                         <span>
                             Enter the Tab ID from your TFO tab&#39;s URL. For example, if the URL is
                             <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
@@ -453,7 +453,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
                 {/* Saved Tabs List */}
                 <div className="space-y-2">
-                    <Label className="text-pompaca-purple dark:text-purple-300 font-medium text-lg">
+                    <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium text-lg">
                         Saved Tabs
                     </Label>
                     <div className="flex items-center space-x-2 pl-1 pt-1">
@@ -471,33 +471,58 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                         />
                         <Label
                             htmlFor="select-all-tabs"
-                            className="text-sm font-medium text-pompaca-purple dark:text-purple-300"
+                            className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                         >
                             Select/Deselect All
                         </Label>
                     </div>
-                    <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-2">
+                    <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-2">
                         {isLoadingTabs ? (
                             <div className="flex justify-center items-center h-full">
-                                <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300" />
+                                <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                             </div>
                         ) : userTabs.length > 0 ? (
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={userTabs.map((t) => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    {userTabs.map((tab) => {
-                                        return <SortableTabItem key={tab.id} tab={tab} />;
-                                    })}
-                                </SortableContext>
-                            </DndContext>
+                            userTabs.map((tab) => (
+                                <div key={tab.id} className="flex items-center justify-between p-1">
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`tab-${tab.id}`}
+                                            checked={tab.isSyncEnabled}
+                                            onCheckedChange={() => handleToggleSync(tab)}
+                                        />
+                                        <Label
+                                            htmlFor={`tab-${tab.id}`}
+                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+                                        >
+                                            {tab.tabName || `Tab ${tab.tabId}`}
+                                        </Label>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDeleteTab(tab.id)}
+                                        className="h-6 w-6 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={userTabs.map((t) => t.id)}
+                                            strategy={verticalListSortingStrategy}
+                                        >
+                                            {userTabs.map((tab) => {
+                                                return <SortableTabItem key={tab.id} tab={tab} />;
+                                            })}
+                                        </SortableContext>
+                                    </DndContext>
+                                </div>
+                            ))
                         ) : (
-                            <p className="text-sm text-center text-dusk-purple dark:text-purple-400 italic py-4">
+                            <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                                 No saved tabs yet.
                             </p>
                         )}
@@ -508,14 +533,14 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 {showAddForm ? (
                     <form
                         onSubmit={handleAddTab}
-                        className="space-y-2 p-2 border rounded-md bg-ebena-lavender/50 dark:bg-midnight-purple/50"
+                        className="space-y-2 p-2 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50"
                     >
                         <Input
                             type="number"
                             placeholder="New Tab ID"
                             value={newTabId}
                             onChange={(e) => setNewTabId(e.target.value)}
-                            className="bg-barely-lilac dark:bg-pompaca-purple"
+                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
                             required
                         />
                         <Input
@@ -523,7 +548,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                             placeholder="Tab Name (Optional)"
                             value={newTabName}
                             onChange={(e) => setNewTabName(e.target.value)}
-                            className="bg-barely-lilac dark:bg-pompaca-purple"
+                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
                         />
                         <div className="flex justify-end gap-2">
                             <Button
@@ -567,7 +592,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                     <Button
                         variant="ghost"
                         onClick={handleClose}
-                        className="text-dusk-purple dark:text-purple-400"
+                        className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine"
                     >
                         Close
                     </Button>
@@ -587,13 +612,13 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
             {/* Archive Confirmation Dialog */}
             <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Archive Missing Creatures?</AlertDialogTitle>
                         <AlertDialogDescription>
                             The following {missingCreatures.length} creatures were not found in your
                             synced tabs. Would you like to archive them?
-                            <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-2">
+                            <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-2">
                                 <ul className="text-xs list-disc list-inside">
                                     {missingCreatures.map((c) => (
                                         <li key={c.id}>

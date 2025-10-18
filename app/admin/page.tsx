@@ -227,76 +227,82 @@ export default async function AdminMetricsPage() {
     return (
         <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Total Users
                         </CardTitle>
-                        <Users className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                        <Users className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {metrics.totalUsers}
                         </div>
-                        <p className="text-xs text-dusk-purple dark:text-purple-400">
+                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             +{metrics.newUsersLastWeek} in the last 7 days
                         </p>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Total Creatures
                         </CardTitle>
-                        <PawPrint className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                        <PawPrint className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {metrics.totalCreatures}
                         </div>
-                        <p className="text-xs text-dusk-purple dark:text-purple-400">&nbsp;</p>
+                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                            &nbsp;
+                        </p>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Total Breeding Pairs
                         </CardTitle>
-                        <Heart className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                        <Heart className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {metrics.totalPairs}
                         </div>
-                        <p className="text-xs text-dusk-purple dark:text-purple-400">&nbsp;</p>
+                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                            &nbsp;
+                        </p>
                     </CardContent>
                 </Card>
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Total Research Goals
                         </CardTitle>
-                        <Target className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                        <Target className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {metrics.totalGoals}
                         </div>
-                        <p className="text-xs text-dusk-purple dark:text-purple-400">&nbsp;</p>
+                        <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                            &nbsp;
+                        </p>
                     </CardContent>
                 </Card>
             </div>
             <div>
-                <h2 className="text-2xl font-bold tracking-tight text-pompaca-purple dark:text-purple-300 mb-4">
+                <h2 className="text-2xl font-bold tracking-tight text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                     Fun Facts
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Top Collector
                             </CardTitle>
-                            <Trophy className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                            <Trophy className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         </CardHeader>
                         <CardContent>
                             {funMetrics.topUser ? (
@@ -314,60 +320,60 @@ export default async function AdminMetricsPage() {
                                     <div className="ml-4 space-y-1">
                                         <Link
                                             href={`/${funMetrics.topUser?.username}`}
-                                            className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300"
+                                            className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                         >
                                             {funMetrics.topUser.username || 'Unnamed User'}
                                         </Link>
-                                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                             {funMetrics.topUser.creatureCount} creatures
                                         </p>
                                     </div>
                                 </div>
                             ) : (
-                                <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine pt-2">
                                     No data available.
                                 </p>
                             )}
                         </CardContent>
                     </Card>
-                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Most Popular Species
                             </CardTitle>
-                            <Dna className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                            <Dna className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         </CardHeader>
                         <CardContent>
                             {funMetrics.popularSpecies ? (
                                 <>
-                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         {funMetrics.popularSpecies.species}
                                     </div>
-                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                    <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         with {funMetrics.popularSpecies.count} total creatures
                                     </p>
                                 </>
                             ) : (
-                                <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine pt-2">
                                     No data available.
                                 </p>
                             )}
                         </CardContent>
                     </Card>
-                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Most Prolific Pair
                             </CardTitle>
-                            <Rabbit className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                            <Rabbit className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         </CardHeader>
                         <CardContent>
                             {funMetrics.prolificPair ? (
                                 <>
-                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300">
+                                    <div className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         {funMetrics.prolificPair.name || 'Unnamed Pair'}
                                     </div>
-                                    <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                    <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         Bred {funMetrics.prolificPair.timesBred} times by{' '}
                                         <Link
                                             href={`/${funMetrics.prolificPair.breeder?.username}`}
@@ -378,18 +384,18 @@ export default async function AdminMetricsPage() {
                                     </p>
                                 </>
                             ) : (
-                                <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine pt-2">
                                     No data available.
                                 </p>
                             )}
                         </CardContent>
                     </Card>
-                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                    <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300">
+                            <CardTitle className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Creature Spotlight
                             </CardTitle>
-                            <Sparkles className="h-4 w-4 text-dusk-purple dark:text-purple-400" />
+                            <Sparkles className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         </CardHeader>
                         <CardContent>
                             {funMetrics.randomCreature && funMetrics.randomCreature.image ? (
@@ -399,7 +405,7 @@ export default async function AdminMetricsPage() {
                                         alt={funMetrics.randomCreature.species || 'A creature'}
                                         className="rounded-md object-cover aspect-square w-full"
                                     />
-                                    <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 text-pretty">
+                                    <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine text-pretty">
                                         A potential{' '}
                                         <span className="font-bold">
                                             {funMetrics.randomCreature.species}
@@ -412,7 +418,7 @@ export default async function AdminMetricsPage() {
                                     </p>
                                 </div>
                             ) : (
-                                <p className="text-sm text-dusk-purple dark:text-purple-400 pt-2">
+                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine pt-2">
                                     Could not generate a creature.
                                 </p>
                             )}
@@ -421,9 +427,9 @@ export default async function AdminMetricsPage() {
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-4">
-                <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                     <CardHeader>
-                        <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Recent Registrations
                         </CardTitle>
                     </CardHeader>
@@ -441,11 +447,11 @@ export default async function AdminMetricsPage() {
                                     <div className="ml-4 space-y-1">
                                         <Link
                                             href={`/${user.username}`}
-                                            className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300"
+                                            className="text-sm font-medium leading-none text-pompaca-purple hover:underline dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                         >
                                             {user.username || 'Unnamed User'}
                                         </Link>
-                                        <p className="text-sm text-dusk-purple dark:text-purple-400">
+                                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                             {user.email}
                                         </p>
                                     </div>

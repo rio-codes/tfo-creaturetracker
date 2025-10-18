@@ -203,7 +203,7 @@ export function EditBreedingPairForm({
                 placeholder="Pair Name"
                 value={pairName}
                 onChange={(e) => setPairName(e.target.value)}
-                className="bg-ebena-lavender dark:bg-midnight-purple"
+                className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                 required
             />
 
@@ -278,7 +278,7 @@ export function EditBreedingPairForm({
             {assignableGoals.length > 0 && (
                 <div className="space-y-2">
                     <Label>Assign Research Goals</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple">
+                    <div className="max-h-32 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                         {assignableGoals.map((goal) => (
                             <div key={goal.id} className="flex items-center space-x-2">
                                 <Checkbox

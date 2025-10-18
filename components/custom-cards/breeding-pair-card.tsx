@@ -167,7 +167,7 @@ export function BreedingPairCard({
     const femaleParent = pair!.femaleParent;
 
     return (
-        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
+        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson overflow-hidden flex flex-col border-border drop-shadow-md drop-shadow-gray-500 h-full">
             <div className={`${pair.isArchived ? 'opacity-50' : 'opacity-100'}`}>
                 {/*Notes Icon */}
                 <div className="absolute top-2 left-2 z-10">
@@ -175,7 +175,7 @@ export function BreedingPairCard({
                         <Button
                             disabled={pair.isArchived}
                             size="icon"
-                            className="h-6 w-20 text-dusk-purple dark:text-purple-300  hover:bg-pompaca-purple/10"
+                            className="h-6 w-20 text-dusk-purple dark:text-purple-300 hallowsnight:text-cimo-crimson  hover:bg-pompaca-purple/10"
                         >
                             <BookText className="h-4 w-4" />
                             <span className="text-xs">Logs</span>
@@ -199,9 +199,9 @@ export function BreedingPairCard({
                             className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                         >
                             {isPinned ? (
-                                <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 fill-pompaca-purple dark:fill-purple-300" />
+                                <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson fill-pompaca-purple dark:fill-purple-300" />
                             ) : (
-                                <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                             )}
                         </Button>
                     </div>
@@ -229,13 +229,13 @@ export function BreedingPairCard({
                 </div>
 
                 {/* Content Section */}
-                <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300">
+                <CardContent className="flex flex-col items-center flex-grow gap-4 p-4 pt-0 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     {/* Parent Details */}
-                    <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300">
+                    <div className="px-2 text-center text-md text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         <Collapsible>
                             <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-center">
                                 <p className="text-ellipsis">
-                                    <span className="font-semibold text-pompaca-purple dark:text-purple-300">
+                                    <span className="font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         M:
                                     </span>{' '}
                                     {maleParent.creatureName || 'Unnamed'} ({maleParent.code}) (G
@@ -250,7 +250,7 @@ export function BreedingPairCard({
                         <Collapsible>
                             <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-center">
                                 <p className="text-ellipsis">
-                                    <span className="font-semibold text-pompaca-purple dark:text-purple-300">
+                                    <span className="font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         F:
                                     </span>{' '}
                                     {femaleParent.creatureName || 'Unnamed'} ({femaleParent.code})
@@ -264,7 +264,7 @@ export function BreedingPairCard({
                             </CollapsibleContent>
                         </Collapsible>
                     </div>
-                    <div className="text-center text-sm text-pompaca-purple">
+                    <div className="text-center text-sm text-pompaca-purple hallowsnight:text-cimo-crimson">
                         Bred {pair.timesBred} times
                     </div>
                     {/* Main Info Grid */}
@@ -282,7 +282,7 @@ export function BreedingPairCard({
                                                 <Network className="h-4 w-4 text-yellow-600" />
                                             }
                                             content={
-                                                <p className="dark:text-barely-lilac">
+                                                <p className="dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                                     This pair is related genetically. Offspring will
                                                     be inbred.
                                                 </p>
@@ -291,7 +291,7 @@ export function BreedingPairCard({
                                     )}
                                 </div>
                             </div>
-                            <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
+                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 rounded-md border p-2">
                                 {pair.progeny && pair.progeny.length > 0 ? (
                                     <ul className="text-xs space-y-1">
                                         {pair.progeny.map((p) => {
@@ -341,7 +341,7 @@ export function BreedingPairCard({
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    className="md:hidden h-6 w-6 text-dusk-purple hover:bg-pompaca-purple/10"
+                                                                    className="md:hidden h-6 w-6 text-dusk-purple hallowsnight:text-cimo-crimson hover:bg-pompaca-purple/10"
                                                                 >
                                                                     <Info className="h-4 w-4" />
                                                                 </Button>
@@ -350,7 +350,7 @@ export function BreedingPairCard({
                                                                 onPointerDownOutside={(
                                                                     e: PointerDownOutsideEvent
                                                                 ) => e.preventDefault()}
-                                                                className="bg-barely-lilac dark:bg-pompaca-purple"
+                                                                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
                                                             >
                                                                 <DialogHeader>
                                                                     <DialogTitle className="text-ellipsis">
@@ -378,7 +378,7 @@ export function BreedingPairCard({
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </Button>
                                                             </AlertDialogTrigger>
-                                                            <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                                                            <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                                                                 <AlertDialogHeader>
                                                                     <AlertDialogTitle>
                                                                         Are you sure?
@@ -422,14 +422,14 @@ export function BreedingPairCard({
                                         })}
                                     </ul>
                                 ) : (
-                                    <p className="text-xs text-dusk-purple italic">
+                                    <p className="text-xs text-dusk-purple hallowsnight:text-cimo-crimson italic">
                                         No progeny logged.
                                     </p>
                                 )}
                             </ScrollArea>
 
                             <h4 className="font-bold text-sm mb-1">Assigned Goals</h4>
-                            <ScrollArea className="flex-grow bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md border p-2">
+                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 hallowsnight:text-cimo-crimson rounded-md border p-2">
                                 {pair.assignedGoals && pair.assignedGoals.length > 0 ? (
                                     <ul className="text-xs space-y-1">
                                         {pair.assignedGoals.map((g) => (
@@ -464,7 +464,7 @@ export function BreedingPairCard({
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p className="text-xs text-dusk-purple italic">
+                                    <p className="text-xs text-dusk-purple hallowsnight:text-cimo-crimson italic">
                                         No goals assigned.
                                     </p>
                                 )}
@@ -479,7 +479,7 @@ export function BreedingPairCard({
                 <LogBreedingDialog pair={pair}>
                     <Button
                         disabled={pair.isArchived}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         Log
                         <br />
@@ -489,7 +489,7 @@ export function BreedingPairCard({
                 <ViewOutcomesDialog pair={pair}>
                     <Button
                         disabled={pair.isArchived}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         Possible
                         <br />
@@ -497,7 +497,7 @@ export function BreedingPairCard({
                     </Button>
                 </ViewOutcomesDialog>
                 <EditBreedingPairDialog pair={pair}>
-                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
+                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                         Edit /
                         <br />
                         Delete

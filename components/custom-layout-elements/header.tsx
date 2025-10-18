@@ -46,7 +46,7 @@ export default function Header() {
         >
             <Link
                 href={item.href}
-                className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac"
+                className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
             >
                 <span className="mr-2">{item.icon}</span> {item.label}
             </Link>
@@ -54,7 +54,7 @@ export default function Header() {
     );
 
     return (
-        <header className="bg-pompaca-purple text-barely-lilac px-2 sm:px-4 py-2 flex items-center justify-between shadow-md">
+        <header className="bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-barely-lilac hallowsnight:text-cimo-crimson px-2 sm:px-4 py-2 flex items-center justify-between shadow-md">
             {/* Left side: Menu, Logo, and Title */}
             <div className="flex items-center gap-2">
                 <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -62,7 +62,7 @@ export default function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="text-barely-lilac hover:bg-dusk-purple focus-visible:ring-1 focus-visible:ring-ring rounded-md"
+                            className="text-barely-lilac hallowsnight:text-cimo-crimson hover:bg-dusk-purple focus-visible:ring-1 focus-visible:ring-ring rounded-md"
                         >
                             <Menu className="h-9 w-9" />
                             <span className="sr-only">Open menu</span>
@@ -70,7 +70,7 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="start"
-                        className="w-56 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple"
+                        className="w-56 bg-barely-lilac hallowsnight:bg-cimo-crimsondark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple"
                     >
                         {menuItems.map(renderMenuItem)}
                         {session?.user?.role === 'admin' && renderMenuItem(adminMenuItem)}
@@ -87,7 +87,7 @@ export default function Header() {
                         className="h-10 w-auto"
                     />
                     <div className="hidden sm:block">
-                        <p className="text-xs text-purple-200">
+                        <p className="text-xs text-purple-200 hallowsnight:text-cimo-crimson">
                             Breeding tracker for The Final Outpost
                         </p>
                     </div>
@@ -97,13 +97,13 @@ export default function Header() {
             {/* Right side: Auth Status */}
             <div className="flex items-center">
                 {status === 'loading' && (
-                    <Loader2 className="h-6 w-6 animate-spin text-barely-lilac" />
+                    <Loader2 className="h-6 w-6 animate-spin text-barely-lilac hallowsnight:text-cimo-crimson" />
                 )}
 
                 {status === 'authenticated' && session.user && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center gap-2 rounded-full bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac">
+                            <Button className="flex items-center gap-2 rounded-full hallowsnight-bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">
                                 <Image
                                     key={
                                         session.user.image ||
@@ -119,19 +119,19 @@ export default function Header() {
                                     className="rounded-full p-1"
                                 />
                                 {session.user.username && (
-                                    <span className="font-medium text-barely-lilac">
+                                    <span className="font-medium text-barely-lilac hallowsnight:text-cimo-crimson">
                                         {session.user.username}
                                     </span>
                                 )}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                            className="w-56 bg-barely-lilac dark:bg-pompaca-purple border-dusk-purple"
+                            className="w-56 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple"
                             align="end"
                         >
                             <DropdownMenuItem className="focus:bg-transparent cursor-default">
                                 <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none text-pompaca-purple dark:text-barely-lilac">
+                                    <p className="text-sm font-medium leading-none text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                         Signed in as
                                     </p>
                                     <p className="text-xs leading-none text-gray-600 dark:text-gray-400 truncate">

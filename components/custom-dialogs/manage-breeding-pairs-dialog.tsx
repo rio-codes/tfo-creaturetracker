@@ -76,10 +76,10 @@ export function ManageBreedingPairsDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-h-2/3 overflow-y-auto [&>button]:hidden"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-h-2/3 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Manage Pairs for {baseCreature!.creatureName || baseCreature!.code}
                     </DialogTitle>
                 </DialogHeader>

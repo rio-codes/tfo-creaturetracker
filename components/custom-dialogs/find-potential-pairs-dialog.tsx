@@ -153,7 +153,7 @@ export function FindPotentialPairsDialog({
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="max-w-3xl bg-ebena-lavender dark:bg-pompaca-purple">
+                <DialogContent className="max-w-3xl bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <DialogHeader>
                         <DialogTitle>Find Potential Pairs for: {goal.name}</DialogTitle>
                         <DialogDescription>
@@ -187,7 +187,7 @@ export function FindPotentialPairsDialog({
                                         return (
                                             <div
                                                 key={currentPairId}
-                                                className="flex items-center justify-between p-2 rounded-md bg-barely-lilac dark:bg-midnight-purple"
+                                                className="flex items-center justify-between p-2 rounded-md bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss"
                                             >
                                                 <div>
                                                     <p className="font-semibold">
@@ -276,19 +276,19 @@ export function FindPotentialPairsDialog({
                 </DialogContent>
             </Dialog>
             <AlertDialog open={!!namingPair} onOpenChange={(open) => !open && setNamingPair(null)}>
-                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300">
+                        <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Name New Pair
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-dusk-purple dark:text-purple-400">
+                        <AlertDialogDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             Provide a name for this new breeding pair.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="py-2">
                         <Label
                             htmlFor="pair-name"
-                            className="text-pompaca-purple dark:text-purple-300"
+                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                         >
                             Pair Name
                         </Label>
@@ -297,7 +297,7 @@ export function FindPotentialPairsDialog({
                             value={newPairName}
                             onChange={(e) => setNewPairName(e.target.value)}
                             placeholder="e.g., Main Cielarka Pair"
-                            className="bg-ebena-lavender dark:bg-midnight-purple mt-1"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss mt-1"
                         />
                     </div>
                     <AlertDialogFooter>

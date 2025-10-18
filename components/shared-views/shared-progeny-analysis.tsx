@@ -36,18 +36,18 @@ export function SharedProgenyAnalysis({ scoredProgeny }: Props) {
     return (
         <div className="mt-10">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Progeny Analysis
                 </h2>
             </div>
-            <Card className="bg-ebena-lavender dark:bg-pompaca-purple text-pompaca-purple dark:text-purple-300 border-border">
+            <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border">
                 <CardContent className="p-4">
                     {scoredProgeny.length > 0 ? (
                         <ul className="space-y-3">
                             {scoredProgeny.map((progeny) => (
                                 <li
                                     key={progeny.id}
-                                    className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple border border-pompaca-purple dark:border-barely-lilac"
+                                    className="p-3 rounded-md bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border border-pompaca-purple dark:border-barely-lilac"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
@@ -61,7 +61,7 @@ export function SharedProgenyAnalysis({ scoredProgeny }: Props) {
                                                     {progeny.creatureName || 'Unnamed'} (
                                                     {progeny.code}) (G{progeny.generation})
                                                 </p>
-                                                <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                                <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                     From: {progeny.parentPairName}
                                                 </p>
                                             </div>
@@ -80,13 +80,13 @@ export function SharedProgenyAnalysis({ scoredProgeny }: Props) {
                                     </div>
                                     {progeny.analysis.nonMatchingGenes.length > 0 && (
                                         <div className="mt-2 pl-16 text-xs space-y-1">
-                                            <p className="font-semibold text-dusk-purple dark:text-purple-400">
+                                            <p className="font-semibold text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                 Mismatched Traits:
                                             </p>
-                                            <ul className="list-disc list-inside text-dusk-purple dark:text-purple-400">
+                                            <ul className="list-disc list-inside text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                 {progeny.analysis.nonMatchingGenes.map((gene) => (
                                                     <li key={gene.category}>
-                                                        <span className="font-medium text-pompaca-purple dark:text-purple-300">
+                                                        <span className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                             {gene.category}:
                                                         </span>{' '}
                                                         {gene.creatureValue} (Goal: {gene.goalValue}
@@ -100,7 +100,7 @@ export function SharedProgenyAnalysis({ scoredProgeny }: Props) {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-center text-dusk-purple dark:text-purple-400 italic py-4">
+                        <p className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
                             No adult progeny have been logged for the assigned pairs.
                         </p>
                     )}

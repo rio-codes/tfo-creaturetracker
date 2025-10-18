@@ -34,7 +34,7 @@ export const goalModeEnum = pgEnum('goal_mode', ['genotype', 'phenotype']);
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
 export const friendshipStatusEnum = pgEnum('friendship_status', ['pending', 'accepted', 'blocked']);
-export const themeEnum = pgEnum('theme', ['light', 'dark', 'system']);
+export const themeEnum = pgEnum('theme', ['light', 'dark', 'system', 'hallowsnight']);
 
 export const users = pgTable('user', {
     id: text('id').notNull().primaryKey(),

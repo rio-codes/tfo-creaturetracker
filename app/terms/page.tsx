@@ -3,10 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function Page() {
     return (
-        <div className="bg-barely-lilac text-pompaca-purple dark:bg-deep-purple dark:text-barely-lilac min-h-screen flex items-center justify-center px-4 py-5">
+        <div className="bg-barely-lilac text-pompaca-purple dark:bg-deep-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-h-screen flex items-center justify-center px-4 py-5">
             <div className="w-full">
                 {/* Terms of Service */}
-                <Card className="bg-ebena-lavender dark:bg-midnight-purple w-full shadow-lg">
+                <Card className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss w-full shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl">
                             TFO.creaturetracker Terms of Service{' '}

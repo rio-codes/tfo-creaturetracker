@@ -42,7 +42,7 @@ export function CreatureCombobox({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac"
+                    className="w-full justify-between bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                     disabled={disabled}
                 >
                     <span className="truncate">
@@ -53,18 +53,18 @@ export function CreatureCombobox({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac">
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                 <Command>
                     <CommandInput
-                        className="mb-2 bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac overflow-y-clip min-h-0"
+                        className="mb-2 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson overflow-y-clip min-h-0"
                         placeholder="Search by name or code..."
                     />
-                    <CommandList className="border-2 bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac">
+                    <CommandList className="border-2 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                         <CommandEmpty>No creature found.</CommandEmpty>
                         <CommandGroup>
                             {creatures.map((creature) => (
                                 <CommandItem
-                                    className="bg-ebena-lavender dark:bg-midnight-purple text-xs text-pompaca-purple dark:text-barely-lilac"
+                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                     key={creature?.id}
                                     value={`${creature!.creatureName || 'Unnamed'} ${creature!.code}`}
                                     onSelect={() => {

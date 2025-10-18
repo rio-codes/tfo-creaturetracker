@@ -138,7 +138,7 @@ export default function RegistrationFlow() {
     };
 
     return (
-        <Card className="w-full text-center max-w-lg dark:bg-pompaca-purple bg-ebena-lavender border-pompaca-purple text-pompaca-purple dark:border-purple-400 dark:text-purple-300 shadow-lg">
+        <Card className="w-full text-center max-w-lg dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet bg-ebena-lavender border-pompaca-purple text-pompaca-purple dark:border-purple-400 dark:text-purple-300 hallowsnight:text-cimo-crimson shadow-lg">
             <CardHeader>
                 <CardTitle>Create Your Account</CardTitle>
                 <CardDescription>
@@ -179,7 +179,7 @@ export default function RegistrationFlow() {
                                     required
                                     className="bg-ebena-lavender text-pompaca-purple"
                                 />
-                                <div className="w-full items-center text-dusk-purple dark:text-barely-lilac font-light text-sm text-center">
+                                <div className="w-full items-center text-dusk-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson font-light text-sm text-center">
                                     <p>
                                         Note: Your password must be at least 12 characters long and
                                         contain at least one letter, one number, and one special
@@ -241,14 +241,14 @@ export default function RegistrationFlow() {
                                 )}{' '}
                                 with the code:
                             </p>
-                            <div className="bg-ebena-lavender dark:bg-pompaca-purple dark:text-barely-lilac p-2 rounded font-mono text-lg">
+                            <div className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet dark:text-barely-lilac hallowsnight:text-cimo-crimson p-2 rounded font-mono text-lg">
                                 {challenge.creatureCode}
                             </div>
                             <p>to the following exact name (you can copy and paste it):</p>
-                            <div className="bg-ebena-lavender dark:bg-pompaca-purple dark:text-barely-lilac p-2 rounded font-mono text-lg">
+                            <div className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet dark:text-barely-lilac hallowsnight:text-cimo-crimson p-2 rounded font-mono text-lg">
                                 {challenge.verificationToken}
                             </div>
-                            <p className="text-sm text-dusk-purple bg-ebena-lavender dark:bg-pompaca-purple dark:text-barely-lilac">
+                            <p className="text-sm text-dusk-purple bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                 Once you have renamed the creature, click the button below. The
                                 token will expire in 15 minutes. (After this process, you can change
                                 the name back to what it was before or un-name it if you want.)

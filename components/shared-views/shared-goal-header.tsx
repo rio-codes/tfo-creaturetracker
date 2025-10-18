@@ -33,7 +33,7 @@ export function SharedGoalHeader({ goal }: Props) {
 
     return (
         <div>
-            <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300">
+            <h1 className="text-4xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                 Goal: {goal.name}
             </h1>
             <div className="mt-5">
@@ -48,7 +48,7 @@ export function SharedGoalHeader({ goal }: Props) {
                 </Badge>
                 <InfoDisplay
                     trigger={
-                        <Info className="h-5 w-5 dark:text-purple-300 text-pompaca-purple cursor-pointer ml-2" />
+                        <Info className="h-5 w-5 dark:text-purple-300 hallowsnight:text-cimo-crimson text-pompaca-purple cursor-pointer ml-2" />
                     }
                     content={goalModeInfoContent}
                 />

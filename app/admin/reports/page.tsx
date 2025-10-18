@@ -56,12 +56,12 @@ export default async function AdminReportsPage() {
 
     return (
         <div className="container mx-auto py-10">
-            <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+            <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                 <CardHeader>
-                    <CardTitle className="text-pompaca-purple dark:text-purple-300">
+                    <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         User Reports
                     </CardTitle>
-                    <CardDescription className="text-dusk-purple dark:text-purple-400">
+                    <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                         Review and manage reports submitted by users.
                     </CardDescription>
                 </CardHeader>

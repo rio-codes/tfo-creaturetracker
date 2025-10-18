@@ -208,7 +208,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
         <>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>{children}</DialogTrigger>
-                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden">
+                <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet [&>button]:hidden">
                     <DialogHeader>
                         <DialogTitle>
                             Log &#34;{creature?.creatureName} ({creature?.code})&#34; as Progeny
@@ -233,11 +233,11 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                                     >
                                         <SelectTrigger
                                             id="pair-select"
-                                            className="bg-ebena-lavender dark:bg-midnight-purple"
+                                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                                         >
                                             <SelectValue placeholder="Choose a pair..." />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                                             {suitablePairs.length > 0 ? (
                                                 suitablePairs.map((pair) => (
                                                     <SelectItem key={pair.id} value={pair.id}>
@@ -255,7 +255,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                                 </div>
 
                                 {selectedPairId && (
-                                    <div className="space-y-4 rounded-md border p-4 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
+                                    <div className="space-y-4 rounded-md border p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50">
                                         <RadioGroup
                                             value={logAction}
                                             onValueChange={(v: 'new' | 'existing') =>
@@ -284,7 +284,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                                                     value={notes}
                                                     onChange={(e) => setNotes(e.target.value)}
                                                     placeholder="Any notes about this breeding event..."
-                                                    className="bg-ebena-lavender dark:bg-midnight-purple"
+                                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                                                 />
                                             </div>
                                         )}
@@ -298,11 +298,11 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                                                 >
                                                     <SelectTrigger
                                                         id="log-select"
-                                                        className="bg-ebena-lavender dark:bg-midnight-purple"
+                                                        className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                                                     >
                                                         <SelectValue placeholder="Choose a log..." />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
                                                         {availableLogs.length > 0 ? (
                                                             availableLogs.map((log) => (
                                                                 <SelectItem
@@ -339,7 +339,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button
-                                className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                                className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                 type="button"
                                 variant="ghost"
                             >
@@ -347,7 +347,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                             </Button>
                         </DialogClose>
                         <Button
-                            className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                             onClick={handleSubmit}
                             disabled={isSubmitDisabled}
                         >
@@ -358,7 +358,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                 </DialogContent>
             </Dialog>
             <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
-                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Empty Log Entry</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -369,7 +369,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                     <AlertDialogFooter className="flex-col gap-2 sm:flex-col sm:gap-2">
                         <AlertDialogCancel>Cancel Move</AlertDialogCancel>
                         <Button
-                            className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                             variant="outline"
                             onClick={() => performLogOperation(true)}
                         >
@@ -377,7 +377,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                         </Button>
                         <AlertDialogAction
                             onClick={() => performLogOperation(false)}
-                            className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                         >
                             Move and Delete Old Entry
                         </AlertDialogAction>

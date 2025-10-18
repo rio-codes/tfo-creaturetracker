@@ -229,15 +229,15 @@ export function ViewOutcomesDialog({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto [&>button]:hidden"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
                 </DialogHeader>
                 {isCrossBreed ? (
-                    <div className="p-4 text-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 rounded-md">
+                    <div className="p-4 text-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 rounded-md">
                         <h3 className="font-bold text-lg">Cross-Species Breeding</h3>
-                        <p className="mt-2 text-dusk-purple dark:text-purple-400">
+                        <p className="mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             This pair can produce the following species:
                         </p>
                         <ul className="font-semibold my-2">
@@ -245,19 +245,19 @@ export function ViewOutcomesDialog({
                                 <li key={species}>{species}</li>
                             ))}
                         </ul>
-                        <p className="text-xs italic text-dusk-purple dark:text-purple-400">
+                        <p className="text-xs italic text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             Detailed gene predictions for cross-species and hybrid pairings are not
                             yet supported.
                         </p>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 dark:bg-midnight-purple/50 p-4">
+                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-4">
                             {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
                             {outcomes &&
                                 Object.entries(outcomes).map(([category, categoryOutcomes]) => (
                                     <div key={category} className="space-y-1">
-                                        <Label className="font-bold text-pompaca-purple dark:text-purple-300 text-xs">
+                                        <Label className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson text-xs">
                                             {category}
                                         </Label>
                                         <Select
@@ -269,14 +269,14 @@ export function ViewOutcomesDialog({
                                                 }))
                                             }
                                         >
-                                            <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple px-1 text-xs">
+                                            <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss px-1 text-xs">
                                                 <SelectValue
                                                     placeholder={`Select ${category}...`}
                                                 />
                                             </SelectTrigger>
                                             <SelectContent
                                                 position="item-aligned"
-                                                className="w-max bg-ebena-lavender dark:bg-midnight-purple text-xs"
+                                                className="w-max bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs"
                                             >
                                                 {categoryOutcomes.map((o) => (
                                                     <SelectItem
@@ -296,7 +296,7 @@ export function ViewOutcomesDialog({
                                 ))}
                         </div>
                         <div className="grid grid-cols-2 gap-4 items-center">
-                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 dark:bg-midnight-purple/50 relative min-h-[10rem]">
+                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 relative min-h-[10rem]">
                                 {isLoading && <Loader2 className="animate-spin absolute" />}
                                 {previewUrl && (
                                     <img
@@ -325,18 +325,18 @@ export function ViewOutcomesDialog({
                     <Button
                         variant="ghost"
                         onClick={() => setIsOpen(false)}
-                        className="text-dusk-purple dark:text-purple-400"
+                        className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine"
                     >
                         Close
                     </Button>
                 </DialogFooter>
                 <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-                    <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple">
+                    <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
                         <AlertDialogHeader>
-                            <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300">
+                            <AlertDialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Save as New Research Goal
                             </AlertDialogTitle>
-                            <AlertDialogDescription className="text-dusk-purple dark:text-purple-400 text-sm">
+                            <AlertDialogDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine text-sm">
                                 Configure and name your new goal. It will be created with the
                                 currently selected genes and automatically assigned to this pair.
                             </AlertDialogDescription>
@@ -345,7 +345,7 @@ export function ViewOutcomesDialog({
                             <div>
                                 <Label
                                     htmlFor="goal-name"
-                                    className="text-pompaca-purple dark:text-purple-300"
+                                    className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                 >
                                     Goal Name
                                 </Label>
@@ -354,11 +354,11 @@ export function ViewOutcomesDialog({
                                     value={newGoalName}
                                     onChange={(e) => setNewGoalName(e.target.value)}
                                     placeholder="e.g., Perfect Cielarka"
-                                    className="bg-ebena-lavender dark:bg-midnight-purple mt-1"
+                                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss mt-1"
                                 />
                             </div>
                             <div>
-                                <Label className="text-pompaca-purple dark:text-purple-300">
+                                <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     Goal Mode
                                 </Label>
                                 <RadioGroup
@@ -383,13 +383,13 @@ export function ViewOutcomesDialog({
                                 </RadioGroup>
                             </div>
                             <div>
-                                <Label className="text-pompaca-purple dark:text-purple-300">
+                                <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     Target Genes
                                 </Label>
-                                <p className="text-xs text-dusk-purple dark:text-purple-400">
+                                <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                     Select genes to mark as optional for this goal.
                                 </p>
-                                <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
+                                <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50">
                                     {outcomes &&
                                         Object.entries(selectedGenotypes).map(
                                             ([category, selectedGenotype]) => {

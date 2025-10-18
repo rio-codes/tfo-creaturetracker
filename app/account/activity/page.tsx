@@ -9,12 +9,12 @@ export default async function ActivityLogPage() {
 
     return (
         <main className="container mx-auto p-4 md:p-8">
-            <h1 className="text-3xl font-bold mb-6 text-pompaca-purple dark:text-purple-300">
+            <h1 className="text-3xl font-bold mb-6 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                 My Activity Log
             </h1>
-            <Card className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50">
+            <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-pompaca-purple dark:text-purple-300">
+                    <CardTitle className="flex items-center gap-2 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         <ScrollText className="h-6 w-6" />
                         Recent Actions
                     </CardTitle>
@@ -25,18 +25,18 @@ export default async function ActivityLogPage() {
                             logs.map((log) => (
                                 <li key={log.id} className="py-4 flex justify-between items-center">
                                     <div>
-                                        <p className="text-pompaca-purple dark:text-barely-lilac">
+                                        <p className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                             {log.description}
                                             {log.link && (
                                                 <Link
                                                     href={log.link}
-                                                    className="text-dusk-purple dark:text-purple-400 hover:underline ml-2"
+                                                    className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline ml-2"
                                                 >
                                                     (view)
                                                 </Link>
                                             )}
                                         </p>
-                                        <p className="text-sm text-dusk-purple dark:text-purple-400 mt-1">
+                                        <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-1">
                                             {formatDistanceToNow(new Date(log.timestamp), {
                                                 addSuffix: true,
                                             })}
@@ -45,7 +45,7 @@ export default async function ActivityLogPage() {
                                 </li>
                             ))
                         ) : (
-                            <li className="p-4 text-center text-dusk-purple dark:text-purple-400">
+                            <li className="p-4 text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                 You haven&#39;t performed any actions yet.
                             </li>
                         )}

@@ -450,29 +450,29 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
     return (
         <div className="container mx-auto py-10 ">
-            <Card className="bg-ebena-lavender text-pompaca-purple dark:text-purple-300 dark:bg-pompaca-purple border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+            <Card className="bg-ebena-lavender text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
                 <CardHeader className="flex flex-col sm:flex-row items-start gap-4">
                     <Avatar className="h-24 w-24 border-2 border-pompaca-purple dark:border-purple-400 rounded-full drop-shadow-lg drop-shadow-gray-500 dark:drop-shadow-gray-900 z-20">
                         <AvatarImage src={user.image ?? undefined} alt={user.username} />
                         <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="flex-grow">
-                        <CardTitle className="text-3xl text-pompaca-purple dark:text-purple-300">
+                        <CardTitle className="text-3xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {user.username}
                             {user.pronouns && (
-                                <span className="text-lg font-normal text-dusk-purple dark:text-purple-400 ml-2">
+                                <span className="text-lg font-normal text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ml-2">
                                     ({user.pronouns})
                                 </span>
                             )}
                             <FlairIcon tier={user.supporterTier} />
                         </CardTitle>
-                        <CardDescription className="text-pompaca-purple dark:text-purple-400">
+                        <CardDescription className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             Joined on {new Date(user.createdAt).toLocaleDateString()}
                         </CardDescription>
                         {user.statusMessage && (
                             <div className="mt-2 flex items-center gap-2 rounded-full border border-pompaca-purple/30 bg-dusk-purple/20 px-3 py-1 w-fit">
                                 <span>{user.statusEmoji}</span>
-                                <p className="text-sm text-pompaca-purple dark:text-purple-300">
+                                <p className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     {user.statusMessage}
                                 </p>
                             </div>
@@ -503,18 +503,18 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 href={`https://finaloutpost.net/lab/${user.username}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm font-semibold text-dusk-purple dark:text-purple-400 hover:underline"
+                                className="text-sm font-semibold text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline"
                             >
                                 View TFO Lab
                             </a>
                         )}
                     </div>
                     {user.bio && (
-                        <div className="mt-4 border-1 p-3 rounded-md bg-dusk-purple text-barely-lilac dark:bg-midnight-purple border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 z-10">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300">
+                        <div className="mt-4 border-1 p-3 rounded-md bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 z-10">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Bio
                             </h2>
-                            <p className="text-pompaca-purple dark:text-purple-400 whitespace-pre-wrap">
+                            <p className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine whitespace-pre-wrap">
                                 {user.bio}
                             </p>
                         </div>
@@ -522,25 +522,25 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                     {stats && (
                         <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                                 Statistics
                             </h2>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
                                 <Card className="bg-dusk-purple/20 p-4">
                                     <p className="text-xl font-bold">{stats.totalCreatures}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         Total Creatures
                                     </p>
                                 </Card>
                                 <Card className="bg-dusk-purple/20 p-4">
                                     <p className="text-xl font-bold">{stats.totalSyncedSpecies}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         Total Species
                                     </p>
                                 </Card>
                                 <Card className="bg-dusk-purple/20 p-4">
                                     <p className="text-xl font-bold">{stats.mostNumerousSpecies}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         Most Numerous Species
                                     </p>
                                 </Card>
@@ -551,7 +551,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                                 <p className="text-xl font-bold">
                                                     {stats.achievedGoalsCount}
                                                 </p>
-                                                <p className="text-md text-dusk-purple dark:text-purple-400">
+                                                <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                                     Goals Achieved
                                                 </p>
                                             </Card>
@@ -582,7 +582,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                         <p className="text-xl font-bold">
                                             {stats.achievedGoalsCount}
                                         </p>
-                                        <p className="text-md text-dusk-purple dark:text-purple-400">
+                                        <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                             Goals Achieved
                                         </p>
                                     </Card>
@@ -593,7 +593,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                     {featuredCreatures.length > 0 && (
                         <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                                 Featured Creatures
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -610,7 +610,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                     {featuredGoals.length > 0 && (
                         <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                                 Featured Research Goals
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -632,7 +632,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                     {friends && friends.length > 0 && (
                         <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                                 Friends ({friends.length})
                             </h2>
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
@@ -665,10 +665,10 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                     )}
 
                     <div className="mt-8">
-                        <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 mb-4">
+                        <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
                             Achievements
                         </h2>
-                        <div className="text-center text-dusk-purple dark:text-purple-400 italic py-8 bg-dusk-purple/20 rounded-lg">
+                        <div className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-8 bg-dusk-purple/20 rounded-lg">
                             <p>No achievements to display yet.</p>
                         </div>
                     </div>

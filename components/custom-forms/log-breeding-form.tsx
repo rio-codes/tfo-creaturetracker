@@ -89,7 +89,7 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
                 <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="bg-ebena-lavender dark:bg-midnight-purple"
+                    className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
                     placeholder="Add any notes about this breeding event..."
                 />
             </div>

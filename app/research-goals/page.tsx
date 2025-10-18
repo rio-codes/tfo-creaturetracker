@@ -32,7 +32,7 @@ export default async function ResearchGoalsPage(props: {
         ]);
 
     return (
-        <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
+        <div className="bg-barely-lilac dark:bg-deep-purple hallowsnight:bg-abyss min-h-screen">
             <div className="container mx-auto px-4 py-8">
                 <Suspense fallback={<div>Loading goals...</div>}>
                     <ResearchGoalClient

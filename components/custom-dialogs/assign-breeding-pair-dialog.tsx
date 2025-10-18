@@ -56,10 +56,10 @@ export function AssignPairDialog({ goal, predictions, children }: AssignPairDial
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
                 onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
-                className="bg-barely-lilac dark:bg-pompaca-purple"
+                className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
             >
                 <DialogHeader>
-                    <DialogTitle className="text-pompaca-purple dark:text-purple-300">
+                    <DialogTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Assign Pairs to Goal: {goal?.name}
                     </DialogTitle>
                 </DialogHeader>
@@ -70,7 +70,7 @@ export function AssignPairDialog({ goal, predictions, children }: AssignPairDial
                         return (
                             <div
                                 key={p.pairId}
-                                className="flex items-center justify-between p-3 rounded-md bg-ebena-lavender dark:bg-midnight-purple border border-pompaca-purple/20"
+                                className="flex items-center justify-between p-3 rounded-md bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border border-pompaca-purple/20"
                             >
                                 <div className="flex items-center space-x-3">
                                     <Checkbox
@@ -83,7 +83,7 @@ export function AssignPairDialog({ goal, predictions, children }: AssignPairDial
                                     />
                                     <Label
                                         htmlFor={p.pairId}
-                                        className="font-medium text-pompaca-purple dark:text-purple-300"
+                                        className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
                                     >
                                         {p.pairName}
                                     </Label>

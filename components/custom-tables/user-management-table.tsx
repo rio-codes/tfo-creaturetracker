@@ -63,16 +63,16 @@ export function UserManagementTable({ initialUsers }: { initialUsers: any[] }) {
         <Table>
             <TableHeader>
                 <TableRow className="border-pompaca-purple/50 dark:border-purple-400/50">
-                    <TableHead className="text-pompaca-purple dark:text-purple-300">
+                    <TableHead className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Username
                     </TableHead>
-                    <TableHead className="text-pompaca-purple dark:text-purple-300">
+                    <TableHead className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Email
                     </TableHead>
-                    <TableHead className="text-pompaca-purple dark:text-purple-300">
+                    <TableHead className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Role
                     </TableHead>
-                    <TableHead className="text-pompaca-purple dark:text-purple-300">
+                    <TableHead className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         Status
                     </TableHead>
                 </TableRow>
@@ -81,22 +81,20 @@ export function UserManagementTable({ initialUsers }: { initialUsers: any[] }) {
                 {users.map((user) => (
                     <TableRow
                         key={user.id}
-                        className="text-pompaca-purple dark:text-purple-300 border-pompaca-purple/50 dark:border-purple-400/50"
+                        className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple/50 dark:border-purple-400/50"
                     >
                         <TableCell>{user.username}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
                             <Select
                                 value={user.role}
-                                onValueChange={(newRole) =>
-                                    handleRoleChange(user.id, newRole)
-                                }
+                                onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
                                 disabled={isLoading[user.id]}
                             >
-                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
+                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     <SelectItem value="user">User</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
@@ -110,16 +108,12 @@ export function UserManagementTable({ initialUsers }: { initialUsers: any[] }) {
                                 }
                                 disabled={isLoading[user.id]}
                             >
-                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
+                                <SelectTrigger className="w-[120px] bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
-                                    <SelectItem value="active">
-                                        Active
-                                    </SelectItem>
-                                    <SelectItem value="suspended">
-                                        Suspended
-                                    </SelectItem>
+                                <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="suspended">Suspended</SelectItem>
                                 </SelectContent>
                             </Select>
                         </TableCell>

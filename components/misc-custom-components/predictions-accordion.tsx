@@ -29,11 +29,11 @@ const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) =
 export function PredictionsAccordion({ predictions }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
-            <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
-                <h3 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300">
+            <div className="text-center py-10 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                <h3 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     No Assigned Pairs Found
                 </h3>
-                <p className="text-dusk-purple dark:text-purple-400 mt-2">
+                <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
                     No assigned breeding pairs of this species were found in your collection.
                 </p>
             </div>
@@ -59,9 +59,9 @@ export function PredictionsAccordion({ predictions }: PredictionsAccordionProps)
                     <AccordionItem
                         key={p.pairId}
                         value={`item-${index}`}
-                        className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple"
+                        className="border border-pompaca-purple/30 rounded-lg bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
                     >
-                        <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 text-left">
+                        <AccordionTrigger className="p-4 hover:bg-pompaca-purple/10 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson text-left">
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4 place-items-start">
                                 {/* Left side: Pair Name and Parents */}
                                 <div className="flex flex-1 items-center gap-4 min-w-0 mr-2">
@@ -82,7 +82,7 @@ export function PredictionsAccordion({ predictions }: PredictionsAccordionProps)
                                         <div className="font-bold text-md truncate min-w-0">
                                             {p.pairName}
                                         </div>
-                                        <div className="text-xs text-dusk-purple dark:text-purple-400  min-w-0">
+                                        <div className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson truncate min-w-0">
                                             {p.maleParent?.creatureName || 'Unnamed'} (
                                             {p.maleParent?.code}) (G
                                             {p.maleParent?.generation}) x{' '}
@@ -101,7 +101,7 @@ export function PredictionsAccordion({ predictions }: PredictionsAccordionProps)
                                                 <div className="font-mono text-lg">
                                                     {(p.averageChance * 100).toFixed(2)}%
                                                 </div>
-                                                <div className="text-xs text-dusk-purple dark:text-purple-400">
+                                                <div className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                                     Match Score
                                                 </div>
                                             </div>
@@ -117,7 +117,7 @@ export function PredictionsAccordion({ predictions }: PredictionsAccordionProps)
                                     <LogBreedingDialog pair={pairForDialog as any}>
                                         <Button
                                             size="sm"
-                                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                                         >
                                             Log Breeding
                                         </Button>
@@ -127,15 +127,15 @@ export function PredictionsAccordion({ predictions }: PredictionsAccordionProps)
                         </AccordionTrigger>
 
                         {/* Expanded, "deep-dive" view - remains the same */}
-                        <AccordionContent className="p-4 bg-barely-lilac dark:bg-midnight-purple border-t border-pompaca-purple/30 dark:border-purple-400/50">
+                        <AccordionContent className="p-4 bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-t border-pompaca-purple/30 dark:border-purple-400/50 hallowsnight:text-cimo-crimson">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-4">
                                 {Object.entries(p.chancesByCategory || {}).map(
                                     ([category, chance]) => (
                                         <div key={category}>
-                                            <div className="font-bold text-pompaca-purple dark:text-purple-300">
+                                            <div className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                                 {category}
                                             </div>
-                                            <div className="font-mono text-lg text-dusk-purple dark:text-purple-400">
+                                            <div className="font-mono text-lg text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                                 {(chance * 100).toFixed(2)}%
                                             </div>
                                         </div>

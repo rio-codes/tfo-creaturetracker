@@ -46,23 +46,23 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="bg-barely-lilac dark:bg-midnight-purple min-h-screen flex items-center justify-center px-4">
+        <div className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss min-h-screen flex items-center justify-center px-4">
             <div className=" w-full max-w-md">
                 {/* Logo/Branding */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-2 mb-4">
                         <div className="text-3xl">🧬</div>
-                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300">
+                        <h1 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             TFO.creaturetracker
                         </h1>
                     </div>
-                    <p className="text-pompaca-purple dark:text-purple-300">
+                    <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         a breeding tracker for The Final Oupost
                     </p>
                 </div>
 
                 {/* Login Form */}
-                <Card className="bdark:bg-pompaca-purple bg-ebena-lavender border-pompaca-purple text-pompaca-purple dark:border-purple-400 dark:text-purple-300 shadow-lg">
+                <Card className="bdark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet bg-ebena-lavender border-pompaca-purple text-pompaca-purple dark:border-purple-400 dark:text-purple-300 hallowsnight:text-cimo-crimson shadow-lg">
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl text-pompaca-purple">Welcome Back</CardTitle>
                         <CardDescription className="text-pompaca-purple">

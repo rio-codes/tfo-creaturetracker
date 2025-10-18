@@ -18,7 +18,7 @@ const newsItems = [
                     add your creatures to your{' '}
                     <Link
                         href="/collection"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline font-semibold"
                     >
                         Collection
                     </Link>{' '}
@@ -31,7 +31,7 @@ const newsItems = [
                         href="https://patreon.com/tfoct"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline font-semibold"
                     >
                         Patreon
                     </a>
@@ -40,7 +40,7 @@ const newsItems = [
                         href="https://discord.gg/PMtE3jrXYR"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-pompaca-purple dark:text-purple-400 hover:underline font-semibold"
+                        className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine hover:underline font-semibold"
                     >
                         Discord
                     </a>{' '}
@@ -63,13 +63,13 @@ const newsItems = [
 
 export default function Page() {
     return (
-        <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple text-midnight-purple dark:text-barely-lilac p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-midnight-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl md:text-3xl">
                         Welcome to TFO.CT labs, let&#39;s do some science!
                     </h1>
-                    <p className="text-pompaca-purple dark:text-purple-300 mt-2 text-lg">
+                    <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mt-2 text-lg">
                         This is your dashboard for managing creatures, breeding pairs, and research
                         goals in The Final Outpost.
                     </p>
@@ -103,7 +103,7 @@ export default function Page() {
 
                     {/* News Column */}
                     <aside className="lg:col-span-1">
-                        <div className="bg-ebena-lavender/50 dark:bg-black/20 p-6 rounded-lg h-full">
+                        <div className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 p-6 rounded-lg h-full">
                             <h2 className="text-2xl font-bold mb-4 border-b border-pompaca-purple/20 dark:border-barely-lilac/20 pb-2">
                                 News & Updates
                             </h2>
@@ -111,10 +111,10 @@ export default function Page() {
                                 {newsItems.map((item, index) => (
                                     <div key={index}>
                                         <h3 className="font-semibold text-lg">{item.title}</h3>
-                                        <time className="text-sm text-pompaca-purple dark:text-purple-300/80">
+                                        <time className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson/80">
                                             {item.date}
                                         </time>
-                                        <div className="text-pompaca-purple dark:text-purple-300 mt-1">
+                                        <div className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mt-1">
                                             {item.content}
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@ function ActionButton({
 }) {
     return (
         <Link href={href} className="group block">
-            <div className="bg-ebena-lavender/50 dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 dark:group-hover:bg-black/30 h-full flex flex-col justify-between">
+            <div className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 dark:group-hover:bg-black/30 hallowsnight:group-hover:bg-blood-bay-wine/80 h-full flex flex-col justify-between">
                 <div className="relative w-60 h-60 mx-auto mb-4">
                     <Image
                         src={imgSrc}
@@ -154,7 +154,7 @@ function ActionButton({
                 </div>
                 <div>
                     <h3 className="font-bold text-xl">{title}</h3>
-                    <p className="text-sm text-pompaca-purple dark:text-purple-300">
+                    <p className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                         {description}
                     </p>
                 </div>

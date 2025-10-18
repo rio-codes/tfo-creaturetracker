@@ -153,7 +153,7 @@ export function CreateCreatureForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="space-y-4 text-pompaca-purple dark:text-purple-300"
+            className="space-y-4 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
         >
             {/* Top section for name, code, species */}
             <div className="space-y-4">
@@ -162,7 +162,7 @@ export function CreateCreatureForm() {
                         <Label htmlFor="creature-name">Creature Name</Label>
                         <Input
                             id="creature-name"
-                            className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
+                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
                             placeholder="e.g., Test Hybrid"
                             value={creatureName}
                             onChange={(e) => setCreatureName(e.target.value)}
@@ -173,7 +173,7 @@ export function CreateCreatureForm() {
                         <Label htmlFor="creature-code">Creature Code</Label>
                         <Input
                             id="creature-code"
-                            className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
+                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
                             placeholder="e.g., ABC-XYZ"
                             value={creatureCode}
                             onChange={(e) => setCreatureCode(e.target.value)}
@@ -186,11 +186,11 @@ export function CreateCreatureForm() {
                     <Select value={species} onValueChange={setSpecies} required>
                         <SelectTrigger
                             id="species-select"
-                            className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400"
+                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
                         >
                             <SelectValue placeholder="Select Species..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {speciesList.map((s) => (
                                 <SelectItem key={s} value={s}>
                                     {s}
@@ -204,24 +204,24 @@ export function CreateCreatureForm() {
             {species && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                     {/* Left Column: Gene Selectors */}
-                    <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50">
+                    <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50">
                         <div className="space-y-4">
                             {geneCategories.map((category) => (
                                 <div
                                     key={category}
                                     className="grid grid-cols-[100px_1fr] items-center gap-x-4"
                                 >
-                                    <Label className="font-medium text-pompaca-purple dark:text-purple-300">
+                                    <Label className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                         {category}
                                     </Label>
                                     <Select
                                         value={selectedGenes[category]?.genotype || ''}
                                         onValueChange={(value) => handleGeneChange(category, value)}
                                     >
-                                        <SelectTrigger className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400">
+                                        <SelectTrigger className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
+                                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                             {(geneOptions[category] || []).map((option) => (
                                                 <SelectItem key={option.value} value={option.value}>
                                                     {option.display}
@@ -257,7 +257,7 @@ export function CreateCreatureForm() {
                                 className="w-40 h-40 object-contain mx-auto border rounded-md"
                             />
                         ) : (
-                            <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple/50 border rounded-md mx-auto">
+                            <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50 border rounded-md mx-auto">
                                 <p className="text-xs text-dusk-purple text-center p-2">
                                     Click &#34;Preview Image&#34; to see the creature.
                                 </p>

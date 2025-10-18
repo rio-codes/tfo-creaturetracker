@@ -66,7 +66,7 @@ export function UserDataTable<TData, TValue>({
                     placeholder="Filter by username or email..."
                     defaultValue={searchParams.get('query')?.toString()}
                     onChange={(event) => handleSearch(event.target.value)}
-                    className="max-w-sm bg-barely-lilac dark:bg-pompaca-purple border-pompaca-purple/50 placeholder:text-dusk-purple"
+                    className="max-w-sm bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple"
                 />
             </div>
             <div className="rounded-md border">
@@ -120,11 +120,11 @@ export function UserDataTable<TData, TValue>({
                     size="sm"
                     onClick={() => router.push(createPageURL(currentPage - 1))}
                     disabled={currentPage <= 1}
-                    className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50"
+                    className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50"
                 >
                     Previous
                 </Button>
-                <span className="text-sm text-dusk-purple dark:text-purple-400">
+                <span className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                     Page {currentPage} of {pagination.totalPages}
                 </span>
                 <Button
@@ -132,7 +132,7 @@ export function UserDataTable<TData, TValue>({
                     size="sm"
                     onClick={() => router.push(createPageURL(currentPage + 1))}
                     disabled={currentPage >= pagination.totalPages}
-                    className="bg-ebena-lavender dark:bg-pompaca-purple border-pompaca-purple/50"
+                    className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50"
                 >
                     Next
                 </Button>

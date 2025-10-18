@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
-import { Tektur } from 'next/font/google';
+import { New_Tegomin, Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
 import { Toaster } from '@/components/ui/sonner';
@@ -47,6 +47,12 @@ const tektur = Tektur({
     subsets: ['latin'],
 });
 
+const newTegomin = New_Tegomin({
+    subsets: ['latin'],
+    weight: '400',
+    display: 'swap',
+});
+
 export default async function RootLayout({
     children,
 }: Readonly<{
@@ -77,9 +83,13 @@ export default async function RootLayout({
                     href="https://fonts.googleapis.com/css2?family=Tektur&display=swap"
                     rel="stylesheet"
                 />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap"
+                    rel="stylesheet"
+                />
             </head>
             <body
-                className={`${tektur.className} flex flex-col min-h-screen bg-barely-lilac dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300`}
+                className={`${tektur.className} hallowsnight:font-family-newTegomin ${newTegomin.className} hallowsnight:font-family-newTegomin min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine		text-flex flex-col min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson`}
             >
                 <ClientProviders>{children}</ClientProviders>
                 <Toaster />

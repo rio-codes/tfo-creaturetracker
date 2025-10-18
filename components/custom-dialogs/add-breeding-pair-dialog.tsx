@@ -27,6 +27,8 @@ type AddBreedingPairDialogProps = {
     children?: React.ReactNode;
 };
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 export function AddBreedingPairDialog({
     allCreatures,
     allGoals,
@@ -49,7 +51,7 @@ export function AddBreedingPairDialog({
                 )}
             </DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple max-h-[85vh] overflow-y-auto w-full max-w-2xl [&>button]:hidden"
             >
                 <DialogHeader>

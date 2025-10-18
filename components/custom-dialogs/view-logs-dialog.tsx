@@ -22,25 +22,24 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { EnrichedBreedingPair, EnrichedCreature, DbBreedingLogEntry } from '@/types';
+import type { EnrichedBreedingPair } from '@/types';
 import { format } from 'date-fns';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Loader2 } from 'lucide-react';
-import { EditLogDialog } from './edit-log-dialog';
+import { EditLogDialog } from '@/components/custom-dialogs/edit-log-dialog';
 
 type ViewLogsDialogProps = {
     pair: EnrichedBreedingPair;
-    allCreatures: EnrichedCreature[];
-    allLogs: DbBreedingLogEntry[];
     children: React.ReactNode;
 };
 
-export function ViewLogsDialog({ pair, allCreatures, allLogs, children }: ViewLogsDialogProps) {
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
+export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [error, setError] = useState('');
 
-    // Sort logs by date, newest first
     const sortedLogs =
         pair.logs?.sort(
             (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -80,7 +79,7 @@ export function ViewLogsDialog({ pair, allCreatures, allLogs, children }: ViewLo
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple max-w-2xl"
             >
                 <DialogHeader>
@@ -104,12 +103,7 @@ export function ViewLogsDialog({ pair, allCreatures, allLogs, children }: ViewLo
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <EditLogDialog
-                                                log={log}
-                                                pair={pair}
-                                                allCreatures={allCreatures}
-                                                allLogs={allLogs}
-                                            >
+                                            <EditLogDialog log={log} pair={pair}>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"

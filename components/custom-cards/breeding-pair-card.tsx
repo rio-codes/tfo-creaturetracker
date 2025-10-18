@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type {
-    EnrichedCreature,
-    EnrichedBreedingPair,
-    EnrichedResearchGoal,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
+import type { EnrichedBreedingPair } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -53,19 +47,17 @@ import { LogBreedingDialog } from '@/components/custom-dialogs/log-breeding-dial
 import { ViewOutcomesDialog } from '../custom-dialogs/view-outcomes-dialog';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ViewLogsDialog } from '../custom-dialogs/view-logs-dialog';
-import { sanitizeHtml } from '@/lib/sanitize';
+import type { EnrichedCreature } from '@/types';
 
 type BreedingPairCardProps = {
     pair: EnrichedBreedingPair;
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     _isAdminView?: boolean;
     _isContextView?: boolean;
 };
 
-const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature }) => {
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
+const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
     if (!creature?.geneData || creature.geneData.length === 0) {
         return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
     }
@@ -74,12 +66,10 @@ const ParentGeneSummary = async ({ creature }: { creature: EnrichedCreature }) =
         .map((gene) => `<strong>${gene.category}:</strong> ${gene.phenotype} (${gene.genotype})`)
         .join(', ');
 
-    const cleanSummary = await sanitizeHtml(summary);
-
     return (
         <p
             className="pt-1 text-xs text-dusk-purple break-words"
-            dangerouslySetInnerHTML={{ __html: cleanSummary }}
+            dangerouslySetInnerHTML={{ __html: summary }}
             title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
         />
     );
@@ -114,10 +104,6 @@ const ProgenyPreview = ({
 
 export function BreedingPairCard({
     pair,
-    allCreatures,
-    allGoals,
-    allPairs,
-    allLogs,
     _isAdminView = false,
     _isContextView = false,
 }: BreedingPairCardProps) {
@@ -125,7 +111,7 @@ export function BreedingPairCard({
     const [isPinned, setIsPinned] = useState(pair!.isPinned);
     const [isPinning, setIsPinning] = useState(false);
     const [isRemovingProgeny, setIsRemovingProgeny] = useState<string | null>(null);
-    if (!pair?.maleParent || !pair.femaleParent || !allPairs || !allLogs) {
+    if (!pair?.maleParent || !pair.femaleParent) {
         return null;
     }
 
@@ -185,7 +171,7 @@ export function BreedingPairCard({
             <div className={`${pair.isArchived ? 'opacity-50' : 'opacity-100'}`}>
                 {/*Notes Icon */}
                 <div className="absolute top-2 left-2 z-10">
-                    <ViewLogsDialog pair={pair} allCreatures={allCreatures} allLogs={allLogs}>
+                    <ViewLogsDialog pair={pair}>
                         <Button
                             disabled={pair.isArchived}
                             size="icon"
@@ -323,19 +309,19 @@ export function BreedingPairCard({
                                                                         species={p.species!}
                                                                         className="h-4 w-4"
                                                                     />
-                                                                    <Link
+                                                                    <a
                                                                         href={`https://finaloutpost.net/view/${p.code}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
                                                                         className="text-ellipsis hover:underline"
-                                                                        onClick={(e) =>
-                                                                            e.stopPropagation()
-                                                                        }
+                                                                        onClick={(
+                                                                            e: React.MouseEvent<HTMLAnchorElement>
+                                                                        ) => e.stopPropagation()}
                                                                     >
                                                                         {p.creatureName ||
                                                                             'Unnamed'}{' '}
                                                                         ({p.code})
-                                                                    </Link>
+                                                                    </a>
                                                                 </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent className="hidden md:block bg-pompaca-purple dark:bg-purple-400 dark:text-slate-950 text-barely-lilac border-dusk-purple p-2 max-w-xs w-64">
@@ -361,9 +347,9 @@ export function BreedingPairCard({
                                                                 </Button>
                                                             </DialogTrigger>
                                                             <DialogContent
-                                                                onPointerDownOutside={(e) =>
-                                                                    e.preventDefault()
-                                                                }
+                                                                onPointerDownOutside={(
+                                                                    e: PointerDownOutsideEvent
+                                                                ) => e.preventDefault()}
                                                                 className="bg-barely-lilac dark:bg-pompaca-purple"
                                                             >
                                                                 <DialogHeader>
@@ -490,7 +476,7 @@ export function BreedingPairCard({
 
             {/* Footer Buttons */}
             <div className="flex w-full gap-x-1 justify-center p-2">
-                <LogBreedingDialog pair={pair} allCreatures={allCreatures}>
+                <LogBreedingDialog pair={pair}>
                     <Button
                         disabled={pair.isArchived}
                         className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight"
@@ -510,13 +496,7 @@ export function BreedingPairCard({
                         Outcomes
                     </Button>
                 </ViewOutcomesDialog>
-                <EditBreedingPairDialog
-                    pair={pair}
-                    allCreatures={allCreatures}
-                    allGoals={allGoals}
-                    allPairs={allPairs}
-                    allLogs={allLogs}
-                >
+                <EditBreedingPairDialog pair={pair}>
                     <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-18 md:w-30 text-xs/tight">
                         Edit /
                         <br />

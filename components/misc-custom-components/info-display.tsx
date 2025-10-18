@@ -11,6 +11,8 @@ type InfoDisplayProps = {
     dialogClassName?: string;
 };
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 export function InfoDisplay({
     trigger,
     content,
@@ -38,7 +40,7 @@ export function InfoDisplay({
                 <Dialog>
                     <DialogTrigger asChild>{trigger}</DialogTrigger>
                     <DialogContent
-                        onPointerDownOutside={(e) => e.preventDefault()}
+                        onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                         className={`bg-barely-lilac dark:bg-pompaca-purple ${dialogClassName}`}
                     >
                         <div className="p-4 text-pompaca-purple">{content}</div>

@@ -44,6 +44,8 @@ type GoalModeSwitcherProps = {
     goal: EnrichedResearchGoal;
 };
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 // This is the corrected function signature. It takes props and returns JSX.
 export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
     const router = useRouter();
@@ -162,7 +164,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
             {/* Conversion Dialog */}
             <Dialog open={isConversionDialogOpen} onOpenChange={setIsConversionDialogOpen}>
                 <DialogContent
-                    onPointerDownOutside={(e) => e.preventDefault()}
+                    onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                     className="bg-barely-lilac dark:bg-pompaca-purple"
                 >
                     <DialogHeader>
@@ -181,7 +183,7 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
                                     {cat.category} ({cat.phenotype})
                                 </Label>
                                 <Select
-                                    onValueChange={(value) =>
+                                    onValueChange={(value: string) =>
                                         setConversionSelections((prev) => ({
                                             ...prev,
                                             [cat.category]: value,

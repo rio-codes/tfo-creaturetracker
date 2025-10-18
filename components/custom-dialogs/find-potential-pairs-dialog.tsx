@@ -23,17 +23,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Network } from 'lucide-react';
-import type {
-    EnrichedBreedingPair,
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
-import { calculateGeneProbability } from '@/lib/genetics';
-import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
+import type { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+
 type PotentialPairPrediction = {
     maleParent: EnrichedCreature;
     femaleParent: EnrichedCreature;
@@ -43,22 +36,16 @@ type PotentialPairPrediction = {
     existingPairName?: string;
     existingPairId?: string;
 };
+
 type FindPotentialPairsDialogProps = {
     goal: EnrichedResearchGoal;
-    allCreatures: EnrichedCreature[];
-    allPairs: EnrichedBreedingPair[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onLoadingChange: (loading: boolean) => void;
 };
+
 export function FindPotentialPairsDialog({
     goal,
-    allCreatures,
-    allPairs,
-    allRawPairs,
-    allLogs,
     open,
     onOpenChange,
     onLoadingChange,
@@ -74,88 +61,41 @@ export function FindPotentialPairsDialog({
         female: EnrichedCreature;
     } | null>(null);
     const [newPairName, setNewPairName] = useState('');
+
     const getMatchScoreStyle = (score: number): React.CSSProperties => {
         const hue = (score / 100) * 120;
         return { color: `hsl(${hue}, 90%, 40%)` };
     };
+
     useEffect(() => {
         if (!open) {
             setPotentialPairPredictions([]);
             onLoadingChange(false);
             return;
         }
-        setIsLoading(true);
-        const timer = setTimeout(() => {
-            const existingPairsMap = new Map<string, { name: string; id: string }>();
-            if (allPairs && Array.isArray(allPairs)) {
-                for (const pair of allPairs) {
-                    if (pair.maleParentId && pair.femaleParentId) {
-                        const key = `${pair.maleParentId}-${pair.femaleParentId}`;
-                        existingPairsMap.set(key, {
-                            name: pair.pairName || 'Unnamed Pair',
-                            id: pair.id,
-                        });
-                    }
+
+        const findPairs = async () => {
+            setIsLoading(true);
+            onLoadingChange(true);
+            try {
+                const response = await fetch(`/api/research-goals/${goal.id}/find-potential-pairs`);
+                if (!response.ok) {
+                    throw new Error('Failed to find potential pairs.');
                 }
+                const data = await response.json();
+                setPotentialPairPredictions(data);
+            } catch (error) {
+                console.error(error);
+                // Optionally set an error state to show in the UI
+            } finally {
+                setIsLoading(false);
+                onLoadingChange(false);
             }
-            const males = allCreatures.filter((c) => c?.gender === 'male' && c?.growthLevel === 3);
-            const females = allCreatures.filter(
-                (c) => c?.gender === 'female' && c?.growthLevel === 3
-            );
-            const combinations: PotentialPairPrediction[] = [];
-            for (const male of males) {
-                for (const female of females) {
-                    if (!male?.species || !female?.species) continue;
-                    const possibleOffspring = getPossibleOffspringSpecies(
-                        male.species,
-                        female.species
-                    );
-                    if (!possibleOffspring.includes(goal.species)) {
-                        continue;
-                    }
-                    let totalChance = 0;
-                    let geneCount = 0;
-                    let isPossible = true;
-                    for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
-                        const chance = calculateGeneProbability(
-                            male,
-                            female,
-                            category,
-                            targetGeneInfo,
-                            goal.goalMode
-                        );
-                        if (!targetGeneInfo.isOptional && chance === 0) {
-                            isPossible = false;
-                            break;
-                        }
-                        totalChance += chance;
-                        geneCount++;
-                    }
-                    const isInbred = checkForInbreeding(male.id, female.id, allLogs, allRawPairs);
-                    if (isPossible) {
-                        const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
-                        const pairKey = `${male.id}-${female.id}`;
-                        const existingPair = existingPairsMap.get(pairKey);
-                        combinations.push({
-                            maleParent: male,
-                            femaleParent: female,
-                            averageChance: averageChance * 100,
-                            isPossible: true,
-                            isInbred: isInbred,
-                            existingPairName: existingPair?.name,
-                            existingPairId: existingPair?.id,
-                        });
-                    }
-                }
-            }
-            setPotentialPairPredictions(
-                combinations.sort((a, b) => b.averageChance - a.averageChance)
-            );
-            setIsLoading(false);
-            onLoadingChange(false);
-        }, 50);
-        return () => clearTimeout(timer);
-    }, [open, goal, allCreatures, allPairs, onLoadingChange, allLogs, allRawPairs]);
+        };
+
+        findPairs();
+    }, [open, goal.id, onLoadingChange]);
+
     const handleCreateAndAssign = async (
         male: EnrichedCreature,
         female: EnrichedCreature,
@@ -188,6 +128,7 @@ export function FindPotentialPairsDialog({
             setNamingPair(null);
         }
     };
+
     const handleAssignExisting = async (pairId: string) => {
         setIsCreating(pairId);
         try {
@@ -208,6 +149,7 @@ export function FindPotentialPairsDialog({
             setIsCreating(null);
         }
     };
+
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>

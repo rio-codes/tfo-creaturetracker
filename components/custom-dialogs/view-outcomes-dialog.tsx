@@ -48,6 +48,8 @@ type OutcomesByCategory = {
     [category: string]: Outcome[];
 };
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 export function ViewOutcomesDialog({
     children,
     pair,
@@ -226,7 +228,7 @@ export function ViewOutcomesDialog({
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple max-w-5xl w-full max-h-[85vh] flex flex-col text-pompaca-purple dark:text-purple-300 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>
@@ -260,7 +262,7 @@ export function ViewOutcomesDialog({
                                         </Label>
                                         <Select
                                             value={selectedGenotypes[category]}
-                                            onValueChange={(value) =>
+                                            onValueChange={(value: string) =>
                                                 setSelectedGenotypes((prev) => ({
                                                     ...prev,
                                                     [category]: value,
@@ -361,7 +363,7 @@ export function ViewOutcomesDialog({
                                 </Label>
                                 <RadioGroup
                                     value={goalMode}
-                                    onValueChange={(v) =>
+                                    onValueChange={(v: 'phenotype' | 'genotype') =>
                                         setGoalMode(v as 'phenotype' | 'genotype')
                                     }
                                     className="flex space-x-4 mt-1"
@@ -402,7 +404,7 @@ export function ViewOutcomesDialog({
                                                         <Checkbox
                                                             id={`optional-${category}`}
                                                             checked={!!optionalGenes[category]}
-                                                            onCheckedChange={(checked) =>
+                                                            onCheckedChange={(checked: boolean) =>
                                                                 setOptionalGenes((prev) => ({
                                                                     ...prev,
                                                                     [category]: !!checked,

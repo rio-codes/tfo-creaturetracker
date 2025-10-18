@@ -290,7 +290,7 @@ export function BreedingPairsClient({
                             </div>
                             <Select
                                 value={searchParams?.species || 'all'}
-                                onValueChange={(value) => {
+                                onValueChange={(value: string) => {
                                     const params = new URLSearchParams(currentSearchParams);
                                     params.set('page', '1');
                                     params.set('species', value);
@@ -316,7 +316,7 @@ export function BreedingPairsClient({
                             <Checkbox
                                 id="show-archived"
                                 checked={searchParams?.showArchived === 'true'}
-                                onCheckedChange={(checked) =>
+                                onCheckedChange={(checked: boolean) =>
                                     handleFilterChange('showArchived', !!checked)
                                 }
                                 className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac"
@@ -383,14 +383,7 @@ export function BreedingPairsClient({
                             {/* Mobile: Static Grid */}
                             <div className="grid grid-cols-1 gap-6 md:hidden">
                                 {pinnedPairs?.map((pair) => (
-                                    <BreedingPairCard
-                                        key={pair.id}
-                                        pair={pair}
-                                        allCreatures={allCreatures}
-                                        allGoals={allGoals}
-                                        allPairs={allPairs}
-                                        allLogs={allLogs}
-                                    />
+                                    <BreedingPairCard key={pair.id} pair={pair} />
                                 ))}
                             </div>
                         </div>

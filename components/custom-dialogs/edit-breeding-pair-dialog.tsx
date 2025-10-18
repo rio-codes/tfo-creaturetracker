@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -17,31 +17,58 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from '@/types';
+import { Loader2 } from 'lucide-react';
 
-type EditBreedingPairDialogProps = {
-    pair: EnrichedBreedingPair;
+type EditContextData = {
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
     allPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
+};
+
+type EditBreedingPairDialogProps = {
+    pair: EnrichedBreedingPair;
     children: React.ReactNode;
 };
 
-export function EditBreedingPairDialog({
-    pair,
-    allCreatures,
-    allGoals,
-    allPairs,
-    allLogs,
-    children,
-}: EditBreedingPairDialogProps) {
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
+export function EditBreedingPairDialog({ pair, children }: EditBreedingPairDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [editContext, setEditContext] = useState<EditContextData | null>(null);
+
+    useEffect(() => {
+        if (isOpen && !editContext) {
+            const fetchContext = async () => {
+                setIsLoading(true);
+                setError(null);
+                try {
+                    const response = await fetch(`/api/breeding-pairs/${pair.id}/edit-context`);
+                    if (!response.ok) {
+                        throw new Error('Failed to load data for editing pair.');
+                    }
+                    const data = await response.json();
+                    setEditContext(data);
+                } catch (err: any) {
+                    setError(err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            fetchContext();
+        } else if (!isOpen) {
+            // Reset when dialog closes
+            setEditContext(null);
+        }
+    }, [isOpen, pair.id, editContext]);
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple [&>button]:hidden w-full md:max-w-2xl overflow-y-auto max-h-[90vh]"
             >
                 <DialogHeader>
@@ -49,14 +76,24 @@ export function EditBreedingPairDialog({
                         Edit Breeding Pair
                     </DialogTitle>
                 </DialogHeader>
-                <EditBreedingPairForm
-                    pair={pair}
-                    allCreatures={allCreatures}
-                    allGoals={allGoals}
-                    allPairs={allPairs}
-                    allLogs={allLogs}
-                    onSuccess={() => setIsOpen(false)}
-                />
+                <div className="min-h-[400px]">
+                    {isLoading && (
+                        <div className="flex justify-center items-center h-full">
+                            <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple" />
+                        </div>
+                    )}
+                    {error && <p className="text-red-500 text-center">{error}</p>}
+                    {!isLoading && !error && editContext && (
+                        <EditBreedingPairForm
+                            pair={pair}
+                            allCreatures={editContext.allCreatures}
+                            allGoals={editContext.allGoals}
+                            allPairs={editContext.allPairs}
+                            allLogs={editContext.allLogs}
+                            onSuccess={() => setIsOpen(false)}
+                        />
+                    )}
+                </div>
             </DialogContent>
         </Dialog>
     );

@@ -7,181 +7,58 @@ import {
     breedingLogEntries,
     researchGoals,
     users,
-    achievedGoals,
 } from '@/src/db/schema';
 import { and, ilike, like, or, eq, desc, count, SQL, sql } from 'drizzle-orm';
 import type {
-    DbCreature,
     DbBreedingLogEntry,
     DbBreedingPair,
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
 } from '@/types';
-import { checkForInbreeding, getPossibleOffspringSpecies } from '@/lib/breeding-rules';
-import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import {
+    enrichAndSerializeCreature,
+    enrichAndSerializeGoal,
+    enrichAndSerializeBreedingPair,
+} from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
 import { auth } from '@/auth';
 
-// ============================================================================
-// === HELPER FUNCTIONS =======================================================
-// ============================================================================
-
-const enrichAndSerializeBreedingPair = (
-    pair: DbBreedingPair & {
-        maleParent: DbCreature | null;
-        femaleParent: DbCreature | null;
-    },
-    allEnrichedGoals: EnrichedResearchGoal[],
-    allLogEntries: DbBreedingLogEntry[],
-    allCreatures: EnrichedCreature[],
-    allUserAchievedGoals: any[],
-    allRawPairs: DbBreedingPair[]
-): EnrichedBreedingPair | null => {
-    if (!pair.maleParent || !pair.femaleParent) {
-        return null;
-    }
-
-    const relevantLogs = allLogEntries.filter((log) => log.pairId === pair.id);
-    const timesBred = relevantLogs.length;
-
-    const progenyIds = new Set<string>();
-    relevantLogs.forEach((log) => {
-        if (log.progeny1Id) progenyIds.add(log.progeny1Id);
-        if (log.progeny2Id) progenyIds.add(log.progeny2Id);
-    });
-
-    const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
-    const serializedLogs = relevantLogs.map((log) => ({
-        ...log,
-        createdAt: log.createdAt.toISOString(), // Log entries don't have an updatedAt, but SerializedBreedingLogEntry requires it.
-        updatedAt: log.createdAt.toISOString(),
-    }));
-
-    const progenyCount = progeny.length;
-
-    const assignedGoalsFromPair = allEnrichedGoals.filter(
-        (goal): goal is NonNullable<EnrichedResearchGoal> =>
-            goal !== null && (pair.assignedGoalIds?.includes(goal.id) ?? false)
-    );
-
-    // Check which assigned goals have been achieved by this pair's progeny
-    const achievedGoalIdsForPair = new Set(
-        allUserAchievedGoals
-            .filter((ag) => progenyIds.has(ag.matchingProgenyId))
-            .map((ag) => ag.goalId)
-    );
-
-    const assignedGoals = assignedGoalsFromPair.map((goal) => {
-        const isAchieved = achievedGoalIdsForPair.has(goal.id);
-
-        // Calculate prediction for this goal
-        let totalChance = 0;
-        let geneCount = 0;
-        let isPossible = true;
-        const goalMode = goal.goalMode;
-
-        for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
-            const targetGene = targetGeneInfo as any;
-            const chance = calculateGeneProbability(
-                enrichAndSerializeCreature(pair.maleParent),
-                enrichAndSerializeCreature(pair.femaleParent),
-                category,
-                targetGene,
-                goalMode
-            );
-            if (!targetGene.isOptional) {
-                if (chance === 0) isPossible = false;
-                totalChance += chance;
-                geneCount++;
-            }
-        }
-        const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
-
-        return {
-            ...goal,
-            isAchieved,
-            isPossible,
-            averageChance,
-        };
-    });
-
-    const isInbred = checkForInbreeding(
-        pair.maleParentId,
-        pair.femaleParentId,
-        allLogEntries,
-        allRawPairs
-    );
-
-    return {
-        ...pair,
-        timesBred,
-        progenyCount,
-        progeny,
-        logs: serializedLogs,
-        isInbred,
-        createdAt: pair.createdAt.toISOString(),
-        updatedAt: pair.updatedAt.toISOString(),
-        maleParent: enrichAndSerializeCreature(pair.maleParent),
-        femaleParent: enrichAndSerializeCreature(pair.femaleParent),
-        assignedGoals: assignedGoals,
-    };
-};
-
-// ============================================================================
-// === PUBLIC DATA-FETCHING FUNCTIONS =========================================
-// ============================================================================
-
-// fetch all enriched breeding pairs for logged-in user
 export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair[]> {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return [];
 
     try {
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, userId),
+        const allPairsWithParents = await db.query.breedingPairs.findMany({
+            where: eq(breedingPairs.userId, userId),
+            with: {
+                maleParent: true,
+                femaleParent: true,
+            },
         });
-        if (!user) return [];
 
-        const [allPairsWithParents, allGoals, logEntries, allUserCreatures, allUserAchievedGoals] =
-            await Promise.all([
-                db.query.breedingPairs.findMany({
-                    where: eq(breedingPairs.userId, userId),
-                    with: { maleParent: true, femaleParent: true },
-                }),
-                db.query.researchGoals.findMany({
-                    where: eq(researchGoals.userId, userId),
-                }),
-                db.query.breedingLogEntries.findMany({
-                    where: eq(breedingLogEntries.userId, userId),
-                }),
-                db.query.creatures.findMany({
-                    where: eq(creatures.userId, userId),
-                }),
-                db.query.achievedGoals.findMany({
-                    where: eq(achievedGoals.userId, userId),
-                }),
-            ]);
+        const allUserGoals = await db.query.researchGoals.findMany({
+            where: eq(researchGoals.userId, userId),
+        });
 
-        const enrichedGoals = allGoals.map((goal) => enrichAndSerializeGoal(goal, goal.goalMode));
-        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
-        const rawPairs = allPairsWithParents.map(({ maleParent, femaleParent, ...rest }) => rest);
-        const enrichedPairs = allPairsWithParents
-            .map((pair) =>
-                enrichAndSerializeBreedingPair(
-                    pair,
-                    enrichedGoals,
-                    logEntries,
-                    enrichedCreatures,
-                    allUserAchievedGoals,
-                    rawPairs
-                )
-            )
-            .filter((p): p is EnrichedBreedingPair => p !== null);
+        const enrichedPairPromises = allPairsWithParents.map(async (pair) => {
+            const assignedGoalsForPair = allUserGoals.filter((goal) =>
+                pair.assignedGoalIds?.includes(goal.id)
+            );
+            return enrichAndSerializeBreedingPair(
+                { ...pair, assignedGoals: assignedGoalsForPair.map((goal) => ({ goal })) },
+                userId
+            );
+        });
+
+        const enrichedPairs = (await Promise.all(enrichedPairPromises)).filter(
+            (p): p is EnrichedBreedingPair => p !== null
+        );
 
         return enrichedPairs;
     } catch (error) {
@@ -190,7 +67,6 @@ export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair
     }
 }
 
-// fetch assigned breeding pairs with enriched parents and genetic predictions for a research goal
 export async function fetchGoalDetailsAndPredictions(goalId: string) {
     const session = await auth();
     const userId = session?.user?.id;
@@ -205,14 +81,11 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
         const goalMode = goal.goalMode;
         const enrichedGoal = enrichAndSerializeGoal(goal, goalMode);
 
-        // Fetch all pairs and filter in code, because a pair's `species` property
-        // might not match the goal's species in the case of hybrids.
         const allUserPairs = await db.query.breedingPairs.findMany({
             where: eq(breedingPairs.userId, userId),
             with: { maleParent: true, femaleParent: true },
         });
 
-        // Filter pairs that can produce the goal's species
         const relevantPairs = allUserPairs.filter((p) => {
             if (
                 !p.maleParent ||
@@ -278,7 +151,6 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
     }
 }
 
-// fetch creatures filtered by specified criteria and paginated for UI
 export async function fetchFilteredCreatures(
     searchParams: {
         page?: string;
@@ -294,9 +166,6 @@ export async function fetchFilteredCreatures(
         geneMode?: 'phenotype' | 'genotype';
     } = {}
 ) {
-    console.log('--- [fetchFilteredCreatures] ---');
-    console.log('Received searchParams:', searchParams);
-
     const currentPage = Number(searchParams.page) || 1;
     const {
         query,
@@ -308,7 +177,7 @@ export async function fetchFilteredCreatures(
         origin,
         geneCategory,
         geneQuery,
-        geneMode = 'phenotype', // Default to phenotype if not provided
+        geneMode = 'phenotype',
     } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
@@ -332,13 +201,11 @@ export async function fetchFilteredCreatures(
 
     console.log('Constructed geneString for query:', geneString);
 
-    // get logged-in user from db, determine setting for creatures per page and offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
     const itemsPerPage = user?.collectionItemsPerPage ?? 12;
 
-    // filter by growth level if specified
     const phenotypeGeneStrings: string[] = [];
     if (query) {
         for (const speciesName in structuredGeneData) {
@@ -359,7 +226,6 @@ export async function fetchFilteredCreatures(
     }
 
     const isGenotypePattern = (q: string) => {
-        // Only match if the query consists of pairs of A, B, C and nothing else.
         const validGeneChars = /^[abcABC]+$/;
         return /^(?:[a-zA-Z]{2})+$/.test(q) && validGeneChars.test(q);
     };
@@ -373,16 +239,13 @@ export async function fetchFilteredCreatures(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
-    // filter by search query, gender, growth level, or species if specified
     const conditions = [
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
         query && isGeneSearch
-            ? // Case-sensitive search for genetics
-              like(creatures.genetics, `%${geneQueryValue}%`)
+            ? like(creatures.genetics, `%${geneQueryValue}%`)
             : query
-              ? // Case-insensitive search for other fields
-                or(
+              ? or(
                     ilike(creatures.code, `%${query}%`),
                     ilike(creatures.creatureName, `%${query}%`),
                     ilike(sql`${creatures.origin}::text`, `%${query}%`),
@@ -402,7 +265,6 @@ export async function fetchFilteredCreatures(
             const geneConditions = geneString.map((str) => like(creatures.genetics, str));
             conditions.push(or(...geneConditions));
         } else {
-            // If there's only one gene string, just add it as a simple ilike
             conditions.push(like(creatures.genetics, geneString[0]));
         }
     }
@@ -410,7 +272,6 @@ export async function fetchFilteredCreatures(
     console.log('Final query conditions count:', conditions.length);
 
     try {
-        // Fetch all pinned creatures matching filters
         const pinnedCreaturesRaw = await db
             .select()
             .from(creatures)
@@ -418,8 +279,6 @@ export async function fetchFilteredCreatures(
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
         const pinnedCreatures = pinnedCreaturesRaw.map(enrichAndSerializeCreature);
-
-        // Fetch paginated unpinned creatures
         const unpinnedConditions = [...conditions, eq(creatures.isPinned, false)];
         const offset = (currentPage - 1) * itemsPerPage;
 
@@ -433,7 +292,6 @@ export async function fetchFilteredCreatures(
 
         const unpinnedCreatures = unpinnedCreaturesRaw.map(enrichAndSerializeCreature);
 
-        // Get total count for pagination (only for unpinned)
         const totalCountResult = await db
             .select({ count: count() })
             .from(creatures)
@@ -448,7 +306,6 @@ export async function fetchFilteredCreatures(
     }
 }
 
-// fetch research goals, paginated and filtered
 export async function fetchFilteredResearchGoals(
     searchParams: {
         page?: string;
@@ -462,13 +319,11 @@ export async function fetchFilteredResearchGoals(
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
 
-    // fetch items per page for logged in user and determine offset
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
     const itemsPerPage = user?.goalsItemsPerPage ?? 12;
 
-    // filter research goals by search query or species if specified
     const conditions = [
         eq(researchGoals.userId, userId),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
@@ -476,7 +331,6 @@ export async function fetchFilteredResearchGoals(
     ].filter(Boolean);
 
     try {
-        // Fetch all pinned goals matching filters
         const pinnedGoalsRaw = await db
             .select()
             .from(researchGoals)
@@ -487,7 +341,6 @@ export async function fetchFilteredResearchGoals(
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
-        // Fetch paginated unpinned goals
         const unpinnedConditions = [...conditions, eq(researchGoals.isPinned, false)];
         const offset = (currentPage - 1) * itemsPerPage;
 
@@ -503,7 +356,6 @@ export async function fetchFilteredResearchGoals(
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
-        // Get total count for pagination (only for unpinned)
         const totalCountResult = await db
             .select({ count: count() })
             .from(researchGoals)
@@ -518,7 +370,6 @@ export async function fetchFilteredResearchGoals(
     }
 }
 
-// fetch paginated breeding pairs with statistics from breeding logs
 export async function fetchBreedingPairsWithStats(
     searchParams: {
         page?: string;
@@ -598,8 +449,7 @@ export async function fetchBreedingPairsWithStats(
     }
 
     try {
-        // Fetch all pinned pairs matching filters
-        const pinnedResults = await db
+        const commonQuery = db
             .select({
                 pair: breedingPairs,
                 maleParent: maleCreatures,
@@ -607,90 +457,36 @@ export async function fetchBreedingPairsWithStats(
             })
             .from(breedingPairs)
             .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
+            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id));
+
+        const pinnedResults = await commonQuery
             .where(and(...conditions, eq(breedingPairs.isPinned, true)))
             .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id));
-        // .offset((currentPage - 1) * itemsPerPage); // Pinned items are not paginated
 
-        const unpinnedResults = await db
-            .select({
-                pair: breedingPairs,
-                maleParent: maleCreatures,
-                femaleParent: femaleCreatures,
-            })
-            .from(breedingPairs)
-            .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
+        const unpinnedResults = await commonQuery
             .where(and(...conditions, eq(breedingPairs.isPinned, false)))
             .orderBy(desc(breedingPairs.createdAt), desc(breedingPairs.id))
             .limit(itemsPerPage)
             .offset((currentPage - 1) * itemsPerPage);
 
-        const pinnedPairsWithParents = pinnedResults.map((result) => ({
-            ...result.pair,
-            maleParent: result.maleParent,
-            femaleParent: result.femaleParent,
-        }));
+        const allResults = [...pinnedResults, ...unpinnedResults];
 
-        const unpinnedPairsWithParents = unpinnedResults.map((result) => ({
-            ...result.pair,
-            maleParent: result.maleParent,
-            femaleParent: result.femaleParent,
-        }));
+        const enrichedPairPromises = allResults.map(async (result) => {
+            const pairWithParents = {
+                ...result.pair,
+                maleParent: result.maleParent,
+                femaleParent: result.femaleParent,
+            };
+            return enrichAndSerializeBreedingPair(pairWithParents as any, userId);
+        });
 
-        // Fetch all goals and log entries for enrichment
-        const [allGoals, logEntries, allUserCreatures, allUserAchievedGoals, allRawPairs] =
-            await Promise.all([
-                db.query.researchGoals.findMany({
-                    where: eq(researchGoals.userId, userId),
-                }),
-                db.query.breedingLogEntries.findMany({
-                    where: eq(breedingLogEntries.userId, userId),
-                }),
-                db.query.creatures.findMany({
-                    where: eq(creatures.userId, userId),
-                }),
-                db.query.achievedGoals.findMany({
-                    where: eq(achievedGoals.userId, userId),
-                }),
-                db.query.breedingPairs.findMany({
-                    // Fetch all pairs for inbreeding check
-                    where: eq(breedingPairs.userId, userId),
-                }),
-            ]);
+        const allEnrichedPairs = (await Promise.all(enrichedPairPromises)).filter(
+            (p): p is EnrichedBreedingPair => p !== null
+        );
 
-        const enrichedGoals = allGoals.map((goal) => enrichAndSerializeGoal(goal, goal.goalMode));
-        const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
+        const enrichedPinnedPairs = allEnrichedPairs.filter((p) => p.isPinned);
+        const enrichedUnpinnedPairs = allEnrichedPairs.filter((p) => !p.isPinned);
 
-        const enrichedPinnedPairs = pinnedPairsWithParents
-            .map((pair) => {
-                const enrichedPair = enrichAndSerializeBreedingPair(
-                    pair,
-                    enrichedGoals,
-                    logEntries,
-                    enrichedCreatures,
-                    allUserAchievedGoals,
-                    allRawPairs
-                );
-                return enrichedPair;
-            })
-            .filter((p): p is EnrichedBreedingPair => p !== null);
-
-        const enrichedUnpinnedPairs = unpinnedPairsWithParents
-            .map((pair) => {
-                const enrichedPair = enrichAndSerializeBreedingPair(
-                    pair,
-                    enrichedGoals,
-                    logEntries,
-                    enrichedCreatures,
-                    allUserAchievedGoals,
-                    allRawPairs
-                );
-                return enrichedPair;
-            })
-            .filter((p): p is EnrichedBreedingPair => p !== null);
-
-        // fetch total count for pagination
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
@@ -711,7 +507,6 @@ export async function fetchBreedingPairsWithStats(
     }
 }
 
-// fetch all creatures for logged in user to populate dropdowns
 export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
     const session = await auth();
     const userId = session?.user?.id;
@@ -727,7 +522,6 @@ export async function getAllCreaturesForUser(): Promise<EnrichedCreature[]> {
     }
 }
 
-// fetch all research goals for user to populate dropdowns
 export async function getAllResearchGoalsForUser(): Promise<EnrichedResearchGoal[]> {
     const session = await auth();
     const userId = session?.user?.id;
@@ -743,7 +537,6 @@ export async function getAllResearchGoalsForUser(): Promise<EnrichedResearchGoal
     }
 }
 
-// fetch all raw breeding pairs for user to populate dropdowns and for inbreeding checks
 export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]> {
     const session = await auth();
     const userId = session?.user?.id;
@@ -759,7 +552,6 @@ export async function getAllRawBreedingPairsForUser(): Promise<DbBreedingPair[]>
     }
 }
 
-// fetch all breeding log entries for user for inbreeding checks
 export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEntry[]> {
     const session = await auth();
     const userId = session?.user?.id;
@@ -775,22 +567,19 @@ export async function getAllBreedingLogEntriesForUser(): Promise<DbBreedingLogEn
     }
 }
 
-// helper function to fetch TFO images and upload to Vercel blob with retries on failure
 export async function fetchAndUploadWithRetry(
     imageUrl: string,
-    referenceId: string | null, // Can be creature code, goal ID, or a special preview ID
+    referenceId: string | null,
     retries = 3
 ): Promise<string> {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            // fetch the image from the external URL, ensuring we bypass any cache
             const imageResponse = await fetch(imageUrl);
             if (!imageResponse.ok) {
                 throw new Error(`Failed to download image. Status: ${imageResponse.status}`);
             }
             const imageBlob = await imageResponse.blob();
 
-            // upload the image to Vercel Blob
             let filename = '';
             if (referenceId?.startsWith('pair-preview-')) {
                 filename = `pair-previews/${referenceId.replace('pair-preview-', '')}.png`;
@@ -799,10 +588,8 @@ export async function fetchAndUploadWithRetry(
             } else if (referenceId?.startsWith('admin-preview-')) {
                 filename = `admin-previews/${referenceId.replace('admin-preview-', '')}.png`;
             } else if (referenceId) {
-                // Assumes creature code for sync
                 filename = `creatures/${referenceId}.png`;
             } else {
-                // Assumes new goal
                 filename = `goals/${crypto.randomUUID()}.png`;
             }
 
@@ -813,15 +600,12 @@ export async function fetchAndUploadWithRetry(
                 addRandomSuffix: true,
             });
 
-            // if successful, return the new URL immediately
             return blob.url;
         } catch (error) {
             console.error(error);
             if (attempt === retries) {
-                // if this was the last attempt, re-throw the error to be caught by the main logic
                 throw new Error(`All ${retries} attempts failed for ${referenceId}.`);
             }
-            // wait 1 second before the next retry
             await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
         }
     }

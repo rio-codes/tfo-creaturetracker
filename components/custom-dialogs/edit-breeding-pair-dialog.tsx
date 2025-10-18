@@ -79,7 +79,7 @@ export function EditBreedingPairDialog({ pair, children }: EditBreedingPairDialo
                 <div className="min-h-[400px]">
                     {isLoading && (
                         <div className="flex justify-center items-center h-full">
-                            <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple" />
+                            <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple hallowsnight:text-ruzafolio-scarlet" />
                         </div>
                     )}
                     {error && <p className="text-red-500 text-center">{error}</p>}

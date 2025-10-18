@@ -385,7 +385,7 @@ export function CollectionClient({
                             min="1"
                             type="number"
                             placeholder="Generation"
-                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm drop-shadow-gray-500"
+                            className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 hallowsnight:placeholder:text-cimo-crimson drop-shadow-sm drop-shadow-gray-500"
                             defaultValue={currentGeneration}
                             onChange={(e) => handleFilterChange('generation', e.target.value)}
                         />
@@ -530,7 +530,7 @@ export function CollectionClient({
                                 <>
                                     <Button
                                         onClick={() => setIsReorderDialogOpen(true)}
-                                        className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                        className="md:hidden hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
                                     >
                                         Reorder
                                     </Button>

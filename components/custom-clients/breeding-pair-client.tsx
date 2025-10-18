@@ -1,16 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
-import type {
-    EnrichedBreedingPair,
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
+import type { EnrichedBreedingPair, EnrichedCreature } from '@/types';
 import {
     DndContext,
     closestCenter,
@@ -45,15 +39,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Search } from 'lucide-react';
+import { speciesList } from '@/constants/creature-data';
 
 type BreedingPairsClientProps = {
     pinnedPairs: EnrichedBreedingPair[];
     unpinnedPairs: EnrichedBreedingPair[];
     totalPages: number;
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     searchParams?: {
         page?: string;
         query?: string;
@@ -65,16 +56,7 @@ type BreedingPairsClientProps = {
     };
 };
 
-function SortablePairCard({
-    pair,
-    ...props
-}: {
-    pair: EnrichedBreedingPair;
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
-}) {
+function SortablePairCard({ pair, ...props }: { pair: EnrichedBreedingPair }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: pair.id,
     });
@@ -120,18 +102,18 @@ function SortablePairImage({ pair }: { pair: EnrichedBreedingPair }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-video flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple aspect-video flex items-center justify-center"
         >
             <div className="flex items-center gap-1">
                 <img
                     src={getCacheBustedImageUrl(pair.maleParent)}
                     alt={pair.maleParent!.code}
-                    className="w-1/2 object-contain bg-blue-100 p-0.5 border border-pompaca-purple rounded-md"
+                    className="w-1/2 object-contain bg-blue-100 p-0.5 border border-pompaca-purple hallowsnight:border-cimo-crimson rounded-md"
                 />
                 <img
                     src={getCacheBustedImageUrl(pair.femaleParent)}
                     alt={pair.femaleParent!.code}
-                    className="w-1/2 object-contain bg-pink-100 p-0.5 border border-pompaca-purple rounded-md"
+                    className="w-1/2 object-contain bg-pink-100 p-0.5 border border-pompaca-purple hallowsnight:border-cimo-crimson rounded-md"
                 />
             </div>
         </div>
@@ -142,10 +124,6 @@ export function BreedingPairsClient({
     pinnedPairs: initialPinnedPairs,
     unpinnedPairs: initialUnpinnedPairs,
     totalPages,
-    allCreatures,
-    allGoals,
-    allPairs,
-    allLogs,
     searchParams,
 }: BreedingPairsClientProps) {
     const [isMounted, setIsMounted] = useState(false);
@@ -255,12 +233,6 @@ export function BreedingPairsClient({
         }
     };
 
-    const ownedSpecies = useMemo(() => {
-        if (!allCreatures) return [];
-        const speciesSet = new Set(allCreatures.map((c) => c?.species).filter(Boolean));
-        return Array.from(speciesSet).sort() as string[];
-    }, [allCreatures]);
-
     return (
         <TooltipProvider>
             <div className="min-h-screen">
@@ -269,12 +241,7 @@ export function BreedingPairsClient({
                         <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-5">
                             Breeding Pairs
                         </h1>
-                        <AddBreedingPairDialog
-                            allCreatures={allCreatures}
-                            allGoals={allGoals}
-                            allPairs={allPairs}
-                            allLogs={allLogs}
-                        />
+                        <AddBreedingPairDialog baseCreature={null} initialGoal={null} />
                     </div>
                     {/* Search and Filter Controls */}
                     <div className="flex flex-col gap-4 mb-8">
@@ -304,7 +271,7 @@ export function BreedingPairsClient({
                                 </SelectTrigger>
                                 <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     <SelectItem value="all">All Species</SelectItem>
-                                    {ownedSpecies.map((s) => (
+                                    {speciesList.map((s) => (
                                         <SelectItem key={s} value={s!}>
                                             {s}
                                         </SelectItem>
@@ -341,7 +308,7 @@ export function BreedingPairsClient({
                                     <>
                                         <Button
                                             onClick={() => setIsReorderDialogOpen(true)}
-                                            className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                            className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson"
                                         >
                                             Reorder
                                         </Button>
@@ -366,14 +333,7 @@ export function BreedingPairsClient({
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {pinnedPairs?.map((pair) => (
-                                                <SortablePairCard
-                                                    key={pair.id}
-                                                    pair={pair}
-                                                    allCreatures={allCreatures}
-                                                    allGoals={allGoals}
-                                                    allPairs={allPairs}
-                                                    allLogs={allLogs}
-                                                />
+                                                <SortablePairCard key={pair.id} pair={pair} />
                                             ))}
                                         </div>
                                     </SortableContext>
@@ -392,27 +352,23 @@ export function BreedingPairsClient({
                     {/* Unpinned Pairs */}
                     {unpinnedPairs.length > 0 && (
                         <div>
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 hallowsnight:border-cimo-crimson pb-2">
                                 All Pairs
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                                 {unpinnedPairs?.map((pair) => (
-                                    <BreedingPairCard
-                                        key={pair.id}
-                                        pair={pair}
-                                        {...{ allCreatures, allGoals, allPairs, allLogs }}
-                                    />
+                                    <BreedingPairCard key={pair.id} pair={pair} />
                                 ))}
                             </div>
                         </div>
                     )}
 
                     {pinnedPairs?.length === 0 && unpinnedPairs?.length === 0 ? (
-                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple rounded-lg">
                             <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 No Breeding Pairs Found
                             </h2>
-                            <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
+                            <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson mt-2">
                                 Try adjusting your search or filter, or click the &#34;+ New
                                 Pair&#34; button to get started.
                             </p>
@@ -451,7 +407,7 @@ export function BreedingPairsClient({
                             <DialogFooter className="pt-4 sm:justify-center">
                                 <Button
                                     onClick={() => setIsReorderDialogOpen(false)}
-                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson"
                                 >
                                     Done
                                 </Button>

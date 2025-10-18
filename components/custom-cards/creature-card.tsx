@@ -214,7 +214,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                         className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         {isPinned ? (
-                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson fill-pompaca-purple dark:fill-purple-300" />
+                            <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson fill-pompaca-purple hallowsnight:fill-ruzafolio-scarlet dark:fill-purple-300" />
                         ) : (
                             <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                         )}

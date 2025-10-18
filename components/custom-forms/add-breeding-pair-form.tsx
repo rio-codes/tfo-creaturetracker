@@ -32,25 +32,22 @@ import {
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type AddPairFormProps = {
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     baseCreature?: EnrichedCreature | null;
     initialGoal?: EnrichedResearchGoal | null;
     onSuccess: () => void;
 };
 
-export function AddPairForm({
-    allCreatures,
-    allGoals,
-    allPairs,
-    allLogs,
-    baseCreature,
-    initialGoal,
-    onSuccess,
-}: AddPairFormProps) {
+// Define a type for the context data we'll fetch
+type AddPairContext = {
+    allCreatures: EnrichedCreature[];
+    allGoals: EnrichedResearchGoal[];
+    allPairs: DbBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+};
+
+export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFormProps) {
     const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
+        // ... (this function remains the same)
         if (!creature?.geneData || creature.geneData.length === 0) {
             return <p className="text-xs text-dusk-purple h-4">&nbsp;</p>; // Keep layout consistent
         }
@@ -88,6 +85,28 @@ export function AddPairForm({
     const [isHybridMode, setIsHybridMode] = useState(false);
     const [selectedSpecies, setSelectedSpecies] = useState('');
 
+    const [context, setContext] = useState<AddPairContext | null>(null);
+    const [isContextLoading, setIsContextLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContext = async () => {
+            setIsContextLoading(true);
+            try {
+                const response = await fetch('/api/breeding-pairs/add-context');
+                if (!response.ok) {
+                    throw new Error('Failed to load necessary data.');
+                }
+                const data = await response.json();
+                setContext(data);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setIsContextLoading(false);
+            }
+        };
+        fetchContext();
+    }, []);
+
     useEffect(() => {
         if (baseCreature) {
             if (baseCreature.gender === 'male') {
@@ -103,6 +122,16 @@ export function AddPairForm({
             setSelectedGoalIds([initialGoal.id]);
         }
     }, [baseCreature, initialGoal, isHybridMode]);
+
+    const { allCreatures, allPairs, allLogs, allGoals } = useMemo(
+        () => ({
+            allCreatures: context?.allCreatures || [],
+            allPairs: context?.allPairs || [],
+            allLogs: context?.allLogs || [],
+            allGoals: context?.allGoals || [],
+        }),
+        [context]
+    );
 
     const { selectedMale, selectedFemale } = useMemo(() => {
         const male = allCreatures.find((c) => c?.id === selectedMaleId);
@@ -170,6 +199,7 @@ export function AddPairForm({
     ]);
 
     const assignableGoals = useMemo(() => {
+        // ... (this hook remains the same)
         if (!selectedMale?.species || !selectedFemale?.species) return [];
         const possibleOffspring = getPossibleOffspringSpecies(
             selectedMale.species,
@@ -177,6 +207,47 @@ export function AddPairForm({
         );
         return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species));
     }, [selectedMale, selectedFemale, allGoals]);
+    useEffect(() => {
+        // ... (this hook remains the same)
+        if (!selectedMaleId || !selectedFemaleId) {
+            setPredictions([]);
+            return;
+        }
+        const fetchPredictions = async () => {
+            setIsPredictionLoading(true);
+            const goalIds = assignableGoals.map((g) => g.id);
+            try {
+                const response = await fetch('/api/breeding-predictions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maleParentId: selectedMaleId,
+                        femaleParentId: selectedFemaleId,
+                        goalIds,
+                    }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                setPredictions(data.predictions);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsPredictionLoading(false);
+            }
+        };
+        fetchPredictions();
+    }, [selectedMaleId, selectedFemaleId, assignableGoals]);
+
+    useEffect(() => {
+        // ... (this hook remains the same)
+        if (selectedMaleId && selectedFemaleId) {
+            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
+            setIsInbred(inbred);
+        } else {
+            setIsInbred(false);
+        }
+    }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
+
     useEffect(() => {
         if (!selectedMaleId || !selectedFemaleId) {
             setPredictions([]);
@@ -293,6 +364,14 @@ export function AddPairForm({
         }
     };
 
+    if (isContextLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple hallowsnight:text-cimo-crimson" />
+            </div>
+        );
+    }
+
     return (
         <form onSubmit={handleSubmit}>
             <div className="space-y-4 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
@@ -323,13 +402,13 @@ export function AddPairForm({
 
                 {(selectedMale || selectedFemale) && (
                     <div className="overflow-x-auto">
-                        <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg border text-xs min-w-max">
+                        <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple rounded-lg border text-xs min-w-max">
                             {selectedMale && (
                                 <div className="flex flex-col items-center w-36">
                                     <img
                                         src={selectedMale.imageUrl || '/placeholder.png'}
                                         alt={selectedMale.code}
-                                        className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                        className="w-24 h-24 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple hallowsnight:border-cimo-crimson rounded-lg"
                                     />
                                     <Collapsible className="w-full">
                                         <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
@@ -346,14 +425,14 @@ export function AddPairForm({
                                 </div>
                             )}
                             {selectedMale && selectedFemale && (
-                                <X className="text-dusk-purple mt-10" />
+                                <X className="text-dusk-purple hallowsnight:text-cimo-crimson mt-10" />
                             )}
                             {selectedFemale && (
                                 <div className="flex flex-col items-center w-36">
                                     <img
                                         src={selectedFemale.imageUrl || '/placeholder.png'}
                                         alt={selectedFemale.code}
-                                        className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple rounded-lg"
+                                        className="w-24 h-24 object-contain bg-pink-100 p-1 border-2 border-pompaca-purple hallowsnight:border-cimo-crimson rounded-lg"
                                     />
                                     <Collapsible className="w-full">
                                         <CollapsibleTrigger className="flex items-center justify-center w-full text-sm text-left pt-1">
@@ -472,7 +551,7 @@ export function AddPairForm({
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-300 dark:text-pompaca-purple"
+                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-300 dark:text-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson"
                 >
                     {isLoading ? 'Saving...' : 'Create Pair'}
                 </Button>

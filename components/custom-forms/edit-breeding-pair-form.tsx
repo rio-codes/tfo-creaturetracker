@@ -323,7 +323,7 @@ export function EditBreedingPairForm({
                     </Button>
                     <Button
                         type="submit"
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson	"
                         disabled={isLoading || isDeleting}
                     >
                         {isLoading ? 'Saving...' : 'Save Changes'}

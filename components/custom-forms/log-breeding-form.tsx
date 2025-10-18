@@ -102,7 +102,7 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                 >
                     {isLoading ? <Loader2 className="animate-spin" /> : 'Save Log Entry'}
                 </Button>

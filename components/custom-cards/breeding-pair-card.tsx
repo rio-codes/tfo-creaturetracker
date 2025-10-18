@@ -199,7 +199,7 @@ export function BreedingPairCard({
                             className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
                         >
                             {isPinned ? (
-                                <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson fill-pompaca-purple dark:fill-purple-300" />
+                                <Pin className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson hallowsnight:fill-blood-bay-wine fill-pompaca-purple dark:fill-purple-300" />
                             ) : (
                                 <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                             )}
@@ -219,7 +219,7 @@ export function BreedingPairCard({
                             alt={maleParent.code}
                             className="w-30 h-30 object-contain bg-blue-100 p-1 border-2 border-pompaca-purple rounded-lg"
                         />
-                        <X className="text-dusk-purple" />
+                        <X className="text-dusk-purple hallowsnight:text-cimo-crimson" />
                         <img
                             src={getCacheBustedImageUrl(femaleParent)}
                             alt={femaleParent.code}

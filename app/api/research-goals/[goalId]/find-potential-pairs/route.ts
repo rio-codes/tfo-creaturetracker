@@ -18,7 +18,8 @@ type PotentialPairPrediction = {
     existingPairId?: string;
 };
 
-export async function GET(request: Request, { params }: { params: { goalId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ goalId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

@@ -12,6 +12,7 @@ import { logUserAction } from '@/lib/user-actions';
 const updateTabSchema = z.object({
     tabName: z.string().max(32, 'Tab name must be 32 characters or less.').optional(),
     isSyncEnabled: z.boolean().optional(),
+    displayOrder: z.number().optional(),
 });
 
 export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
@@ -37,11 +38,12 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
         );
     }
 
-    const { tabName, isSyncEnabled } = validated.data;
+    const { tabName, isSyncEnabled, displayOrder } = validated.data;
     const tabIdToUpdate = parseInt(params.id, 10);
 
     try {
         const dataToUpdate: {
+            displayOrder?: number;
             tabName?: string;
             isSyncEnabled?: boolean;
             updatedAt?: Date;
@@ -58,6 +60,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
         }
 
         if (isSyncEnabled !== undefined) dataToUpdate.isSyncEnabled = isSyncEnabled;
+        if (displayOrder !== undefined) dataToUpdate.displayOrder = displayOrder;
 
         if (Object.keys(dataToUpdate).length === 0) {
             return NextResponse.json({ message: 'No fields to update.' }, { status: 200 });

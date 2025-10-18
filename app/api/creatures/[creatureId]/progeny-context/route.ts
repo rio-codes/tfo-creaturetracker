@@ -7,7 +7,8 @@ import { enrichAndSerializeCreature, enrichAndSerializeBreedingPair } from '@/li
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 import type { EnrichedBreedingPair } from '@/types';
 
-export async function GET(request: Request, { params }: { params: { creatureId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

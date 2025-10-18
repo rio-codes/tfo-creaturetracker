@@ -8,8 +8,6 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     Prediction,
-    DbBreedingPair,
-    DbBreedingLogEntry,
     EnrichedBreedingPair,
 } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,20 +36,9 @@ import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-cre
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
     initialPredictions: Prediction[];
-    allCreatures: EnrichedCreature[];
-    allPairs: EnrichedBreedingPair[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
 };
 
-export function GoalDetailClient({
-    goal,
-    initialPredictions,
-    allCreatures,
-    allPairs,
-    allRawPairs,
-    allLogs,
-}: GoalDetailClientProps) {
+export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientProps) {
     const hasMounted = useMounted();
     const router = useRouter();
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -59,12 +46,30 @@ export function GoalDetailClient({
     const [findPairsDialogOpen, setFindPairsDialogOpen] = useState(false);
     const [isFindingPairs, setIsFindingPairs] = useState(false);
     const [excludeGender, setExcludeGender] = useState(false);
+    const [allPairs, setAllPairs] = useState<EnrichedBreedingPair[]>([]);
 
     useEffect(() => {
         if (goal) {
             setImageUrl(goal.imageUrl ?? '');
         }
     }, [goal]);
+
+    useEffect(() => {
+        const fetchAllPairs = async () => {
+            try {
+                const response = await fetch('/api/breeding-pairs');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch breeding pairs.');
+                }
+                const data = await response.json();
+                setAllPairs(data);
+            } catch (error) {
+                console.error('Error fetching all breeding pairs:', error);
+            }
+        };
+
+        fetchAllPairs();
+    }, []);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
     const gender = goal?.genes['Gender'].phenotype;
@@ -92,6 +97,8 @@ export function GoalDetailClient({
         </div>
     );
 
+    // retrieve all breeding pairs from db
+
     const assignedPredictions = useMemo(() => {
         const assignedIds = new Set(goal?.assignedPairIds || []);
         return initialPredictions.filter((p) => assignedIds.has(p.pairId!));
@@ -100,9 +107,9 @@ export function GoalDetailClient({
     const allAssignedProgeny = useMemo(() => {
         const assignedPairIds = new Set(goal?.assignedPairIds || []);
         const progenyWithPairInfo = allPairs
-            .filter((p) => assignedPairIds.has(p.id))
-            .flatMap((p) =>
-                (p.progeny || [])
+            .filter((p: EnrichedBreedingPair) => assignedPairIds.has(p.id))
+            .flatMap((p: EnrichedBreedingPair) =>
+                (p?.progeny || [])
                     .filter((prog) => prog && prog.growthLevel === 3)
                     .map((prog) => ({
                         ...prog,
@@ -175,11 +182,10 @@ export function GoalDetailClient({
                 throw new Error('Failed to refresh image.');
             }
             const data = await response.json();
-            setImageUrl(data.imageUrl); // Update local state to show new image immediately
-            router.refresh(); // Re-fetch server components
+            setImageUrl(data.imageUrl);
+            router.refresh();
         } catch (error) {
             console.error(error);
-            // Optionally show a toast notification on error
         } finally {
             setIsRefreshing(false);
         }
@@ -313,10 +319,6 @@ export function GoalDetailClient({
                         </Button>
                         <FindPotentialPairsDialog
                             goal={goal}
-                            allCreatures={allCreatures}
-                            allPairs={allPairs}
-                            allRawPairs={allRawPairs}
-                            allLogs={allLogs}
                             open={findPairsDialogOpen}
                             onOpenChange={setFindPairsDialogOpen}
                             onLoadingChange={setIsFindingPairs}
@@ -329,11 +331,7 @@ export function GoalDetailClient({
                     </div>
                 </div>
                 {hasMounted ? (
-                    <PredictionsAccordion
-                        predictions={assignedPredictions}
-                        allCreatures={allCreatures}
-                        goal={goal}
-                    />
+                    <PredictionsAccordion predictions={assignedPredictions} goal={goal} />
                 ) : (
                     <div className="w-full space-y-2">
                         <div className="h-16 bg-ebena-lavender dark:bg-pompaca-purple rounded-lg animate-pulse"></div>
@@ -351,7 +349,7 @@ export function GoalDetailClient({
                         <Checkbox
                             id="excludeGender"
                             checked={excludeGender}
-                            onCheckedChange={(checked) => setExcludeGender(!!checked)}
+                            onCheckedChange={(checked: boolean) => setExcludeGender(!!checked)}
                         />
                         <Label htmlFor="excludeGender">Exclude Gender</Label>
                     </div>

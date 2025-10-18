@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -31,14 +31,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import type {
-    EnrichedBreedingPair,
-    EnrichedResearchGoal,
-    EnrichedCreature,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-    User,
-} from '@/types';
+import type { EnrichedBreedingPair, EnrichedResearchGoal, EnrichedCreature, User } from '@/types';
 import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
 import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
@@ -47,28 +40,13 @@ import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
-    pinnedCreatures: EnrichedCreature[];
-    unpinnedCreatures: EnrichedCreature[];
-    totalPages: number;
-    allCreatures: EnrichedCreature[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     allEnrichedPairs?: EnrichedBreedingPair[];
     allGoals?: EnrichedResearchGoal[];
     isAdminView?: boolean;
     currentUser?: User | null;
 }
 
-export function CreatureCard({
-    creature,
-    allCreatures,
-    allEnrichedPairs: allPairs,
-    allRawPairs,
-    allLogs,
-    allGoals,
-    currentUser,
-    isAdminView = false,
-}: CreatureCardProps) {
+export function CreatureCard({ creature, currentUser, isAdminView = false }: CreatureCardProps) {
     const router = useRouter();
 
     if (!creature) {
@@ -83,17 +61,28 @@ export function CreatureCard({
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredCreatureIds?.includes(creature.id) ?? false
     );
+    const [parentPair, setParentPair] = useState<EnrichedBreedingPair | null>(null);
+    const [isParentOfPair, setIsParentOfPair] = useState(false);
+    const [_isContextLoading, setIsContextLoading] = useState(true);
 
-    const parentPair = useMemo(
-        () => allPairs?.find((p) => p?.progeny?.some((prog) => prog?.id === creature.id)),
-        [allPairs, creature.id]
-    );
+    useEffect(() => {
+        if (isAdminView) {
+            setIsContextLoading(false);
+            return;
+        }
 
-    const isParentOfPair = useMemo(() => {
-        return allRawPairs.some(
-            (p) => p.maleParentId === creature.id || p.femaleParentId === creature.id
-        );
-    }, [allRawPairs, creature.id]);
+        async function fetchCreatureContext() {
+            setIsContextLoading(true);
+            const response = await fetch(`/api/creatures/${creature?.id}/context`);
+            if (response.ok) {
+                const { parentPair, isParentOfPair } = await response.json();
+                setParentPair(parentPair);
+                setIsParentOfPair(isParentOfPair);
+            }
+            setIsContextLoading(false);
+        }
+        fetchCreatureContext();
+    }, [creature.id, isAdminView]);
 
     const isProgeny = !!parentPair;
 
@@ -311,11 +300,7 @@ export function CreatureCard({
                                                 >
                                                     <BreedingPairCard
                                                         pair={parentPair}
-                                                        allCreatures={allCreatures!}
-                                                        allGoals={allGoals!}
-                                                        allPairs={allRawPairs!}
-                                                        allLogs={allLogs!}
-                                                        _isAdminView={isAdminView}
+                                                        _isAdminView={isAdminView} // It will fetch its own data
                                                         _isContextView={true}
                                                     />
                                                 </PopoverContent>
@@ -324,11 +309,7 @@ export function CreatureCard({
                                         <DialogContent className="p-0 border-0 bg-transparent max-w-md w-full sm:max-w-md ">
                                             <BreedingPairCard
                                                 pair={parentPair}
-                                                allCreatures={allCreatures!}
-                                                allGoals={allGoals!}
-                                                allPairs={allRawPairs!}
-                                                allLogs={allLogs!}
-                                                _isAdminView={isAdminView}
+                                                _isAdminView={isAdminView} // It will fetch its own data
                                                 _isContextView={true}
                                             />
                                         </DialogContent>
@@ -408,33 +389,16 @@ export function CreatureCard({
             </div>
             <CardFooter className="flex flex-col items-center p-4 pt-0">
                 <div className="flex w-full justify-center gap-2 text-sm">
-                    {!isAdminView &&
-                    allCreatures &&
-                    allPairs &&
-                    allLogs &&
-                    allGoals &&
-                    !creature.isArchived ? (
+                    {!isAdminView && !creature.isArchived ? (
                         <>
-                            <ManageBreedingPairsDialog
-                                baseCreature={creature}
-                                allCreatures={allCreatures}
-                                allPairs={allPairs}
-                                allGoals={allGoals}
-                                allRawPairs={allRawPairs}
-                                allLogs={allLogs}
-                            >
+                            <ManageBreedingPairsDialog baseCreature={creature}>
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
                             </ManageBreedingPairsDialog>
-                            <LogAsProgenyDialog
-                                creature={creature}
-                                allCreatures={allCreatures}
-                                allEnrichedPairs={allPairs}
-                                allLogs={allLogs}
-                            >
+                            <LogAsProgenyDialog creature={creature}>
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16">
                                     <span className="text-wrap wrap-normal text-sm/tight">
                                         Log as Progeny
@@ -452,7 +416,7 @@ export function CreatureCard({
                                         </span>
                                     </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent>
+                                <AlertDialogContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300">
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>
                                             Remove &#34;{creature.creatureName || creature.code}
@@ -493,16 +457,19 @@ export function CreatureCard({
                                             Archive
                                         </Button>
                                         <Button
+                                            className="text-pompaca-purple dark:text-purple-300"
                                             variant="destructive"
                                             onClick={handleDeletePermanently}
                                             disabled={isArchiving || isDeleting}
                                         >
-                                            {isDeleting ? (
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                            )}
-                                            Delete Permanently
+                                            <span className="flex text-red-700">
+                                                {isDeleting ? (
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                )}{' '}
+                                                Delete Permanently
+                                            </span>
                                         </Button>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>

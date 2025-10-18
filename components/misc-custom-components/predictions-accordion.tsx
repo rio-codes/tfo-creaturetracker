@@ -13,7 +13,6 @@ import { X } from 'lucide-react';
 
 type PredictionsAccordionProps = {
     predictions: Prediction[];
-    allCreatures: EnrichedCreature[];
     goal?: EnrichedResearchGoal;
 };
 
@@ -27,7 +26,7 @@ const getCacheBustedImageUrl = (creature: EnrichedCreature | null | undefined) =
     return creature.imageUrl;
 };
 
-export function PredictionsAccordion({ predictions, allCreatures }: PredictionsAccordionProps) {
+export function PredictionsAccordion({ predictions }: PredictionsAccordionProps) {
     if (!predictions || predictions.length === 0) {
         return (
             <div className="text-center py-10 px-4 bg-ebena-lavender/50 dark:bg-pompaca-purple/50 rounded-lg">
@@ -49,7 +48,12 @@ export function PredictionsAccordion({ predictions, allCreatures }: PredictionsA
             {sortedPredictions.map((p, index) => {
                 const pairForDialog = {
                     id: p.pairId,
-                    species: p?.maleParent?.species!,
+                    maleParent: p.maleParent,
+                    femaleParent: p.femaleParent,
+                    pairName: p.pairName,
+                    species: p.maleParent?.species || p.femaleParent?.species || '',
+                    isArchived: false,
+                    genes: {},
                 };
                 return (
                     <AccordionItem
@@ -110,10 +114,7 @@ export function PredictionsAccordion({ predictions, allCreatures }: PredictionsA
                                             </div>
                                         </div>
                                     </div>
-                                    <LogBreedingDialog
-                                        pair={pairForDialog as any}
-                                        allCreatures={allCreatures}
-                                    >
+                                    <LogBreedingDialog pair={pairForDialog as any}>
                                         <Button
                                             size="sm"
                                             className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"

@@ -29,11 +29,14 @@ type EditLogDialogProps = {
     children: React.ReactNode;
     log: SerializedBreedingLogEntry;
     pair: EnrichedBreedingPair;
+};
+
+type EditLogContext = {
     allCreatures: EnrichedCreature[];
     allLogs: DbBreedingLogEntry[];
 };
 
-export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: EditLogDialogProps) {
+export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [notes, setNotes] = useState(log.notes || '');
@@ -42,13 +45,40 @@ export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: Ed
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const [isContextLoading, setIsContextLoading] = useState(false);
+    const [context, setContext] = useState<EditLogContext | null>(null);
+
     useEffect(() => {
         if (open) {
+            // Reset form fields to initial log state when opening
             setNotes(log.notes || '');
             setProgeny1Id(log.progeny1Id);
             setProgeny2Id(log.progeny2Id);
             setError('');
             setIsLoading(false);
+
+            // Fetch context if it's not already loaded
+            if (!context) {
+                const fetchContext = async () => {
+                    setIsContextLoading(true);
+                    try {
+                        const response = await fetch('/api/breeding-log/edit-context');
+                        if (!response.ok) {
+                            throw new Error('Failed to load data for editing log.');
+                        }
+                        const data = await response.json();
+                        setContext(data);
+                    } catch (err: any) {
+                        setError(err.message);
+                    } finally {
+                        setIsContextLoading(false);
+                    }
+                };
+                fetchContext();
+            }
+        } else {
+            // Reset context when dialog closes to ensure fresh data next time
+            setContext(null);
         }
     }, [open, log]);
 
@@ -57,26 +87,30 @@ export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: Ed
             !pair.maleParent ||
             !pair.femaleParent ||
             !pair.maleParent.species ||
-            !pair.femaleParent.species
+            !pair.femaleParent.species ||
+            !context
         )
             return [];
+
         const possibleSpecies = getPossibleOffspringSpecies(
             pair.maleParent.species,
             pair.femaleParent.species
         );
 
+        // Find all creature IDs that are already assigned as progeny in other logs
         const assignedCreatureIds = new Set(
-            allLogs
-                .filter((l) => l.id !== log.id) // Exclude current log from check
+            context.allLogs
+                .filter((l) => l.id !== log.id) // Exclude the current log from the check
                 .flatMap((l) => [l.progeny1Id, l.progeny2Id])
-                .filter(Boolean)
+                .filter((id): id is string => !!id)
         );
 
-        return allCreatures.filter(
+        // Return creatures that match possible species and are not already assigned elsewhere
+        return context.allCreatures.filter(
             (c) =>
                 c?.species && possibleSpecies.includes(c.species) && !assignedCreatureIds.has(c.id)
         );
-    }, [allCreatures, allLogs, pair, log.id]);
+    }, [context, pair, log.id]);
 
     const handleSubmit = async () => {
         setIsLoading(true);
@@ -132,19 +166,37 @@ export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: Ed
                 <DialogHeader>
                     <DialogTitle>Edit Log Entry</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea
-                            id="notes"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Any notes about this breeding event..."
-                            className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
-                        />
-                    </div>
-                    {renderProgenySelect(progeny1Id, setProgeny1Id, progeny2Id, 'Progeny 1')}
-                    {renderProgenySelect(progeny2Id, setProgeny2Id, progeny1Id, 'Progeny 2')}
+                <div className="space-y-4 py-4 min-h-[300px]">
+                    {isContextLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                        </div>
+                    ) : context ? (
+                        <>
+                            <div className="space-y-2">
+                                <Label htmlFor="notes">Notes</Label>
+                                <Textarea
+                                    id="notes"
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    placeholder="Any notes about this breeding event..."
+                                    className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
+                                />
+                            </div>
+                            {renderProgenySelect(
+                                progeny1Id,
+                                setProgeny1Id,
+                                progeny2Id,
+                                'Progeny 1'
+                            )}
+                            {renderProgenySelect(
+                                progeny2Id,
+                                setProgeny2Id,
+                                progeny1Id,
+                                'Progeny 2'
+                            )}
+                        </>
+                    ) : null}
                     {error && <p className="text-sm text-red-500">{error}</p>}
                 </div>
                 <DialogFooter>
@@ -158,7 +210,7 @@ export function EditLogDialog({ children, log, pair, allCreatures, allLogs }: Ed
                     </DialogClose>
                     <Button
                         onClick={handleSubmit}
-                        disabled={isLoading}
+                        disabled={isLoading || isContextLoading}
                         className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac"
                     >
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

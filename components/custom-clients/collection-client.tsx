@@ -380,7 +380,7 @@ export function CollectionClient({
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <select.Select
                             defaultValue={searchParamsFromProps?.gender || 'all'}
-                            onValueChange={(value) => handleFilterChange('gender', value)}
+                            onValueChange={(value: string) => handleFilterChange('gender', value)}
                         >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500">
                                 <select.SelectValue placeholder="Gender" />
@@ -394,7 +394,7 @@ export function CollectionClient({
 
                         <select.Select
                             value={currentStage}
-                            onValueChange={(e) => handleFilterChange('stage', e)}
+                            onValueChange={(e: string) => handleFilterChange('stage', e)}
                         >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Stage" />
@@ -418,7 +418,7 @@ export function CollectionClient({
 
                         <select.Select
                             value={currentorigin}
-                            onValueChange={(value) => handleFilterChange('origin', value)}
+                            onValueChange={(value: string) => handleFilterChange('origin', value)}
                         >
                             <select.SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
                                 <select.SelectValue placeholder="Origin" />
@@ -437,7 +437,7 @@ export function CollectionClient({
 
                         <select.Select
                             value={searchParamsFromProps?.species || 'all'}
-                            onValueChange={(value) => {
+                            onValueChange={(value: string) => {
                                 const params = new URLSearchParams(currentSearchParams);
                                 params.set('page', '1');
                                 params.set('species', value);
@@ -463,7 +463,9 @@ export function CollectionClient({
                         <div className="flex flex-col md:flex-row gap-4 items-center">
                             <select.Select
                                 value={searchParamsFromProps?.geneCategory || 'any'}
-                                onValueChange={(value) => handleFilterChange('geneCategory', value)}
+                                onValueChange={(value: string) =>
+                                    handleFilterChange('geneCategory', value)
+                                }
                             >
                                 <select.SelectTrigger className="flex-1 bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-purple-300 drop-shadow-sm drop-shadow-gray-500">
                                     <select.SelectValue placeholder="Filter by Genetic Trait" />
@@ -482,7 +484,7 @@ export function CollectionClient({
                                 <>
                                     <select.Select
                                         value={searchParamsFromProps?.geneQuery || 'any'}
-                                        onValueChange={(value) =>
+                                        onValueChange={(value: string) =>
                                             handleFilterChange('geneQuery', value)
                                         }
                                     >
@@ -531,7 +533,9 @@ export function CollectionClient({
                     <Checkbox
                         id="show-archived"
                         checked={showArchived}
-                        onCheckedChange={(checked) => handleFilterChange('showArchived', !!checked)}
+                        onCheckedChange={(checked: boolean) =>
+                            handleFilterChange('showArchived', !!checked)
+                        }
                         className="border-pompaca-purple dark:border-purple-400 data-[state=checked]:bg-pompaca-purple data-[state=checked]:text-barely-lilac"
                     />
                     <Label
@@ -602,16 +606,9 @@ export function CollectionClient({
                             {pinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
-                                    pinnedCreatures={pinnedCreatures}
-                                    unpinnedCreatures={unpinnedCreatures}
-                                    totalPages={totalPages}
                                     creature={creature}
-                                    allCreatures={allCreatures}
-                                    allRawPairs={allRawPairs}
-                                    allEnrichedPairs={allPairs}
-                                    allLogs={allLogs}
-                                    allGoals={allGoals}
                                     currentUser={currentUser}
+                                    isAdminView={false}
                                 />
                             ))}
                         </div>
@@ -628,16 +625,9 @@ export function CollectionClient({
                             {unpinnedCreatures.map((creature) => (
                                 <CreatureCard
                                     key={creature!.id}
-                                    pinnedCreatures={pinnedCreatures}
-                                    unpinnedCreatures={unpinnedCreatures}
-                                    totalPages={totalPages}
                                     creature={creature}
-                                    allCreatures={allCreatures}
-                                    allRawPairs={allRawPairs}
-                                    allEnrichedPairs={allPairs}
-                                    allLogs={allLogs}
-                                    allGoals={allGoals}
                                     currentUser={currentUser}
+                                    isAdminView={false}
                                 />
                             ))}
                         </div>

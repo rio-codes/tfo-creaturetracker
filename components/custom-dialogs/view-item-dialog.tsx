@@ -66,20 +66,7 @@ export function ViewItemDialog({
 
         switch (item?.type) {
             case 'creature':
-                return (
-                    <CreatureCard
-                        creature={data.creature!}
-                        pinnedCreatures={[]} // Not applicable in admin view
-                        unpinnedCreatures={[]} // Not applicable in admin view
-                        totalPages={1} // Not applicable in admin view
-                        allCreatures={data.allCreatures!}
-                        allEnrichedPairs={data.allEnrichedPairs || []}
-                        allRawPairs={data.allRawPairs!}
-                        allLogs={data.allLogs!}
-                        allGoals={data.allGoals}
-                        isAdminView={true}
-                    />
-                );
+                return <CreatureCard creature={data.creature!} isAdminView={true} />;
             case 'breeding-pair':
                 return (
                     <BreedingPairCard

@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 export function AddGoalDialog() {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -16,7 +18,7 @@ export function AddGoalDialog() {
                 </Button>
             </DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple max-h-3/4 overflow-y-auto [&>button]:hidden"
             >
                 <DialogHeader>

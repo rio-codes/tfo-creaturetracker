@@ -15,17 +15,14 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from '@/types';
-import {
-    findSuitableMates,
-    getPossibleOffspringSpecies,
-    checkForInbreeding,
-} from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type ManagePairsFormProps = {
     baseCreature: EnrichedCreature;
+    existingPairs: EnrichedBreedingPair[];
+    suitableMates: EnrichedCreature[];
     allCreatures: EnrichedCreature[];
-    allPairs: EnrichedBreedingPair[];
     allGoals: EnrichedResearchGoal[];
     allRawPairs: DbBreedingPair[];
     allLogs: DbBreedingLogEntry[];
@@ -34,8 +31,9 @@ type ManagePairsFormProps = {
 
 export function ManageBreedingPairsForm({
     baseCreature,
+    existingPairs,
+    suitableMates,
     allCreatures,
-    allPairs,
     allGoals,
     allRawPairs,
     allLogs,
@@ -49,32 +47,6 @@ export function ManageBreedingPairsForm({
     const [error, setError] = useState('');
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
-
-    const existingPairs = useMemo(() => {
-        if (!allPairs) return [];
-        return allPairs.filter(
-            (p) =>
-                p?.maleParent?.id === baseCreature?.id || p?.femaleParent?.id === baseCreature?.id
-        );
-    }, [allPairs, baseCreature]);
-
-    const suitableMates = useMemo(() => {
-        const existingPartnerIds = new Set(
-            allPairs
-                .filter(
-                    (p) =>
-                        p.maleParent?.id === baseCreature?.id ||
-                        p.femaleParent?.id === baseCreature?.id
-                )
-                .map((p) =>
-                    p.maleParent?.id === baseCreature?.id ? p.femaleParent?.id : p.maleParent?.id
-                )
-        );
-
-        return findSuitableMates(baseCreature, allCreatures).filter(
-            (mate) => !existingPartnerIds.has(mate?.id)
-        );
-    }, [baseCreature, allCreatures, allPairs]);
 
     const { maleParent, femaleParent } = useMemo(() => {
         if (!selectedMateId) {

@@ -56,6 +56,7 @@ export type EnrichedCreature =
           }[];
           generation: number | null;
           origin: string | null;
+          progeny: EnrichedCreature[];
       })
     | null;
 

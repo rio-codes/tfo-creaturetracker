@@ -26,7 +26,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
     const [isFeaturing, setIsFeaturing] = useState(false);
     const router = useRouter();
 
-    const handleFeatureToggle = async (e: React.MouseEvent) => {
+    const handleFeatureToggle = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
         if (!currentUser) return;

@@ -25,7 +25,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type { EnrichedCreature, EnrichedBreedingPair, DbBreedingLogEntry } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
 import { format } from 'date-fns';
 import {
     AlertDialog,
@@ -38,23 +37,25 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+type ProgenyContextData = {
+    existingLogEntry: DbBreedingLogEntry | null;
+    existingPair: EnrichedBreedingPair | null;
+    suitablePairs: EnrichedBreedingPair[];
+    allLogs: DbBreedingLogEntry[];
+    allCreatures: EnrichedCreature[];
+};
+
 type LogAsProgenyDialogProps = {
     children: React.ReactNode;
     creature: EnrichedCreature;
-    allCreatures: EnrichedCreature[];
-    allEnrichedPairs: EnrichedBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
 };
 
-export function LogAsProgenyDialog({
-    children,
-    creature,
-    allCreatures,
-    allEnrichedPairs,
-    allLogs,
-}: LogAsProgenyDialogProps) {
+export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [context, setContext] = useState<ProgenyContextData | null>(null);
+    const [isContextLoading, setIsContextLoading] = useState(false);
+
     const [selectedPairId, setSelectedPairId] = useState<string | undefined>();
     const [logAction, setLogAction] = useState<'new' | 'existing'>('new');
     const [selectedLogId, setSelectedLogId] = useState<string | undefined>();
@@ -65,48 +66,53 @@ export function LogAsProgenyDialog({
 
     useEffect(() => {
         if (!open) {
+            // Reset state on close
+            setContext(null);
             setSelectedPairId(undefined);
             setLogAction('new');
             setSelectedLogId(undefined);
             setNotes('');
             setError('');
+        } else if (open && !context) {
+            // Fetch context on open
+            const fetchContext = async () => {
+                setIsContextLoading(true);
+                try {
+                    const response = await fetch(`/api/creatures/${creature?.id}/progeny-context`);
+                    if (!response.ok) {
+                        throw new Error('Failed to load data for logging progeny.');
+                    }
+                    const data: ProgenyContextData = await response.json();
+                    setContext(data);
+                    if (data.existingPair) {
+                        setSelectedPairId(data.existingPair.id);
+                    }
+                } catch (err: any) {
+                    setError(err.message);
+                } finally {
+                    setIsContextLoading(false);
+                }
+            };
+            fetchContext();
         }
-    }, [open]);
+    }, [open, context, creature?.id]);
 
-    let existingLogEntry: DbBreedingLogEntry | null = null;
-    let existingPair: EnrichedBreedingPair | null = null;
-
-    if (creature) {
-        ({ existingLogEntry, existingPair } = useMemo(() => {
-            const log = allLogs.find(
-                (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
-            );
-            if (!log) return { existingLogEntry: null, existingPair: null };
-
-            const pair = allEnrichedPairs.find((p) => p.id === log.pairId);
-            return { existingLogEntry: log, existingPair: pair || null };
-        }, [allLogs, creature.id, allEnrichedPairs]));
-    }
+    const { existingLogEntry, existingPair, suitablePairs, allLogs, allCreatures } = useMemo(
+        () => ({
+            existingLogEntry: context?.existingLogEntry ?? null,
+            existingPair: context?.existingPair ?? null,
+            suitablePairs: context?.suitablePairs ?? [],
+            allLogs: context?.allLogs ?? [],
+            allCreatures: context?.allCreatures ?? [],
+        }),
+        [context]
+    );
 
     useEffect(() => {
         if (existingPair && !selectedPairId) {
             setSelectedPairId(existingPair.id);
         }
     }, [existingPair, selectedPairId]);
-
-    const suitablePairs = useMemo(() => {
-        if (!creature || !creature.species) return [];
-        return allEnrichedPairs.filter((pair) => {
-            if (!pair?.maleParent?.species || !pair?.femaleParent?.species) {
-                return false;
-            }
-            const possibleOffspring = getPossibleOffspringSpecies(
-                pair.maleParent.species,
-                pair.femaleParent.species
-            );
-            return possibleOffspring.includes(creature.species!);
-        });
-    }, [allEnrichedPairs, creature]);
 
     const availableLogs = useMemo(() => {
         if (!selectedPairId) return [];
@@ -208,107 +214,126 @@ export function LogAsProgenyDialog({
                             Log &#34;{creature?.creatureName} ({creature?.code})&#34; as Progeny
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="pair-select">
-                                {existingPair ? 'Change breeding pair' : 'Select breeding pair'}
-                            </Label>
-                            <Select value={selectedPairId} onValueChange={setSelectedPairId}>
-                                <SelectTrigger
-                                    id="pair-select"
-                                    className="bg-ebena-lavender dark:bg-midnight-purple"
-                                >
-                                    <SelectValue placeholder="Choose a pair..." />
-                                </SelectTrigger>
-                                <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                                    {suitablePairs.length > 0 ? (
-                                        suitablePairs.map((pair) => (
-                                            <SelectItem key={pair.id} value={pair.id}>
-                                                {pair.pairName} ({pair.maleParent?.code} x{' '}
-                                                {pair.femaleParent?.code})
-                                            </SelectItem>
-                                        ))
-                                    ) : (
-                                        <SelectItem value="none" disabled>
-                                            No suitable pairs found
-                                        </SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {selectedPairId && (
-                            <div className="space-y-4 rounded-md border p-4 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
-                                <RadioGroup
-                                    value={logAction}
-                                    onValueChange={(v) => setLogAction(v as 'new' | 'existing')}
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="new" id="r-new" />
-                                        <Label htmlFor="r-new">Create a new log entry</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="existing" id="r-existing" />
-                                        <Label htmlFor="r-existing">
-                                            Add to an existing log entry
-                                        </Label>
-                                    </div>
-                                </RadioGroup>
-
-                                {logAction === 'new' && (
-                                    <div className="space-y-2 pl-6">
-                                        <Label htmlFor="notes">Notes (Optional)</Label>
-                                        <Textarea
-                                            id="notes"
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                            placeholder="Any notes about this breeding event..."
-                                            className="bg-ebena-lavender dark:bg-midnight-purple"
-                                        />
-                                    </div>
-                                )}
-
-                                {logAction === 'existing' && (
-                                    <div className="space-y-2 pl-6">
-                                        <Label htmlFor="log-select">Select Log Entry</Label>
-                                        <Select
-                                            value={selectedLogId}
-                                            onValueChange={setSelectedLogId}
-                                        >
-                                            <SelectTrigger
-                                                id="log-select"
-                                                className="bg-ebena-lavender dark:bg-midnight-purple"
-                                            >
-                                                <SelectValue placeholder="Choose a log..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
-                                                {availableLogs.length > 0 ? (
-                                                    availableLogs.map((log) => (
-                                                        <SelectItem
-                                                            key={log.id}
-                                                            value={log.id}
-                                                            className="whitespace-normal"
-                                                        >
-                                                            {format(
-                                                                new Date(log.createdAt),
-                                                                'MM/dd/yy pp'
-                                                            )}{' '}
-                                                            ({getProgenyName(log.progeny1Id)},{' '}
-                                                            {getProgenyName(log.progeny2Id)})
-                                                        </SelectItem>
-                                                    ))
-                                                ) : (
-                                                    <SelectItem value="none" disabled>
-                                                        No available log entries
-                                                    </SelectItem>
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                )}
+                    <div className="space-y-4 py-4 min-h-[300px]">
+                        {isContextLoading ? (
+                            <div className="flex justify-center items-center h-full">
+                                <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple" />
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                <div className="space-y-2">
+                                    <Label htmlFor="pair-select">
+                                        {existingPair
+                                            ? 'Change breeding pair'
+                                            : 'Select breeding pair'}
+                                    </Label>
+                                    <Select
+                                        value={selectedPairId}
+                                        onValueChange={setSelectedPairId}
+                                    >
+                                        <SelectTrigger
+                                            id="pair-select"
+                                            className="bg-ebena-lavender dark:bg-midnight-purple"
+                                        >
+                                            <SelectValue placeholder="Choose a pair..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                                            {suitablePairs.length > 0 ? (
+                                                suitablePairs.map((pair) => (
+                                                    <SelectItem key={pair.id} value={pair.id}>
+                                                        {pair.pairName} ({pair.maleParent?.code} x{' '}
+                                                        {pair.femaleParent?.code})
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <SelectItem value="none" disabled>
+                                                    No suitable pairs found
+                                                </SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
+                                {selectedPairId && (
+                                    <div className="space-y-4 rounded-md border p-4 bg-ebena-lavender/50 dark:bg-midnight-purple/50">
+                                        <RadioGroup
+                                            value={logAction}
+                                            onValueChange={(v: 'new' | 'existing') =>
+                                                setLogAction(v as 'new' | 'existing')
+                                            }
+                                        >
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="new" id="r-new" />
+                                                <Label htmlFor="r-new">
+                                                    Create a new log entry
+                                                </Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="existing" id="r-existing" />
+                                                <Label htmlFor="r-existing">
+                                                    Add to an existing log entry
+                                                </Label>
+                                            </div>
+                                        </RadioGroup>
+
+                                        {logAction === 'new' && (
+                                            <div className="space-y-2 pl-6">
+                                                <Label htmlFor="notes">Notes (Optional)</Label>
+                                                <Textarea
+                                                    id="notes"
+                                                    value={notes}
+                                                    onChange={(e) => setNotes(e.target.value)}
+                                                    placeholder="Any notes about this breeding event..."
+                                                    className="bg-ebena-lavender dark:bg-midnight-purple"
+                                                />
+                                            </div>
+                                        )}
+
+                                        {logAction === 'existing' && (
+                                            <div className="space-y-2 pl-6">
+                                                <Label htmlFor="log-select">Select Log Entry</Label>
+                                                <Select
+                                                    value={selectedLogId}
+                                                    onValueChange={setSelectedLogId}
+                                                >
+                                                    <SelectTrigger
+                                                        id="log-select"
+                                                        className="bg-ebena-lavender dark:bg-midnight-purple"
+                                                    >
+                                                        <SelectValue placeholder="Choose a log..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple">
+                                                        {availableLogs.length > 0 ? (
+                                                            availableLogs.map((log) => (
+                                                                <SelectItem
+                                                                    key={log.id}
+                                                                    value={log.id}
+                                                                    className="whitespace-normal"
+                                                                >
+                                                                    {format(
+                                                                        new Date(log.createdAt),
+                                                                        'MM/dd/yy pp'
+                                                                    )}{' '}
+                                                                    (
+                                                                    {getProgenyName(log.progeny1Id)}
+                                                                    ,{' '}
+                                                                    {getProgenyName(log.progeny2Id)}
+                                                                    )
+                                                                </SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <SelectItem value="none" disabled>
+                                                                No available log entries
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        )}
                         {error && <p className="text-sm text-red-500">{error}</p>}
                     </div>
                     <DialogFooter>

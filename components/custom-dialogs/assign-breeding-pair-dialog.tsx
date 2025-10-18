@@ -20,6 +20,8 @@ type AssignPairDialogProps = {
     children: React.ReactNode;
 };
 
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
+
 export function AssignPairDialog({ goal, predictions, children }: AssignPairDialogProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +55,7 @@ export function AssignPairDialog({ goal, predictions, children }: AssignPairDial
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent
-                onPointerDownOutside={(e) => e.preventDefault()}
+                onPointerDownOutside={(e: PointerDownOutsideEvent) => e.preventDefault()}
                 className="bg-barely-lilac dark:bg-pompaca-purple"
             >
                 <DialogHeader>
@@ -74,7 +76,7 @@ export function AssignPairDialog({ goal, predictions, children }: AssignPairDial
                                     <Checkbox
                                         id={p.pairId}
                                         checked={isAssigned}
-                                        onCheckedChange={(checked) =>
+                                        onCheckedChange={(checked: boolean) =>
                                             handleAssignmentChange(p.pairId || '', !!checked)
                                         }
                                         disabled={isLoading}

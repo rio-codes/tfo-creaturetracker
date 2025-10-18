@@ -5,8 +5,7 @@ import type {
     DbBreedingPair,
     DbBreedingLogEntry,
 } from '@/types';
-import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { enrichAndSerializeGoal } from './enrichAndSerializeGoal';
+import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
 import { speciesList as allSpecies } from '@/constants/creature-data';
 
 export const speciesList = allSpecies;
@@ -39,10 +38,7 @@ export const breedingRules = {
 
     // Pairs of different species that produce a specific hybrid offspring.
     hybrids: new Map<string, string>([
-        [
-            ['Glacia Alsalto', 'Klara Alsalto'].sort().join('|'),
-            'Transira Alsalto',
-        ],
+        [['Glacia Alsalto', 'Klara Alsalto'].sort().join('|'), 'Transira Alsalto'],
         [['Ranbleko', 'Glubleko'].sort().join('|'), 'Tonbleko'],
         [['Nokta Voko', 'Tagluma Valso'].sort().join('|'), 'Kora Voko'],
     ]),
@@ -51,10 +47,7 @@ export const breedingRules = {
     exceptions: new Set<string>([]),
 };
 
-export function getPossibleOffspringSpecies(
-    speciesA: string,
-    speciesB: string
-): string[] {
+export function getPossibleOffspringSpecies(speciesA: string, speciesB: string): string[] {
     if (speciesA === speciesB) {
         return [speciesA];
     }
@@ -83,10 +76,7 @@ export function validatePairing(
         return { isValid: false, error: 'Parent species is missing.' };
     }
 
-    if (
-        breedingRules.incompatible.has(speciesA) ||
-        breedingRules.incompatible.has(speciesB)
-    ) {
+    if (breedingRules.incompatible.has(speciesA) || breedingRules.incompatible.has(speciesB)) {
         return { isValid: false, error: `${speciesA} cannot breed.` };
     }
 
@@ -115,10 +105,7 @@ export function validatePairing(
     };
 }
 
-export function checkGoalAchieved(
-    progeny: DbCreature,
-    goal: DbResearchGoal
-): boolean {
+export function checkGoalAchieved(progeny: DbCreature, goal: DbResearchGoal): boolean {
     if (progeny.species !== goal.species) {
         return false;
     }
@@ -128,9 +115,7 @@ export function checkGoalAchieved(
 
     if (!enrichedProgeny || !enrichedGoal) return false;
 
-    const progenyGenes = new Map(
-        enrichedProgeny.geneData.map((g) => [g.category, g])
-    );
+    const progenyGenes = new Map(enrichedProgeny.geneData.map((g) => [g.category, g]));
 
     for (const [category, targetGene] of Object.entries(enrichedGoal.genes)) {
         if (category === 'Gender') continue;
@@ -184,20 +169,8 @@ function getAncestorsRecursive(
     if (maleParentId) ancestors.add(maleParentId);
     if (femaleParentId) ancestors.add(femaleParentId);
 
-    getAncestorsRecursive(
-        maleParentId,
-        allLogs,
-        allPairs,
-        depth - 1,
-        ancestors
-    );
-    getAncestorsRecursive(
-        femaleParentId,
-        allLogs,
-        allPairs,
-        depth - 1,
-        ancestors
-    );
+    getAncestorsRecursive(maleParentId, allLogs, allPairs, depth - 1, ancestors);
+    getAncestorsRecursive(femaleParentId, allLogs, allPairs, depth - 1, ancestors);
 }
 
 export function findSuitableMates(

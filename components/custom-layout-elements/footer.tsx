@@ -1,7 +1,7 @@
 'use client';
 import { Switch } from '@mui/material';
 import Link from 'next/link';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useTheme } from 'next-themes';
 import { useState, useEffect, useCallback } from 'react';
@@ -28,10 +28,29 @@ export function Footer() {
     const [mounted, setMounted] = useState(false);
     const { theme, resolvedTheme, setTheme } = useTheme();
     const { data: session, update } = useSession();
+    const [onlineCount, setOnlineCount] = useState<number | null>(null);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    const fetchOnlineCount = useCallback(async () => {
+        try {
+            const response = await fetch('/api/metrics/online-users');
+            if (response.ok) {
+                const data = await response.json();
+                setOnlineCount(data.onlineCount);
+            }
+        } catch (error) {
+            console.error('Failed to fetch online user count:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchOnlineCount();
+        const interval = setInterval(fetchOnlineCount, 60000); // Refresh every 60 seconds
+        return () => clearInterval(interval);
+    }, [fetchOnlineCount]);
 
     const handleThemeChange = useCallback(
         async (newTheme: 'light' | 'dark') => {
@@ -135,6 +154,16 @@ export function Footer() {
                     </div>
                     {mounted && (
                         <div className="flex items-center justify-end py-2">
+                            {onlineCount !== null && (
+                                <div className="flex items-center mr-4 text-sm">
+                                    <Users className="h-4 w-4 mr-1" />
+                                    <span>
+                                        {onlineCount} User
+                                        {onlineCount !== 1 ? 's' : ''} Online
+                                    </span>
+                                </div>
+                            )}
+
                             <Label
                                 htmlFor="theme-switch"
                                 className="text-pompaca-purple dark:text-barely-lilac"

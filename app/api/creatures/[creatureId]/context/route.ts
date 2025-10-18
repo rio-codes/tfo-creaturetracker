@@ -5,7 +5,8 @@ import { eq, or } from 'drizzle-orm';
 import { enrichAndSerializeBreedingPair } from '@/lib/serialization';
 import { auth } from '@/auth';
 
-export async function GET(request: Request, { params }: { params: { creatureId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ creatureId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

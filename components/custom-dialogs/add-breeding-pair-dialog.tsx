@@ -10,18 +10,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AddPairForm } from '@/components/custom-forms/add-breeding-pair-form';
-import type {
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
+import type { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 
 type AddBreedingPairDialogProps = {
-    allCreatures: EnrichedCreature[];
-    allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     baseCreature?: EnrichedCreature | null;
     initialGoal?: EnrichedResearchGoal | null;
     children?: React.ReactNode;
@@ -30,10 +21,6 @@ type AddBreedingPairDialogProps = {
 type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
 
 export function AddBreedingPairDialog({
-    allCreatures,
-    allGoals,
-    allPairs,
-    allLogs,
     baseCreature,
     initialGoal,
     children,
@@ -65,10 +52,6 @@ export function AddBreedingPairDialog({
                     </DialogTitle>
                 </DialogHeader>
                 <AddPairForm
-                    allCreatures={allCreatures}
-                    allGoals={allGoals}
-                    allPairs={allPairs}
-                    allLogs={allLogs}
                     baseCreature={baseCreature}
                     initialGoal={initialGoal}
                     onSuccess={() => setIsOpen(false)}

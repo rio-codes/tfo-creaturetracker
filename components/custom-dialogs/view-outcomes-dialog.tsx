@@ -61,9 +61,7 @@ export function ViewOutcomesDialog({
     const [isOpen, setIsOpen] = useState(false);
     const [outcomes, setOutcomes] = useState<OutcomesByCategory | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    // Holds the "canonical" URL for the most-likely outcome for this dialog session. Starts null.
     const [defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(null);
-    // Holds the currently displayed URL, which can change based on selection. Starts null.
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [selectedGenotypes, setSelectedGenotypes] = useState<{
         [key: string]: string;
@@ -79,7 +77,6 @@ export function ViewOutcomesDialog({
         return pair.maleParent?.species !== pair.femaleParent?.species;
     }, [pair]);
 
-    // Helper function to fetch and set a new preview image, wrapped in useCallback.
     const updatePreviewImage = useCallback(
         async (genotypes: { [key: string]: string }) => {
             setIsLoading(true);
@@ -93,7 +90,7 @@ export function ViewOutcomesDialog({
                     const data = await response.json();
                     const newUrl = `${data.imageUrl}?v=${new Date().getTime()}`;
                     setPreviewUrl(newUrl);
-                    return newUrl; // Return for setting the default URL
+                    return newUrl;
                 }
             } catch (error) {
                 console.error(error);
@@ -107,7 +104,6 @@ export function ViewOutcomesDialog({
 
     const handleSaveAsGoal = async () => {
         if (!newGoalName.trim()) {
-            // Optionally show a toast error
             return;
         }
         setIsSavingGoal(true);
@@ -163,9 +159,8 @@ export function ViewOutcomesDialog({
     }, [showSaveDialog]);
 
     useEffect(() => {
-        // Reset state when dialog is closed to ensure fresh data on reopen
         if (!isOpen) {
-            setOutcomes(null); // This will trigger a re-fetch on next open
+            setOutcomes(null);
             return;
         }
 
@@ -175,10 +170,9 @@ export function ViewOutcomesDialog({
         );
         setPossibleOffspringSpecies(offspringSpecies);
         if (isCrossBreed) {
-            return; // For cross-breeds, we don't fetch detailed outcomes yet.
+            return;
         }
 
-        // This effect runs once when the dialog opens to fetch all necessary data.
         if (!outcomes) {
             const fetchInitialData = async () => {
                 setIsLoading(true);
@@ -195,7 +189,6 @@ export function ViewOutcomesDialog({
                     }
                     setSelectedGenotypes(initialSelections);
 
-                    // Fetch the initial preview for the most likely outcomes
                     const initialUrl = await updatePreviewImage(initialSelections);
                     if (initialUrl) {
                         setDefaultPreviewUrl(initialUrl);
@@ -211,12 +204,10 @@ export function ViewOutcomesDialog({
     }, [isOpen, pair, outcomes, isCrossBreed, updatePreviewImage]);
 
     useEffect(() => {
-        // Don't run if genotypes aren't set yet
         if (Object.keys(selectedGenotypes).length === 0) {
             return;
         }
 
-        // This is the logic that runs every time a select box is changed.
         const handler = setTimeout(() => {
             updatePreviewImage(selectedGenotypes);
         }, 500);
@@ -235,7 +226,7 @@ export function ViewOutcomesDialog({
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
                 </DialogHeader>
                 {isCrossBreed ? (
-                    <div className="p-4 text-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 rounded-md">
+                    <div className="p-4 text-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple rounded-md">
                         <h3 className="font-bold text-lg">Cross-Species Breeding</h3>
                         <p className="mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             This pair can produce the following species:
@@ -252,7 +243,7 @@ export function ViewOutcomesDialog({
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-4">
+                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-4">
                             {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
                             {outcomes &&
                                 Object.entries(outcomes).map(([category, categoryOutcomes]) => (
@@ -296,7 +287,7 @@ export function ViewOutcomesDialog({
                                 ))}
                         </div>
                         <div className="grid grid-cols-2 gap-4 items-center">
-                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 relative min-h-[10rem]">
+                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple relative min-h-[10rem]">
                                 {isLoading && <Loader2 className="animate-spin absolute" />}
                                 {previewUrl && (
                                     <img
@@ -313,7 +304,7 @@ export function ViewOutcomesDialog({
                                 <Button
                                     onClick={() => setShowSaveDialog(true)}
                                     disabled={!outcomes || isLoading || isCrossBreed}
-                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                                 >
                                     Save as Goal
                                 </Button>

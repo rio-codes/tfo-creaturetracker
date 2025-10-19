@@ -26,7 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { calculateGeneProbability } from '@/lib/genetics'; // This function must be exported from lib/genetics.ts
+import { calculateGeneProbability } from '@/lib/genetics';
 
 import type {
     DbUser,
@@ -83,7 +83,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
     const user = (await db.query.users.findFirst({
         where: eq(users.username, username),
         columns: {
-            password: false, // Ensure password is not fetched
+            password: false,
         },
     })) as DbUser | undefined;
 
@@ -91,7 +91,6 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         return null;
     }
 
-    // Fetch friends if the user has opted to show them
     let friends: { id: string; username: string; image: string | null }[] = [];
     if (user.showFriendsList) {
         const friendshipsList = await db
@@ -153,7 +152,6 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
               )
         : [];
 
-    // iterate over featuredCreatures and use function enrichCreatures on each one
     const featuredCreatures: EnrichedCreature[] = featuredCreaturesDb.map((creature: DbCreature) =>
         enrichAndSerializeCreature(creature)
     );
@@ -185,7 +183,6 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         return acc;
     }, {} as AchievementMap);
 
-    // Calculate user statistics
     let stats: UserStats | null = null;
     if (user.showStats) {
         const [allCreaturesForUser, achievedGoalsForUser] = await Promise.all([
@@ -460,17 +457,17 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                         <CardTitle className="text-3xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {user.username}
                             {user.pronouns && (
-                                <span className="text-lg font-normal text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ml-2">
+                                <span className="text-lg font-normal text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson/80 ml-2">
                                     ({user.pronouns})
                                 </span>
                             )}
                             <FlairIcon tier={user.supporterTier} />
                         </CardTitle>
-                        <CardDescription className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson/80 ">
                             Joined on {new Date(user.createdAt).toLocaleDateString()}
                         </CardDescription>
                         {user.statusMessage && (
-                            <div className="mt-2 flex items-center gap-2 rounded-full border border-pompaca-purple/30 bg-dusk-purple/20 px-3 py-1 w-fit">
+                            <div className="mt-2 flex items-center gap-2 rounded-full border border-pompaca-purple/30 bg-dusk-purple/20 hallowsnight:bg-abyss/80 px-3 py-1 w-fit">
                                 <span>{user.statusEmoji}</span>
                                 <p className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     {user.statusMessage}
@@ -514,7 +511,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                             <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Bio
                             </h2>
-                            <p className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine whitespace-pre-wrap">
+                            <p className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson whitespace-pre-wrap">
                                 {user.bio}
                             </p>
                         </div>
@@ -526,32 +523,32 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 Statistics
                             </h2>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-                                <Card className="bg-dusk-purple/20 p-4">
+                                <Card className="bg-dusk-purple/20 hallowsnight:bg-abyss p-4">
                                     <p className="text-xl font-bold">{stats.totalCreatures}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                         Total Creatures
                                     </p>
                                 </Card>
-                                <Card className="bg-dusk-purple/20 p-4">
+                                <Card className="bg-dusk-purple/20 hallowsnight:bg-abyss p-4">
                                     <p className="text-xl font-bold">{stats.totalSyncedSpecies}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                         Total Species
                                     </p>
                                 </Card>
-                                <Card className="bg-dusk-purple/20 p-4">
+                                <Card className="bg-dusk-purple/20 hallowsnight:bg-abyss p-4">
                                     <p className="text-xl font-bold">{stats.mostNumerousSpecies}</p>
-                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                         Most Numerous Species
                                     </p>
                                 </Card>
                                 {stats.achievedGoalsCount > 0 ? (
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Card className="bg-dusk-purple/20 p-4 cursor-pointer hover:bg-dusk-purple/30 transition-colors">
+                                            <Card className="bg-dusk-purple/20 p-4 cursor-pointer hover:bg-dusk-purple/30 transition-colors hallowsnight:bg-abyss">
                                                 <p className="text-xl font-bold">
                                                     {stats.achievedGoalsCount}
                                                 </p>
-                                                <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                                <p className="text-md text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                                                     Goals Achieved
                                                 </p>
                                             </Card>
@@ -578,7 +575,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                         </PopoverContent>
                                     </Popover>
                                 ) : (
-                                    <Card className="bg-dusk-purple/20 p-4">
+                                    <Card className="bg-dusk-purple/20 p-4 hallowsnight:bg-abyss">
                                         <p className="text-xl font-bold">
                                             {stats.achievedGoalsCount}
                                         </p>

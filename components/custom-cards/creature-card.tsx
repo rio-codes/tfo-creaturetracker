@@ -237,7 +237,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                         ) : isFeatured ? (
                                             <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                                         ) : (
-                                            <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
+                                            <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson" />
                                         )}
                                     </Button>
                                 </TooltipTrigger>
@@ -261,7 +261,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                             className="w-35 h-35 object-scale-down"
                         />
                     </div>
-                    <div className="flex-col text-sm h-30">
+                    <div className="flex-col text-sm h-30 hallowsnight:text-cimo-crimson">
                         <div>
                             <strong>Name:</strong> {creature.creatureName}
                         </div>

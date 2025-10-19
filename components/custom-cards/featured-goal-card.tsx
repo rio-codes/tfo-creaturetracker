@@ -75,7 +75,7 @@ export function FeaturedGoalCard({
     };
 
     return (
-        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 hallowsnight:text-cimo-crimson">
             {currentUser && (
                 <div className="absolute top-2 right-2 z-10">
                     <TooltipProvider>
@@ -93,7 +93,7 @@ export function FeaturedGoalCard({
                                     ) : isFeatured ? (
                                         <UserRoundMinus className="h-5 w-5 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
                                     ) : (
-                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
+                                        <UserRoundPlus className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson" />
                                     )}
                                 </Button>
                             </TooltipTrigger>
@@ -122,7 +122,7 @@ export function FeaturedGoalCard({
                     >
                         {goal.name}
                     </CardTitle>
-                    <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                    <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                         <p>
                             <strong>Species:</strong> {goal.species}
                         </p>
@@ -131,8 +131,8 @@ export function FeaturedGoalCard({
                         <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Target Genes:
                         </p>
-                        <ScrollArea className="h-24 mt-1 rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple hallowsnight:bg-abyss/50 whitespace-norma ">
-                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ">
+                        <ScrollArea className="h-24 mt-1 rounded-md border border-pompaca-purple/30 p-2  dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine overflow-x-auto whitespace-norma ">
+                            <div className="text-xs font-mono space-y-1 text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson ">
                                 {geneEntries.map(([category, geneData]) => (
                                     <div key={category}>
                                         <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
@@ -151,7 +151,7 @@ export function FeaturedGoalCard({
                             </div>
                         </ScrollArea>
                     </div>
-                    <div className="mt-4 text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                    <div className="mt-4 text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson">
                         {achievement ? (
                             <p className="font-semibold text-green-600 dark:text-green-400">
                                 <Award className="inline-block mr-2 h-5 w-5 text-yellow-500" />

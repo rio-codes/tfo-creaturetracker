@@ -22,7 +22,7 @@ export default async function SettingsPage() {
     ]);
 
     return (
-        <div className="bg-barely-lilac dark:bg-deep-purple min-h-screen">
+        <div className="bg-barely-lilac dark:bg-deep-purple hallowsnight:bg-abyss min-h-screen">
             <div className="container mx-auto py-10">
                 <h1 className="text-4xl font-bold mb-6 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                     Settings

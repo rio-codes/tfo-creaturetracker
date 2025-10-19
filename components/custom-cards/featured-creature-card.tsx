@@ -64,7 +64,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
         }
     };
     return (
-        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
+        <Card className="relative h-full transition-transform transform hover:scale-105 hover:shadow-lg  bg-dusk-purple text-barely-lilac dark:bg-midnight-purple  border-pompaca-purple/30 flex flex-col drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 hallowsnight:bg-abyss hallowsnight:text-abyss">
             {currentUser && (
                 <div className="absolute top-2 right-2 z-10">
                     <TooltipProvider>
@@ -102,7 +102,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                 className="flex-grow flex flex-col"
             >
                 <CardContent
-                    className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson min-w-0 overflow-x-clip max-w-9/10
+                    className="p-4 flex-grow flex flex-col sm:flex-row gap-4 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-abyss min-w-0 overflow-x-clip max-w-9/10
             whitespace-normal"
                 >
                     {' '}
@@ -121,7 +121,7 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                                 {creature.code})
                             </span>
                         </CardTitle>
-                        <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2 space-y-1">
+                        <div className="text-sm text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson mt-2 space-y-1">
                             <p>
                                 <strong>Species:</strong> {creature.species}
                             </p>
@@ -136,8 +136,8 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                             <p className="text-sm font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Genetics:
                             </p>
-                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple hallowsnight:bg-abyss/50 overflow-x-scroll wrap-normal">
-                                <div className="text-xs font-mono text-pompaca-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine ">
+                            <ScrollArea className="h-24 mt-1 relative rounded-md border border-pompaca-purple/30 p-2 bg-dusk-purple/70  dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine overflow-x-auto wrap-normal">
+                                <div className="text-xs font-mono text-pompaca-purple dark:text-purple-400 hallowsnight:text-cimo-crimson ">
                                     {creature.geneData?.map((gene) => (
                                         <div key={gene.category}>
                                             <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
@@ -151,9 +151,9 @@ export function FeaturedCreatureCard({ creature, currentUser }: FeaturedCreature
                                     ))}
                                 </div>
                                 <ScrollBar orientation="vertical" />
-                                <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                                    <ChevronUp className=" h-4 w-4 text-barely-lilac" />
-                                    <ChevronDown className="h-4 w-4 text-barely-lilac" />
+                                <div className="absolute top-0 right-0 h-full w-4 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple hallowsnight:bg-blood-bay-wine">
+                                    <ChevronUp className=" h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
+                                    <ChevronDown className="h-4 w-4 text-barely-lilac hallowsnight:text-cimo-crimson" />
                                 </div>
                             </ScrollArea>
                         </div>

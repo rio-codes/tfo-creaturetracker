@@ -41,12 +41,12 @@ export default function Header() {
     const renderMenuItem = (item: { href: string; label: string; icon: string }) => (
         <DropdownMenuItem
             key={item.href}
-            className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple h-10"
+            className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple hallowsnight:focus:bg-cimo-crimson/75 h-10"
             asChild
         >
             <Link
                 href={item.href}
-                className="text-lg w-full h-full text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                className="text-lg w-full h-full text-pompaca-purple dark:text-pompaca-purple hallowsnight:text-cimo-crimson/75"
             >
                 <span className="mr-2">{item.icon}</span> {item.label}
             </Link>
@@ -54,7 +54,7 @@ export default function Header() {
     );
 
     return (
-        <header className="bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-barely-lilac hallowsnight:text-cimo-crimson px-2 sm:px-4 py-2 flex items-center justify-between shadow-md">
+        <header className="bg-pompaca-purple hallowsnight:bg-blood-bay-wine text-barely-lilac hallowsnight:text-cimo-crimson/75 px-2 sm:px-4 py-2 flex items-center justify-between shadow-md">
             {/* Left side: Menu, Logo, and Title */}
             <div className="flex items-center gap-2">
                 <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -62,7 +62,7 @@ export default function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="text-barely-lilac hallowsnight:text-cimo-crimson hover:bg-dusk-purple focus-visible:ring-1 focus-visible:ring-ring rounded-md"
+                            className="text-barely-lilac hallowsnight:text-cimo-crimson/75 hover:bg-dusk-purple hallowsnight:hover:bg-cimo-crimson  focus-visible:ring-1 focus-visible:ring-ring rounded-md"
                         >
                             <Menu className="h-9 w-9" />
                             <span className="sr-only">Open menu</span>
@@ -70,7 +70,7 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="start"
-                        className="w-56 bg-barely-lilac hallowsnight:bg-cimo-crimsondark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple"
+                        className="w-56 bg-barely-lilac hallowsnight:bg-cimo-crimsondark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson/75 hallowsnight:border-cimo-crimson border-dusk-purple dark:text-pompaca-purple"
                     >
                         {menuItems.map(renderMenuItem)}
                         {session?.user?.role === 'admin' && renderMenuItem(adminMenuItem)}
@@ -81,13 +81,12 @@ export default function Header() {
                     <Image
                         src="/images/icons/icon.svg"
                         alt="TFO.creaturetracker logo"
-                        // Use aspect ratio from SVG's viewBox for correct rendering
                         width={260}
                         height={134}
                         className="h-10 w-auto"
                     />
                     <div className="hidden sm:block">
-                        <p className="text-xs text-purple-200 hallowsnight:text-cimo-crimson">
+                        <p className="text-md font-semibold text-purple-200 hallowsnight:text-cimo-crimson/75">
                             Breeding tracker for The Final Outpost
                         </p>
                     </div>
@@ -103,7 +102,7 @@ export default function Header() {
                 {status === 'authenticated' && session.user && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center gap-2 rounded-full hallowsnight-bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">
+                            <Button className="flex items-center gap-2 rounded-full hallowsnight:bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">
                                 <Image
                                     key={
                                         session.user.image ||
@@ -119,19 +118,19 @@ export default function Header() {
                                     className="rounded-full p-1"
                                 />
                                 {session.user.username && (
-                                    <span className="font-medium text-barely-lilac hallowsnight:text-cimo-crimson">
+                                    <span className="font-semibold text-barely-lilac hallowsnight:text-cimo-crimson">
                                         {session.user.username}
                                     </span>
                                 )}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                            className="w-56 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple"
+                            className="w-56 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple font-semibold"
                             align="end"
                         >
                             <DropdownMenuItem className="focus:bg-transparent cursor-default">
                                 <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                    <p className="text-sm font-semibold leading-none text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson/75">
                                         Signed in as
                                     </p>
                                     <p className="text-xs leading-none text-gray-600 dark:text-gray-400 truncate">
@@ -182,7 +181,7 @@ export default function Header() {
                     <Button
                         onClick={() => signIn()}
                         variant="outline"
-                        className="border-purple-300 text-purple-300 hover:bg-dusk-purple hover:text-barely-lilac"
+                        className="border-purple-300 text-purple-300 hover:bg-dusk-purple hover:text-barely-lilac hallowsnight:border-cimo-crimson/75 hallowsnight:hover:bg-cimo-crimson/75 hallowsnight:text-cimo-crimson/75 hallowsnight:font-semibold"
                     >
                         <LogIn className="h-5 w-5 sm:mr-2" />
                         <span className="hidden sm:inline">Log In</span>

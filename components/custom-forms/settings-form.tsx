@@ -166,7 +166,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 : [],
         };
 
-        // Don't send password if it's empty
         if (!updateData.password) {
             delete updateData.password;
         }
@@ -192,7 +191,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
         }
 
         try {
-            // 1. Upload avatar if a new one is selected
             let newImageUrl: string | null = null;
             if (avatarFile) {
                 const uploadResponse = await fetch(
@@ -211,7 +209,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 newImageUrl = blob.url;
             }
 
-            // 2. Update other settings like bio
             const settingsResponse = await fetch('/api/settings', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -225,7 +222,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
             toast.success('Settings updated successfully!');
 
-            // Manually update the session for instant UI feedback in the header
             const sessionUpdateData: Record<string, any> = {};
             if (newImageUrl) sessionUpdateData.image = newImageUrl;
             if (updateData.theme && updateData.theme !== user.theme)
@@ -238,7 +234,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
             }
 
             await update(Object.keys(sessionUpdateData).length > 0 ? sessionUpdateData : undefined);
-            // Refresh server components on the page
             router.refresh();
         } catch (error) {
             console.error(error);
@@ -258,14 +253,18 @@ export function SettingsForm({ user }: SettingsFormProps) {
                         <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Public Profile
                         </CardTitle>
-                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                             This information will be displayed on your public profile page.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
                         <div className="flex items-center gap-6">
-                            <Avatar className="h-24 w-24">
-                                <AvatarImage src={avatarPreview ?? undefined} alt={user.username} />
+                            <Avatar className="h-24 w-24 ">
+                                <AvatarImage
+                                    className="hallowsnight:border-cimo-crimson hallowsnight:border-3 rounded-full"
+                                    src={avatarPreview ?? undefined}
+                                    alt={user.username}
+                                />
                                 <AvatarFallback>
                                     {user.username.charAt(0).toUpperCase()}
                                 </AvatarFallback>
@@ -282,9 +281,9 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                     type="file"
                                     accept="image/png, image/jpeg, image/gif"
                                     onChange={handleAvatarChange}
-                                    className="file:text-pompaca-purple dark:file:text-purple-300 cursor-pointer text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                    className="file:text-pompaca-purple dark:file:text-purple-300 cursor-pointer hallowsnight:bg-blood-bay-wine text-pompaca-purple hallowsnight:file:text-cimo-crimson/75 hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                 />
-                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                                     PNG, JPG, or GIF. 2MB max.
                                 </p>
                             </div>
@@ -300,13 +299,13 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                     <FormControl>
                                         <Textarea
                                             placeholder="Tell us a little about yourself..."
-                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                             maxLength={500}
                                             {...field}
                                             value={field.value ?? ''}
                                         />
                                     </FormControl>
-                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                                         You can use up to 500 characters.
                                     </FormDescription>
                                     <FormMessage />
@@ -324,7 +323,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                     <FormControl>
                                         <Input
                                             placeholder="e.g., she/her, they/them"
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                             {...field}
                                             value={field.value ?? ''}
                                         />
@@ -344,12 +343,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                     <FormControl>
                                         <Textarea
                                             placeholder="https://twitter.com/your_handle&#10;https://discord.com/users/your_id"
-                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="min-h-[100px] bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                             {...field}
                                             value={field.value ?? ''}
                                         />
                                     </FormControl>
-                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                                         Enter up to 5 social media links, one per line.
                                     </FormDescription>
                                     <FormMessage />
@@ -364,7 +363,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                         <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Status
                         </CardTitle>
-                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                             Set a status that will appear on your profile.
                         </CardDescription>
                     </CardHeader>
@@ -382,7 +381,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             <FormControl>
                                                 <Button
                                                     variant="outline"
-                                                    className="w-20 h-10 text-2xl bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                                    className="w-20 h-10 text-2xl bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 placeholder:text-dusk-purple hallowsnight:placeholder:text-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                                 >
                                                     {field.value || '✨'}
                                                 </Button>
@@ -412,8 +411,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                     </FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Breeding for shinies!"
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            placeholder="Just drank 3 capsules, I couldn't help myself"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                             maxLength={80}
                                             {...field}
                                             value={field.value ?? ''}
@@ -431,7 +430,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                         <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Appearance
                         </CardTitle>
-                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                             Customize the look and feel of the site.
                         </CardDescription>
                     </CardHeader>
@@ -449,7 +448,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
-                                            <SelectTrigger className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                            <SelectTrigger className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                                 <SelectValue placeholder="Select a theme" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -462,9 +461,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             <SelectItem value="system">System</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                                         Choose between light, dark, or your system&#39;s default
-                                        theme. Or...choose true darkness, this chilly autumn eve.
+                                        theme. Or...choose <strong>true darkness</strong> this
+                                        chilly autumn eve.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -562,7 +562,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                         <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Account Security
                         </CardTitle>
-                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                             Update your password.
                         </CardDescription>
                     </CardHeader>
@@ -580,10 +580,10 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             type="password"
                                             placeholder="••••••••••••"
                                             {...field}
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine hallowsnight:placeholder:text-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                         />
                                     </FormControl>
-                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                                    <FormDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                                         Leave blank to keep your current password. Must be at least
                                         12 characters.
                                     </FormDescription>
@@ -604,7 +604,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                             type="password"
                                             placeholder="••••••••••••"
                                             {...field}
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:placeholder:text-ruzafolio-scarlet hallowsnight:bg-blood-bay-wine border-pompaca-purple/50 placeholder:text-dusk-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -619,7 +619,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                         <CardTitle className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             Display Preferences
                         </CardTitle>
-                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
+                        <CardDescription className="text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss">
                             Set the number of items to display per page. You can choose between 3
                             and 30.
                         </CardDescription>
@@ -646,7 +646,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                                         : parseInt(e.target.value, 10)
                                                 )
                                             }
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -674,7 +674,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                                         : parseInt(e.target.value, 10)
                                                 )
                                             }
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson hallowsnight:border-cimo-crimson"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -702,7 +702,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                                         : parseInt(e.target.value, 10)
                                                 )
                                             }
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -715,7 +715,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-pompaca-purple text-barely-lilac hover:bg-pompaca-purple/90 dark:bg-ebena-lavender dark:text-pompaca-purple dark:hover:bg-ebena-lavender/90"
+                    className="bg-pompaca-purple text-barely-lilac hover:bg-pompaca-purple/90 dark:bg-ebena-lavender dark:text-pompaca-purple dark:hover:bg-ebena-lavender/90 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson hallowsnight:hover:bg-blood-bay-wine/90"
                 >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>

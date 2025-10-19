@@ -1,11 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-@custom-variant hallowsnight (&:where([data-theme=hallowsnight], [data-theme=hallowsnight] *));
+@custom-variant dark (&:is([data-theme=dark] *));
+@custom-variant hallowsnight (&:is([data-theme=hallowsnight] *));
 
 @theme {
   --default-font-family: Tektur, monospace;
+  --font-tektur: var(--default-font-family);
+  --font-new-tegomin: 'New Tegomin', serif;
   --font-body: Tektur, monospace;
 
   --color-barely-lilac: #EADDFF;

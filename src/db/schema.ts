@@ -1,19 +1,73 @@
 import { relations } from 'drizzle-orm';
+import type { AdapterAccount } from 'next-auth/adapters';
 import {
+    timestamp,
     pgTable,
     text,
     primaryKey,
-    integer,
+    varchar,
     boolean,
-    serial,
     jsonb,
-    timestamp,
-    uniqueIndex,
     pgEnum,
-    index,
+    integer,
     uuid,
+    index,
+    uniqueIndex,
+    serial,
 } from 'drizzle-orm/pg-core';
-import type { AdapterAccount } from 'next-auth/adapters';
+import { createId } from '@paralleldrive/cuid2';
+
+export const conversations = pgTable('conversations', {
+    id: varchar('id', { length: 255 })
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const participants = pgTable(
+    'participants',
+    {
+        userId: varchar('user_id', { length: 255 })
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        conversationId: varchar('conversation_id', { length: 255 })
+            .notNull()
+            .references(() => conversations.id, { onDelete: 'cascade' }),
+        createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    },
+    (table) => [primaryKey({ columns: [table.userId, table.conversationId] })]
+);
+
+export const messages = pgTable('messages', {
+    id: varchar('id', { length: 255 })
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    conversationId: varchar('conversation_id', { length: 255 })
+        .notNull()
+        .references(() => conversations.id, { onDelete: 'cascade' }),
+    senderId: varchar('sender_id', { length: 255 })
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const notificationTypeEnum = pgEnum('notification_type', ['new_message', 'friend_request']);
+
+export const notifications = pgTable('notifications', {
+    id: varchar('id', { length: 255 })
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    recipientId: varchar('recipient_id', { length: 255 })
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    type: notificationTypeEnum('type').notNull(),
+    data: jsonb('data').notNull(),
+    link: varchar('link', { length: 255 }), // URL to navigate to on click
+    isRead: boolean('is_read').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const auditLog = pgTable('audit_log', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -308,7 +362,7 @@ export const breedingLogEntries = pgTable(
     },
     (table) => [
         {
-            userLogPairIndex: index('user_log_pair_idx').on(table.userId, table.pairId),
+            userLogPairIndex: uniqueIndex('user_log_pair_idx').on(table.userId, table.pairId),
             userIdx: index('log_pairId_idx').on(table.pairId),
             progeny1Idx: index('log_progeny1Id_idx').on(table.progeny1Id),
             progeny2Idx: index('log_progeny2Id_idx').on(table.progeny2Id),

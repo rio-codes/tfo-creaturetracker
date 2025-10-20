@@ -3,13 +3,14 @@
 import { SessionProvider, useSession } from 'next-auth/react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/custom-layout-elements/header';
 import { Footer } from '@/components/custom-layout-elements/footer';
 import { ThemeSyncer } from '@/components/misc-custom-components/theme-syncer';
 import { Analytics } from '@vercel/analytics/next';
 import HyperDX from '@hyperdx/browser';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 if (typeof window !== 'undefined') {
     const apiKey = process.env.NEXT_PUBLIC_HYPERDX_API_KEY;
@@ -82,12 +83,15 @@ function AppContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
+    const [queryClient] = useState(() => new QueryClient());
     return (
         <ThemeProvider defaultTheme="hallowsnight">
-            <SessionProvider>
-                <ThemeSyncer />
-                <AppContent>{children}</AppContent>
-            </SessionProvider>
+            <QueryClientProvider client={queryClient}>
+                <SessionProvider>
+                    <ThemeSyncer />
+                    <AppContent>{children}</AppContent>
+                </SessionProvider>
+            </QueryClientProvider>
         </ThemeProvider>
     );
 }

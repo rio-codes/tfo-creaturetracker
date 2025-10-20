@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { Menu, LogIn, LogOut, Loader2, User, Settings, Logs } from 'lucide-react';
+import { Menu, LogIn, LogOut, Loader2, User, Settings, Logs, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { getRandomCapsuleAvatar } from '@/lib/avatars';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
+import { NotificationBell } from '@/components/custom-layout-elements/notification-bell';
 
 function getProfilePath(username: string): string {
     if (RESERVED_USER_PATHS.includes(username.toLowerCase())) {
@@ -100,81 +101,95 @@ export default function Header() {
                 )}
 
                 {status === 'authenticated' && session.user && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button className="flex items-center gap-2 rounded-full hallowsnight:bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">
-                                <Image
-                                    key={
-                                        session.user.image ||
-                                        getRandomCapsuleAvatar(session.user.id)
-                                    }
-                                    src={
-                                        session.user.image ||
-                                        getRandomCapsuleAvatar(session.user.id)
-                                    }
-                                    alt={session.user.username || 'User avatar'}
-                                    width={30}
-                                    height={30}
-                                    className="rounded-full p-1"
-                                />
-                                {session.user.username && (
-                                    <span className="font-semibold text-barely-lilac hallowsnight:text-cimo-crimson">
-                                        {session.user.username}
-                                    </span>
-                                )}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            className="w-56 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple font-semibold"
-                            align="end"
-                        >
-                            <DropdownMenuItem className="focus:bg-transparent cursor-default">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-semibold leading-none text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson/75">
-                                        Signed in as
-                                    </p>
-                                    <p className="text-xs leading-none text-gray-600 dark:text-gray-400 truncate">
-                                        {session.user.username}
-                                    </p>
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-dusk-purple" />
-                            <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                    <>
+                        <NotificationBell />
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="flex items-center gap-2 rounded-full hallowsnight:bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">
+                                    <Image
+                                        key={
+                                            session.user.image ||
+                                            getRandomCapsuleAvatar(session.user.id)
+                                        }
+                                        src={
+                                            session.user.image ||
+                                            getRandomCapsuleAvatar(session.user.id)
+                                        }
+                                        alt={session.user.username || 'User avatar'}
+                                        width={30}
+                                        height={30}
+                                        className="rounded-full p-1"
+                                    />
+                                    {session.user.username && (
+                                        <span className="font-semibold text-barely-lilac hallowsnight:text-cimo-crimson">
+                                            {session.user.username}
+                                        </span>
+                                    )}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                className="w-56 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-dusk-purple font-semibold"
+                                align="end"
                             >
-                                <Link href={getProfilePath(session.user.username)}>
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
-                            >
-                                <Link href="/settings">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    <span>Settings</span>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                asChild
-                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
-                            >
-                                <Link href="/account/activity">
-                                    <Logs className="mr-2 h-4 w-4" />
-                                    <span>Activity Log</span>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onSelect={() => signOut({ callbackUrl: '/' })}
-                                className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
-                            >
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>Log out</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuItem className="focus:bg-transparent cursor-default">
+                                    <div className="flex flex-col space-y-1">
+                                        <p className="text-sm font-semibold leading-none text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson/75">
+                                            Signed in as
+                                        </p>
+                                        <p className="text-xs leading-none text-gray-600 dark:text-gray-400 truncate">
+                                            {session.user.username}
+                                        </p>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-dusk-purple" />
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                                >
+                                    <Link href={getProfilePath(session.user.username)}>
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                                >
+                                    <Link href="/messages">
+                                        <Mail className="mr-2 h-4 w-4" />
+                                        <span>Messages</span>
+                                    </Link>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                                >
+                                    <Link href="/settings">
+                                        <Settings className="mr-2 h-4 w-4" />
+                                        <span>Settings</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                                >
+                                    <Link href="/account/activity">
+                                        <Logs className="mr-2 h-4 w-4" />
+                                        <span>Activity Log</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onSelect={() => signOut({ callbackUrl: '/' })}
+                                    className="cursor-pointer focus:bg-dusk-purple dark:focus:bg-midnight-purple"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </>
                 )}
 
                 {status === 'unauthenticated' && (

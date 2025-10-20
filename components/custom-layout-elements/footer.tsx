@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { AltRoute } from '@mui/icons-material';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -25,14 +25,6 @@ declare module '@mui/material/Switch' {
     }
 }
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error('Missing Supabase environment variables');
-}
-const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase = createClient(supabaseURL, supabaseAnonKey);
-
 export function Footer() {
     const [mounted, setMounted] = useState(false);
     const [onlineCount, setOnlineCount] = useState<number | null>(null);
@@ -40,60 +32,47 @@ export function Footer() {
     const { data: session, update } = useSession();
 
     const presenceRoom = supabase.channel('room:lobby:messages', {
-        config: { private: true },
+        config: {
+            presence: {
+                key: session?.user?.username || 'anonymous',
+            },
+        },
     });
-    if (presenceRoom) {
-        console.log('Presence room connected');
-    } else {
-        console.log('Presence room not connected');
-    }
-
-    presenceRoom
-        .on('presence', { event: 'sync' }, () => {
-            const newState = presenceRoom.presenceState();
-            let onlineUsersCount = 0;
-
-            for (const _userKey in newState) {
-                onlineUsersCount++;
-            }
-            setOnlineCount(onlineUsersCount);
-            console.log('Online users: ', onlineCount);
-            console.log('sync', newState);
-        })
-        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-            console.log('join', key, newPresences);
-        })
-        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-            console.log('leave', key, leftPresences);
-        })
-        .subscribe();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const userStatus = {
-        user: session?.user?.username,
-        online_at: new Date().toISOString(),
-    };
+    useEffect(() => {
+        const handleSync = () => {
+            const newState = presenceRoom.presenceState();
+            const count = Object.keys(newState).length;
+            setOnlineCount(count);
+        };
 
-    presenceRoom.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-            const presenceTrackStatus = await presenceRoom.track(userStatus);
-            console.log(presenceTrackStatus);
-        } else if (status === 'CLOSED') {
-            return;
-        }
-    });
+        presenceRoom
+            .on('presence', { event: 'sync' }, handleSync)
+            .on('presence', { event: 'join' }, handleSync)
+            .on('presence', { event: 'leave' }, handleSync)
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await presenceRoom.track({
+                        user: session?.user?.username || 'anonymous',
+                        online_at: new Date().toISOString(),
+                    });
+                }
+            });
+
+        return () => {
+            presenceRoom.unsubscribe();
+        };
+    }, [session?.user?.username]);
 
     const handleThemeChange = useCallback(
         async (newTheme: 'light' | 'dark' | 'hallowsnight') => {
-            const originalTheme = resolvedTheme; // Capture the theme before changing
-
-            // Optimistically update the UI
+            const originalTheme = resolvedTheme;
             setTheme(newTheme);
 
-            // If user is logged in, persist the setting to the database
             if (session?.user) {
                 try {
                     const response = await fetch('/api/settings', {
@@ -103,10 +82,8 @@ export function Footer() {
                     });
 
                     if (response.ok) {
-                        // Also update the session JWT so it persists across reloads
                         await update({ theme: newTheme });
                     } else {
-                        // Revert on failure and notify user
                         setTheme(originalTheme as 'light' | 'dark' | 'hallowsnight');
                         toast.error('Could Not Save Preference', {
                             description:
@@ -115,7 +92,6 @@ export function Footer() {
                         console.error('Failed to save theme preference to the database.', response);
                     }
                 } catch (error) {
-                    // Revert on failure and notify user
                     setTheme(originalTheme as 'light' | 'dark' | 'hallowsnight');
                     toast.error('Network Error', {
                         description:

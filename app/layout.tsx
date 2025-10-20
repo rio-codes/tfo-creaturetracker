@@ -4,6 +4,7 @@ import './globals.css';
 import ClientProviders from './ClientProviders';
 import { Toaster } from '@/components/ui/sonner';
 import React from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://tfo.creaturetracker.net'),
@@ -78,10 +79,11 @@ export default async function RootLayout({
                 />
             </head>
             <body
-                className={`font-tektur hallowsnight:font-new-tegomin   min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine		text-flex flex-col min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson`}
+                className={`font-tektur hallowsnight:font-new-tegomin min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine	text-flex flex-col min-h-screen  text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson`}
             >
                 <ClientProviders>{children}</ClientProviders>
                 <Toaster />
+                <SpeedInsights />
             </body>
         </html>
     );

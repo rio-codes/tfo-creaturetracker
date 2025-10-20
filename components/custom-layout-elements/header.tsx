@@ -15,6 +15,7 @@ import {
 import { getRandomCapsuleAvatar } from '@/lib/avatars';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
 import { NotificationBell } from '@/components/custom-layout-elements/notification-bell';
+import { NotificationBell } from '@/components/custom-layout-elements/notification-bell';
 
 function getProfilePath(username: string): string {
     if (RESERVED_USER_PATHS.includes(username.toLowerCase())) {

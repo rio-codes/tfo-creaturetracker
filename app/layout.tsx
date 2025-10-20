@@ -79,7 +79,7 @@ export default async function RootLayout({
                 />
             </head>
             <body
-                className={`font-tektur hallowsnight:font-new-tegomin min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine	text-flex flex-col min-h-screen  text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson`}
+                className={`font-tektur hallowsnight:font-new-tegomin min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine text-flex flex-col text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson`}
             >
                 <ClientProviders>{children}</ClientProviders>
                 <Toaster />

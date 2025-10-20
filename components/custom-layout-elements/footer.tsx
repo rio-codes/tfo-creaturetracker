@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { AltRoute } from '@mui/icons-material';
+import { createClient } from '@supabase/supabase-js';
 
 declare module '@mui/material/styles' {
     interface Palette {
@@ -24,33 +25,66 @@ declare module '@mui/material/Switch' {
     }
 }
 
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    throw new Error('Missing Supabase environment variables');
+}
+const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseURL, supabaseAnonKey);
+
 export function Footer() {
     const [mounted, setMounted] = useState(false);
+    const [onlineCount, setOnlineCount] = useState<number | null>(null);
     const { theme, resolvedTheme, setTheme } = useTheme();
     const { data: session, update } = useSession();
-    const [onlineCount, setOnlineCount] = useState<number | null>(null);
+
+    const presenceRoom = supabase.channel('room:lobby:messages', {
+        config: { private: true },
+    });
+    if (presenceRoom) {
+        console.log('Presence room connected');
+    } else {
+        console.log('Presence room not connected');
+    }
+
+    presenceRoom
+        .on('presence', { event: 'sync' }, () => {
+            const newState = presenceRoom.presenceState();
+            let onlineUsersCount = 0;
+
+            for (const _userKey in newState) {
+                onlineUsersCount++;
+            }
+            setOnlineCount(onlineUsersCount);
+            console.log('Online users: ', onlineCount);
+            console.log('sync', newState);
+        })
+        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+            console.log('join', key, newPresences);
+        })
+        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+            console.log('leave', key, leftPresences);
+        })
+        .subscribe();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    const fetchOnlineCount = useCallback(async () => {
-        try {
-            const response = await fetch('/api/metrics/online-users');
-            if (response.ok) {
-                const data = await response.json();
-                setOnlineCount(data.onlineCount);
-            }
-        } catch (error) {
-            console.error('Failed to fetch online user count:', error);
-        }
-    }, []);
+    const userStatus = {
+        user: session?.user?.username,
+        online_at: new Date().toISOString(),
+    };
 
-    useEffect(() => {
-        fetchOnlineCount();
-        const interval = setInterval(fetchOnlineCount, 60000); // Refresh every 60 seconds
-        return () => clearInterval(interval);
-    }, [fetchOnlineCount]);
+    presenceRoom.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+            const presenceTrackStatus = await presenceRoom.track(userStatus);
+            console.log(presenceTrackStatus);
+        } else if (status === 'CLOSED') {
+            return;
+        }
+    });
 
     const handleThemeChange = useCallback(
         async (newTheme: 'light' | 'dark' | 'hallowsnight') => {

@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
-import { New_Tegomin, Tektur } from 'next/font/google';
 import './globals.css';
 import ClientProviders from './ClientProviders';
 import { Toaster } from '@/components/ui/sonner';
@@ -42,16 +41,6 @@ export const metadata: Metadata = {
         images: 'https://tfo.creaturetracker.net/images/misc/og-image.png',
     },
 };
-
-const tektur = Tektur({
-    subsets: ['latin'],
-});
-
-const newTegomin = New_Tegomin({
-    subsets: ['latin'],
-    weight: '400',
-    display: 'swap',
-});
 
 export default async function RootLayout({
     children,

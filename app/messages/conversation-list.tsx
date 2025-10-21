@@ -43,8 +43,9 @@ function ConversationItem({ conversation }: { conversation: EnrichedConversation
         <Link
             href={`/messages/${conversation.id}`}
             className={cn(
-                'flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-lg',
-                isActive && 'bg-gray-200 dark:bg-gray-700'
+                'flex items-center p-3 bg-dusk-purple text-barely-lilac hover:bg-pompaca-purple dark:bg-dusk-purple dark:text-pompaca-purple dark:hover:bg-ebena-lavender transition-colors rounded-lg hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson',
+                isActive &&
+                    'bg-pompaca-purple text-barely-lilac dark:bg-pompaca-purple hover:bg-ebena-lavender dark:hover:bg-ebena-lavender transition-colors rounded-lg hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson'
             )}
         >
             <Image
@@ -56,9 +57,11 @@ function ConversationItem({ conversation }: { conversation: EnrichedConversation
             />
             <div className="flex-1 overflow-hidden">
                 <div className="flex justify-between items-center">
-                    <p className="font-semibold truncate">{otherParticipant.username}</p>
+                    <p className="font-semibold truncate text-ebena-lavender hallowsnight:text-cimo-crimson">
+                        {otherParticipant.username}
+                    </p>
                     {lastMessage && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        <p className="text-xs text-barely-lilac hallowsnight:text-cimo-crimson whitespace-nowrap">
                             {formatDistanceToNow(lastMessage.createdAt, { addSuffix: true })}
                         </p>
                     )}

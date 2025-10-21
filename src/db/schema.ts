@@ -53,6 +53,17 @@ export const messages = pgTable('messages', {
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const messagesRelations = relations(messages, ({ one }) => ({
+    sender: one(users, {
+        fields: [messages.senderId],
+        references: [users.id],
+    }),
+    conversation: one(conversations, {
+        fields: [messages.conversationId],
+        references: [conversations.id],
+    }),
+}));
+
 export const notificationTypeEnum = pgEnum('notification_type', ['new_message', 'friend_request']);
 
 export const notifications = pgTable('notifications', {

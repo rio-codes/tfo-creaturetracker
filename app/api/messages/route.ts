@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { messages, participants } from '@/src/db/schema';
-import { and, eq, desc, ne } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import { createNotification } from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
@@ -51,11 +51,10 @@ export async function GET(req: Request) {
                     },
                 },
             },
-            orderBy: [desc(messages.createdAt)],
+            orderBy: [messages.createdAt], // Order ascending to get oldest first
             limit: 100,
         });
-
-        return NextResponse.json(conversationMessages.reverse());
+        return NextResponse.json(conversationMessages, { status: 200 });
     } catch (error) {
         console.error('Failed to fetch messages:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

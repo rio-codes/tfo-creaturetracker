@@ -19,6 +19,7 @@ import { auth } from '@/auth';
 import { RESERVED_USER_PATHS } from '@/constants/paths';
 import { FriendshipButton } from '@/components/custom-buttons/friendship-button';
 import { FeaturedCreatureCard } from '@/components/custom-cards/featured-creature-card';
+import { MessageUserButton } from '@/components/custom-buttons/message-user-button';
 import { ReportUserButton } from '@/components/custom-buttons/report-user-button';
 import { FeaturedGoalCard } from '@/components/custom-cards/featured-goal-card';
 import { SocialLinks } from '@/components/misc-custom-components/social-links';
@@ -483,6 +484,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 initialStatus={friendship?.status ?? null}
                                 actionUserId={friendship?.actionUserId ?? null}
                             />
+                            <MessageUserButton profileUserId={user.id} />
                             <ReportUserButton
                                 reportedUserId={user.id}
                                 reportedUsername={user.username}

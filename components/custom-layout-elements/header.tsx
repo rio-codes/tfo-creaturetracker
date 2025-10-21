@@ -103,6 +103,7 @@ export default function Header() {
                 {status === 'authenticated' && session.user && (
                     <>
                         <NotificationBell />
+
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button className="flex items-center gap-2 rounded-full hallowsnight:bg-blood-bay-wine bg-dusk-purple/20 p-2 pr-4 border-1 border-barely-lilac hallowsnight:border-cimo-crimson">

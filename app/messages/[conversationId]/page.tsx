@@ -48,7 +48,9 @@ function MessageItem({
             )}
             <div
                 className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg ${
-                    isOwnMessage ? 'bg-pompaca-purple text-white' : 'bg-gray-200 dark:bg-gray-700'
+                    isOwnMessage
+                        ? 'bg-pompaca-purple text-white hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson'
+                        : 'bg-gray-200 dark:bg-gray-700'
                 }`}
             >
                 <p className="text-sm">{message.content}</p>

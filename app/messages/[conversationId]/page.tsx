@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
+import Link from 'next/link';
 import { format } from 'date-fns';
-import { SendHorizonal } from 'lucide-react';
+import { SendHorizonal, ArrowLeft } from 'lucide-react';
 
 import { type MessageWithSender, type EnrichedConversation } from '@/lib/definitions';
 import { getRandomCapsuleAvatar } from '@/lib/avatars';
@@ -158,6 +159,11 @@ export default function MessageView({ params }: { params: { conversationId: stri
         <div className="flex flex-col h-full">
             {/* Header */}
             <header className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <Link href="/messages" className="md:hidden mr-4">
+                    <Button variant="ghost" size="icon">
+                        <ArrowLeft className="h-6 w-6" />
+                    </Button>
+                </Link>
                 {otherParticipant ? (
                     <>
                         <Image

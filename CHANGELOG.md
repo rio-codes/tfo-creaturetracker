@@ -1,5 +1,29 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.16.0 (2025-10-20)
+
+- feat(messaging): ✨ implement site-wide messaging with notifications (#327) ([de294ad](https://github.com/rio-codes/tfo-creaturetracker/commit/de294ad)), closes [#327](https://github.com/rio-codes/tfo-creaturetracker/issues/327)
+
+- fix(messaging): 🐛 add messaging button on user profile, fix conversation ui ([#328](https://github.com/rio-codes/tfo-creaturetracker/issues/328))
+
+## 1.15.0 (2025-10-20)
+
+- feat(supabase): 🚀 implement supabase realtime presence (#326) ([f18d9a4](https://github.com/rio-codes/tfo-creaturetracker/commit/f18d9a4)), closes [#326](https://github.com/rio-codes/tfo-creaturetracker/issues/326)
+
+## 1.14.0 (2025-10-21)
+
+- feat(vercel): 📈 implement vercel speed insights (#325) ([2d39d40](https://github.com/rio-codes/tfo-creaturetracker/commit/2d39d40)), closes [#325](https://github.com/rio-codes/tfo-creaturetracker/issues/325)
+
+## <small>1.13.3 (2025-10-18)</small>
+
+- Fix: Font override (#324) ([296fbd8](https://github.com/rio-codes/tfo-creaturetracker/commit/296fbd8)), closes [#324](https://github.com/rio-codes/tfo-creaturetracker/issues/324)
+
+## <small>1.13.2 (2025-10-18)</small>
+
+- fix(ui): ⚡️ fix issues with hallowsnight mode, collection perf upgrade ([26dd1c8](https://github.com/rio-codes/tfo-creaturetracker/commit/26dd1c8))
+- fix(ui): 💄 fix dark mode styling on profile, settings, and header ([e77abec](https://github.com/rio-codes/tfo-creaturetracker/commit/e77abec))
+- fix(pairs): ⚡️ finish refactor for performance, add hallowsnight theme (#323) ([8c70ba2](https://github.com/rio-codes/tfo-creaturetracker/commit/8c70ba2)), closes [#323](https://github.com/rio-codes/tfo-creaturetracker/issues/323)
+
 ## <small>1.13.1 (2025-10-18)</small>
 
 - fix(db): 🚑️ emergency db schema update ([f8fbef0](https://github.com/rio-codes/tfo-creaturetracker/commit/f8fbef0))

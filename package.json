@@ -1,6 +1,6 @@
 {
     "name": "tfo-creaturetracker",
-    "version": "1.14.0",
+    "version": "1.16.0",
     "private": true,
     "scripts": {
         "reset": "rm -rf .next node_modules package-lock.json pnpm-lock.yaml && pnpm store prune && pnpm i && pnpm dev",
@@ -11,7 +11,7 @@
         "start": "next start",
         "db:generate": "drizzle-kit generate",
         "db:push": "drizzle-kit push",
-        "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -n .changelogrc.json -r 0"
+        "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -n .changelogrc.json -r 1"
     },
     "pnpm": {
         "overrides": {

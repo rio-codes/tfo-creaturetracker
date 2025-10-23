@@ -31,6 +31,3 @@ next-env.d.ts
 # vs code
 .vscode/
 .vercel
-
-next-env.d.ts
-next-env.d.ts

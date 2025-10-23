@@ -28,7 +28,7 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
     )}&body=${encodeURIComponent(prefilledBody)}`;
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple p-4 gap-4 items-center">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple dark:text-barely-lilac p-4 gap-4 items-center">
             <Image
                 src={goal.imageUrl || '/images/misc/placeholder.png'}
                 alt={goal.name}
@@ -37,16 +37,19 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
                 className="rounded-md bg-white/10 p-1 object-contain"
             />
             <div className="flex-1 min-w-0">
-                <p className="text-sm text-dusk-purple dark:text-purple-400">
+                <p className="text-sm text-dusk-purple hallowsnight:text-cimo-crimson dark:text-purple-400">
                     Goal by{' '}
                     <Link href={`/${owner.username}`} className="font-semibold hover:underline">
                         {owner.username}
                     </Link>
                 </p>
-                <h3 className="font-bold truncate" title={goal.name}>
+                <h3
+                    className="font-bold truncate hallowsnight:text-blood-bay-wine"
+                    title={goal.name}
+                >
                     {goal.name}
                 </h3>
-                <p className="text-sm text-dusk-purple dark:text-purple-400 truncate">
+                <p className="text-sm text-dusk-purple hallowsnight:text-cimo-crimson dark:text-purple-400 truncate">
                     {goal.species}
                 </p>
                 {matchingCreatureId && (

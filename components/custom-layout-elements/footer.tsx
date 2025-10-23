@@ -31,33 +31,45 @@ export function Footer() {
     const { theme, resolvedTheme, setTheme } = useTheme();
     const { data: session, update } = useSession();
 
-    const presenceRoom = supabase.channel('room:lobby:messages', {
-        config: {
-            presence: {
-                key: session?.user?.username || 'anonymous',
-            },
-        },
-    });
-
     useEffect(() => {
         setMounted(true);
     }, []);
 
     useEffect(() => {
+        // Generate a unique key for this specific client connection
+        const presenceKey = `${session?.user?.id || 'anon'}-${Math.random().toString(36).substring(2, 9)}`;
+
+        const presenceRoom = supabase.channel('lobby', {
+            config: {
+                presence: {
+                    key: presenceKey,
+                },
+            },
+        });
+
         const handleSync = () => {
             const newState = presenceRoom.presenceState();
+            // The state is an object where keys are the unique presenceKeys.
+            // The number of keys is the number of online connections.
             const count = Object.keys(newState).length;
             setOnlineCount(count);
         };
 
         presenceRoom
             .on('presence', { event: 'sync' }, handleSync)
-            .on('presence', { event: 'join' }, handleSync)
-            .on('presence', { event: 'leave' }, handleSync)
+            .on('presence', { event: 'join' }, (payload) => {
+                console.log('User joined:', payload);
+                handleSync();
+            })
+            .on('presence', { event: 'leave' }, (payload) => {
+                console.log('User left:', payload);
+                handleSync();
+            })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
                     await presenceRoom.track({
-                        user: session?.user?.username || 'anonymous',
+                        user_id: session?.user?.id || null,
+                        username: session?.user?.username || 'Anonymous',
                         online_at: new Date().toISOString(),
                     });
                 }
@@ -66,9 +78,10 @@ export function Footer() {
         return () => {
             presenceRoom.unsubscribe();
         };
-    }, [session?.user?.username]);
+    }, [session]); // Depend on the whole session object
 
     const handleThemeChange = useCallback(
+        // ... (this function remains the same)
         async (newTheme: 'light' | 'dark' | 'hallowsnight') => {
             const originalTheme = resolvedTheme;
             setTheme(newTheme);

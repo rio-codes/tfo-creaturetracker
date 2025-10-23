@@ -17,6 +17,7 @@ import {
     foreignKey,
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
+import { GoalGene } from '@/types';
 
 export const conversations = pgTable('conversations', {
     id: varchar('id', { length: 255 })

@@ -1,5 +1,9 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.17.0 (2025-10-23)
+
+- feat(wishlist): ✨ Implement public wishlist page and features! ([#335](https://github.com/rio-codes/tfo-creaturetracker/issues/335))
+
 ## 1.16.0 (2025-10-20)
 
 - feat(messaging): ✨ implement site-wide messaging with notifications (#327) ([de294ad](https://github.com/rio-codes/tfo-creaturetracker/commit/de294ad)), closes [#327](https://github.com/rio-codes/tfo-creaturetracker/issues/327)

@@ -33,6 +33,30 @@ type HomepageStats = {
 
 const newsItems = [
     {
+        title: 'The Community Wishlist is Live!',
+        date: 'October 23rd, 2025', // Example date
+        content: (
+            <>
+                <details>
+                    <summary>
+                        The much-requested Community Wishlist feature is live! Add your seasonal (or
+                        any) research goals to the Community Wishlist using the ✨ sparkle button on
+                        your goal, then head over to{' '}
+                        <Link
+                            className="text-pompaca-purple dark:text-purple-400 hallowsnight:text-abyss hover:underline font-semibold"
+                            href="/community-wishlist"
+                        >
+                            Community Wishlist
+                        </Link>{' '}
+                        to see if anyone&#39;s goals match your creatures! You will see an indicator
+                        if there&#39;s a match, and with our new messaging system, you can set up a
+                        trade! Happy Hallowsnight!
+                    </summary>
+                </details>
+            </>
+        ),
+    },
+    {
         title: "It's Nearly Hallowsnight, Don't Stray from the Paths",
         date: 'October 18th, 2025', // Example date
         content: (

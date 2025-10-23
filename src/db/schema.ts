@@ -186,7 +186,6 @@ export const verificationTokens = pgTable(
     (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })]
 );
 
-// Account Management
 export const passwordResetTokens = pgTable('password_reset_token', {
     email: text('email').notNull().primaryKey(),
     token: text('token').notNull(),
@@ -333,11 +332,11 @@ export const breedingPairs = pgTable(
             .references(() => users.id, { onDelete: 'cascade' }),
         pairName: text('pair_name').notNull(),
         species: text('species').notNull(),
+        assignedGoalIds: jsonb('assigned_goal_ids').$type<string[]>(),
         maleParentUserId: text('male_parent_user_id').notNull(),
         maleParentCode: text('male_parent_code').notNull(),
         femaleParentUserId: text('female_parent_user_id').notNull(),
         femaleParentCode: text('female_parent_code').notNull(),
-        assignedGoalIds: jsonb('assigned_goal_ids').$type<string[]>(),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
         outcomesPreviewUrl: text('outcomes_preview_url'),
@@ -357,6 +356,8 @@ export const breedingPairs = pgTable(
                 foreignColumns: [creatures.userId, creatures.code],
             }).onDelete('cascade'),
             userIdx: index('pair_userId_idx').on(table.userId),
+            maleParentIdx: index('pair_maleParentId_idx').on(table.maleParentCode),
+            femaleParentIdx: index('pair_femaleParentId_idx').on(table.femaleParentCode),
             speciesIdx: index('pair_species_idx').on(table.species),
             pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
             createdIdx: index('pair_created_at_idx').on(table.createdAt),
@@ -399,37 +400,30 @@ export const breedingLogEntries = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
     (table) => [
-        {
-            userLogPairIndex: uniqueIndex('user_log_pair_idx').on(table.userId, table.pairId),
-            userIdx: index('log_userId_idx').on(table.userId),
-            pairIdx: index('log_pairId_idx').on(table.pairId),
-            progeny1Fk: foreignKey({
-                columns: [table.progeny1UserId, table.progeny1Code],
-                foreignColumns: [creatures.userId, creatures.code],
-            }).onDelete('set null'),
-            progeny2Fk: foreignKey({
-                columns: [table.progeny2UserId, table.progeny2Code],
-                foreignColumns: [creatures.userId, creatures.code],
-            }).onDelete('set null'),
-        },
+        index('user_log_pair_idx').on(table.userId, table.pairId),
+        index('log_pairId_idx').on(table.pairId),
+        index('log_progeny1Id_idx').on(table.progeny1Code),
+        index('log_progeny2Id_idx').on(table.progeny2Code),
+        index('log_userId_idx').on(table.userId),
+        foreignKey({
+            columns: [table.progeny1UserId, table.progeny1Code],
+            foreignColumns: [creatures.userId, creatures.code],
+        }).onDelete('set null'),
+        foreignKey({
+            columns: [table.progeny2UserId, table.progeny2Code],
+            foreignColumns: [creatures.userId, creatures.code],
+        }).onDelete('set null'),
     ]
 );
 
-export const breedingLogEntriesRelations = relations(breedingLogEntries, ({ one }) => ({
-    user: one(users, { fields: [breedingLogEntries.userId], references: [users.id] }),
-    pair: one(breedingPairs, {
-        fields: [breedingLogEntries.pairId],
-        references: [breedingPairs.id],
+export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
+    maleParent: one(creatures, {
+        fields: [breedingPairs.maleParentCode],
+        references: [creatures.code],
     }),
-    progeny1: one(creatures, {
-        fields: [breedingLogEntries.progeny1UserId, breedingLogEntries.progeny1Code],
-        references: [creatures.userId, creatures.code],
-        relationName: 'progeny1',
-    }),
-    progeny2: one(creatures, {
-        fields: [breedingLogEntries.progeny2UserId, breedingLogEntries.progeny2Code],
-        references: [creatures.userId, creatures.code],
-        relationName: 'progeny2',
+    femaleParent: one(creatures, {
+        fields: [breedingPairs.femaleParentCode],
+        references: [creatures.code],
     }),
 }));
 
@@ -448,24 +442,19 @@ export const achievedGoals = pgTable(
         logEntryId: text('log_entry_id')
             .notNull()
             .references(() => breedingLogEntries.id, { onDelete: 'cascade' }),
-        matchingProgenyId: text('matching_progeny_id')
-            .notNull()
-            .references(() => creatures.id, { onDelete: 'cascade' }),
         matchingProgenyUserId: text('matching_progeny_user_id').notNull(),
         matchingProgenyCode: text('matching_progeny_code').notNull(),
         achievedAt: timestamp('achieved_at').defaultNow().notNull(),
     },
     (table) => [
-        {
-            userIdx: index('achieved_goal_userId_idx').on(table.userId),
-            goalIdx: index('achieved_goal_goalId_idx').on(table.goalId),
-            logEntryIdx: index('achieved_goal_logEntryId_idx').on(table.logEntryId),
-            progenyIdx: index('achieved_goal_progenyId_idx').on(table.matchingProgenyId),
-            progenyFk: foreignKey({
-                columns: [table.matchingProgenyUserId, table.matchingProgenyCode],
-                foreignColumns: [creatures.userId, creatures.code],
-            }).onDelete('cascade'),
-        },
+        foreignKey({
+            columns: [table.matchingProgenyUserId, table.matchingProgenyCode],
+            foreignColumns: [creatures.userId, creatures.code],
+        }).onDelete('cascade'),
+        index('achieved_goal_userId_idx').on(table.userId),
+        index('achieved_goal_goalId_idx').on(table.goalId),
+        index('achieved_goal_logEntryId_idx').on(table.logEntryId),
+        index('achieved_goal_progenyId_idx').on(table.matchingProgenyCode),
     ]
 );
 
@@ -497,11 +486,9 @@ export const userTabs = pgTable(
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
     (table) => [
-        {
-            userTabKey: uniqueIndex('user_tab_key').on(table.userId, table.tabId),
-            userIdx: index('user_tabs_userId_idx').on(table.userId),
-            tabIdIdx: index('user_tabs_tabId_idx').on(table.tabId),
-        },
+        uniqueIndex('user_tab_key').on(table.userId, table.tabId),
+        index('user_tabs_userId_idx').on(table.userId),
+        index('user_tabs_tabId_idx').on(table.tabId),
     ]
 );
 

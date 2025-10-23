@@ -1,3 +1,9 @@
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const nextConfig = {
     images: {
         unoptimized: true,
@@ -5,14 +11,9 @@ const nextConfig = {
     },
     productionBrowserSourceMaps: true,
     serverExternalPackages: ['@hyperdx/node-opentelemetry', '@opentelemetry/instrumentation'],
+    ignoreWarnings: { module: /opentelemetry/ },
     turbopack: {
-        root: '/',
-    },
-    webpack: (config, { isServer }) => {
-        if (isServer) {
-            config.ignoreWarnings = [{ module: /opentelemetry/ }];
-        }
-        return config;
+        root: __dirname,
     },
     async headers() {
         return [

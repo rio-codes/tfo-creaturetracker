@@ -30,6 +30,7 @@ type GoalFormProps = {
     goal?: EnrichedResearchGoal;
     onSuccess: () => void; // To close the parent dialog
     isAdminView?: boolean;
+    isPublic?: boolean;
 };
 
 export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps) {
@@ -42,6 +43,10 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
     const [selectedGenes, setSelectedGenes] = useState<{
         [key: string]: GoalGene;
     }>(goal?.genes || {});
+    const [excludedGenes, setExcludedGenes] = useState<{ [key: string]: { phenotype: string[] } }>(
+        goal?.excludedGenes || {}
+    );
+    const [isPublic, setIsPublic] = useState(goal?.isPublic || false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -162,6 +167,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         setPreviewImageUrl(null);
     };
 
+    const handleExclusionChange = (category: string, excludedPhenotypes: string[]) => {
+        setExcludedGenes((prev) => ({
+            ...prev,
+            [category]: { phenotype: excludedPhenotypes },
+        }));
+        setPreviewImageUrl(null);
+    };
+
     const handleOptionalToggle = (category: string) => {
         setSelectedGenes((prev) => {
             if (!prev[category]) return prev;
@@ -173,6 +186,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 },
             };
         });
+        // If a gene is no longer optional, remove its exclusions
+        if (selectedGenes[category]?.isOptional) {
+            setExcludedGenes((prev) => {
+                const newExclusions = { ...prev };
+                delete newExclusions[category];
+                return newExclusions;
+            });
+        }
         setPreviewImageUrl(null);
     };
     const handleSubmit = async (e: React.FormEvent) => {
@@ -182,7 +203,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         const apiUrl = isEditMode ? `/api/research-goals/${goal.id}` : '/api/research-goals';
         const apiMethod = isEditMode ? 'PATCH' : 'POST';
         try {
-            const payload = { name, species, genes: selectedGenes, goalMode };
+            const payload = {
+                name,
+                species,
+                genes: selectedGenes,
+                goalMode,
+                isPublic,
+                excludedGenes,
+            };
             const response = await fetch(apiUrl, {
                 method: apiMethod,
                 headers: { 'Content-Type': 'application/json' },
@@ -275,6 +303,16 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+            <div className="flex items-center space-x-2 pt-2">
+                <Checkbox
+                    id="is-public"
+                    checked={isPublic}
+                    onCheckedChange={(checked) => setIsPublic(!!checked)}
+                />
+                <Label htmlFor="is-public" className="font-normal">
+                    Make this goal public on the Community Wishlist
+                </Label>
+            </div>
             {/* Goal Mode Selector */}
             <div className="space-y-2">
                 <Label>Goal Mode</Label>
@@ -351,49 +389,91 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
 
                                 const options = geneOptions[category] || [];
                                 return (
-                                    <div
-                                        key={category}
-                                        className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4"
-                                    >
-                                        <Label className="font-medium dark:text-barely-lilac hallowsnight:text-cimo-crimson">
-                                            {category}
-                                        </Label>
-                                        <Select
-                                            value={selectedValue}
-                                            onValueChange={(value) =>
-                                                handleGeneChange(category, value)
-                                            }
-                                        >
-                                            <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
-                                                <SelectValue
-                                                    placeholder={`Select ${category}...`}
-                                                />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
-                                                {options.map((option) => (
-                                                    <SelectItem
-                                                        key={option.value}
-                                                        value={option.value}
-                                                    >
-                                                        {option.display}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Checkbox
-                                            checked={selectedGenes[category]?.isOptional || false}
-                                            onCheckedChange={() => handleOptionalToggle(category)}
-                                            className="mr-2"
-                                        />
-                                    </div>
+                                    <React.Fragment key={category}>
+                                        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4">
+                                            <Label className="font-medium dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                {category}
+                                            </Label>
+                                            <Select
+                                                value={selectedValue}
+                                                onValueChange={(value) =>
+                                                    handleGeneChange(category, value)
+                                                }
+                                            >
+                                                <SelectTrigger className="w-full bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                    <SelectValue
+                                                        placeholder={`Select ${category}...`}
+                                                    />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                    {options.map((option) => (
+                                                        <SelectItem
+                                                            key={option.value}
+                                                            value={option.value}
+                                                        >
+                                                            {option.display}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <Checkbox
+                                                checked={
+                                                    selectedGenes[category]?.isOptional || false
+                                                }
+                                                onCheckedChange={() =>
+                                                    handleOptionalToggle(category)
+                                                }
+                                                className="mr-2"
+                                            />
+                                        </div>
+                                        {selectedGenes[category]?.isOptional && (
+                                            <div className="pl-8 pb-2">
+                                                <Label className="text-xs text-dusk-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                    Exclude Phenotypes
+                                                </Label>
+                                                <Select
+                                                    value={
+                                                        excludedGenes[category]?.phenotype &&
+                                                        excludedGenes[category].phenotype.length > 0
+                                                            ? excludedGenes[category].phenotype[0]
+                                                            : ''
+                                                    }
+                                                    onValueChange={(value) =>
+                                                        handleExclusionChange(
+                                                            category,
+                                                            value ? [value] : []
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger className="w-full text-xs h-8 mt-1 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
+                                                        <SelectValue placeholder="Select phenotype to exclude..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
+                                                        {options
+                                                            .filter(
+                                                                (opt) => opt.value !== selectedValue
+                                                            )
+                                                            .map((option) => (
+                                                                <SelectItem
+                                                                    key={option.value}
+                                                                    value={option.value}
+                                                                >
+                                                                    {option.display}
+                                                                </SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
+                                    </React.Fragment>
                                 );
                             })}
                         </div>
                         <ScrollBar orientation="vertical" />
                         {/* Fake Scrollbar Hint for UI consistency */}
-                        <div className="absolute top-0 right-0 h-full w-3 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple">
-                            <ChevronUp className="h-4 w-3 text-barely-lilac" />
-                            <ChevronDown className="h-4 w-3 text-barely-lilac" />
+                        <div className="absolute top-0 right-0 h-full w-3 flex flex-col items-stretch justify-between py-1 pointer-events-none bg-dusk-purple hallowsnight:bg-ruzafolio-scarlet">
+                            <ChevronUp className="h-4 w-3 text-barely-lilac hallowsnight:text-cimo-crimson" />
+                            <ChevronDown className="h-4 w-3 text-barely-lilac hallowsnight:text-cimo-crimson" />
                         </div>
                     </ScrollArea>
                 </div>
@@ -404,7 +484,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 <div className="flex items-center gap-2">
                     <Button
                         type="button"
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                         onClick={handlePreview}
                         disabled={isPreviewLoading || !species}
                     >
@@ -413,13 +493,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     </Button>
                     <Button
                         type="button"
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                         onClick={handleRandomizeOptional}
                         disabled={!species}
                     >
                         Randomize Optional
                     </Button>
                 </div>
+                {_previewError && <p className="text-sm text-red-500">{_previewError}</p>}
                 {previewImageUrl && (
                     <img
                         src={previewImageUrl}
@@ -435,7 +516,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 {isEditMode && (
                     <Button
                         type="button"
-                        className="bg-barely-lilac text-red-600 border-2 border-red-600 flex items-center gap-2"
+                        className="bg-barely-lilac dark:bg-purple-400 dark:text-pompaca-purple hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson border-red-600 flex items-center gap-2"
                         onClick={handleDelete}
                         disabled={isDeleting}
                     >
@@ -447,14 +528,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                         Delete
                     </Button>
                 )}
-                <div className="flex-grow flex justify-end gap-2">
+                <div className="grow flex justify-end gap-2">
                     <Button type="button" variant="ghost" onClick={onSuccess}>
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                        className="bg-barely-lilac dark:bg-purple-400 dark:text-pompaca-purple hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                     >
                         {isLoading ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create Goal'}
                     </Button>

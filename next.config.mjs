@@ -5,12 +5,10 @@ const nextConfig = {
     },
     productionBrowserSourceMaps: true,
     serverExternalPackages: ['@hyperdx/node-opentelemetry', '@opentelemetry/instrumentation'],
-    turbopack: {
-        root: '/',
-    },
-    webpack: (config, { isServer }) => {
+    turbopack: (config, { isServer }) => {
         if (isServer) {
             config.ignoreWarnings = [{ module: /opentelemetry/ }];
+            config.root = '/';
         }
         return config;
     },

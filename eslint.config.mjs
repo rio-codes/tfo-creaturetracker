@@ -1,25 +1,29 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import nextConfig from 'eslint-config-next-flat';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextConfig from 'next.config.js';
+import '@next/eslint-plugin-next';
 
-/** @type {import('@typescript-eslint/utils').TSESLint.FlatConfig.ConfigFile} */
-
-export default tseslint.config(
+export default defineConfig([
     {
-        ignores: [
-            '**/.next/',
-            '**/node_modules/',
-            '**/build/',
-            '**/out/',
-            '**/*.config.ts',
-            '**/*.config.mjs',
-            '**/*.config.js',
-            '**/instrumentation.ts',
-            '**/next-env.d.ts',
-            '**/tsconfig.json',
-        ],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
     },
+    globalIgnores([
+        '**/next.config.mjs',
+        '**/.next/',
+        '**/node_modules/',
+        '**/build/',
+        '**/out/',
+        '**/*.config.ts',
+        '**/*.config.mjs',
+        '**/*.config.js',
+        '**/instrumentation.ts',
+        '**/next-env.d.ts',
+        '**/tsconfig.json',
+    ]),
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
     nextConfig,
@@ -45,5 +49,5 @@ export default tseslint.config(
             'react-hooks/purity': 'off',
         },
     },
-    eslintConfigPrettier
-);
+    eslintConfigPrettier,
+]);

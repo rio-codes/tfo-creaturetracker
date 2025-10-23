@@ -312,7 +312,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     required
                 />
             </div>
-
             {/* species and gene selectors */}
             <div className="space-y-2 mb-3">
                 <Label htmlFor="species-select">Species</Label>

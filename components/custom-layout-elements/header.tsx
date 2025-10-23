@@ -30,6 +30,7 @@ export default function Header() {
         { href: '/collection', label: 'Collection', icon: '🦋' },
         { href: '/research-goals', label: 'Research Goals', icon: '🧪' },
         { href: '/breeding-pairs', label: 'Breeding Pairs', icon: '💜' },
+        { href: '/community-wishlist', label: 'Community Wishlist', icon: '✨' },
         { href: '/help', label: 'Help', icon: '❓' },
     ];
 

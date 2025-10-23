@@ -13,6 +13,7 @@ import {
     UserRoundPlus,
     UserRoundMinus,
     Trash2,
+    Sparkles,
     Pencil,
 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -197,6 +198,22 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
         <Card
             className={`relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
         >
+            {currentUser?.showFulfillable && creature.fulfillsWish && (
+                <div className="absolute top-2 left-2 z-10">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="p-1.5 bg-yellow-400/80 rounded-full">
+                                    <Sparkles className="h-5 w-5 text-yellow-900" />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>This creature fulfills a public wishlist goal!</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            )}
             <div className={`${creature.isArchived ? 'opacity-50' : 'opacity-100'}`}>
                 {creature.isArchived && (
                     <div className="absolute top-2 left-2 z-20 flex items-center gap-2 rounded-full bg-gray-500/80 px-3 py-1 text-white text-xs font-bold">

@@ -10,6 +10,8 @@ import {
     UserRoundPlus,
     UserRoundMinus,
     Loader2,
+    Sparkle,
+    Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,6 +41,8 @@ export function ResearchGoalCard({
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredGoalIds?.includes(goal.id) ?? false
     );
+    const [isPublic, setIsPublic] = useState(goal?.isPublic);
+    const [isTogglingPublic, setIsTogglingPublic] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 
@@ -76,7 +80,7 @@ export function ResearchGoalCard({
 
         const newFeaturedIds = newIsFeatured
             ? [...currentFeaturedIds, goal.id]
-            : currentFeaturedIds.filter((id) => id !== goal.id);
+            : currentFeaturedIds.filter((id: string) => id !== goal.id);
 
         if (newFeaturedIds.length > 3) {
             toast.error('You can only feature up to 3 research goals.');
@@ -98,6 +102,27 @@ export function ResearchGoalCard({
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
         } finally {
             setIsFeaturing(false);
+        }
+    };
+
+    const handlePublicToggle = async () => {
+        setIsTogglingPublic(true);
+        try {
+            const response = await fetch(`/api/research-goals/${goal.id}/toggle-wishlist`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isPublic: !isPublic }),
+            });
+            if (!response.ok) throw new Error('Failed to update public status.');
+            setIsPublic(!isPublic);
+            toast.success(
+                !isPublic ? 'Goal added to Community Wishlist!' : 'Goal removed from Wishlist.'
+            );
+            router.refresh();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+        } finally {
+            setIsTogglingPublic(false);
         }
     };
 
@@ -158,6 +183,34 @@ export function ResearchGoalCard({
                     )}
                 </Button>
             </div>
+
+            <div className="absolute top-1 right-10 z-10">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handlePublicToggle}
+                                disabled={isTogglingPublic}
+                                className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                            >
+                                {isTogglingPublic ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : isPublic ? (
+                                    <Sparkles className="h-5 w-5 text-yellow-30" />
+                                ) : (
+                                    <Sparkle className="h-5 w-5 text-red-700" />
+                                )}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{isPublic ? 'Remove from Wishlist' : 'Add to Community Wishlist'}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
             {!isAdminView && currentUser && (
                 <div className="absolute bottom-2 right-2 z-10">
                     <TooltipProvider>
@@ -207,7 +260,7 @@ export function ResearchGoalCard({
                 </div>
                 {/* Goal Details in Scrollable Area */}
                 <strong>Target Genes:</strong>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                     <div className="text-sm text-card-foreground space-y-1">
                         <div className="whitespace-pre-line pr-4">
                             {geneEntries.length > 0 ? (

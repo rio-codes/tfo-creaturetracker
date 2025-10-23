@@ -5,7 +5,6 @@ import React from 'react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,6 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import type { User } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Theme as EmojiTheme, EmojiStyle } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
@@ -88,6 +88,7 @@ const settingsFormSchema = z
         showStats: z.boolean().optional(),
         showFriendsList: z.boolean().optional(),
         preserveFilters: z.boolean().optional(),
+        showFulfillable: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine(
@@ -137,6 +138,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             showStats: user.showStats ?? false,
             showFriendsList: user.showFriendsList ?? false,
             preserveFilters: user.preserveFilters ?? false,
+            showFulfillable: user.showFulfillable ?? false,
         },
     });
 
@@ -548,6 +550,27 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         <div className="space-y-1 leading-none">
                                             <FormLabel className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                                 Preserve Filters Between Sessions
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="showFulfillable"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                Show &#34;Fulfills a Wish&#34; on Featured Creatures
                                             </FormLabel>
                                         </div>
                                     </FormItem>

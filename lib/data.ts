@@ -27,6 +27,7 @@ import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
 import { auth } from '@/auth';
+import { checkGoalAchieved } from '@/lib/breeding-rules';
 
 export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair[]> {
     const session = await auth();
@@ -204,6 +205,11 @@ export async function fetchFilteredCreatures(
     const user = await db.query.users.findFirst({
         where: eq(users.id, userId),
     });
+
+    const publicGoals = await db.query.researchGoals.findMany({
+        where: eq(researchGoals.isPublic, true),
+    });
+
     const itemsPerPage = user?.collectionItemsPerPage ?? 12;
 
     const phenotypeGeneStrings: string[] = [];
@@ -278,7 +284,16 @@ export async function fetchFilteredCreatures(
             .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
-        const pinnedCreatures = pinnedCreaturesRaw.map(enrichAndSerializeCreature);
+        const pinnedCreatures = pinnedCreaturesRaw.map((c) => {
+            const enriched = enrichAndSerializeCreature(c);
+            if (!enriched) return null;
+            const fulfillsWish = publicGoals.some((goal) => checkGoalAchieved(c, goal));
+            return {
+                ...enriched,
+                fulfillsWish,
+            };
+        });
+
         const unpinnedConditions = [...conditions, eq(creatures.isPinned, false)];
         const offset = (currentPage - 1) * itemsPerPage;
 
@@ -290,7 +305,15 @@ export async function fetchFilteredCreatures(
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedCreatures = unpinnedCreaturesRaw.map(enrichAndSerializeCreature);
+        const unpinnedCreatures = unpinnedCreaturesRaw.map((c) => {
+            const enriched = enrichAndSerializeCreature(c);
+            if (!enriched) return null;
+            const fulfillsWish = publicGoals.some((goal) => checkGoalAchieved(c, goal));
+            return {
+                ...enriched,
+                fulfillsWish,
+            };
+        });
 
         const totalCountResult = await db
             .select({ count: count() })

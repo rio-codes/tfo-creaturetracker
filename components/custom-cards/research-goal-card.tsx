@@ -258,7 +258,7 @@ export function ResearchGoalCard({
                 </div>
                 {/* Goal Details in Scrollable Area */}
                 <strong>Target Genes:</strong>
-                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
+                <ScrollArea className="h-32 mb-4 relative rounded-md border border-pompaca-purple/30 p-4 bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                     <div className="text-sm text-card-foreground space-y-1">
                         <div className="whitespace-pre-line pr-4">
                             {geneEntries.length > 0 ? (

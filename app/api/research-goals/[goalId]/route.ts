@@ -27,9 +27,6 @@ const editGoalSchema = z.object({
         })
     ),
     goalMode: z.enum(goalModeEnum.enumValues),
-    isPublic: z.boolean().optional(),
-    isPinned: z.boolean().optional(),
-    pinOrder: z.number().optional(),
 });
 
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
@@ -140,8 +137,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { name, species, genes, goalMode, isPinned, pinOrder, isPublic } =
-            validatedFields.data;
+        const { name, species, genes, goalMode } = validatedFields.data;
 
         if (hasObscenity(name)) {
             return NextResponse.json(
@@ -191,6 +187,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 }
             } catch (e) {
                 console.error('Failed to generate new goal image', e);
+                // Don't block the update if image generation fails
             }
         }
 
@@ -201,10 +198,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 species,
                 genes,
                 goalMode,
-                isPinned,
-                pinOrder,
                 imageUrl: newImageUrl,
-                isPublic,
                 updatedAt: new Date(),
             })
             .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))

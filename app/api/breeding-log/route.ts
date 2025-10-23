@@ -98,7 +98,6 @@ async function checkAndRecordAchievements(
                             goalId: goal.id,
                             logEntryId: logEntryId,
                             matchingProgenyUserId: progeny.userId,
-                            matchingProgenyId: progeny.id,
                             matchingProgenyCode: progeny.code,
                             achievedAt: new Date(),
                         });

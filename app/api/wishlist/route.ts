@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
-import { and, eq, ilike, or, inArray, SQL, like } from 'drizzle-orm';
+import { and, eq, ilike, or, inArray, SQL, like, desc } from 'drizzle-orm';
 import { structuredGeneData } from '@/constants/creature-data';
 
 export async function GET(req: Request) {
@@ -9,6 +9,8 @@ export async function GET(req: Request) {
     const query = searchParams.get('query');
     const species = searchParams.get('species');
     const isSeasonal = searchParams.get('isSeasonal') === 'true';
+    const sortBy = searchParams.get('sortBy') || 'updatedAt';
+
     try {
         const seasonalSpecies = Object.entries(structuredGeneData)
             .filter(([, data]) => (data as any).isSeasonal)
@@ -50,6 +52,12 @@ export async function GET(req: Request) {
 
         const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
+        // Dynamic orderBy clause
+        const orderByClause =
+            sortBy === 'species'
+                ? [researchGoals.species, desc(researchGoals.updatedAt)]
+                : [desc(researchGoals.updatedAt)];
+
         const wishlistGoals = await db
             .select({
                 goal: researchGoals,
@@ -61,7 +69,7 @@ export async function GET(req: Request) {
             .from(researchGoals)
             .leftJoin(users, eq(researchGoals.userId, users.id))
             .where(where)
-            .orderBy(researchGoals.updatedAt);
+            .orderBy(...orderByClause);
 
         return NextResponse.json(wishlistGoals);
     } catch (error) {

@@ -10,6 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { EnrichedResearchGoal, EnrichedCreature } from '@/types';
 import { useDebounce } from 'use-debounce';
+// Import the Select component
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 type WishlistItem = {
     goal: EnrichedResearchGoal;
@@ -50,6 +58,7 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
     const [query, setQuery] = useState(searchParams.get('query') || '');
     const [showMatches, setShowMatches] = useState(searchParams.get('showMatches') === 'true');
     const [isSeasonal, setIsSeasonal] = useState(searchParams.get('isSeasonal') === 'true');
+    const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'updatedAt'); // Add sortBy state
     const [debouncedQuery] = useDebounce(query, 500);
 
     useEffect(() => {
@@ -60,15 +69,17 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
         else params.delete('showMatches');
         if (isSeasonal) params.set('isSeasonal', 'true');
         else params.delete('isSeasonal');
+        params.set('sortBy', sortBy); // Add sortBy to URL params
         router.replace(`?${params.toString()}`);
-    }, [debouncedQuery, showMatches, isSeasonal, pathname, router, searchParams]);
+    }, [debouncedQuery, showMatches, isSeasonal, sortBy, pathname, router, searchParams]);
 
     const apiParams = useMemo(() => {
         const params = new URLSearchParams();
         if (debouncedQuery) params.set('query', debouncedQuery);
         if (isSeasonal) params.set('isSeasonal', 'true');
+        params.set('sortBy', sortBy); // Add sortBy to API params
         return params;
-    }, [debouncedQuery, isSeasonal]);
+    }, [debouncedQuery, isSeasonal, sortBy]);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['wishlist', apiParams.toString()],
@@ -121,6 +132,19 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
                         onCheckedChange={(checked) => setIsSeasonal(!!checked)}
                     />
                     <Label htmlFor="is-seasonal">Only show seasonal species</Label>
+                </div>
+                {/* Add the Sort By dropdown */}
+                <div className="flex items-center space-x-2">
+                    <Label htmlFor="sort-by">Sort by</Label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger id="sort-by" className="w-[180px]">
+                            <SelectValue placeholder="Sort by..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="updatedAt">Newest</SelectItem>
+                            <SelectItem value="species">Species</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 

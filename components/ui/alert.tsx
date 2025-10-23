@@ -21,6 +21,31 @@ export function Alert({ id = 'default-alert', fade = true }: AlertProps) {
     const pathname = usePathname();
     const [alerts, setAlerts] = useState<AlertWithState[]>([]);
 
+    function removeAlert(alertToRemove: AlertWithState) {
+        if (!mounted.current) return;
+
+        if (fade) {
+            // fade out alert
+            setAlerts((currentAlerts) =>
+                currentAlerts.map((x) =>
+                    x.itemId === alertToRemove.itemId ? { ...x, fade: true } : x
+                )
+            );
+
+            // remove alert after the fade-out animation completes
+            setTimeout(() => {
+                setAlerts((currentAlerts) =>
+                    currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
+                );
+            }, 250);
+        } else {
+            // remove alert immediately
+            setAlerts((currentAlerts) =>
+                currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
+            );
+        }
+    }
+
     useEffect(() => {
         mounted.current = true;
 
@@ -57,31 +82,6 @@ export function Alert({ id = 'default-alert', fade = true }: AlertProps) {
         // clear alerts on location change
         alertService.clear(id);
     }, [pathname, id]); // rerun whenever the path changes
-
-    function removeAlert(alertToRemove: AlertWithState) {
-        if (!mounted.current) return;
-
-        if (fade) {
-            // fade out alert
-            setAlerts((currentAlerts) =>
-                currentAlerts.map((x) =>
-                    x.itemId === alertToRemove.itemId ? { ...x, fade: true } : x
-                )
-            );
-
-            // remove alert after the fade-out animation completes
-            setTimeout(() => {
-                setAlerts((currentAlerts) =>
-                    currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
-                );
-            }, 250);
-        } else {
-            // remove alert immediately
-            setAlerts((currentAlerts) =>
-                currentAlerts.filter((x) => x.itemId !== alertToRemove.itemId)
-            );
-        }
-    }
 
     function cssClasses(alertItem: AlertWithState): string {
         const baseClasses = 'relative p-4 rounded-lg shadow-md'; // Base styles for all alerts

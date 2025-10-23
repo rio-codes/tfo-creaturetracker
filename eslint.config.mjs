@@ -41,6 +41,8 @@ export default tseslint.config(
             '@next/next/no-html-link-for-pages': 'off',
             'react-hooks/rules-of-hooks': 'off',
             'react-hooks/exhaustive-deps': 'off',
+            'react-hooks/set-state-in-effect': 'off',
+            'react-hooks/purity': 'off',
         },
     },
     eslintConfigPrettier

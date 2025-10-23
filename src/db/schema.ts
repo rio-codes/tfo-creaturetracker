@@ -306,7 +306,10 @@ export const researchGoals = pgTable(
         name: text('name').notNull(),
         species: text('species').notNull(),
         imageUrl: text('image_url'),
-        genes: jsonb('genes').notNull(),
+        genes: jsonb('genes').notNull().$type<{ [category: string]: GoalGene }>(),
+        excludedGenes: jsonb('excluded_genes').$type<{
+            [category: string]: { phenotype: string[] };
+        }>(),
         assignedPairIds: jsonb('assigned_pair_ids').$type<string[]>(),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),

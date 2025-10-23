@@ -69,6 +69,7 @@ export function ViewOutcomesDialog({
     const [newGoalName, setNewGoalName] = useState('');
     const [isSavingGoal, setIsSavingGoal] = useState(false);
     const [possibleOffspringSpecies, setPossibleOffspringSpecies] = useState<string[]>([]);
+    const [isPublic, setIsPublic] = useState(false);
     const [goalMode, setGoalMode] = useState<'phenotype' | 'genotype'>('phenotype');
     const [optionalGenes, setOptionalGenes] = useState<Record<string, boolean>>({});
 
@@ -117,6 +118,7 @@ export function ViewOutcomesDialog({
                     pairId: pair.id,
                     selectedGenotypes: selectedGenotypes,
                     goalMode: goalMode,
+                    isPublic: isPublic,
                     optionalGenes: optionalGenes,
                 }),
             });
@@ -135,7 +137,7 @@ export function ViewOutcomesDialog({
                 router.push(`/research-goals/${data.goalId}`);
             }
         } catch (error: any) {
-            alert(error.message); // Replace with a toast notification for better UX
+            alert(error.message);
         } finally {
             setIsSavingGoal(false);
         }
@@ -348,6 +350,16 @@ export function ViewOutcomesDialog({
                                 />
                             </div>
                             <div>
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <Checkbox
+                                        id="save-goal-is-public"
+                                        checked={isPublic}
+                                        onCheckedChange={(checked) => setIsPublic(!!checked)}
+                                    />
+                                    <Label htmlFor="save-goal-is-public" className="font-normal">
+                                        Make this goal public
+                                    </Label>
+                                </div>
                                 <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                     Goal Mode
                                 </Label>

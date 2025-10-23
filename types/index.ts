@@ -58,6 +58,9 @@ export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt
     genes: {
         [category: string]: GoalGene;
     };
+    excludedGenes?: {
+        [category: string]: { phenotype: string[] };
+    } | null;
 };
 
 export type EnrichedBreedingPair = Omit<DbBreedingPair, 'createdAt' | 'updatedAt'> & {

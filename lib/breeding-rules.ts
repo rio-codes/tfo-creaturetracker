@@ -19,6 +19,13 @@ export function checkGoalAchieved(progeny: DbCreature, goal: DbResearchGoal): bo
     for (const [category, targetGene] of Object.entries(enrichedGoal.genes)) {
         if (category === 'Gender') continue;
 
+        // Check for exclusions on optional genes
+        if (targetGene.isOptional) {
+            const excludedPhenotypes = enrichedGoal.excludedGenes?.[category]?.phenotype;
+            const progenyPhenotype = progenyGenes.get(category)?.phenotype;
+            if (progenyPhenotype && excludedPhenotypes?.includes(progenyPhenotype)) return false;
+        }
+
         const progenyGene = progenyGenes.get(category);
         if (!progenyGene) {
             return false; // Progeny is missing a required gene category

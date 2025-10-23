@@ -50,7 +50,17 @@ export function SharedGoalInfo({ goal }: SharedGoalInfoProps) {
                                         <TableCell className="font-medium">
                                             {category}
                                             {gene.isOptional && (
-                                                <span className="text-xs"> (Opt.)</span>
+                                                <>
+                                                    <span className="text-xs"> (Opt.)</span>
+                                                    {goal.excludedGenes?.[category] && (
+                                                        <p className="text-xs text-red-500">
+                                                            Ex:{' '}
+                                                            {goal.excludedGenes[
+                                                                category
+                                                            ].phenotype.join(', ')}
+                                                        </p>
+                                                    )}
+                                                </>
                                             )}
                                         </TableCell>
                                         <TableCell>{gene.phenotype}</TableCell>

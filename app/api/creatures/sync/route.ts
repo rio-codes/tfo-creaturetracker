@@ -55,83 +55,109 @@ export async function POST(req: Request) {
 
         const { tabId } = validated.data;
         const username = session.user.username;
-        const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${username}`;
-        const response = await fetch(tfoApiUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'apiKey': process.env.TFO_API_KEY,
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`TFO API responded with status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log(data);
-        if (data.error === true) {
-            const errorMessage =
-                tfoErrorMap[data.errorCode] || 'An unknown error occurred with the TFO API.';
-            return NextResponse.json({ error: errorMessage }, { status: 400 });
-        }
-        if (data.error || !data.creatures || data.creatures.length === 0) {
-            return NextResponse.json(
-                {
-                    error: 'No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.',
+
+        const BATCH_SIZE = 500;
+        let page = 1;
+        let hasMore = true;
+        const allCreaturesToUpdate: CreatureInsert[] = [];
+        let totalUpdatedImageCount = 0;
+
+        while (hasMore) {
+            const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tabId}/${username}?page=${page}`;
+            const response = await fetch(tfoApiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apiKey': process.env.TFO_API_KEY,
                 },
-                { status: 400 }
-            );
-        }
-
-        const creatureValuesToUpdate: CreatureInsert[] = [];
-        let updatedImageCount = 0;
-
-        for (const tfoCreature of data.creatures) {
-            const existingCreature = await db.query.creatures.findFirst({
-                where: and(eq(creatures.code, tfoCreature.code), eq(creatures.userId, userId)),
             });
-            let newImageUrl = existingCreature?.imageUrl || tfoCreature.imgsrc;
 
-            const hasGrown =
-                existingCreature && existingCreature.growthLevel !== tfoCreature.growthLevel;
-            const isOldTfoUrl = newImageUrl && !newImageUrl.includes('vercel-storage.com');
-            if (hasGrown || isOldTfoUrl) {
-                console.log(
-                    `Updating image for ${tfoCreature.code} because ${
-                        hasGrown ? 'it grew' : 'it has an old URL'
-                    }.`
-                );
-                try {
-                    newImageUrl = await fetchAndUploadWithRetry(
-                        tfoCreature.imgsrc,
-                        tfoCreature.code
-                    );
-                    updatedImageCount++;
-                } catch (uploadError) {
-                    console.error(
-                        `Failed to update image for ${tfoCreature.code}:`,
-                        uploadError?.toString()
-                    );
-                    newImageUrl = tfoCreature.imgsrc;
-                }
+            if (!response.ok) {
+                throw new Error(`TFO API responded with status: ${response.status}`);
             }
-            creatureValuesToUpdate.push({
-                userId: userId,
-                code: tfoCreature.code,
-                creatureName: tfoCreature.name,
-                imageUrl: newImageUrl,
-                gottenAt: tfoCreature.gotten ? new Date(tfoCreature.gotten * 1000) : null,
-                growthLevel: tfoCreature.growthLevel,
-                isStunted: tfoCreature.isStunted,
-                species: tfoCreature.breedName?.trim(),
-                genetics: tfoCreature.genetics,
-                gender: tfoCreature.gender.toLowerCase(),
-                updatedAt: new Date(),
-            });
+
+            const data = await response.json();
+            if (data.error === true) {
+                const errorMessage =
+                    tfoErrorMap[data.errorCode] || 'An unknown error occurred with the TFO API.';
+                return NextResponse.json({ error: errorMessage }, { status: 400 });
+            }
+
+            if (!data.creatures || data.creatures.length === 0) {
+                if (page === 1) {
+                    // Only show this error if the very first page is empty
+                    return NextResponse.json(
+                        {
+                            error: 'No creatures were found with that tab ID. Make sure the tab is public, that it belongs to you, and that you have creatures on that tab.',
+                        },
+                        { status: 400 }
+                    );
+                }
+                hasMore = false; // No more creatures on subsequent pages
+                continue;
+            }
+
+            const tfoCreatures = data.creatures;
+            let updatedImageCountInBatch = 0;
+
+            for (const tfoCreature of tfoCreatures) {
+                const existingCreature = await db.query.creatures.findFirst({
+                    where: and(eq(creatures.code, tfoCreature.code), eq(creatures.userId, userId)),
+                });
+                let newImageUrl = existingCreature?.imageUrl || tfoCreature.imgsrc;
+
+                const hasGrown =
+                    existingCreature && existingCreature.growthLevel !== tfoCreature.growthLevel;
+                const isOldTfoUrl = newImageUrl && !newImageUrl.includes('vercel-storage.com');
+
+                if ((hasGrown || isOldTfoUrl) && tfoCreature.imgsrc) {
+                    console.log(
+                        `Updating image for ${tfoCreature.code} because ${
+                            hasGrown ? 'it grew' : 'it has an old URL'
+                        }.`
+                    );
+                    try {
+                        newImageUrl = await fetchAndUploadWithRetry(
+                            tfoCreature.imgsrc,
+                            tfoCreature.code
+                        );
+                        updatedImageCountInBatch++;
+                    } catch (uploadError) {
+                        console.error(
+                            `Failed to update image for ${tfoCreature.code}:`,
+                            uploadError?.toString()
+                        );
+                        newImageUrl = tfoCreature.imgsrc;
+                    }
+                }
+                allCreaturesToUpdate.push({
+                    userId: userId,
+                    code: tfoCreature.code,
+                    creatureName: tfoCreature.name,
+                    imageUrl: newImageUrl,
+                    gottenAt: tfoCreature.gotten ? new Date(tfoCreature.gotten * 1000) : null,
+                    growthLevel: tfoCreature.growthLevel,
+                    isStunted: tfoCreature.isStunted,
+                    species: tfoCreature.breedName?.trim(),
+                    genetics: tfoCreature.genetics,
+                    gender: tfoCreature.gender.toLowerCase(),
+                    updatedAt: new Date(),
+                });
+            }
+
+            totalUpdatedImageCount += updatedImageCountInBatch;
+
+            if (tfoCreatures.length < BATCH_SIZE) {
+                hasMore = false;
+            } else {
+                page++;
+            }
         }
-        if (creatureValuesToUpdate.length > 0) {
+
+        if (allCreaturesToUpdate.length > 0) {
             await db
                 .insert(creatures)
-                .values(creatureValuesToUpdate)
+                .values(allCreaturesToUpdate)
                 .onConflictDoUpdate({
                     target: [creatures.userId, creatures.code],
                     set: {
@@ -148,11 +174,11 @@ export async function POST(req: Request) {
                 });
         }
 
-        const successMessage = `Successfully synced ${creatureValuesToUpdate.length} creatures. Updated ${updatedImageCount} images.`;
+        const successMessage = `Successfully synced ${allCreaturesToUpdate.length} creatures. Updated ${totalUpdatedImageCount} images.`;
 
         await logUserAction({
             action: 'sync.run',
-            description: `Synced TFO tab ${tabId}. Updated ${updatedImageCount} images.`,
+            description: `Synced TFO tab ${tabId}. Updated ${totalUpdatedImageCount} images.`,
         });
 
         revalidatePath('/collection');

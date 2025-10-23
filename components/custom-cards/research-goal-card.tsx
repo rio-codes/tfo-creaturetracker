@@ -10,6 +10,8 @@ import {
     UserRoundPlus,
     UserRoundMinus,
     Loader2,
+    Globe,
+    Globe2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,6 +41,8 @@ export function ResearchGoalCard({
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredGoalIds?.includes(goal.id) ?? false
     );
+    const [isPublic, setIsPublic] = useState(goal?.isPublic);
+    const [isTogglingPublic, setIsTogglingPublic] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 
@@ -101,6 +105,27 @@ export function ResearchGoalCard({
         }
     };
 
+    const handlePublicToggle = async () => {
+        setIsTogglingPublic(true);
+        try {
+            const response = await fetch(`/api/research-goals/${goal.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isPublic: !isPublic }),
+            });
+            if (!response.ok) throw new Error('Failed to update public status.');
+            setIsPublic(!isPublic);
+            toast.success(
+                !isPublic ? 'Goal added to Community Wishlist!' : 'Goal removed from Wishlist.'
+            );
+            router.refresh(); // Or use more granular state management
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+        } finally {
+            setIsTogglingPublic(false);
+        }
+    };
+
     return (
         <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
             {/* Goal Mode Badge */}
@@ -157,6 +182,32 @@ export function ResearchGoalCard({
                         <PinOff className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
                     )}
                 </Button>
+            </div>
+            <div className="absolute top-1 right-10 z-10">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handlePublicToggle}
+                                disabled={isTogglingPublic}
+                                className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                            >
+                                {isTogglingPublic ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : isPublic ? (
+                                    <Globe className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                ) : (
+                                    <Globe2 className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                )}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{isPublic ? 'Remove from Wishlist' : 'Add to Community Wishlist'}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
             {!isAdminView && currentUser && (
                 <div className="absolute bottom-2 right-2 z-10">

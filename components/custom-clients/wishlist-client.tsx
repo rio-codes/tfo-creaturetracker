@@ -101,7 +101,7 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
         <div>
             <div className="flex flex-wrap gap-4 mb-6">
                 <Input
-                    placeholder="Search by goal, species, or user..."
+                    placeholder="Search by goal, species, user, or gene..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="max-w-sm"
@@ -137,7 +137,7 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
             )}
 
             {!isLoading && !error && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {filteredData.length > 0 ? (
                         filteredData.map((wish) => (
                             <WishlistCard

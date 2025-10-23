@@ -10,8 +10,8 @@ import {
     UserRoundPlus,
     UserRoundMinus,
     Loader2,
-    Globe,
-    Globe2,
+    Sparkle,
+    Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -108,7 +108,7 @@ export function ResearchGoalCard({
     const handlePublicToggle = async () => {
         setIsTogglingPublic(true);
         try {
-            const response = await fetch(`/api/research-goals/${goal.id}`, {
+            const response = await fetch(`/api/research-goals/${goal.id}/toggle-wishlist`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPublic: !isPublic }),
@@ -118,7 +118,7 @@ export function ResearchGoalCard({
             toast.success(
                 !isPublic ? 'Goal added to Community Wishlist!' : 'Goal removed from Wishlist.'
             );
-            router.refresh(); // Or use more granular state management
+            router.refresh();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
         } finally {
@@ -197,9 +197,9 @@ export function ResearchGoalCard({
                                 {isTogglingPublic ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
                                 ) : isPublic ? (
-                                    <Globe className="h-5 w-5 text-pompaca-purple dark:text-purple-300" />
+                                    <Sparkles className="h-5 w-5 text-yellow-30" />
                                 ) : (
-                                    <Globe2 className="h-5 w-5 text-dusk-purple dark:text-purple-400" />
+                                    <Sparkle className="h-5 w-5 text-red-700" />
                                 )}
                             </Button>
                         </TooltipTrigger>

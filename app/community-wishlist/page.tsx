@@ -4,15 +4,7 @@ import { getAllEnrichedCreaturesForUser } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
-export default async function WishlistPage(props: {
-    searchParams?: {
-        query?: string;
-        species?: string;
-        isSeasonal?: string;
-        showMatches?: string;
-    };
-}) {
-    const searchParams = await props.searchParams;
+export default async function WishlistPage() {
     const userCreatures = await getAllEnrichedCreaturesForUser();
 
     return (
@@ -24,7 +16,7 @@ export default async function WishlistPage(props: {
                     looking for!
                 </p>
                 <Suspense fallback={<div>Loading wishlist...</div>}>
-                    <WishlistClient searchParams={searchParams} userCreatures={userCreatures} />
+                    <WishlistClient userCreatures={userCreatures} />
                 </Suspense>
             </div>
         </div>

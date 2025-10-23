@@ -88,6 +88,7 @@ const settingsFormSchema = z
         showStats: z.boolean().optional(),
         showFriendsList: z.boolean().optional(),
         preserveFilters: z.boolean().optional(),
+        showFulfillable: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine(
@@ -137,6 +138,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             showStats: user.showStats ?? false,
             showFriendsList: user.showFriendsList ?? false,
             preserveFilters: user.preserveFilters ?? false,
+            showFulfillable: user.showFulfillable ?? false,
         },
     });
 
@@ -554,6 +556,27 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                 )}
                             />
                         </div>
+                        <div className="flex items-center space-x-2">
+                            <FormField
+                                control={form.control}
+                                name="showFulfillable"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                Show "Fulfills a Wish" on Featured Creatures
+                                            </FormLabel>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -700,6 +723,29 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                                     e.target.value === ''
                                                         ? 0
                                                         : parseInt(e.target.value, 10)
+                                                )
+                                            }
+                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-pompaca-purple text-barely-lilac hover:bg-pompaca-purple/90 dark:bg-ebena-lavender dark:text-pompaca-purple dark:hover:bg-ebena-lavender/90 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson hallowsnight:hover:bg-blood-bay-wine/90"
+                >
+                    {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
+            </form>
+        </Form>
+    );
+}
                                                 )
                                             }
                                             className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"

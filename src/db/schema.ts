@@ -136,6 +136,7 @@ export const users = pgTable('user', {
     showStats: boolean('show_stats').default(true).notNull(),
     showFriendsList: boolean('show_friends_list').default(true).notNull(),
     preserveFilters: boolean('preserve_filters').default(false).notNull(),
+    showFulfillable: boolean('show_fulfillable').default(false).notNull(),
 });
 
 export const accounts = pgTable(

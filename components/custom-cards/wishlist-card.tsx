@@ -49,6 +49,11 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
                 <p className="text-sm text-dusk-purple dark:text-purple-400 truncate">
                     {goal.species}
                 </p>
+                {matchingCreatureId && (
+                    <p className="text-xs font-bold text-green-600 dark:text-green-400 mt-1">
+                        You have a matching creature!
+                    </p>
+                )}
             </div>
             <div className="flex flex-col gap-2">
                 <Link href={`/share/goals/${goal.id}`} passHref>

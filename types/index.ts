@@ -30,6 +30,16 @@ export type EnrichedCreature =
       })
     | null;
 
+export type User = Omit<DbUser, 'createdAt' | 'updatedAt'> & {
+    createdAt: string;
+    updatedAt: string;
+    flair: {
+        flairId: string;
+        imageUrl: string;
+        name: string;
+    } | null;
+};
+
 export type CreatureKey = {
     userId: string;
     code: string;

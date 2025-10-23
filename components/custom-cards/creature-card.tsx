@@ -96,7 +96,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
 
         const newFeaturedIds = newIsFeatured
             ? [...currentFeaturedIds, creature.id]
-            : currentFeaturedIds.filter((id) => id !== creature.id);
+            : currentFeaturedIds.filter((id: string) => id !== creature.id);
 
         if (newFeaturedIds.length > 3) {
             toast.error('You can only feature up to 3 creatures.');
@@ -204,7 +204,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className="p-1.5 bg-yellow-400/80 rounded-full">
-                                    <Sparkles className="h-5 w-5 text-yellow-900" />
+                                    <Sparkles className="h-5 w-5 text-yellow-400" />
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>

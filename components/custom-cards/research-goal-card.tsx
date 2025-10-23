@@ -198,9 +198,13 @@ export function ResearchGoalCard({
                                 {isTogglingPublic ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
                                 ) : isPublic ? (
-                                    <Sparkles className="h-5 w-5 text-yellow-30" />
+                                    <Sparkles
+                                        className="h-5 w-5 text-ye
+									llow-500 dark:text-yellow-400 fill-yellow-300
+						"
+                                    />
                                 ) : (
-                                    <Sparkle className="h-5 w-5 text-red-700" />
+                                    <Sparkle className="h-5 w-5 text-gray-700" />
                                 )}
                             </Button>
                         </TooltipTrigger>

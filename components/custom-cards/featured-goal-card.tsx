@@ -49,7 +49,7 @@ export function FeaturedGoalCard({
 
         const newFeaturedIds = newIsFeatured
             ? [...currentFeaturedIds, goal.id]
-            : currentFeaturedIds.filter((id) => id !== goal.id);
+            : currentFeaturedIds.filter((id: string) => id !== goal.id);
 
         if (newFeaturedIds.length > 3) {
             toast.error('You can only feature up to 3 research goals.');

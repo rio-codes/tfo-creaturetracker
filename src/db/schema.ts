@@ -301,6 +301,7 @@ export const researchGoals = pgTable(
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
         goalMode: goalModeEnum('goal_mode').default('phenotype').notNull(),
+        isPublic: boolean('is_public').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

@@ -268,6 +268,7 @@ export const creatures = pgTable(
         isArchived: boolean('is_archived').default(false).notNull(),
         generation: integer('generation').default(1).notNull(),
         origin: creatureOriginEnum('origin').default('unknown'),
+        fulfillsWish: boolean('fulfills_wish').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

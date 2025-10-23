@@ -29,7 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { DbUser } from '@/types';
+import type { User } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Theme as EmojiTheme, EmojiStyle } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
@@ -104,7 +104,7 @@ const settingsFormSchema = z
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 interface SettingsFormProps {
-    user: DbUser;
+    user: User;
 }
 
 const EmojiPicker = dynamic(

@@ -28,7 +28,7 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
     )}&body=${encodeURIComponent(prefilledBody)}`;
 
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple flex p-4 gap-4 items-center">
+        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple p-4 gap-4 items-center">
             <Image
                 src={goal.imageUrl || '/images/misc/placeholder.png'}
                 alt={goal.name}

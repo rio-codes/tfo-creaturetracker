@@ -416,17 +416,6 @@ export const breedingLogEntries = pgTable(
     ]
 );
 
-export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
-    maleParent: one(creatures, {
-        fields: [breedingPairs.maleParentCode],
-        references: [creatures.code],
-    }),
-    femaleParent: one(creatures, {
-        fields: [breedingPairs.femaleParentCode],
-        references: [creatures.code],
-    }),
-}));
-
 export const achievedGoals = pgTable(
     'achieved_goal',
     {

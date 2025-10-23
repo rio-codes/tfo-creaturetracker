@@ -41,6 +41,8 @@ export function ResearchGoalCard({
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredGoalIds?.includes(goal.id) ?? false
     );
+    const [isPublic, setIsPublic] = useState(goal?.isPublic);
+    const [isTogglingPublic, setIsTogglingPublic] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 

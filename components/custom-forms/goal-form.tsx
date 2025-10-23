@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { EnrichedResearchGoal, GoalGene } from '@/types';
+import { MultiSelect } from '@/components/misc-custom-components/multi-select';
 
 type GeneOption = {
     value: string;
@@ -431,38 +432,21 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                                                 <Label className="text-xs text-dusk-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                                                     Exclude Phenotypes
                                                 </Label>
-                                                <Select
-                                                    value={
-                                                        excludedGenes[category]?.phenotype &&
-                                                        excludedGenes[category].phenotype.length > 0
-                                                            ? excludedGenes[category].phenotype[0]
-                                                            : ''
-                                                    }
-                                                    onValueChange={(value) =>
-                                                        handleExclusionChange(
-                                                            category,
-                                                            value ? [value] : []
+                                                <MultiSelect
+                                                    placeholder="Select phenotypes to exclude..."
+                                                    options={options
+                                                        .filter(
+                                                            (opt) => opt.value !== selectedValue
                                                         )
+                                                        .map((opt) => ({
+                                                            value: opt.selection.phenotype, // The value should be the phenotype string
+                                                            label: opt.selection.phenotype, // The label is also the phenotype
+                                                        }))}
+                                                    value={excludedGenes[category]?.phenotype || []}
+                                                    onValueChange={(values) =>
+                                                        handleExclusionChange(category, values)
                                                     }
-                                                >
-                                                    <SelectTrigger className="w-full text-xs h-8 mt-1 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
-                                                        <SelectValue placeholder="Select phenotype to exclude..." />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
-                                                        {options
-                                                            .filter(
-                                                                (opt) => opt.value !== selectedValue
-                                                            )
-                                                            .map((option) => (
-                                                                <SelectItem
-                                                                    key={option.value}
-                                                                    value={option.value}
-                                                                >
-                                                                    {option.display}
-                                                                </SelectItem>
-                                                            ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                />
                                             </div>
                                         )}
                                     </React.Fragment>

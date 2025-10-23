@@ -27,6 +27,15 @@ const editGoalSchema = z.object({
         })
     ),
     goalMode: z.enum(goalModeEnum.enumValues),
+    isPublic: z.boolean().optional(),
+    excludedGenes: z
+        .record(
+            z.string(),
+            z.object({
+                phenotype: z.array(z.string()),
+            })
+        )
+        .optional(),
 });
 
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
@@ -137,7 +146,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { name, species, genes, goalMode } = validatedFields.data;
+        const { name, species, genes, goalMode, isPublic, excludedGenes } = validatedFields.data;
 
         if (hasObscenity(name)) {
             return NextResponse.json(
@@ -200,6 +209,8 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 goalMode,
                 imageUrl: newImageUrl,
                 updatedAt: new Date(),
+                isPublic,
+                excludedGenes,
             })
             .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
             .returning();

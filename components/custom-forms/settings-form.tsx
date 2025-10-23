@@ -5,7 +5,6 @@ import React from 'react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { User } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,6 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { DbUser } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Theme as EmojiTheme, EmojiStyle } from 'emoji-picker-react';
 import { hasObscenity } from '@/lib/obscenity';
@@ -104,7 +104,7 @@ const settingsFormSchema = z
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 interface SettingsFormProps {
-    user: User;
+    user: DbUser;
 }
 
 const EmojiPicker = dynamic(
@@ -570,7 +570,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         </FormControl>
                                         <div className="space-y-1 leading-none">
                                             <FormLabel className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
-                                                Show "Fulfills a Wish" on Featured Creatures
+                                                Show &#34;Fulfills a Wish&#34; on Featured Creatures
                                             </FormLabel>
                                         </div>
                                     </FormItem>
@@ -723,29 +723,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                                     e.target.value === ''
                                                         ? 0
                                                         : parseInt(e.target.value, 10)
-                                                )
-                                            }
-                                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </CardContent>
-                </Card>
-
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-pompaca-purple text-barely-lilac hover:bg-pompaca-purple/90 dark:bg-ebena-lavender dark:text-pompaca-purple dark:hover:bg-ebena-lavender/90 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson hallowsnight:hover:bg-blood-bay-wine/90"
-                >
-                    {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </Button>
-            </form>
-        </Form>
-    );
-}
                                                 )
                                             }
                                             className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-blood-bay-wine order-pompaca-purple/50 text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"

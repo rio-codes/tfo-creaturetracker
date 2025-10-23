@@ -14,36 +14,6 @@ export type DbBreedingLogEntry = typeof breedingLogEntries.$inferSelect;
 export type DbResearchGoal = typeof researchGoals.$inferSelect;
 export type DbAchievedGoal = typeof achievedGoals.$inferSelect;
 
-export type User = {
-    id: string;
-    name?: string | null;
-    email: string;
-    emailVerified?: Date | null;
-    image?: string | null;
-    username: string;
-    tfoUsername: string;
-    collectionItemsPerPage: number;
-    goalsItemsPerPage: number;
-    pairsItemsPerPage: number;
-    createdAt: Date;
-    updatedAt: Date;
-    role: 'admin' | 'user';
-    status: 'active' | 'suspended';
-    theme: 'light' | 'dark' | 'system';
-    bio?: string | null;
-    supporterTier?: string | null;
-    featuredCreatureIds?: string[] | null;
-    featuredGoalIds?: string[] | null;
-    pronouns?: string | null;
-    socialLinks?: string[] | null;
-    showLabLink: boolean;
-    statusMessage?: string | null;
-    statusEmoji?: string | null;
-    showStats: boolean;
-    showFriendsList: boolean;
-    preserveFilters: boolean;
-};
-
 export type EnrichedCreature =
     | (Omit<DbCreature, 'createdAt' | 'updatedAt' | 'gottenAt'> & {
           createdAt: string;

@@ -55,8 +55,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
             allGoals.map((g) => enrichAndSerializeGoal(g, g.goalMode)),
             logEntries,
             allCreatures.map(enrichAndSerializeCreature),
-            allUserAchievedGoals,
-            allRawPairs
+            allUserAchievedGoals
         );
 
         return NextResponse.json({

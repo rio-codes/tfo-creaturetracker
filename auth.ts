@@ -1,16 +1,13 @@
 /* eslint-disable no-useless-catch */
 import NextAuth from 'next-auth';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { db } from '@/src/db';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt-ts';
 import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DbUser } from '@/types';
-import { Adapter } from 'next-auth/adapters';
+import type { NextAuthConfig } from 'next-auth';
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-    adapter: DrizzleAdapter(db) as Adapter,
+export const authConfig = {
     session: {
         strategy: 'jwt',
     },
@@ -29,6 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 try {
+                    const { db } = await import('@/src/db');
                     const user: DbUser | undefined = await db.query.users.findFirst({
                         where: eq(users.username, username),
                     });
@@ -89,4 +87,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     pages: {
         signIn: '/login',
     },
-});
+} satisfies NextAuthConfig;
+
+export const { signIn, signOut, auth } = NextAuth(authConfig);

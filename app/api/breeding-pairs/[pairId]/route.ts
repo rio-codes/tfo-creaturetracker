@@ -6,7 +6,7 @@ import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
-import { validatePairing } from '@/lib/breeding-rules';
+import { validatePairing } from '@/lib/breeding-rules-client';
 import { logUserAction } from '@/lib/user-actions';
 import { logAdminAction } from '@/lib/audit';
 
@@ -278,8 +278,14 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
                         eq(breedingLogEntries.userId, userId),
                         eq(breedingLogEntries.pairId, params.pairId),
                         or(
-                            eq(breedingLogEntries.progeny1Id, progenyIdToRemove),
-                            eq(breedingLogEntries.progeny2Id, progenyIdToRemove)
+                            and(
+                                eq(breedingLogEntries.progeny1UserId, userId),
+                                eq(breedingLogEntries.progeny1Code, progenyIdToRemove)
+                            ),
+                            and(
+                                eq(breedingLogEntries.progeny2UserId, userId),
+                                eq(breedingLogEntries.progeny2Code, progenyIdToRemove)
+                            )
                         )
                     )
                 );
@@ -293,14 +299,18 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
 
             for (const logEntry of logEntriesToUpdate) {
                 const updateData: {
-                    progeny1Id?: string | null;
-                    progeny2Id?: string | null;
+                    progeny1UserId?: string | null;
+                    progeny1Code?: string | null;
+                    progeny2UserId?: string | null;
+                    progeny2Code?: string | null;
                 } = {};
-                if (logEntry.progeny1Id === progenyIdToRemove) {
-                    updateData.progeny1Id = null;
+                if (logEntry.progeny1Code === progenyIdToRemove) {
+                    updateData.progeny1UserId = null;
+                    updateData.progeny1Code = null;
                 }
-                if (logEntry.progeny2Id === progenyIdToRemove) {
-                    updateData.progeny2Id = null;
+                if (logEntry.progeny2Code === progenyIdToRemove) {
+                    updateData.progeny2UserId = null;
+                    updateData.progeny2Code = null;
                 }
 
                 if (Object.keys(updateData).length > 0) {

@@ -15,7 +15,6 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     DbBreedingPair,
-    DbBreedingLogEntry,
 } from '@/types';
 import { Loader2 } from 'lucide-react';
 
@@ -23,7 +22,6 @@ type EditContextData = {
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
     allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
 };
 
 type EditBreedingPairDialogProps = {
@@ -88,8 +86,6 @@ export function EditBreedingPairDialog({ pair, children }: EditBreedingPairDialo
                             pair={pair}
                             allCreatures={editContext.allCreatures}
                             allGoals={editContext.allGoals}
-                            allPairs={editContext.allPairs}
-                            allLogs={editContext.allLogs}
                             onSuccess={() => setIsOpen(false)}
                         />
                     )}

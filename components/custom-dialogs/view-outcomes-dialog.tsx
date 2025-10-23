@@ -35,8 +35,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
-
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type Outcome = {
     genotype: string;

@@ -111,20 +111,9 @@ export const enrichAndSerializeBreedingPair = async (
         return null;
     }
 
-    const [relevantLogs, allUserLogs, allRawPairs] = await Promise.all([
-        db.query.breedingLogEntries.findMany({
-            where: and(
-                eq(breedingLogEntries.userId, userId),
-                eq(breedingLogEntries.pairId, pair.id)
-            ),
-        }),
-        db.query.breedingLogEntries.findMany({
-            where: eq(breedingLogEntries.userId, userId),
-        }),
-        db.query.breedingPairs.findMany({
-            where: eq(breedingPairs.userId, userId),
-        }),
-    ]);
+    const relevantLogs = await db.query.breedingLogEntries.findMany({
+        where: and(eq(breedingLogEntries.userId, userId), eq(breedingLogEntries.pairId, pair.id)),
+    });
 
     const progenyKeys = new Set<{ userId: string; code: string }>();
     relevantLogs.forEach((log) => {
@@ -198,9 +187,7 @@ export const enrichAndSerializeBreedingPair = async (
 
     const isInbred = await checkForInbreeding(
         { userId: pair.maleParentUserId, code: pair.maleParentCode },
-        { userId: pair.femaleParentUserId, code: pair.femaleParentCode },
-        allUserLogs,
-        allRawPairs
+        { userId: pair.femaleParentUserId, code: pair.femaleParentCode }
     );
 
     return {

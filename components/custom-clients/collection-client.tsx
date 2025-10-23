@@ -118,7 +118,7 @@ function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-square flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple aspect-square flex items-center justify-center"
         >
             <img
                 src={creature?.imageUrl || '/images/misc/placeholder.png'}
@@ -285,15 +285,21 @@ export function CollectionClient({
         const categoryData = (structuredGeneData as AllSpeciesGeneData)[selectedSpecies]?.[
             selectedGeneCategory
         ];
-        if (!categoryData) return [];
+
+        // Type guard to ensure we are working with an array of genes
+        if (typeof categoryData !== 'object' || !Array.isArray(categoryData)) {
+            return [];
+        }
 
         if (geneMode === 'phenotype') {
             const phenotypes = new Set(categoryData.map((g) => g.phenotype));
+
             return Array.from(phenotypes).map((p) => ({
                 value: p,
                 label: p,
             }));
         } else {
+            // genotype mode
             return categoryData.map((g) => ({
                 value: g.genotype,
                 label: `${g.phenotype} (${g.genotype})`,

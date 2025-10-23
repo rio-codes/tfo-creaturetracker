@@ -2,10 +2,15 @@ import 'server-only';
 
 import { db } from '@/src/db';
 import { researchGoals, breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
-import type { EnrichedResearchGoal, Prediction, EnrichedBreedingPair } from '@/types';
+import type {
+    EnrichedResearchGoal,
+    Prediction,
+    EnrichedBreedingPair,
+    EnrichedCreature,
+} from '@/types';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, or, and, inArray } from 'drizzle-orm';
 
 export async function getGoalById(id: string): Promise<EnrichedResearchGoal | null> {
     try {
@@ -128,7 +133,7 @@ export async function getAssignedPairsForGoal(goalId: string): Promise<EnrichedB
             ),
         });
 
-        // 2. Fetch all log entries for the user to find progeny
+        // 2. Fetch all log entries for these specific pairs
         const logEntries = await db.query.breedingLogEntries.findMany({
             where: and(
                 eq(breedingLogEntries.userId, userId),
@@ -139,35 +144,63 @@ export async function getAssignedPairsForGoal(goalId: string): Promise<EnrichedB
             ),
         });
 
-        // 3. Get all progeny IDs from the logs
-        const allProgenyIds = new Set<string>();
+        // 3. Get all unique progeny composite keys from the logs
+        const allProgenyKeys = new Set<string>(); // Stores "userId-code"
         logEntries.forEach((log) => {
-            if (log.progeny1Id) allProgenyIds.add(log.progeny1Id);
-            if (log.progeny2Id) allProgenyIds.add(log.progeny2Id);
+            if (log.progeny1UserId && log.progeny1Code) {
+                allProgenyKeys.add(`${log.progeny1UserId}-${log.progeny1Code}`);
+            }
+            if (log.progeny2UserId && log.progeny2Code) {
+                allProgenyKeys.add(`${log.progeny2UserId}-${log.progeny2Code}`);
+            }
         });
 
-        if (allProgenyIds.size === 0) {
+        if (allProgenyKeys.size === 0) {
+            // If there are no progeny, return the pairs with an empty progeny array
             return pairs.map((p) => ({
                 ...p,
                 progeny: [],
             })) as unknown as EnrichedBreedingPair[];
         }
 
-        // 4. Fetch and enrich all progeny creatures
+        // 4. Fetch and enrich all progeny creatures using the composite keys
+        const progenyKeysArray = Array.from(allProgenyKeys).map((key) => {
+            const [userId, code] = key.split('-');
+            return { userId, code };
+        });
+
         const progenyCreatures = await db.query.creatures.findMany({
-            where: inArray(creatures.id, Array.from(allProgenyIds)),
+            where: or(
+                ...progenyKeysArray.map((key) =>
+                    and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
+                )
+            ),
         });
         const enrichedProgeny = progenyCreatures.map(enrichAndSerializeCreature);
+        const enrichedProgenyMap = new Map(
+            enrichedProgeny.map((p) => [`${p?.userId}-${p?.code}`, p])
+        );
 
         // 5. Attach progeny to each pair
         return pairs.map((pair) => {
-            const progenyForPair = enrichedProgeny.filter((p) =>
-                logEntries.some(
-                    (log) =>
-                        log.pairId === pair.id &&
-                        (log.progeny1Id === p?.id || log.progeny2Id === p?.id)
-                )
-            );
+            const progenyForPair: EnrichedCreature[] = [];
+            const logsForThisPair = logEntries.filter((log) => log.pairId === pair.id);
+
+            logsForThisPair.forEach((log) => {
+                if (log.progeny1UserId && log.progeny1Code) {
+                    const progeny = enrichedProgenyMap.get(
+                        `${log.progeny1UserId}-${log.progeny1Code}`
+                    );
+                    if (progeny) progenyForPair.push(progeny);
+                }
+                if (log.progeny2UserId && log.progeny2Code) {
+                    const progeny = enrichedProgenyMap.get(
+                        `${log.progeny2UserId}-${log.progeny2Code}`
+                    );
+                    if (progeny) progenyForPair.push(progeny);
+                }
+            });
+
             return {
                 ...pair,
                 progeny: progenyForPair,

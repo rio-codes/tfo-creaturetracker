@@ -37,7 +37,6 @@ import type {
     GoalGene,
     DbResearchGoal,
     DbBreedingPair,
-    DbBreedingLogEntry,
 } from '@/types';
 
 type AchievementMap = {
@@ -201,8 +200,16 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                 .select({ goalId: achievedGoals.goalId })
                 .from(achievedGoals)
                 .where(eq(achievedGoals.userId, user.id)),
+            db.query.breedingPairs.findMany({
+                where: eq(breedingPairs.userId, user.id),
+            }),
+            db.query.breedingLogEntries.findMany({
+                where: eq(breedingLogEntries.userId, user.id),
+            }),
         ]);
 
+    let stats: UserStats | null = null;
+    if (user.showStats) {
         let achievedGoalNames: string[] = [];
         if (achievedGoalsForUser.length > 0) {
             const achievedGoalIds = achievedGoalsForUser.map((g) => g.goalId);
@@ -213,6 +220,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
             achievedGoalNames = goals.map((g) => g.name);
         }
         const speciesCounts = allCreaturesForUser.reduce(
+            // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
             (acc, creature) => {
                 if (creature.species) {
                     acc[creature.species] = (acc[creature.species] || 0) + 1;
@@ -318,7 +326,6 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
 
         const assignedPairIds = goal.assignedPairIds || [];
         const assignedPairsForGoal = allAssignedPairs.filter((p) => assignedPairIds.includes(p.id));
-
         const pairScores = (
             assignedPairsForGoal as (DbBreedingPair & {
                 maleParent: DbCreature | null;
@@ -649,75 +656,6 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                         </div>
                     )}
 
-                    {featuredGoals.length > 0 && (
-                        <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
-                                Featured Research Goals
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {featuredGoals.map((goal) => (
-                                    <FeaturedGoalCard
-                                        key={goal.id}
-                                        goal={goal}
-                                        achievement={achievements[goal.id]}
-                                        username={user.username}
-                                        progress={goalProgress[goal.id]}
-                                        currentUser={
-                                            session?.user?.id === user.id ? (user as any) : null
-                                        }
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {friends && friends.length > 0 && (
-                        <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
-                                Friends ({friends.length})
-                            </h2>
-                            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
-                                {friends.map((friend) => (
-                                    <Link href={`/${friend.username}`} key={friend.id}>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Avatar className="h-16 w-16 hover:ring-2 hover:ring-pompaca-purple dark:hover:ring-purple-300 transition-all">
-                                                        <AvatarImage
-                                                            src={friend.image ?? undefined}
-                                                            alt={friend.username}
-                                                        />
-                                                        <AvatarFallback>
-                                                            {friend.username
-                                                                .charAt(0)
-                                                                .toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{friend.username}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-8">
-                        <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
-                            Achievements
-                        </h2>
-                        <div className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-8 bg-dusk-purple/20 rounded-lg">
-                            <p>No achievements to display yet.</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    );
-}
                     {featuredGoals.length > 0 && (
                         <div className="mt-8">
                             <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">

@@ -19,16 +19,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import type {
     EnrichedCreature,
     EnrichedResearchGoal,
+    EnrichedBreedingPair,
     Prediction,
-    DbBreedingPair,
-    DbBreedingLogEntry,
 } from '@/types';
 import {
     getPossibleOffspringSpecies,
-    checkForInbreeding,
     validatePairing,
     speciesList,
-} from '@/lib/breeding-rules';
+} from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type AddPairFormProps = {
@@ -41,8 +39,7 @@ type AddPairFormProps = {
 type AddPairContext = {
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
-    allPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
+    allPairs: EnrichedBreedingPair[];
 };
 
 export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFormProps) {
@@ -76,9 +73,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         baseCreature?.gender === 'female' ? baseCreature : undefined
     );
 
-    const selectedMaleId = selectedMale?.id;
-    const selectedFemaleId = selectedFemale?.id;
-
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
     const [isInbred, setIsInbred] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +90,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         const fetchContext = async () => {
             setIsContextLoading(true);
             try {
-                const response = await fetch('/api/breeding-pairs/add-context');
+                const response = await fetch('/api/breeding-pairs/add-context'); // This should be the new route
                 if (!response.ok) {
                     throw new Error('Failed to load necessary data.');
                 }
@@ -127,11 +121,10 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         }
     }, [baseCreature, initialGoal, isHybridMode, selectedMale, selectedFemale]);
 
-    const { allCreatures, allPairs, allLogs, allGoals } = useMemo(
+    const { allCreatures, allPairs, allGoals } = useMemo(
         () => ({
             allCreatures: context?.allCreatures || [],
             allPairs: context?.allPairs || [],
-            allLogs: context?.allLogs || [],
             allGoals: context?.allGoals || [],
         }),
         [context]
@@ -242,13 +235,29 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     useEffect(() => {
         // ... (this hook remains the same)
-        if (selectedMale?.id && selectedFemale?.id) {
-            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
-            setIsInbred(inbred);
+        if (selectedMale && selectedFemale) {
+            const check = async () => {
+                try {
+                    const response = await fetch('/api/breeding-pairs/check-inbreeding', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            maleKey: { userId: selectedMale.userId, code: selectedMale.code },
+                            femaleKey: { userId: selectedFemale.userId, code: selectedFemale.code },
+                        }),
+                    });
+                    if (!response.ok) throw new Error('Failed to check inbreeding status.');
+                    const data = await response.json();
+                    setIsInbred(data.isInbred);
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+            check();
         } else {
             setIsInbred(false);
         }
-    }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
+    }, [selectedMale, selectedFemale]);
 
     useEffect(() => {
         if (!selectedMale || !selectedFemale) {
@@ -281,23 +290,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         };
         fetchPredictions();
     }, [selectedMale, selectedFemale, assignableGoals]);
-
-    useEffect(() => {
-        if (selectedMaleId && selectedFemaleId) {
-            const check = async () => {
-                const inbred = await checkForInbreeding(
-                    { userId: selectedMale!.userId, code: selectedMale!.code },
-                    { userId: selectedFemale!.userId, code: selectedFemale!.code },
-                    allLogs,
-                    allPairs
-                );
-                setIsInbred(inbred);
-            };
-            check();
-        } else {
-            setIsInbred(false);
-        }
-    }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
 
     const handleHybridToggle = (checked: boolean) => {
         setIsHybridMode(checked);

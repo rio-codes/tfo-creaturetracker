@@ -10,8 +10,7 @@ import type {
 import { checkForInbreeding } from '@/lib/breeding-rules';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-
-export const enrichAndSerializeBreedingPair = (
+export const enrichAndSerializeBreedingPair = async (
     pair: DbBreedingPair & {
         maleParent: DbCreature | null;
         femaleParent: DbCreature | null;
@@ -19,9 +18,8 @@ export const enrichAndSerializeBreedingPair = (
     allEnrichedGoals: EnrichedResearchGoal[],
     allLogEntries: DbBreedingLogEntry[],
     allCreatures: EnrichedCreature[],
-    allUserAchievedGoals: any[],
-    allRawPairs: DbBreedingPair[]
-): EnrichedBreedingPair | null => {
+    allUserAchievedGoals: any[]
+): Promise<EnrichedBreedingPair | null> => {
     if (!pair.maleParent || !pair.femaleParent) {
         return null;
     }
@@ -29,13 +27,15 @@ export const enrichAndSerializeBreedingPair = (
     const relevantLogs = allLogEntries.filter((log) => log.pairId === pair.id);
     const timesBred = relevantLogs.length;
 
-    const progenyIds = new Set<string>();
+    const progenyKeys = new Set<string>(); // "userId-code"
     relevantLogs.forEach((log) => {
-        if (log.progeny1Id) progenyIds.add(log.progeny1Id);
-        if (log.progeny2Id) progenyIds.add(log.progeny2Id);
+        if (log.progeny1UserId && log.progeny1Code)
+            progenyKeys.add(`${log.progeny1UserId}-${log.progeny1Code}`);
+        if (log.progeny2UserId && log.progeny2Code)
+            progenyKeys.add(`${log.progeny2UserId}-${log.progeny2Code}`);
     });
 
-    const progeny = allCreatures.filter((c) => c && progenyIds.has(c.id));
+    const progeny = allCreatures.filter((c) => c && progenyKeys.has(`${c.userId}-${c.code}`));
     const serializedLogs = relevantLogs.map((log) => ({
         ...log,
         createdAt: log.createdAt.toISOString(), // Log entries don't have an updatedAt, but SerializedBreedingLogEntry requires it.
@@ -51,7 +51,12 @@ export const enrichAndSerializeBreedingPair = (
 
     const achievedGoalIdsForPair = new Set(
         allUserAchievedGoals
-            .filter((ag) => progenyIds.has(ag.matchingProgenyId))
+            .filter((ag) =>
+                progeny.some(
+                    (p) =>
+                        p?.userId === ag.matchingProgenyUserId && p?.code === ag.matchingProgenyCode
+                )
+            )
             .map((ag) => ag.goalId)
     );
 
@@ -82,11 +87,9 @@ export const enrichAndSerializeBreedingPair = (
         return { ...goal, isAchieved, isPossible, averageChance };
     });
 
-    const isInbred = checkForInbreeding(
-        pair.maleParentId,
-        pair.femaleParentId,
-        allLogEntries,
-        allRawPairs
+    const isInbred = await checkForInbreeding(
+        { userId: pair.maleParentUserId, code: pair.maleParentCode },
+        { userId: pair.femaleParentUserId, code: pair.femaleParentCode }
     );
 
     return {

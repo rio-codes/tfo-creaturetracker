@@ -1,6 +1,6 @@
 import { db } from '@/src/db';
 import { breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
-import { and, eq, or } from 'drizzle-orm';
+import { and, eq, or, inArray } from 'drizzle-orm';
 import type { DbBreedingPair, DbBreedingLogEntry } from '@/types';
 
 type CreatureKey = { userId: string; code: string };

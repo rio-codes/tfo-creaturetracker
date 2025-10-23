@@ -28,19 +28,25 @@ export const enrichAndSerializeGoal = (
                 } else if (typeof selection === 'string') {
                     finalGenotype = selection;
                     const categoryData = speciesGeneData[category];
-                    const matchedGene = categoryData?.find(
-                        (g) => g.genotype === finalGenotype
-                    );
-                    finalPhenotype = matchedGene?.phenotype || 'Unknown';
+                    if (typeof categoryData === 'object' && Array.isArray(categoryData)) {
+                        const matchedGene = categoryData?.find((g) => g.genotype === finalGenotype);
+                        finalPhenotype = matchedGene?.phenotype || 'Unknown';
+                    } else {
+                        finalPhenotype = 'Unknown';
+                    }
                 } else continue;
 
                 let isMulti = false;
                 if (goalMode === 'phenotype') {
                     const categoryData = speciesGeneData[category];
-                    const genotypesForPhenotype = categoryData?.filter(
-                        (g) => g.phenotype === finalPhenotype
-                    );
-                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                    if (typeof categoryData === 'object' && Array.isArray(categoryData)) {
+                        const genotypesForPhenotype = categoryData?.filter(
+                            (g) => g.phenotype === finalPhenotype
+                        );
+                        isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                    } else {
+                        isMulti = false;
+                    }
                 }
                 enrichedGenes[category] = {
                     genotype: finalGenotype,

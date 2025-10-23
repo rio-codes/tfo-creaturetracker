@@ -67,7 +67,11 @@ export async function PATCH(request: Request, props: { params: Promise<{ creatur
             for (const creature of allCreatures) {
                 if (creature.origin === 'bred') {
                     const log = allUserLogs.find(
-                        (l) => l.progeny1Id === creature.id || l.progeny2Id === creature.id
+                        (l) =>
+                            (l.progeny1UserId === creature.userId &&
+                                l.progeny1Code === creature.code) ||
+                            (l.progeny2UserId === creature.userId &&
+                                l.progeny2Code === creature.code)
                     );
                     if (log) {
                         const pair = allUserPairs.find((p) => p.id === log.pairId);

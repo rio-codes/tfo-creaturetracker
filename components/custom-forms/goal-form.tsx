@@ -23,12 +23,10 @@ import type { EnrichedResearchGoal, GoalGene } from '@/types';
 type GeneOption = {
     value: string;
     display: string;
-    // We need the full selection object to be available in the option
     selection: Omit<GoalGene, 'isOptional'>;
 };
 
 type GoalFormProps = {
-    // If a `goal` is provided, we're in "edit" mode. If not, "create" mode.
     goal?: EnrichedResearchGoal;
     onSuccess: () => void; // To close the parent dialog
     isAdminView?: boolean;
@@ -52,40 +50,40 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [_previewError, setPreviewError] = useState('');
 
-    // generate gene options for selected species depending on goal moad
     const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species]) return {};
         const optionsByCat: { [key: string]: GeneOption[] } = {};
 
         for (const [category, genes] of Object.entries(structuredGeneData[species])) {
+            if (typeof genes !== 'object' || !Array.isArray(genes)) {
+                continue;
+            }
+
             if (goalMode === 'genotype') {
                 const phenotypeMap = new Map<string, string[]>();
-                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                genes.forEach((gene) => {
                     const existing = phenotypeMap.get(gene.phenotype) || [];
                     phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
                 });
 
-                optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
-                    (gene) => {
-                        const genotypesForPhenotype = phenotypeMap.get(gene.phenotype) || [];
-                        return {
-                            value: gene.genotype,
-                            display:
-                                category === 'Gender'
-                                    ? gene.genotype
-                                    : `${gene.genotype} (${gene.phenotype})`,
-                            selection: {
-                                phenotype: gene.phenotype,
-                                genotype: gene.genotype,
-                                isMultiGenotype: genotypesForPhenotype.length > 1,
-                            },
-                        };
-                    }
-                );
+                optionsByCat[category] = genes.map((gene) => {
+                    const genotypesForPhenotype = phenotypeMap.get(gene.phenotype) || [];
+                    return {
+                        value: gene.genotype,
+                        display:
+                            category === 'Gender'
+                                ? gene.genotype
+                                : `${gene.genotype} (${gene.phenotype})`,
+                        selection: {
+                            phenotype: gene.phenotype,
+                            genotype: gene.genotype,
+                            isMultiGenotype: genotypesForPhenotype.length > 1,
+                        },
+                    };
+                });
             } else {
-                // PHENOTYPE MODE
                 const phenotypeMap = new Map<string, string[]>();
-                (genes as { genotype: string; phenotype: string }[]).forEach((gene) => {
+                genes.forEach((gene) => {
                     const existing = phenotypeMap.get(gene.phenotype) || [];
                     phenotypeMap.set(gene.phenotype, [...existing, gene.genotype]);
                 });
@@ -94,14 +92,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     ([phenotype, genotypes]) => {
                         const isMulti = genotypes.length > 1;
                         return {
-                            value: phenotype, // The value is now the PHENOTYPE
+                            value: phenotype,
                             display:
                                 isMulti || category == 'Gender'
                                     ? phenotype
                                     : `${phenotype} (${genotypes[0]})`,
                             selection: {
                                 phenotype: phenotype,
-                                genotype: genotypes[0], // Use the first as the representative
+                                genotype: genotypes[0],
                                 isMultiGenotype: isMulti,
                             },
                         };
@@ -117,20 +115,16 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         [geneOptions]
     );
 
-    // --- EFFECT FOR DEFAULT VALUES IN CREATE MODE ---
-    // This effect handles initializing the gene selections for both create and edit modes.
     useEffect(() => {
-        // For EDIT mode, normalize existing goal data to ensure `isOptional` exists.
         if (isEditMode && goal?.genes) {
             const normalizedGenes: { [key: string]: GoalGene } = {};
             for (const [category, geneData] of Object.entries(goal.genes)) {
                 normalizedGenes[category] = {
-                    ...(geneData as GoalGene), // Cast to handle old data
+                    ...(geneData as GoalGene),
                     isOptional: geneData.isOptional ?? false,
                 };
             }
             setSelectedGenes(normalizedGenes);
-            // For CREATE mode, set default genes when species changes.
         } else if (!isEditMode && species && geneCategories.length > 0) {
             const defaultSelections: { [key: string]: GoalGene } = {};
             for (const category of geneCategories) {
@@ -142,7 +136,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                             options.find((opt) => opt.selection.genotype === 'Female') ||
                             options[0];
                     }
-                    // Add the missing isOptional flag
                     defaultSelections[category] = {
                         ...defaultOption.selection,
                         isOptional: false,
@@ -180,9 +173,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 },
             };
         });
-        setPreviewImageUrl(null); // Invalidate preview
+        setPreviewImageUrl(null);
     };
-    // send form contents to api route based on create or update mode
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -215,7 +207,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         }
     };
 
-    // delete goal via api
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete the goal "${goal?.name}"?`)) return;
         setIsDeleting(true);
@@ -228,7 +219,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete goal.');
-            // Reload the page to ensure the underlying admin table is updated.
             window.location.reload();
         } catch (err: any) {
             setError(err.message);

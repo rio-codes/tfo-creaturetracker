@@ -280,6 +280,18 @@ export const creatures = pgTable(
     ]
 );
 
+export const creaturesRelations = relations(creatures, ({ one, many }) => ({
+    user: one(users, {
+        fields: [creatures.userId],
+        references: [users.id],
+    }),
+    maleInPairs: many(breedingPairs, { relationName: 'maleParent' }),
+    femaleInPairs: many(breedingPairs, { relationName: 'femaleParent' }),
+    progenyInLogs1: many(breedingLogEntries, { relationName: 'progeny1' }),
+    progenyInLogs2: many(breedingLogEntries, { relationName: 'progeny2' }),
+    inAchievedGoals: many(achievedGoals),
+}));
+
 export const researchGoals = pgTable(
     'research_goals',
     {
@@ -297,6 +309,7 @@ export const researchGoals = pgTable(
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
         goalMode: goalModeEnum('goal_mode').default('phenotype').notNull(),
+        isPublic: boolean('is_public').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
@@ -352,6 +365,21 @@ export const breedingPairs = pgTable(
     ]
 );
 
+export const breedingPairsRelations = relations(breedingPairs, ({ one, many }) => ({
+    user: one(users, { fields: [breedingPairs.userId], references: [users.id] }),
+    maleParent: one(creatures, {
+        fields: [breedingPairs.maleParentUserId, breedingPairs.maleParentCode],
+        references: [creatures.userId, creatures.code],
+        relationName: 'maleParent',
+    }),
+    femaleParent: one(creatures, {
+        fields: [breedingPairs.femaleParentUserId, breedingPairs.femaleParentCode],
+        references: [creatures.userId, creatures.code],
+        relationName: 'femaleParent',
+    }),
+    logs: many(breedingLogEntries),
+}));
+
 export const breedingLogEntries = pgTable(
     'breeding_log_entries',
     {
@@ -388,17 +416,6 @@ export const breedingLogEntries = pgTable(
     ]
 );
 
-export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
-    maleParent: one(creatures, {
-        fields: [breedingPairs.maleParentCode],
-        references: [creatures.code],
-    }),
-    femaleParent: one(creatures, {
-        fields: [breedingPairs.femaleParentCode],
-        references: [creatures.code],
-    }),
-}));
-
 export const achievedGoals = pgTable(
     'achieved_goal',
     {
@@ -429,6 +446,19 @@ export const achievedGoals = pgTable(
         index('achieved_goal_progenyId_idx').on(table.matchingProgenyCode),
     ]
 );
+
+export const achievedGoalsRelations = relations(achievedGoals, ({ one }) => ({
+    user: one(users, { fields: [achievedGoals.userId], references: [users.id] }),
+    goal: one(researchGoals, { fields: [achievedGoals.goalId], references: [researchGoals.id] }),
+    logEntry: one(breedingLogEntries, {
+        fields: [achievedGoals.logEntryId],
+        references: [breedingLogEntries.id],
+    }),
+    matchingProgeny: one(creatures, {
+        fields: [achievedGoals.matchingProgenyUserId, achievedGoals.matchingProgenyCode],
+        references: [creatures.userId, creatures.code],
+    }),
+}));
 
 export const userTabs = pgTable(
     'user_tabs',

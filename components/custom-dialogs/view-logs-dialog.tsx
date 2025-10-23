@@ -45,9 +45,12 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
             (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         ) || [];
 
-    const getProgenyName = (progenyId: string | null) => {
-        if (!progenyId) return 'N/A';
-        const progeny = pair.progeny?.find((p) => p?.id === progenyId);
+    const getProgenyName = (key: {
+        userId: string | null | undefined;
+        code: string | null | undefined;
+    }) => {
+        if (!key.userId || !key.code) return 'N/A';
+        const progeny = pair.progeny?.find((p) => p?.userId === key.userId && p?.code === key.code);
         return progeny ? `${progeny.creatureName || 'Unnamed'} (${progeny.code})` : 'Unknown';
     };
 
@@ -155,11 +158,17 @@ export function ViewLogsDialog({ pair, children }: ViewLogsDialogProps) {
                                     <div className="text-sm space-y-1 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                         <p>
                                             <strong>Progeny 1:</strong>{' '}
-                                            {getProgenyName(log.progeny1Id)}
+                                            {getProgenyName({
+                                                userId: log.progeny1UserId,
+                                                code: log.progeny1Code,
+                                            })}
                                         </p>
                                         <p>
                                             <strong>Progeny 2:</strong>{' '}
-                                            {getProgenyName(log.progeny2Id)}
+                                            {getProgenyName({
+                                                userId: log.progeny2UserId,
+                                                code: log.progeny2Code,
+                                            })}
                                         </p>
                                         {log.notes && (
                                             <div className="pt-2">

@@ -10,16 +10,19 @@ import {
 } from '@/src/db/schema';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, or, eq, inArray } from 'drizzle-orm';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { hasObscenity } from '@/lib/obscenity';
 import { logUserAction } from '@/lib/user-actions';
 import { calculateGeneration } from '@/lib/creature-utils';
+import { CreatureKey } from '../../../types/index';
 
 const createLogSchema = z.object({
     pairId: z.string().uuid('Invalid pair ID'),
-    progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
-    progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
+    progeny1UserId: z.string().nullable().optional(),
+    progeny1Code: z.string().nullable().optional(),
+    progeny2UserId: z.string().nullable().optional(),
+    progeny2Code: z.string().nullable().optional(),
     notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional(),
     sourceLogId: z.string().uuid().optional(),
     keepSourceOnEmpty: z.boolean().optional(),
@@ -28,13 +31,16 @@ const createLogSchema = z.object({
 const editLogSchema = z.object({
     logId: z.string().uuid('Invalid log ID'),
     notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional(),
-    progeny1Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
-    progeny2Id: z.string().uuid('Invalid progeny ID').nullable().optional(),
+    progeny1UserId: z.string().nullable().optional(),
+    progeny1Code: z.string().nullable().optional(),
+    progeny2UserId: z.string().nullable().optional(),
+    progeny2Code: z.string().nullable().optional(),
 });
 
 const updateLogSchema = z.object({
     logEntryId: z.string().uuid('Invalid log entry ID'),
-    progenyId: z.string().uuid('Invalid progeny ID'),
+    progenyUserId: z.string(),
+    progenyCode: z.string(),
     sourceLogId: z.string().uuid().optional(),
     keepSourceOnEmpty: z.boolean().optional(),
 });
@@ -46,10 +52,10 @@ const deleteLogSchema = z.object({
 async function checkAndRecordAchievements(
     userId: string,
     pairId: string,
-    progenyIds: string[],
+    progenyKeys: { userId: string; code: string }[],
     logEntryId: string
 ) {
-    if (progenyIds.length === 0) return;
+    if (progenyKeys.length === 0) return;
 
     const pair = await db.query.breedingPairs.findFirst({
         where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
@@ -62,9 +68,16 @@ async function checkAndRecordAchievements(
                 eq(researchGoals.userId, userId)
             ),
         });
-        const progenyCreatures = await db.query.creatures.findMany({
-            where: and(inArray(creatures.id, progenyIds), eq(creatures.userId, userId)),
-        });
+        const progenyCreatures =
+            progenyKeys.length > 0
+                ? await db.query.creatures.findMany({
+                      where: or(
+                          ...progenyKeys.map((k) =>
+                              and(eq(creatures.userId, k.userId), eq(creatures.code, k.code))
+                          )
+                      ),
+                  })
+                : [];
 
         for (const progeny of progenyCreatures) {
             for (const goal of assignedGoals) {
@@ -75,7 +88,8 @@ async function checkAndRecordAchievements(
                     const existingAchievement = await db.query.achievedGoals.findFirst({
                         where: and(
                             eq(achievedGoals.goalId, goal.id),
-                            eq(achievedGoals.matchingProgenyId, progeny.id)
+                            eq(achievedGoals.matchingProgenyUserId, progeny.userId),
+                            eq(achievedGoals.matchingProgenyCode, progeny.code)
                         ),
                     });
                     if (!existingAchievement) {
@@ -83,7 +97,8 @@ async function checkAndRecordAchievements(
                             userId,
                             goalId: goal.id,
                             logEntryId: logEntryId,
-                            matchingProgenyId: progeny.id,
+                            matchingProgenyUserId: progeny.userId,
+                            matchingProgenyCode: progeny.code,
                             achievedAt: new Date(),
                         });
                         revalidatePath(`/research-goals/${goal.id}`);
@@ -114,8 +129,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { pairId, progeny1Id, progeny2Id, notes, sourceLogId, keepSourceOnEmpty } =
-            validated.data;
+        const {
+            pairId,
+            progeny1UserId,
+            progeny1Code,
+            progeny2UserId,
+            progeny2Code,
+            notes,
+            sourceLogId,
+            keepSourceOnEmpty,
+        } = validated.data;
 
         if (hasObscenity(notes)) {
             return NextResponse.json(
@@ -142,11 +165,16 @@ export async function POST(req: Request) {
 
                 if (!sourceLog) throw new Error('Source log entry not found.');
 
-                const progenyToRemoveId = progeny1Id || progeny2Id;
-                const updateData =
-                    sourceLog.progeny1Id === progenyToRemoveId
-                        ? { progeny1Id: null }
-                        : { progeny2Id: null };
+                const progenyToRemoveCode = progeny1Code || progeny2Code;
+                const updateData: {
+                    progeny1UserId?: string | null;
+                    progeny1Code?: string | null;
+                    progeny2UserId?: string | null;
+                    progeny2Code?: string | null;
+                } =
+                    sourceLog.progeny1Code === progenyToRemoveCode
+                        ? { progeny1UserId: null, progeny1Code: null }
+                        : { progeny2UserId: null, progeny2Code: null };
 
                 await tx
                     .update(breedingLogEntries)
@@ -154,7 +182,8 @@ export async function POST(req: Request) {
                     .where(eq(breedingLogEntries.id, sourceLogId));
 
                 const updatedSourceLog = { ...sourceLog, ...updateData };
-                const isSourceEmpty = !updatedSourceLog.progeny1Id && !updatedSourceLog.progeny2Id;
+                const isSourceEmpty =
+                    !updatedSourceLog.progeny1Code && !updatedSourceLog.progeny2Code;
 
                 if (isSourceEmpty && !keepSourceOnEmpty) {
                     await tx
@@ -168,49 +197,47 @@ export async function POST(req: Request) {
                 .values({
                     userId,
                     pairId,
-                    progeny1Id: progeny1Id || null,
-                    progeny2Id: progeny2Id || null,
+                    progeny1UserId,
+                    progeny1Code,
+                    progeny2UserId,
+                    progeny2Code,
                     notes,
                     createdAt: new Date(),
                 })
                 .returning();
         });
 
-        // --- Check for achieved goals ---
-        const newProgenyIds = [progeny1Id, progeny2Id].filter((id): id is string => !!id);
-        await checkAndRecordAchievements(userId, pairId, newProgenyIds, newLogEntry.id);
+        const newProgenyKeys: { userId: string; code: string }[] = [];
+        if (progeny1UserId && progeny1Code)
+            newProgenyKeys.push({ userId: progeny1UserId, code: progeny1Code });
+        if (progeny2UserId && progeny2Code)
+            newProgenyKeys.push({ userId: progeny2UserId, code: progeny2Code });
+
+        await checkAndRecordAchievements(userId, pairId, newProgenyKeys, newLogEntry.id);
+
+        const newProgenyIds = newProgenyKeys.map((k) => k.code); // For the inArray update later
 
         if (newProgenyIds.length > 0) {
-            const [allUserPairs, allUserLogs] = await Promise.all([
-                db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
-                db.query.breedingLogEntries.findMany({
-                    where: eq(breedingLogEntries.userId, userId),
-                }),
-            ]);
             const parentPair = await db.query.breedingPairs.findFirst({
                 where: and(eq(breedingPairs.id, pairId), eq(breedingPairs.userId, userId)),
                 with: { maleParent: true, femaleParent: true },
             });
 
-            for (const progenyId of newProgenyIds) {
-                const generation = await calculateGeneration(progenyId, allUserPairs, allUserLogs);
+            if (parentPair?.maleParent && parentPair?.femaleParent) {
+                const newGeneration =
+                    Math.max(
+                        parentPair.maleParent.generation ?? 1,
+                        parentPair.femaleParent.generation ?? 1
+                    ) + 1;
+
+                const updateConditions = newProgenyKeys.map((key) =>
+                    and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
+                );
+
                 await db
                     .update(creatures)
-                    .set({ generation: generation || 2, origin: 'bred' })
-                    .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
-                if (parentPair?.maleParent && parentPair?.femaleParent) {
-                    const newGeneration =
-                        Math.max(
-                            parentPair.maleParent.generation ?? 1,
-                            parentPair.femaleParent.generation ?? 1
-                        ) + 1;
-                    await db
-                        .update(creatures)
-                        .set({ generation: newGeneration, origin: 'bred' })
-                        .where(
-                            and(inArray(creatures.id, newProgenyIds), eq(creatures.userId, userId))
-                        );
-                }
+                    .set({ generation: newGeneration, origin: 'bred' })
+                    .where(or(...updateConditions));
             }
 
             revalidatePath('/breeding-pairs');
@@ -255,7 +282,8 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { logId, notes, progeny1Id, progeny2Id } = validated.data;
+        const { logId, progeny1UserId, progeny1Code, progeny2UserId, progeny2Code, notes } =
+            validated.data;
 
         if (hasObscenity(notes)) {
             return NextResponse.json(
@@ -266,30 +294,50 @@ export async function PUT(req: Request) {
 
         await db.transaction(async (tx) => {
             const existingLog = await tx.query.breedingLogEntries.findFirst({
-                where: and(eq(breedingLogEntries.id, logId), eq(breedingLogEntries.userId, userId)),
+                where: and(
+                    eq(breedingLogEntries.id, validated.data.logId),
+                    eq(breedingLogEntries.userId, userId)
+                ),
             });
 
             if (!existingLog) {
                 throw new Error('Log entry not found.');
             }
 
-            const oldProgenyIds = [existingLog.progeny1Id, existingLog.progeny2Id].filter(
-                Boolean
-            ) as string[];
-            const newProgenyIds = [progeny1Id, progeny2Id].filter(Boolean) as string[];
+            const oldProgenyKeys: { userId: string; code: string }[] = [];
+            if (existingLog.progeny1UserId && existingLog.progeny1Code)
+                oldProgenyKeys.push({
+                    userId: existingLog.progeny1UserId,
+                    code: existingLog.progeny1Code,
+                });
+            if (existingLog.progeny2UserId && existingLog.progeny2Code)
+                oldProgenyKeys.push({
+                    userId: existingLog.progeny2UserId,
+                    code: existingLog.progeny2Code,
+                });
 
-            const removedProgenyIds = oldProgenyIds.filter((id) => !newProgenyIds.includes(id));
+            const newProgenyKeys: { userId: string; code: string }[] = [];
+            if (progeny1UserId && progeny1Code)
+                newProgenyKeys.push({ userId: progeny1UserId, code: progeny1Code });
+            if (progeny2UserId && progeny2Code)
+                newProgenyKeys.push({ userId: progeny2UserId, code: progeny2Code });
+
+            const newProgenyKeysSet = new Set(newProgenyKeys.map((k) => `${k.userId}-${k.code}`));
+            const removedProgenyKeys = oldProgenyKeys.filter(
+                (k) => !newProgenyKeysSet.has(`${k.userId}-${k.code}`)
+            );
 
             // Delete achievements for removed progeny from this log
-            if (removedProgenyIds.length > 0) {
+            if (removedProgenyKeys.length > 0) {
+                const removedConditions = removedProgenyKeys.map((k) =>
+                    and(
+                        eq(achievedGoals.matchingProgenyUserId, k.userId),
+                        eq(achievedGoals.matchingProgenyCode, k.code)
+                    )
+                );
                 await tx
                     .delete(achievedGoals)
-                    .where(
-                        and(
-                            eq(achievedGoals.logEntryId, logId),
-                            inArray(achievedGoals.matchingProgenyId, removedProgenyIds)
-                        )
-                    );
+                    .where(and(eq(achievedGoals.logEntryId, logId), or(...removedConditions)));
             }
 
             // Update the log entry
@@ -297,21 +345,17 @@ export async function PUT(req: Request) {
                 .update(breedingLogEntries)
                 .set({
                     notes: notes,
-                    progeny1Id: progeny1Id,
-                    progeny2Id: progeny2Id,
+                    progeny1UserId: progeny1UserId,
+                    progeny1Code: progeny1Code,
+                    progeny2UserId: progeny2UserId,
+                    progeny2Code: progeny2Code,
                 })
                 .where(eq(breedingLogEntries.id, logId));
 
             // Check for new achievements
-            await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyIds, logId);
+            await checkAndRecordAchievements(userId, existingLog.pairId, newProgenyKeys, logId);
 
-            if (newProgenyIds.length > 0) {
-                const [allUserPairs, allUserLogs] = await Promise.all([
-                    db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
-                    db.query.breedingLogEntries.findMany({
-                        where: eq(breedingLogEntries.userId, userId),
-                    }),
-                ]);
+            if (newProgenyKeys.length > 0) {
                 const parentPair = await tx.query.breedingPairs.findFirst({
                     where: and(
                         eq(breedingPairs.id, existingLog.pairId),
@@ -320,32 +364,21 @@ export async function PUT(req: Request) {
                     with: { maleParent: true, femaleParent: true },
                 });
 
-                for (const progenyId of newProgenyIds) {
-                    const generation = await calculateGeneration(
-                        progenyId,
-                        allUserPairs,
-                        allUserLogs
+                if (parentPair?.maleParent && parentPair?.femaleParent) {
+                    const newGeneration =
+                        Math.max(
+                            parentPair.maleParent.generation ?? 1,
+                            parentPair.femaleParent.generation ?? 1
+                        ) + 1;
+
+                    const updateConditions = newProgenyKeys.map((key) =>
+                        and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
                     );
-                    await db
+
+                    await tx
                         .update(creatures)
-                        .set({ generation: generation || 2, origin: 'bred' })
-                        .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
-                    if (parentPair?.maleParent && parentPair?.femaleParent) {
-                        const newGeneration =
-                            Math.max(
-                                parentPair.maleParent.generation ?? 1,
-                                parentPair.femaleParent.generation ?? 1
-                            ) + 1;
-                        await tx
-                            .update(creatures)
-                            .set({ generation: newGeneration, origin: 'bred' })
-                            .where(
-                                and(
-                                    inArray(creatures.id, newProgenyIds),
-                                    eq(creatures.userId, userId)
-                                )
-                            );
-                    }
+                        .set({ generation: newGeneration, origin: 'bred' })
+                        .where(or(...updateConditions));
                 }
 
                 const pair = await db.query.breedingPairs.findFirst({
@@ -462,7 +495,8 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { logEntryId, progenyId, sourceLogId, keepSourceOnEmpty } = validated.data;
+        const { logEntryId, progenyUserId, progenyCode, sourceLogId, keepSourceOnEmpty } =
+            validated.data;
 
         if (sourceLogId && sourceLogId === logEntryId) {
             return NextResponse.json(
@@ -472,8 +506,8 @@ export async function PATCH(req: Request) {
         }
 
         let sourcePair = null;
-        let progenyCreature1 = null;
-        let progenyCreature2 = null;
+        let progenyCreature1: CreatureKey | null = null; // Initialize as null
+        let progenyCreature2: CreatureKey | null = null; // Initialize as null
 
         if (sourceLogId) {
             const sourceLog = await db.query.breedingLogEntries.findFirst({
@@ -491,22 +525,29 @@ export async function PATCH(req: Request) {
                     ),
                 });
 
-                progenyCreature1 = sourceLog.progeny1Id
-                    ? await db.query.creatures.findFirst({
-                          where: and(
-                              eq(creatures.id, sourceLog.progeny1Id),
-                              eq(creatures.userId, userId)
-                          ),
-                      })
-                    : null;
-                progenyCreature2 = sourceLog.progeny2Id
-                    ? await db.query.creatures.findFirst({
-                          where: and(
-                              eq(creatures.id, sourceLog.progeny2Id),
-                              eq(creatures.userId, userId)
-                          ),
-                      })
-                    : null;
+                // Check if progeny1Code exists before querying and assigning
+                if (sourceLog.progeny1Code && sourceLog.progeny1UserId) {
+                    const creature = await db.query.creatures.findFirst({
+                        where: and(
+                            eq(creatures.userId, sourceLog.progeny1UserId),
+                            eq(creatures.code, sourceLog.progeny1Code)
+                        ),
+                    });
+                    if (creature)
+                        progenyCreature1 = { userId: creature.userId, code: creature.code };
+                }
+
+                // Check if progeny2Code exists before querying and assigning
+                if (sourceLog.progeny2Code && sourceLog.progeny2UserId) {
+                    const creature = await db.query.creatures.findFirst({
+                        where: and(
+                            eq(creatures.userId, sourceLog.progeny2UserId),
+                            eq(creatures.code, sourceLog.progeny2Code)
+                        ),
+                    });
+                    if (creature)
+                        progenyCreature2 = { userId: creature.userId, code: creature.code };
+                }
             }
         }
 
@@ -522,9 +563,10 @@ export async function PATCH(req: Request) {
                 if (!sourceLog) throw new Error('Source log entry not found.');
 
                 const updateData =
-                    sourceLog.progeny1Id === progenyId
-                        ? { progeny1Id: null }
-                        : { progeny2Id: null };
+                    sourceLog.progeny1Code === progenyCode &&
+                    sourceLog.progeny1UserId === progenyUserId
+                        ? { progeny1UserId: null, progeny1Code: null }
+                        : { progeny2UserId: null, progeny2Code: null };
 
                 await tx
                     .update(breedingLogEntries)
@@ -532,7 +574,8 @@ export async function PATCH(req: Request) {
                     .where(eq(breedingLogEntries.id, sourceLogId));
 
                 const updatedSourceLog = { ...sourceLog, ...updateData };
-                const isSourceEmpty = !updatedSourceLog.progeny1Id && !updatedSourceLog.progeny2Id;
+                const isSourceEmpty =
+                    !updatedSourceLog.progeny1Code && !updatedSourceLog.progeny2Code;
 
                 if (isSourceEmpty && !keepSourceOnEmpty) {
                     await tx
@@ -552,21 +595,34 @@ export async function PATCH(req: Request) {
                 throw new Error('Destination log entry not found.');
             }
 
-            if (destinationLog.progeny1Id && destinationLog.progeny2Id) {
+            if (destinationLog.progeny1Code && destinationLog.progeny2Code) {
                 throw new Error('Destination log entry is already full.');
             }
 
             if (
-                destinationLog.progeny1Id === progenyId ||
-                destinationLog.progeny2Id === progenyId
+                (destinationLog.progeny1UserId === progenyUserId &&
+                    destinationLog.progeny1Code === progenyCode) ||
+                (destinationLog.progeny2UserId === progenyUserId &&
+                    destinationLog.progeny2Code === progenyCode)
             ) {
                 throw new Error('Progeny already in this log entry.');
             }
 
+            const progenyCreature = await db.query.creatures.findFirst({
+                where: and(eq(creatures.code, progenyCode), eq(creatures.userId, progenyUserId)),
+                columns: { userId: true, code: true },
+            });
+
+            if (!progenyCreature) throw new Error('Progeny creature not found');
+
             const updateData =
-                destinationLog.progeny1Id === null
-                    ? { progeny1Id: progenyId }
-                    : { progeny2Id: progenyId };
+                destinationLog.progeny1Code === null
+                    ? { progeny1UserId: progenyCreature.userId, progeny1Code: progenyCreature.code }
+                    : {
+                          progeny2UserId: progenyCreature.userId,
+                          progeny2Code: progenyCreature.code,
+                      };
+
             await tx
                 .update(breedingLogEntries)
                 .set(updateData)
@@ -575,7 +631,7 @@ export async function PATCH(req: Request) {
             await checkAndRecordAchievements(
                 userId,
                 destinationLog.pairId,
-                [progenyId],
+                [progenyCreature],
                 logEntryId
             );
 
@@ -602,15 +658,29 @@ export async function PATCH(req: Request) {
                 await tx
                     .update(creatures)
                     .set({ generation: newGeneration, origin: 'bred' })
-                    .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+                    .where(
+                        and(
+                            eq(creatures.userId, progenyCreature.userId),
+                            eq(creatures.code, progenyCreature.code)
+                        )
+                    );
             }
 
-            const generation = await calculateGeneration(progenyId, allUserPairs, allUserLogs);
+            const generation = await calculateGeneration(
+                progenyCreature,
+                allUserPairs,
+                allUserLogs
+            );
 
             await tx
                 .update(creatures)
                 .set({ generation: generation || 2, origin: 'bred' })
-                .where(and(eq(creatures.id, progenyId), eq(creatures.userId, userId)));
+                .where(
+                    and(
+                        eq(creatures.userId, progenyCreature.userId),
+                        eq(creatures.code, progenyCreature.code)
+                    )
+                );
 
             const destinationPair = await db.query.breedingPairs.findFirst({
                 where: and(
@@ -622,7 +692,7 @@ export async function PATCH(req: Request) {
             if (sourcePair && destinationPair && (progenyCreature1 || progenyCreature2)) {
                 await logUserAction({
                     action: 'log.progeny.move',
-                    description: `Moved progeny ${progenyCreature1?.creatureName || progenyCreature2?.creatureName} from log entry for pair "${sourcePair?.pairName}" to log entry for pair ${destinationPair?.pairName}`,
+                    description: `Moved progeny ${progenyCreature1?.code || progenyCreature2?.code} from log entry for pair "${sourcePair?.pairName}" to log entry for pair ${destinationPair?.pairName}`,
                 });
             }
         });

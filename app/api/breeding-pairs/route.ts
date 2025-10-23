@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
-import { validatePairing } from '@/lib/breeding-rules';
+import { validatePairing } from '@/lib/breeding-rules-client';
 import { logUserAction } from '@/lib/user-actions';
 
 const createPairSchema = z.object({
@@ -14,10 +14,11 @@ const createPairSchema = z.object({
         .string()
         .min(3, 'Pair name must be at least 3 characters.')
         .max(32, 'Pair name can not be more than 32 characters.'),
-    species: z.string().min(1, 'Species is required.'),
-    maleParentId: z.string('Invalid male parent ID.'),
-    femaleParentId: z.string('Invalid female parent ID.'),
-    assignedGoalIds: z.array(z.string('Invalid assigned goal ID(s).')).optional(),
+    maleParentUserId: z.string(),
+    maleParentCode: z.string(),
+    femaleParentUserId: z.string(),
+    femaleParentCode: z.string(),
+    assignedGoalIds: z.array(z.string()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -40,7 +41,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
+        const {
+            pairName,
+            maleParentUserId,
+            maleParentCode,
+            femaleParentUserId,
+            femaleParentCode,
+            assignedGoalIds,
+        } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
             return NextResponse.json(
@@ -51,10 +59,16 @@ export async function POST(req: Request) {
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, maleParentId), eq(creatures.userId, userId)),
+                where: and(
+                    eq(creatures.userId, maleParentUserId),
+                    eq(creatures.code, maleParentCode)
+                ),
             }),
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, userId)),
+                where: and(
+                    eq(creatures.userId, femaleParentUserId),
+                    eq(creatures.code, femaleParentCode)
+                ),
             }),
         ]);
 
@@ -73,8 +87,10 @@ export async function POST(req: Request) {
         const existingPair = await db.query.breedingPairs.findFirst({
             where: and(
                 eq(breedingPairs.userId, userId),
-                eq(breedingPairs.maleParentId, maleParentId),
-                eq(breedingPairs.femaleParentId, femaleParentId)
+                eq(breedingPairs.maleParentUserId, maleParentUserId),
+                eq(breedingPairs.maleParentCode, maleParentCode),
+                eq(breedingPairs.femaleParentUserId, femaleParentUserId),
+                eq(breedingPairs.femaleParentCode, femaleParentCode)
             ),
         });
 
@@ -91,8 +107,10 @@ export async function POST(req: Request) {
                 userId,
                 pairName,
                 species: maleParent.species!,
-                maleParentId,
-                femaleParentId,
+                maleParentUserId,
+                maleParentCode,
+                femaleParentUserId,
+                femaleParentCode,
                 assignedGoalIds: assignedGoalIds || [],
             })
             .returning();

@@ -108,11 +108,12 @@ export function FindPotentialPairsDialog({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    maleParentId: male?.id,
-                    femaleParentId: female?.id,
+                    maleParentUserId: male?.userId,
+                    maleParentCode: male?.code,
+                    femaleParentUserId: female?.userId,
+                    femaleParentCode: female?.code,
                     pairName,
                     assignedGoalIds: [goal.id],
-                    species: male?.species || female?.species,
                 }),
             });
             if (!response.ok) {

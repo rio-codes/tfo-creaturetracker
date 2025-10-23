@@ -4,9 +4,10 @@ import { db } from '@/src/db';
 import { creatures, breedingPairs, breedingLogEntries, researchGoals } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
-import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
+import { checkForInbreeding } from '@/lib/breeding-rules';
 import { calculateGeneProbability } from '@/lib/genetics';
 import type { EnrichedCreature } from '@/types';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type PotentialPairPrediction = {
     maleParent: EnrichedCreature;
@@ -28,7 +29,7 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
     const { goalId } = params;
 
     try {
-        const [goal, allUserCreatures, allUserPairs, allUserLogs] = await Promise.all([
+        const [goal, allUserCreatures, allUserPairs] = await Promise.all([
             db.query.researchGoals.findFirst({
                 where: and(eq(researchGoals.id, goalId), eq(researchGoals.userId, userId)),
             }),
@@ -45,13 +46,9 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
 
         const existingPairsMap = new Map<string, { name: string; id: string }>();
         for (const pair of allUserPairs) {
-            if (pair.maleParentId && pair.femaleParentId) {
-                const key = `${pair.maleParentId}-${pair.femaleParentId}`;
-                existingPairsMap.set(key, {
-                    name: pair.pairName || 'Unnamed Pair',
-                    id: pair.id,
-                });
-            }
+            const maleId = pair.maleParentCode;
+            existingPairsMap.set(`${maleId}-`, { name: pair.pairName, id: pair.id });
+            existingPairsMap.set(`-`, { name: pair.pairName, id: pair.id });
         }
 
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
@@ -91,11 +88,9 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
                 }
 
                 if (isPossible) {
-                    const isInbred = checkForInbreeding(
-                        male.id,
-                        female.id,
-                        allUserLogs,
-                        allUserPairs
+                    const isInbred = await checkForInbreeding(
+                        { userId: male.userId, code: male.code },
+                        { userId: female.userId, code: female.code }
                     );
                     const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
                     const pairKey = `${male.id}-${female.id}`;

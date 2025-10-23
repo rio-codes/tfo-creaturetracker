@@ -12,10 +12,8 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     Prediction,
-    DbBreedingPair,
-    DbBreedingLogEntry,
 } from '@/types';
-import { getPossibleOffspringSpecies, checkForInbreeding } from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type ManagePairsFormProps = {
@@ -24,8 +22,6 @@ type ManagePairsFormProps = {
     suitableMates: EnrichedCreature[];
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
     onActionCompleteAction: () => void;
 };
 
@@ -35,8 +31,6 @@ export function ManageBreedingPairsForm({
     suitableMates,
     allCreatures,
     allGoals,
-    allRawPairs,
-    allLogs,
     onActionCompleteAction: onActionComplete,
 }: ManagePairsFormProps) {
     const router = useRouter();
@@ -100,9 +94,6 @@ export function ManageBreedingPairsForm({
 
         const fetchPredictions = async () => {
             setIsPredictionLoading(true);
-            const maleParentId = baseCreature?.gender === 'male' ? baseCreature.id : selectedMateId;
-            const femaleParentId =
-                baseCreature?.gender === 'female' ? baseCreature.id : selectedMateId;
             const goalIds = relevantGoals.map((g) => g.id);
 
             try {
@@ -110,8 +101,10 @@ export function ManageBreedingPairsForm({
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        maleParentId,
-                        femaleParentId,
+                        maleParentUserId: maleParent?.userId,
+                        maleParentCode: maleParent?.code,
+                        femaleParentUserId: femaleParent?.userId,
+                        femaleParentCode: femaleParent?.code,
                         goalIds,
                     }),
                 });
@@ -126,30 +119,46 @@ export function ManageBreedingPairsForm({
         };
 
         fetchPredictions();
-    }, [selectedMateId, baseCreature, relevantGoals]);
+    }, [selectedMateId, baseCreature, relevantGoals, maleParent, femaleParent]);
 
     useEffect(() => {
-        const maleId = maleParent?.id;
-        const femaleId = femaleParent?.id;
+        const male = maleParent;
+        const female = femaleParent;
 
-        if (maleId && femaleId) {
-            const inbred = checkForInbreeding(maleId, femaleId, allLogs, allRawPairs);
-            setIsInbred(inbred);
+        if (male && female) {
+            const check = async () => {
+                try {
+                    const response = await fetch('/api/breeding-pairs/check-inbreeding', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            maleKey: { userId: male.userId, code: male.code },
+                            femaleKey: { userId: female.userId, code: female.code },
+                        }),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to check inbreeding status.');
+                    }
+                    const data = await response.json();
+                    setIsInbred(data.isInbred);
+                } catch (err) {
+                    console.error(err);
+                    // You could add a toast notification here for the user
+                }
+            };
+            check();
         } else {
             setIsInbred(false);
         }
-    }, [maleParent, femaleParent, allLogs, allRawPairs]);
+    }, [maleParent, femaleParent]);
 
     const handleCreatePair = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMateId) return;
         setIsLoading(true);
         setError('');
-        try {
-            const maleParentId = baseCreature?.gender === 'male' ? baseCreature.id : selectedMateId;
-            const femaleParentId =
-                baseCreature?.gender === 'female' ? baseCreature.id : selectedMateId;
 
+        try {
             const selectedMate = allCreatures.find((c) => c?.id === selectedMateId);
             if (!selectedMate) {
                 setError('Selected mate not found.');
@@ -175,8 +184,10 @@ export function ManageBreedingPairsForm({
                 body: JSON.stringify({
                     pairName: newPairName || `${baseCreature.code} & ${selectedMate.code}`,
                     species: pairSpecies,
-                    maleParentId,
-                    femaleParentId,
+                    maleParentUserId: maleParent?.userId,
+                    maleParentCode: maleParent?.code,
+                    femaleParentUserId: femaleParent?.userId,
+                    femaleParentCode: femaleParent?.code,
                 }),
             });
             if (!response.ok) throw new Error('Failed to create pair.');

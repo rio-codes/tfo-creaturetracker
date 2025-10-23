@@ -22,7 +22,7 @@ import type {
     DbBreedingLogEntry,
     SerializedBreedingLogEntry,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type EditLogDialogProps = {
@@ -40,8 +40,8 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [notes, setNotes] = useState(log.notes || '');
-    const [progeny1Id, setProgeny1Id] = useState<string | null>(log.progeny1Id);
-    const [progeny2Id, setProgeny2Id] = useState<string | null>(log.progeny2Id);
+    const [progeny1, setProgeny1] = useState<EnrichedCreature | null | undefined>(undefined);
+    const [progeny2, setProgeny2] = useState<EnrichedCreature | null | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -52,8 +52,6 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
         if (open) {
             // Reset form fields to initial log state when opening
             setNotes(log.notes || '');
-            setProgeny1Id(log.progeny1Id);
-            setProgeny2Id(log.progeny2Id);
             setError('');
             setIsLoading(false);
 
@@ -79,8 +77,25 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
         } else {
             // Reset context when dialog closes to ensure fresh data next time
             setContext(null);
+            setProgeny1(undefined);
+            setProgeny2(undefined);
         }
     }, [open, log]);
+
+    useEffect(() => {
+        if (context?.allCreatures) {
+            setProgeny1(
+                context.allCreatures.find(
+                    (c) => c?.code === log.progeny1Code && c?.userId === log.progeny1UserId
+                ) || null
+            );
+            setProgeny2(
+                context.allCreatures.find(
+                    (c) => c?.code === log.progeny2Code && c?.userId === log.progeny2UserId
+                ) || null
+            );
+        }
+    }, [context, log.progeny1Code, log.progeny1UserId, log.progeny2Code, log.progeny2UserId]);
 
     const possibleProgeny = useMemo(() => {
         if (
@@ -98,18 +113,22 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
         );
 
         // Find all creature IDs that are already assigned as progeny in other logs
-        const assignedCreatureIds = new Set(
+        const assignedCreatureKeys = new Set(
             context.allLogs
                 .filter((l) => l.id !== log.id) // Exclude the current log from the check
-                .flatMap((l) => [l.progeny1Id, l.progeny2Id])
-                .filter((id): id is string => !!id)
+                .flatMap((l) => [
+                    l.progeny1Code ? `${l.progeny1UserId}-${l.progeny1Code}` : null,
+                    l.progeny2Code ? `${l.progeny2UserId}-${l.progeny2Code}` : null,
+                ])
+                .filter((key): key is string => !!key)
         );
 
         // Return creatures that match possible species and are not already assigned elsewhere
-        return context.allCreatures.filter(
-            (c) =>
-                c?.species && possibleSpecies.includes(c.species) && !assignedCreatureIds.has(c.id)
-        );
+        return context.allCreatures.filter((c) => {
+            if (!c?.species || !possibleSpecies.includes(c.species)) return false;
+            const creatureKey = `${c.userId}-${c.code}`;
+            return !assignedCreatureKeys.has(creatureKey);
+        });
     }, [context, pair, log.id]);
 
     const handleSubmit = async () => {
@@ -123,8 +142,10 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                 body: JSON.stringify({
                     logId: log.id,
                     notes: notes || undefined,
-                    progeny1Id: progeny1Id || null,
-                    progeny2Id: progeny2Id || null,
+                    progeny1UserId: progeny1?.userId || null,
+                    progeny1Code: progeny1?.code || null,
+                    progeny2UserId: progeny2?.userId || null,
+                    progeny2Code: progeny2?.code || null,
                 }),
             });
 
@@ -143,17 +164,19 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
     };
 
     const renderProgenySelect = (
-        selectedValue: string | null,
-        onValueChange: (value: string | null) => void,
-        otherSelectedId: string | null,
+        selectedCreature: EnrichedCreature | null | undefined,
+        onValueChange: (creature: EnrichedCreature | null) => void,
+        otherSelectedCreature: EnrichedCreature | null | undefined,
         label: string
     ) => (
         <div className="space-y-2">
             <Label>{label}</Label>
             <CreatureCombobox
-                creatures={possibleProgeny.filter((c) => c?.id !== otherSelectedId)}
-                selectedCreatureId={selectedValue || undefined}
-                onSelectCreature={(id) => onValueChange(id || null)}
+                creatures={possibleProgeny.filter((c) => c?.id !== otherSelectedCreature?.id)}
+                selectedCreatureId={selectedCreature?.id}
+                onSelectCreature={(id) =>
+                    onValueChange(context?.allCreatures.find((c) => c?.id === id) || null)
+                }
                 placeholder="Select progeny..."
             />
         </div>
@@ -183,18 +206,8 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                                     className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
                                 />
                             </div>
-                            {renderProgenySelect(
-                                progeny1Id,
-                                setProgeny1Id,
-                                progeny2Id,
-                                'Progeny 1'
-                            )}
-                            {renderProgenySelect(
-                                progeny2Id,
-                                setProgeny2Id,
-                                progeny1Id,
-                                'Progeny 2'
-                            )}
+                            {renderProgenySelect(progeny1, setProgeny1, progeny2, 'Progeny 1')}
+                            {renderProgenySelect(progeny2, setProgeny2, progeny1, 'Progeny 2')}
                         </>
                     ) : null}
                     {error && <p className="text-sm text-red-500">{error}</p>}

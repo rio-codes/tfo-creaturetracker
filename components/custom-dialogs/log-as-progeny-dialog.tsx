@@ -117,13 +117,13 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
     const availableLogs = useMemo(() => {
         if (!selectedPairId) return [];
         return allLogs.filter(
-            (log) => log.pairId === selectedPairId && (!log.progeny1Id || !log.progeny2Id)
+            (log) => log.pairId === selectedPairId && (!log.progeny1Code || !log.progeny2Code)
         );
     }, [allLogs, selectedPairId]);
 
-    const getProgenyName = (progenyId: string | null) => {
-        if (!progenyId) return 'Empty Slot';
-        const progeny = allCreatures.find((c) => c?.id === progenyId);
+    const getProgenyName = (key: { userId: string | null; code: string | null }) => {
+        if (!key.userId || !key.code) return 'Empty Slot';
+        const progeny = allCreatures.find((c) => c?.userId === key.userId && c?.code === key.code);
         return progeny
             ? `${progeny.creatureName || 'Unnamed'} (${progeny.code})`
             : 'Unknown Progeny';
@@ -145,7 +145,8 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                 }
                 const body = {
                     pairId: selectedPairId,
-                    progeny1Id: creature?.id,
+                    progeny1UserId: creature?.userId,
+                    progeny1Code: creature?.code,
                     notes: notes || undefined,
                     sourceLogId,
                     keepSourceOnEmpty,
@@ -163,7 +164,8 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                 }
                 const body = {
                     logEntryId: selectedLogId,
-                    progenyId: creature?.id,
+                    progenyUserId: creature?.userId,
+                    progenyCode: creature?.code,
                     sourceLogId,
                     keepSourceOnEmpty,
                 };
@@ -191,7 +193,7 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
     const handleSubmit = async () => {
         const willSourceBecomeEmpty =
             existingLogEntry &&
-            (existingLogEntry.progeny1Id === null || existingLogEntry.progeny2Id === null);
+            (existingLogEntry.progeny1Code === null || existingLogEntry.progeny2Code === null);
 
         if (willSourceBecomeEmpty) {
             setShowWarningDialog(true);
@@ -315,9 +317,15 @@ export function LogAsProgenyDialog({ children, creature }: LogAsProgenyDialogPro
                                                                         'MM/dd/yy pp'
                                                                     )}{' '}
                                                                     (
-                                                                    {getProgenyName(log.progeny1Id)}
+                                                                    {getProgenyName({
+                                                                        userId: log.progeny1UserId,
+                                                                        code: log.progeny1Code,
+                                                                    })}
                                                                     ,{' '}
-                                                                    {getProgenyName(log.progeny2Id)}
+                                                                    {getProgenyName({
+                                                                        userId: log.progeny2UserId,
+                                                                        code: log.progeny2Code,
+                                                                    })}
                                                                     )
                                                                 </SelectItem>
                                                             ))

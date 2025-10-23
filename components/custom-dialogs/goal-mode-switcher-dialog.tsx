@@ -62,32 +62,30 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
     const newMode = goal?.goalMode === 'genotype' ? 'phenotype' : 'genotype';
 
     const handleModeSwitch = async () => {
-        // check for ambiguity if switching to genotype mode
         if (goal?.goalMode === 'phenotype') {
             const ambiguous: AmbiguousCategory[] = [];
             const speciesData = structuredGeneData[goal.species];
-            // create array of ambiguous genes
             for (const [category, geneInfo] of Object.entries(goal.genes)) {
                 if ((geneInfo as GeneInfo).isMultiGenotype) {
-                    const options = speciesData?.[category]?.filter(
-                        (g) => g.phenotype === (geneInfo as GeneInfo).phenotype
-                    );
-                    ambiguous.push({
-                        category,
-                        phenotype: (geneInfo as GeneInfo).phenotype,
-                        options,
-                    });
+                    const categoryData = speciesData?.[category];
+                    if (typeof categoryData === 'object' && Array.isArray(categoryData)) {
+                        const options = categoryData.filter(
+                            (g) => g.phenotype === (geneInfo as GeneInfo).phenotype
+                        );
+                        ambiguous.push({
+                            category,
+                            phenotype: (geneInfo as GeneInfo).phenotype,
+                            options,
+                        });
+                    }
                 }
             }
-            // if ambiguous categories were found, set state and open dialog
             if (ambiguous.length > 0) {
                 setAmbiguousCategories(ambiguous);
                 setIsConversionDialogOpen(true);
                 return;
             }
         }
-
-        // if no ambiguity, proceed with the simple toggle
         setIsSwitchingMode(true);
         setError('');
         try {
@@ -104,7 +102,6 @@ export function GoalModeSwitcher({ goal }: GoalModeSwitcherProps) {
         }
     };
 
-    // submitting conversion data
     const handleConversionSubmit = async () => {
         setIsSwitchingMode(true);
         setError('');

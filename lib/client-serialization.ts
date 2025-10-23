@@ -1,7 +1,9 @@
 import { structuredGeneData } from '@/constants/creature-data';
 import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 
-export const enrichAndSerializeCreature = (creature: DbCreature | null): EnrichedCreature => {
+export const enrichAndSerializeCreature = (
+    creature: DbCreature | null
+): EnrichedCreature | null => {
     if (!creature) return null;
     const speciesGeneData = structuredGeneData[creature.species || ''];
     return {
@@ -18,8 +20,16 @@ export const enrichAndSerializeCreature = (creature: DbCreature | null): Enriche
                 .map((genePair) => {
                     const [category, genotype] = genePair.split(':');
                     if (!category || !genotype || !speciesGeneData) return null;
+
                     const categoryData = speciesGeneData[category];
-                    const matchedGene = categoryData?.find((g) => g.genotype === genotype);
+
+                    // This is the new type guard.
+                    // It checks if categoryData is an array before proceeding.
+                    if (typeof categoryData !== 'object' || !Array.isArray(categoryData)) {
+                        return null;
+                    }
+
+                    const matchedGene = categoryData.find((g) => g.genotype === genotype);
                     return {
                         category,
                         genotype,
@@ -64,10 +74,12 @@ export const enrichAndSerializeGoal = (
             let isMulti = false;
             if (goalMode === 'phenotype') {
                 const categoryData = speciesGeneData[category];
-                const genotypesForPhenotype = categoryData?.filter(
-                    (g) => g.phenotype === finalPhenotype
-                );
-                isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                if (typeof categoryData === 'object' && Array.isArray(categoryData)) {
+                    const genotypesForPhenotype = categoryData.filter(
+                        (g) => g.phenotype === finalPhenotype
+                    );
+                    isMulti = (genotypesForPhenotype?.length || 0) > 1;
+                }
             }
             enrichedGenes[category] = {
                 genotype: finalGenotype,

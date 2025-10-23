@@ -9,7 +9,7 @@ import type {
 } from '@/types';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
 import { db } from '@/src/db';
-import { and, eq, inArray, or } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import { breedingLogEntries, achievedGoals, breedingPairs, creatures } from '@/src/db/schema';
 import { checkForInbreeding } from './breeding-rules';
 import { calculateGeneProbability } from './genetics';
@@ -17,16 +17,19 @@ import { calculateGeneProbability } from './genetics';
 export { enrichAndSerializeCreature, enrichAndSerializeGoal };
 
 export const enrichAndSerializeCreatureWithProgeny = async (
-    creatureId: string,
+    creatureCode: string,
+    userId: string,
     maxDepth = 1, // Controls how many levels of progeny to fetch
     currentDepth = 0
 ): Promise<EnrichedCreature> => {
+    const creatureData = await db.query.creatures.findFirst({
+        where: and(eq(creatures.code, creatureCode), eq(creatures.userId, userId)),
+    });
+
+    if (!creatureData) return null;
+
     if (currentDepth >= maxDepth) {
         // At max depth, fetch the creature but no more progeny
-        const creatureData = await db.query.creatures.findFirst({
-            where: eq(creatures.id, creatureId),
-        });
-        if (!creatureData) return null;
         const simpleEnrichedCreature = enrichAndSerializeCreature(creatureData);
         if (simpleEnrichedCreature) {
             simpleEnrichedCreature.progeny = []; // Ensure progeny is an empty array
@@ -36,19 +39,24 @@ export const enrichAndSerializeCreatureWithProgeny = async (
 
     // Find pairs where this creature is a parent
     const parentPairs = await db.query.breedingPairs.findMany({
-        where: or(
-            eq(breedingPairs.maleParentId, creatureId),
-            eq(breedingPairs.femaleParentId, creatureId)
+        where: and(
+            eq(breedingPairs.userId, userId),
+            or(
+                and(
+                    eq(breedingPairs.maleParentUserId, userId),
+                    eq(breedingPairs.maleParentCode, creatureCode)
+                ),
+                and(
+                    eq(breedingPairs.femaleParentUserId, userId),
+                    eq(breedingPairs.femaleParentCode, creatureCode)
+                )
+            )
         ),
         columns: { id: true },
     });
 
     if (parentPairs.length === 0) {
         // If not a parent, fetch and return the creature with no progeny
-        const creatureData = await db.query.creatures.findFirst({
-            where: eq(creatures.id, creatureId),
-        });
-        if (!creatureData) return null;
         const simpleEnrichedCreature = enrichAndSerializeCreature(creatureData);
         if (simpleEnrichedCreature) {
             simpleEnrichedCreature.progeny = [];
@@ -57,30 +65,30 @@ export const enrichAndSerializeCreatureWithProgeny = async (
     }
 
     // Find all log entries for the pairs where this creature is a parent
-    const pairIds = parentPairs.map((p) => p.id);
     const logs = await db.query.breedingLogEntries.findMany({
-        where: inArray(breedingLogEntries.pairId, pairIds),
+        where: and(
+            eq(breedingLogEntries.userId, userId),
+            eq(breedingLogEntries.pairId, parentPairs[0].id)
+        ),
     });
 
-    const progenyIds = new Set<string>();
+    const progenyKeys = new Set<{ userId: string; code: string }>();
     logs.forEach((log) => {
-        if (log.progeny1Id) progenyIds.add(log.progeny1Id);
-        if (log.progeny2Id) progenyIds.add(log.progeny2Id);
+        if (log.progeny1UserId && log.progeny1Code) {
+            progenyKeys.add({ userId: log.progeny1UserId, code: log.progeny1Code });
+        }
+        if (log.progeny2UserId && log.progeny2Code) {
+            progenyKeys.add({ userId: log.progeny2UserId, code: log.progeny2Code });
+        }
     });
 
     // Recursively fetch and enrich the progeny
-    const progenyPromises = Array.from(progenyIds).map((id) =>
-        enrichAndSerializeCreatureWithProgeny(id, maxDepth, currentDepth + 1)
+    const progenyPromises = Array.from(progenyKeys).map((key) =>
+        enrichAndSerializeCreatureWithProgeny(key.code, key.userId, maxDepth, currentDepth + 1)
     );
     const progeny = (await Promise.all(progenyPromises)).filter(
         (p): p is NonNullable<EnrichedCreature> => p !== null
     );
-
-    // Fetch the base creature itself
-    const creatureData = await db.query.creatures.findFirst({
-        where: eq(creatures.id, creatureId),
-    });
-    if (!creatureData) return null;
 
     const enrichedBaseCreature = enrichAndSerializeCreature(creatureData);
     if (enrichedBaseCreature) {
@@ -103,44 +111,45 @@ export const enrichAndSerializeBreedingPair = async (
         return null;
     }
 
-    const [relevantLogs, allUserLogs, allRawPairs] = await Promise.all([
-        db.query.breedingLogEntries.findMany({
-            where: and(
-                eq(breedingLogEntries.userId, userId),
-                eq(breedingLogEntries.pairId, pair.id)
-            ),
-        }),
-        db.query.breedingLogEntries.findMany({
-            where: eq(breedingLogEntries.userId, userId),
-        }),
-        db.query.breedingPairs.findMany({
-            where: eq(breedingPairs.userId, userId),
-        }),
-    ]);
-
-    const progenyIds = new Set<string>();
-    relevantLogs.forEach((log) => {
-        if (log.progeny1Id) progenyIds.add(log.progeny1Id);
-        if (log.progeny2Id) progenyIds.add(log.progeny2Id);
+    const relevantLogs = await db.query.breedingLogEntries.findMany({
+        where: and(eq(breedingLogEntries.userId, userId), eq(breedingLogEntries.pairId, pair.id)),
     });
 
+    const progenyKeys = new Set<{ userId: string; code: string }>();
+    relevantLogs.forEach((log) => {
+        if (log.progeny1UserId && log.progeny1Code)
+            progenyKeys.add({ userId: log.progeny1UserId, code: log.progeny1Code });
+        if (log.progeny2UserId && log.progeny2Code)
+            progenyKeys.add({ userId: log.progeny2UserId, code: log.progeny2Code });
+    });
+
+    const progenyQueryConditions = Array.from(progenyKeys).map((key) =>
+        and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
+    );
+
     const progenyCreatures =
-        progenyIds.size > 0
+        progenyQueryConditions.length > 0
             ? await db.query.creatures.findMany({
-                  where: inArray(creatures.id, Array.from(progenyIds)),
+                  where: or(...progenyQueryConditions),
               })
             : [];
     const progeny = progenyCreatures.map(enrichAndSerializeCreature);
 
     const assignedGoalsFromPair = pair.assignedGoals?.map((ag) => ag.goal) || [];
+
+    const progenyCompositeKeys = Array.from(progenyKeys);
     const achievedGoalIdsForPair =
-        progenyIds.size > 0
+        progenyCompositeKeys.length > 0
             ? new Set(
                   (
                       await db.query.achievedGoals.findMany({
-                          where: and(
-                              eq(achievedGoals.userId, userId),
-                              inArray(achievedGoals.matchingProgenyId, Array.from(progenyIds))
+                          where: or(
+                              ...progenyCompositeKeys.map((key) =>
+                                  and(
+                                      eq(achievedGoals.matchingProgenyUserId, key.userId),
+                                      eq(achievedGoals.matchingProgenyCode, key.code)
+                                  )
+                              )
                           ),
                           columns: { goalId: true },
                       })
@@ -176,11 +185,9 @@ export const enrichAndSerializeBreedingPair = async (
         return { ...enrichedGoal, isAchieved, isPossible, averageChance };
     });
 
-    const isInbred = checkForInbreeding(
-        pair.maleParentId,
-        pair.femaleParentId,
-        allUserLogs,
-        allRawPairs
+    const isInbred = await checkForInbreeding(
+        { userId: pair.maleParentUserId, code: pair.maleParentCode },
+        { userId: pair.femaleParentUserId, code: pair.femaleParentCode }
     );
 
     return {

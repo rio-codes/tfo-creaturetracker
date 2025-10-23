@@ -163,12 +163,16 @@ async function getFunMetrics(): Promise<FunMetrics> {
     let randomCreature: RandomCreature = null;
     const randomPair = await db.query.breedingPairs.findFirst({
         orderBy: sql`RANDOM()`,
-        where: and(isNotNull(breedingPairs.maleParentId), isNotNull(breedingPairs.femaleParentId)),
+        where: and(
+            isNotNull(breedingPairs.maleParentUserId),
+            isNotNull(breedingPairs.femaleParentUserId)
+        ),
         with: {
             maleParent: true,
             femaleParent: true,
         },
     });
+
     if (randomPair && randomPair.maleParent && randomPair.femaleParent) {
         const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
         const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);

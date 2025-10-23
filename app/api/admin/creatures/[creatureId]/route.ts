@@ -60,18 +60,21 @@ export async function GET(req: Request, props: { params: Promise<{ creatureId: s
             ({ maleParent, femaleParent, ...rest }) => rest
         );
 
-        const enrichedPairs = allRawPairsWithParents
-            .map((pair) =>
-                enrichAndSerializeBreedingPair(
-                    pair,
-                    enrichedGoals,
-                    logEntries,
-                    enrichedCreatures,
-                    allUserAchievedGoals,
-                    rawPairs
-                )
+        const enrichedPairPromises = allRawPairsWithParents.map((pair) =>
+            enrichAndSerializeBreedingPair(
+                pair,
+                enrichedGoals,
+                logEntries,
+                enrichedCreatures,
+                allUserAchievedGoals
             )
-            .filter((p): p is EnrichedBreedingPair => p !== null);
+        );
+
+        const resolvedEnrichedPairs = await Promise.all(enrichedPairPromises);
+
+        const enrichedPairs = resolvedEnrichedPairs.filter(
+            (p): p is EnrichedBreedingPair => p !== null
+        );
 
         return NextResponse.json({
             creature: enrichAndSerializeCreature(creature),

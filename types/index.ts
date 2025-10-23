@@ -60,6 +60,11 @@ export type EnrichedCreature =
       })
     | null;
 
+export type CreatureKey = {
+    userId: string;
+    code: string;
+};
+
 export type GoalGene = {
     genotype: string;
     phenotype: string;

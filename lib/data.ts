@@ -8,7 +8,7 @@ import {
     researchGoals,
     users,
 } from '@/src/db/schema';
-import { and, ilike, like, or, eq, desc, count, SQL, sql } from 'drizzle-orm';
+import { and, ilike, like, or, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,
@@ -16,7 +16,7 @@ import type {
     EnrichedResearchGoal,
     EnrichedBreedingPair,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
     enrichAndSerializeCreature,
     enrichAndSerializeGoal,
@@ -190,7 +190,7 @@ export async function fetchFilteredCreatures(
         } else {
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
-            if (categoryGenes) {
+            if (typeof categoryGenes === 'object' && Array.isArray(categoryGenes)) {
                 const matchingGenotypes = categoryGenes
                     .filter((g) => g.phenotype === geneQuery)
                     .map((g) => g.genotype);
@@ -428,7 +428,7 @@ export async function fetchBreedingPairsWithStats(
             // Phenotype mode
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
-            if (categoryGenes) {
+            if (typeof categoryGenes === 'object' && Array.isArray(categoryGenes)) {
                 const matchingGenotypes = categoryGenes
                     .filter((g) => g.phenotype === geneQuery)
                     .map((g) => g.genotype);
@@ -456,8 +456,20 @@ export async function fetchBreedingPairsWithStats(
                 femaleParent: femaleCreatures,
             })
             .from(breedingPairs)
-            .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id));
+            .leftJoin(
+                maleCreatures,
+                and(
+                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                    eq(breedingPairs.maleParentCode, maleCreatures.code)
+                )
+            )
+            .leftJoin(
+                femaleCreatures,
+                and(
+                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                )
+            );
 
         const pinnedResults = await commonQuery
             .where(and(...conditions, eq(breedingPairs.isPinned, true)))
@@ -490,8 +502,20 @@ export async function fetchBreedingPairsWithStats(
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
-            .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
+            .leftJoin(
+                maleCreatures,
+                and(
+                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                    eq(breedingPairs.maleParentCode, maleCreatures.code)
+                )
+            )
+            .leftJoin(
+                femaleCreatures,
+                and(
+                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                )
+            )
             .where(and(...conditions, eq(breedingPairs.isPinned, false)));
 
         const totalPages = Math.ceil(totalCountResult[0].value / itemsPerPage);
@@ -624,4 +648,111 @@ export async function getAllEnrichedCreaturesForUser(): Promise<EnrichedCreature
         console.error(error);
         return [];
     }
+}
+
+type HomepageStats = {
+    totalCreatures: number;
+    totalPairs: number;
+    totalGoals: number;
+    popularSpecies: {
+        species: string | null;
+        count: number;
+    } | null;
+    prolificPair: {
+        id: string;
+        name: string | null;
+        timesBred: number;
+        breeder: {
+            username: string | null;
+            id: string;
+        } | null;
+    } | null;
+    randomCreature: {
+        image: string | null;
+        species: string | null;
+        code: string;
+    } | null;
+};
+
+type ProlificPair = {
+    id: string;
+    name: string | null;
+    timesBred: number;
+    breeder: {
+        username: string | null;
+        id: string;
+    } | null;
+} | null;
+
+export async function getHomepageStats(): Promise<HomepageStats> {
+    const [totalCreaturesResult, totalPairsResult, totalGoalsResult] = await Promise.all([
+        db.select({ value: count() }).from(creatures),
+        db.select({ value: count() }).from(breedingPairs),
+        db.select({ value: count() }).from(researchGoals),
+    ]);
+
+    const popularSpeciesQuery = await db
+        .select({
+            species: creatures.species,
+            count: sql<number>`count(${creatures.id})`.mapWith(Number).as('species_count'),
+        })
+        .from(creatures)
+        .where(isNotNull(creatures.species))
+        .groupBy(creatures.species)
+        .orderBy(desc(sql`species_count`))
+        .limit(1);
+
+    const prolificPairLogQuery = await db
+        .select({
+            pairId: breedingLogEntries.pairId,
+            timesBred: sql<number>`count(${breedingLogEntries.id})`
+                .mapWith(Number)
+                .as('times_bred'),
+        })
+        .from(breedingLogEntries)
+        .where(isNotNull(breedingLogEntries.pairId))
+        .groupBy(breedingLogEntries.pairId)
+        .orderBy(desc(sql`times_bred`))
+        .limit(1);
+    let prolificPair: ProlificPair = null;
+    if (prolificPairLogQuery.length > 0) {
+        const { pairId, timesBred } = prolificPairLogQuery[0];
+        if (pairId) {
+            const pairInfo = await db.query.breedingPairs.findFirst({
+                where: eq(breedingPairs.id, pairId),
+                columns: {
+                    id: true,
+                    pairName: true,
+                    userId: true,
+                },
+            });
+            if (pairInfo && pairInfo.userId) {
+                const breederInfo = await db.query.users.findFirst({
+                    where: eq(users.id, pairInfo.userId),
+                    columns: { id: true, username: true },
+                });
+                prolificPair = {
+                    id: pairInfo.id,
+                    name: pairInfo.pairName,
+                    timesBred: timesBred,
+                    breeder: breederInfo
+                        ? { id: breederInfo.id, username: breederInfo.username }
+                        : null,
+                };
+            }
+        }
+    }
+
+    // The random creature generation is computationally expensive and involves external API calls.
+    // For the main data library, we'll stub this out. The page component can handle it.
+    const randomCreature = null;
+
+    return {
+        totalCreatures: totalCreaturesResult[0].value,
+        totalPairs: totalPairsResult[0].value,
+        totalGoals: totalGoalsResult[0].value,
+        popularSpecies: popularSpeciesQuery.length > 0 ? popularSpeciesQuery[0] : null,
+        prolificPair,
+        randomCreature,
+    };
 }

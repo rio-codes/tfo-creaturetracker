@@ -10,13 +10,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { ManageBreedingPairsForm } from '@/components/custom-forms/manage-breeding-pairs-form';
-import type {
-    EnrichedCreature,
-    EnrichedResearchGoal,
-    EnrichedBreedingPair,
-    DbBreedingPair,
-    DbBreedingLogEntry,
-} from '@/types';
+import type { EnrichedCreature, EnrichedResearchGoal, EnrichedBreedingPair } from '@/types';
 import { Loader2 } from 'lucide-react';
 
 type ManageBreedingPairsDialogProps = {
@@ -29,8 +23,6 @@ type PairingContextData = {
     suitableMates: EnrichedCreature[];
     allCreatures: EnrichedCreature[];
     allGoals: EnrichedResearchGoal[];
-    allRawPairs: DbBreedingPair[];
-    allLogs: DbBreedingLogEntry[];
 };
 
 type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
@@ -97,8 +89,6 @@ export function ManageBreedingPairsDialog({
                             suitableMates={pairingContext.suitableMates}
                             allCreatures={pairingContext.allCreatures}
                             allGoals={pairingContext.allGoals}
-                            allRawPairs={pairingContext.allRawPairs}
-                            allLogs={pairingContext.allLogs}
                             onActionCompleteAction={() => setIsOpen(false)}
                         />
                     )}

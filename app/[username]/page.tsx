@@ -37,7 +37,6 @@ import type {
     GoalGene,
     DbResearchGoal,
     DbBreedingPair,
-    DbBreedingLogEntry,
 } from '@/types';
 
 type AchievementMap = {
@@ -168,7 +167,14 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         ? await db
               .select()
               .from(achievedGoals)
-              .leftJoin(creatures, eq(achievedGoals.matchingProgenyId, creatures.id))
+              .leftJoin(
+                  creatures,
+                  // Use the new composite key for the join
+                  and(
+                      eq(achievedGoals.matchingProgenyUserId, creatures.userId),
+                      eq(achievedGoals.matchingProgenyCode, creatures.code)
+                  )
+              )
               .where(
                   and(
                       eq(achievedGoals.userId, user.id),
@@ -184,9 +190,8 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         return acc;
     }, {} as AchievementMap);
 
-    let stats: UserStats | null = null;
-    if (user.showStats) {
-        const [allCreaturesForUser, achievedGoalsForUser] = await Promise.all([
+    const [allCreaturesForUser, achievedGoalsForUser, allUserPairs, allUserLogs] =
+        await Promise.all([
             db
                 .select({ species: creatures.species })
                 .from(creatures)
@@ -195,8 +200,16 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                 .select({ goalId: achievedGoals.goalId })
                 .from(achievedGoals)
                 .where(eq(achievedGoals.userId, user.id)),
+            db.query.breedingPairs.findMany({
+                where: eq(breedingPairs.userId, user.id),
+            }),
+            db.query.breedingLogEntries.findMany({
+                where: eq(breedingLogEntries.userId, user.id),
+            }),
         ]);
 
+    let stats: UserStats | null = null;
+    if (user.showStats) {
         let achievedGoalNames: string[] = [];
         if (achievedGoalsForUser.length > 0) {
             const achievedGoalIds = achievedGoalsForUser.map((g) => g.goalId);
@@ -207,6 +220,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
             achievedGoalNames = goals.map((g) => g.name);
         }
         const speciesCounts = allCreaturesForUser.reduce(
+            // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
             (acc, creature) => {
                 if (creature.species) {
                     acc[creature.species] = (acc[creature.species] || 0) + 1;
@@ -237,54 +251,87 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         .flatMap((g) => g.assignedPairIds || [])
         .filter((id, index, self) => self.indexOf(id) === index);
 
-    let allAssignedPairs: (DbBreedingPair & {
-        maleParent: DbCreature | null;
-        femaleParent: DbCreature | null;
-    })[] = [];
-    let allLogsForAssignedPairs: DbBreedingLogEntry[] = [];
+    const allAssignedPairs = allUserPairs.filter((p) => allAssignedPairIds.includes(p.id));
 
     if (allAssignedPairIds.length > 0) {
-        [allAssignedPairs, allLogsForAssignedPairs] = await Promise.all([
-            db.query.breedingPairs.findMany({
-                where: and(
-                    eq(breedingPairs.userId, user.id),
-                    inArray(breedingPairs.id, allAssignedPairIds)
-                ),
-                with: { maleParent: true, femaleParent: true },
-            }),
-            db.query.breedingLogEntries.findMany({
-                where: and(
-                    eq(breedingLogEntries.userId, user.id),
-                    inArray(breedingLogEntries.pairId, allAssignedPairIds)
-                ),
-            }),
+        // Collect all parent composite keys
+        const parentKeys = allAssignedPairs.flatMap((p) => [
+            { userId: p.maleParentUserId, code: p.maleParentCode },
+            { userId: p.femaleParentUserId, code: p.femaleParentCode },
         ]);
+
+        // Fetch all parent creatures in a single query
+        let parentCreatures: DbCreature[] = [];
+        if (parentKeys.length > 0) {
+            parentCreatures = await db
+                .select()
+                .from(creatures)
+                .where(
+                    drizzleOr(
+                        ...parentKeys.map((key) =>
+                            and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
+                        )
+                    )
+                );
+        }
+        const parentsByCompositeKey = new Map(
+            parentCreatures.map((p) => [`${p.userId}-${p.code}`, p])
+        );
+
+        // Manually attach parents to pairs
+        allAssignedPairs.forEach((pair) => {
+            (pair as any).maleParent =
+                parentsByCompositeKey.get(`${pair.maleParentUserId}-${pair.maleParentCode}`) ||
+                null;
+            (pair as any).femaleParent =
+                parentsByCompositeKey.get(`${pair.femaleParentUserId}-${pair.femaleParentCode}`) ||
+                null;
+        });
     }
 
-    const allProgenyIds = new Set<string>();
+    const allLogsForAssignedPairs = allUserLogs.filter((l) =>
+        allAssignedPairIds.includes(l.pairId)
+    );
+
+    const allProgenyKeys = new Set<string>();
     allLogsForAssignedPairs.forEach((log) => {
-        if (log.progeny1Id) allProgenyIds.add(log.progeny1Id);
-        if (log.progeny2Id) allProgenyIds.add(log.progeny2Id);
+        if (log.progeny1UserId && log.progeny1Code)
+            allProgenyKeys.add(`${log.progeny1UserId}-${log.progeny1Code}`);
+        if (log.progeny2UserId && log.progeny2Code)
+            allProgenyKeys.add(`${log.progeny2UserId}-${log.progeny2Code}`);
+    });
+
+    const progenyKeysArray = [...allProgenyKeys].map((key) => {
+        const [userId, code] = key.split('-');
+        return { userId, code };
     });
 
     const allProgeny =
-        allProgenyIds.size > 0
-            ? await db.query.creatures.findMany({
-                  where: and(
-                      eq(creatures.userId, user.id),
-                      inArray(creatures.id, [...allProgenyIds])
-                  ),
-              })
+        progenyKeysArray.length > 0
+            ? await db
+                  .select()
+                  .from(creatures)
+                  .where(
+                      drizzleOr(
+                          ...progenyKeysArray.map((key) =>
+                              and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
+                          )
+                      )
+                  )
             : [];
-    const progenyById = new Map(allProgeny.map((p) => [p.id, p]));
+    const progenyByCompositeKey = new Map(allProgeny.map((p) => [`${p.userId}-${p.code}`, p]));
 
     for (const goal of featuredGoals) {
         if (achievements[goal.id]) continue;
 
         const assignedPairIds = goal.assignedPairIds || [];
         const assignedPairsForGoal = allAssignedPairs.filter((p) => assignedPairIds.includes(p.id));
-
-        const pairScores = assignedPairsForGoal
+        const pairScores = (
+            assignedPairsForGoal as (DbBreedingPair & {
+                maleParent: DbCreature | null;
+                femaleParent: DbCreature | null;
+            })[]
+        )
             .map((pair) => {
                 if (!pair.maleParent || !pair.femaleParent) return null;
                 const enrichedMale = enrichAndSerializeCreature(pair.maleParent);
@@ -322,13 +369,15 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
             assignedPairIds.includes(l.pairId)
         );
         const progenyIdsForGoal = new Set<string>();
-        logsForGoal.forEach((l) => {
-            if (l.progeny1Id) progenyIdsForGoal.add(l.progeny1Id);
-            if (l.progeny2Id) progenyIdsForGoal.add(l.progeny2Id);
+        logsForGoal.forEach((log) => {
+            if (log.progeny1UserId && log.progeny1Code)
+                progenyIdsForGoal.add(`${log.progeny1UserId}-${log.progeny1Code}`);
+            if (log.progeny2UserId && log.progeny2Code)
+                progenyIdsForGoal.add(`${log.progeny2UserId}-${log.progeny2Code}`);
         });
 
         const progenyForGoal = [...progenyIdsForGoal]
-            .map((id) => progenyById.get(id))
+            .map((compositeKey) => progenyByCompositeKey.get(compositeKey))
             .filter((p): p is DbCreature => !!p);
 
         let closestProgenyData = null;

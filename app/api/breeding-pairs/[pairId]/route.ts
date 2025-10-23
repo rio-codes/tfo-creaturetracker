@@ -6,7 +6,7 @@ import { hasObscenity } from '@/lib/obscenity';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, or } from 'drizzle-orm';
-import { validatePairing } from '@/lib/breeding-rules';
+import { validatePairing } from '@/lib/breeding-rules-client';
 import { logUserAction } from '@/lib/user-actions';
 import { logAdminAction } from '@/lib/audit';
 
@@ -15,9 +15,10 @@ const editPairSchema = z.object({
         .string()
         .min(3, 'Pair name must be at least 3 characters.')
         .max(32, 'Pair name can not be more than 32 characters.'),
-    species: z.string().min(1, 'Species is required.'),
-    maleParentId: z.string().uuid('Invalid male parent ID.'),
-    femaleParentId: z.string().uuid('Invalid female parent ID.'),
+    maleParentUserId: z.string(),
+    maleParentCode: z.string(),
+    femaleParentUserId: z.string(),
+    femaleParentCode: z.string(),
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
@@ -42,7 +43,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
+        const {
+            pairName,
+            maleParentUserId,
+            maleParentCode,
+            femaleParentUserId,
+            femaleParentCode,
+            assignedGoalIds,
+        } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
             return NextResponse.json(
@@ -66,10 +74,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, maleParentId), eq(creatures.userId, session.user.id)),
+                where: and(
+                    eq(creatures.userId, maleParentUserId),
+                    eq(creatures.code, maleParentCode)
+                ),
             }),
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, session.user.id)),
+                where: and(
+                    eq(creatures.userId, femaleParentUserId),
+                    eq(creatures.code, femaleParentCode)
+                ),
             }),
         ]);
 
@@ -88,15 +102,17 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         }
 
         const parentsHaveChanged =
-            maleParentId !== existingPair.maleParentId ||
-            femaleParentId !== existingPair.femaleParentId;
+            maleParentUserId !== existingPair.maleParentUserId ||
+            maleParentCode !== existingPair.maleParentCode ||
+            femaleParentUserId !== existingPair.femaleParentUserId ||
+            femaleParentCode !== existingPair.femaleParentCode;
 
         if (parentsHaveChanged) {
             const duplicatePair = await db.query.breedingPairs.findFirst({
                 where: and(
                     eq(breedingPairs.userId, session.user.id),
-                    eq(breedingPairs.maleParentId, maleParentId),
-                    eq(breedingPairs.femaleParentId, femaleParentId)
+                    eq(breedingPairs.maleParentUserId, maleParentUserId),
+                    eq(breedingPairs.maleParentCode, maleParentCode)
                 ),
             });
 
@@ -142,8 +158,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             .update(breedingPairs)
             .set({
                 pairName,
-                maleParentId,
-                femaleParentId,
+                maleParentUserId,
+                maleParentCode,
+                femaleParentUserId,
+                femaleParentCode,
                 assignedGoalIds: assignedGoalIds || [],
                 updatedAt: new Date(),
             })
@@ -260,8 +278,14 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
                         eq(breedingLogEntries.userId, userId),
                         eq(breedingLogEntries.pairId, params.pairId),
                         or(
-                            eq(breedingLogEntries.progeny1Id, progenyIdToRemove),
-                            eq(breedingLogEntries.progeny2Id, progenyIdToRemove)
+                            and(
+                                eq(breedingLogEntries.progeny1UserId, userId),
+                                eq(breedingLogEntries.progeny1Code, progenyIdToRemove)
+                            ),
+                            and(
+                                eq(breedingLogEntries.progeny2UserId, userId),
+                                eq(breedingLogEntries.progeny2Code, progenyIdToRemove)
+                            )
                         )
                     )
                 );
@@ -275,14 +299,18 @@ export async function DELETE(req: Request, props: { params: Promise<{ pairId: st
 
             for (const logEntry of logEntriesToUpdate) {
                 const updateData: {
-                    progeny1Id?: string | null;
-                    progeny2Id?: string | null;
+                    progeny1UserId?: string | null;
+                    progeny1Code?: string | null;
+                    progeny2UserId?: string | null;
+                    progeny2Code?: string | null;
                 } = {};
-                if (logEntry.progeny1Id === progenyIdToRemove) {
-                    updateData.progeny1Id = null;
+                if (logEntry.progeny1Code === progenyIdToRemove) {
+                    updateData.progeny1UserId = null;
+                    updateData.progeny1Code = null;
                 }
-                if (logEntry.progeny2Id === progenyIdToRemove) {
-                    updateData.progeny2Id = null;
+                if (logEntry.progeny2Code === progenyIdToRemove) {
+                    updateData.progeny2UserId = null;
+                    updateData.progeny2Code = null;
                 }
 
                 if (Object.keys(updateData).length > 0) {

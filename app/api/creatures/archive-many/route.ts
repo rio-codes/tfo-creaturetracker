@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures, breedingPairs } from '@/src/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, or, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 export async function POST(req: Request) {
@@ -10,28 +10,33 @@ export async function POST(req: Request) {
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+    const { creatureIds } = await req.json();
 
     try {
-        const { creatureIds } = await req.json();
-
-        if (!Array.isArray(creatureIds) || creatureIds.length === 0) {
-            return NextResponse.json({ error: 'Creature IDs are required.' }, { status: 400 });
-        }
-
-        await db
-            .update(creatures)
-            .set({ isArchived: true, updatedAt: new Date() })
+        const creaturesToArchive = await db
+            .select({ userId: creatures.userId, code: creatures.code })
+            .from(creatures)
             .where(and(eq(creatures.userId, session.user.id), inArray(creatures.id, creatureIds)));
 
-        await db
-            .update(breedingPairs)
-            .set({ isArchived: true })
-            .where(
-                and(
-                    eq(breedingPairs.userId, session.user.id),
-                    inArray(breedingPairs.maleParentId, creatureIds)
+        if (creaturesToArchive.length > 0) {
+            const orConditions = creaturesToArchive.map((c) =>
+                or(
+                    and(
+                        eq(breedingPairs.maleParentUserId, c.userId),
+                        eq(breedingPairs.maleParentCode, c.code)
+                    ),
+                    and(
+                        eq(breedingPairs.femaleParentUserId, c.userId),
+                        eq(breedingPairs.femaleParentCode, c.code)
+                    )
                 )
             );
+
+            await db
+                .update(breedingPairs)
+                .set({ isArchived: true })
+                .where(and(eq(breedingPairs.userId, session.user.id), or(...orConditions)));
+        }
 
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');

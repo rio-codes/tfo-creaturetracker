@@ -26,6 +26,15 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
 
     try {
         const result = await db.transaction(async (tx) => {
+            const creatureToUpdate = await tx.query.creatures.findFirst({
+                where: and(eq(creatures.id, creatureId), eq(creatures.userId, userId)),
+                columns: { userId: true, code: true },
+            });
+
+            if (!creatureToUpdate) {
+                return []; // Abort
+            }
+
             const updateResult = await tx
                 .update(creatures)
                 .set({ isArchived, updatedAt: new Date() })
@@ -45,8 +54,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
                         and(
                             eq(breedingPairs.userId, userId),
                             or(
-                                eq(breedingPairs.maleParentId, creatureId),
-                                eq(breedingPairs.femaleParentId, creatureId)
+                                and(
+                                    eq(breedingPairs.maleParentUserId, creatureToUpdate.userId),
+                                    eq(breedingPairs.maleParentCode, creatureToUpdate.code)
+                                ),
+                                and(
+                                    eq(breedingPairs.femaleParentUserId, creatureToUpdate.userId),
+                                    eq(breedingPairs.femaleParentCode, creatureToUpdate.code)
+                                )
                             )
                         )
                     );
@@ -56,37 +71,55 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
                     where: and(
                         eq(breedingPairs.userId, userId),
                         or(
-                            eq(breedingPairs.maleParentId, creatureId),
-                            eq(breedingPairs.femaleParentId, creatureId)
+                            and(
+                                eq(breedingPairs.maleParentUserId, creatureToUpdate.userId),
+                                eq(breedingPairs.maleParentCode, creatureToUpdate.code)
+                            ),
+                            and(
+                                eq(breedingPairs.femaleParentUserId, creatureToUpdate.userId),
+                                eq(breedingPairs.femaleParentCode, creatureToUpdate.code)
+                            )
                         )
                     ),
-                    columns: { id: true, maleParentId: true, femaleParentId: true },
+                    columns: {
+                        id: true,
+                        maleParentCode: true,
+                        femaleParentCode: true,
+                        maleParentUserId: true,
+                        femaleParentUserId: true,
+                    },
                 });
 
                 const pairsToUnarchive: string[] = [];
                 if (pairsToConsider.length > 0) {
                     const otherParentIds = pairsToConsider
                         .map((p) =>
-                            p.maleParentId === creatureId ? p.femaleParentId : p.maleParentId
+                            p.maleParentCode === creatureToUpdate.code
+                                ? p.femaleParentCode
+                                : p.maleParentCode
                         )
                         .filter((id): id is string => id !== null);
 
                     if (otherParentIds.length > 0) {
                         const otherParents = await tx.query.creatures.findMany({
-                            where: inArray(creatures.id, otherParentIds),
-                            columns: { id: true, isArchived: true },
+                            where: and(
+                                eq(creatures.userId, userId), // Make sure to only check the current user's creatures
+                                inArray(creatures.code, otherParentIds)
+                            ),
+                            columns: { code: true, isArchived: true }, // We need the code to identify them later
                         });
 
-                        const activeParentIds = new Set(
-                            otherParents.filter((p) => !p.isArchived).map((p) => p.id)
+                        const activeParentCodes = new Set(
+                            otherParents.filter((p) => !p.isArchived).map((p) => p.code)
                         );
 
                         for (const pair of pairsToConsider) {
                             const otherParentId =
-                                pair.maleParentId === creatureId
-                                    ? pair.femaleParentId
-                                    : pair.maleParentId;
-                            if (activeParentIds.has(otherParentId)) {
+                                pair.maleParentCode === creatureToUpdate.code
+                                    ? pair.femaleParentCode
+                                    : pair.maleParentCode;
+
+                            if (activeParentCodes.has(otherParentId)) {
                                 pairsToUnarchive.push(pair.id);
                             }
                         }

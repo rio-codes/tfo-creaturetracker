@@ -41,8 +41,6 @@ export function ResearchGoalCard({
     const [isFeatured, setIsFeatured] = useState(
         currentUser?.featuredGoalIds?.includes(goal.id) ?? false
     );
-    const [isPublic, setIsPublic] = useState(goal?.isPublic);
-    const [isTogglingPublic, setIsTogglingPublic] = useState(false);
 
     const geneEntries = goal?.genes ? Object.entries(goal.genes) : [];
 
@@ -183,6 +181,7 @@ export function ResearchGoalCard({
                     )}
                 </Button>
             </div>
+
             <div className="absolute top-1 right-10 z-10">
                 <TooltipProvider>
                     <Tooltip>
@@ -209,6 +208,7 @@ export function ResearchGoalCard({
                     </Tooltip>
                 </TooltipProvider>
             </div>
+
             {!isAdminView && currentUser && (
                 <div className="absolute bottom-2 right-2 z-10">
                     <TooltipProvider>

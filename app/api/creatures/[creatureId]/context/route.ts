@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/src/db';
-import { breedingPairs, breedingLogEntries } from '@/src/db/schema';
-import { eq, or } from 'drizzle-orm';
+import { breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
+import { eq, or, and } from 'drizzle-orm';
 import { enrichAndSerializeBreedingPair } from '@/lib/serialization';
 import { auth } from '@/auth';
 
@@ -14,11 +14,27 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
 
     const { creatureId } = params;
 
+    // First, get the creature's own details to find its composite key
+    const creature = await db.query.creatures.findFirst({
+        where: eq(creatures.id, creatureId),
+        columns: { userId: true, code: true },
+    });
+
+    if (!creature) {
+        return NextResponse.json({ error: 'Creature not found' }, { status: 404 });
+    }
+
     try {
         const logEntry = await db.query.breedingLogEntries.findFirst({
             where: or(
-                eq(breedingLogEntries.progeny1Id, creatureId),
-                eq(breedingLogEntries.progeny2Id, creatureId)
+                and(
+                    eq(breedingLogEntries.progeny1UserId, creature.userId),
+                    eq(breedingLogEntries.progeny1Code, creature.code)
+                ),
+                and(
+                    eq(breedingLogEntries.progeny2UserId, creature.userId),
+                    eq(breedingLogEntries.progeny2Code, creature.code)
+                )
             ),
         });
 
@@ -39,8 +55,14 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
 
         const asParent = await db.query.breedingPairs.findFirst({
             where: or(
-                eq(breedingPairs.maleParentId, creatureId),
-                eq(breedingPairs.femaleParentId, creatureId)
+                and(
+                    eq(breedingPairs.maleParentUserId, creature.userId),
+                    eq(breedingPairs.maleParentCode, creature.code)
+                ),
+                and(
+                    eq(breedingPairs.femaleParentUserId, creature.userId),
+                    eq(breedingPairs.femaleParentCode, creature.code)
+                )
             ),
             columns: {
                 id: true,

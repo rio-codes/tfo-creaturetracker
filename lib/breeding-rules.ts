@@ -1,5 +1,6 @@
 import type {
     EnrichedCreature,
+    CreatureKey,
     DbCreature,
     DbResearchGoal,
     DbBreedingPair,
@@ -193,24 +194,24 @@ export function findSuitableMates(
     });
 }
 
-export function checkForInbreeding(
-    maleId: string,
-    femaleId: string,
+export async function checkForInbreeding(
+    maleKey: CreatureKey,
+    femaleKey: CreatureKey,
     allLogs: DbBreedingLogEntry[],
     allPairs: DbBreedingPair[]
 ): boolean {
-    if (!maleId || !femaleId) {
+    if (!maleKey || !femaleKey) {
         return false;
     }
 
     // Check for direct parent/child or other ancestor relationship
-    const maleAncestors = new Set<string>();
-    getAncestorsRecursive(maleId, allLogs, allPairs, 5, maleAncestors);
-    if (maleAncestors.has(femaleId)) return true;
+    const maleAncestors = new Set<string>(); // "userId-code"
+    await getAncestorsRecursive(maleKey, allLogs, allPairs, 5, maleAncestors);
+    if (maleAncestors.has(`${femaleKey.userId}-${femaleKey.code}`)) return true;
 
-    const femaleAncestors = new Set<string>();
-    getAncestorsRecursive(femaleId, allLogs, allPairs, 5, femaleAncestors);
-    if (femaleAncestors.has(maleId)) return true;
+    const femaleAncestors = new Set<string>(); // "userId-code"
+    await getAncestorsRecursive(femaleKey, allLogs, allPairs, 5, femaleAncestors);
+    if (femaleAncestors.has(`${maleKey.userId}-${maleKey.code}`)) return true;
 
     // Check for shared ancestors (siblings, cousins, etc.)
     for (const ancestor of maleAncestors) {

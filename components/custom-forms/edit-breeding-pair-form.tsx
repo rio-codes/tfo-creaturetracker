@@ -44,8 +44,8 @@ export function EditBreedingPairForm({
 
     // Initialize state with the existing pair's data
     const [pairName, setPairName] = useState(pair?.pairName);
-    const [selectedMaleId, setSelectedMaleId] = useState(pair?.maleParentId);
-    const [selectedFemaleId, setSelectedFemaleId] = useState(pair?.femaleParentId);
+    const [selectedMaleId, setSelectedMaleId] = useState(pair?.maleParent?.id);
+    const [selectedFemaleId, setSelectedFemaleId] = useState(pair?.femaleParent?.id);
     const [selectedGoalIds, setSelectedGoalIds] = useState(pair?.assignedGoalIds || []);
     const [isInbred, setIsInbred] = useState(false);
 
@@ -123,8 +123,16 @@ export function EditBreedingPairForm({
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
-            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
-            setIsInbred(inbred);
+            const check = async () => {
+                const inbred = await checkForInbreeding(
+                    { userId: selectedMale!.userId, code: selectedMale!.code },
+                    { userId: selectedFemale!.userId, code: selectedFemale!.code },
+                    allLogs,
+                    allPairs
+                );
+                setIsInbred(inbred);
+            };
+            check();
         } else {
             setIsInbred(false);
         }

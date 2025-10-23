@@ -69,12 +69,16 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     const router = useRouter();
     const [pairName, setPairName] = useState('');
-    const [selectedMaleId, setSelectedMaleId] = useState<string | undefined>(
-        baseCreature?.gender === 'male' ? baseCreature.id : undefined
+    const [selectedMale, setSelectedMale] = useState<EnrichedCreature | undefined>(
+        baseCreature?.gender === 'male' ? baseCreature : undefined
     );
-    const [selectedFemaleId, setSelectedFemaleId] = useState<string | undefined>(
-        baseCreature?.gender === 'female' ? baseCreature.id : undefined
+    const [selectedFemale, setSelectedFemale] = useState<EnrichedCreature | undefined>(
+        baseCreature?.gender === 'female' ? baseCreature : undefined
     );
+
+    const selectedMaleId = selectedMale?.id;
+    const selectedFemaleId = selectedFemale?.id;
+
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
     const [isInbred, setIsInbred] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -109,10 +113,10 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     useEffect(() => {
         if (baseCreature) {
-            if (baseCreature.gender === 'male') {
-                setSelectedMaleId(baseCreature.id);
-            } else if (baseCreature.gender === 'female') {
-                setSelectedFemaleId(baseCreature.id);
+            if (baseCreature.gender === 'male' && !selectedMale) {
+                setSelectedMale(baseCreature);
+            } else if (baseCreature.gender === 'female' && !selectedFemale) {
+                setSelectedFemale(baseCreature);
             }
             if (!isHybridMode) {
                 setSelectedSpecies(baseCreature.species || '');
@@ -121,7 +125,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         if (initialGoal) {
             setSelectedGoalIds([initialGoal.id]);
         }
-    }, [baseCreature, initialGoal, isHybridMode]);
+    }, [baseCreature, initialGoal, isHybridMode, selectedMale, selectedFemale]);
 
     const { allCreatures, allPairs, allLogs, allGoals } = useMemo(
         () => ({
@@ -133,22 +137,19 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         [context]
     );
 
-    const { selectedMale, selectedFemale } = useMemo(() => {
-        const male = allCreatures.find((c) => c?.id === selectedMaleId);
-        const female = allCreatures.find((c) => c?.id === selectedFemaleId);
-        return { selectedMale: male, selectedFemale: female };
-    }, [selectedMaleId, selectedFemaleId, allCreatures]);
-
     const existingPartnerIds = useMemo(() => {
         if (!baseCreature) return new Set();
         return new Set(
             allPairs
                 .filter(
                     (p) =>
-                        p.maleParentId === baseCreature.id || p.femaleParentId === baseCreature.id
+                        (p.maleParentUserId === baseCreature.userId &&
+                            p.maleParentCode === baseCreature.code) ||
+                        (p.femaleParentUserId === baseCreature.userId &&
+                            p.femaleParentCode === baseCreature.code)
                 )
                 .map((p) =>
-                    p.maleParentId === baseCreature.id ? p.femaleParentId : p.maleParentId
+                    p.maleParentCode === baseCreature.code ? p.femaleParentCode : p.maleParentCode
                 )
         );
     }, [allPairs, baseCreature]);
@@ -161,14 +162,15 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
             if (selectedFemale) {
                 males = males.filter(
                     (male) =>
-                        validatePairing(male, selectedFemale).isValid || male?.id === selectedMaleId
+                        validatePairing(male, selectedFemale).isValid ||
+                        male?.id === selectedMale?.id
                 );
             }
             if (selectedMale) {
                 females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
-                        female?.id === selectedFemaleId
+                        female?.id === selectedFemale?.id
                 );
             }
         } else {
@@ -182,8 +184,8 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         }
 
         if (baseCreature) {
-            males = males.filter((m) => !existingPartnerIds.has(m?.id));
-            females = females.filter((f) => !existingPartnerIds.has(f?.id));
+            males = males.filter((m) => !existingPartnerIds.has(m?.code));
+            females = females.filter((f) => !existingPartnerIds.has(f?.code));
         }
         return { availableMales: males, availableFemales: females };
     }, [
@@ -192,8 +194,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         selectedMale,
         selectedFemale,
         allCreatures,
-        selectedMaleId,
-        selectedFemaleId,
         existingPartnerIds,
         baseCreature,
     ]);
@@ -209,7 +209,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
     }, [selectedMale, selectedFemale, allGoals]);
     useEffect(() => {
         // ... (this hook remains the same)
-        if (!selectedMaleId || !selectedFemaleId) {
+        if (!selectedMale || !selectedFemale) {
             setPredictions([]);
             return;
         }
@@ -221,8 +221,10 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        maleParentId: selectedMaleId,
-                        femaleParentId: selectedFemaleId,
+                        maleParentUserId: selectedMale.userId,
+                        maleParentCode: selectedMale.code,
+                        femaleParentUserId: selectedFemale.userId,
+                        femaleParentCode: selectedFemale.code,
                         goalIds,
                     }),
                 });
@@ -236,11 +238,11 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
             }
         };
         fetchPredictions();
-    }, [selectedMaleId, selectedFemaleId, assignableGoals]);
+    }, [selectedMale, selectedFemale, assignableGoals]);
 
     useEffect(() => {
         // ... (this hook remains the same)
-        if (selectedMaleId && selectedFemaleId) {
+        if (selectedMale?.id && selectedFemale?.id) {
             const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
             setIsInbred(inbred);
         } else {
@@ -249,7 +251,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
     }, [selectedMaleId, selectedFemaleId, allLogs, allPairs]);
 
     useEffect(() => {
-        if (!selectedMaleId || !selectedFemaleId) {
+        if (!selectedMale || !selectedFemale) {
             setPredictions([]);
             return;
         }
@@ -261,8 +263,10 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        maleParentId: selectedMaleId,
-                        femaleParentId: selectedFemaleId,
+                        maleParentUserId: selectedMale.userId,
+                        maleParentCode: selectedMale.code,
+                        femaleParentUserId: selectedFemale.userId,
+                        femaleParentCode: selectedFemale.code,
                         goalIds,
                     }),
                 });
@@ -276,12 +280,20 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
             }
         };
         fetchPredictions();
-    }, [selectedMaleId, selectedFemaleId, assignableGoals]);
+    }, [selectedMale, selectedFemale, assignableGoals]);
 
     useEffect(() => {
         if (selectedMaleId && selectedFemaleId) {
-            const inbred = checkForInbreeding(selectedMaleId, selectedFemaleId, allLogs, allPairs);
-            setIsInbred(inbred);
+            const check = async () => {
+                const inbred = await checkForInbreeding(
+                    { userId: selectedMale!.userId, code: selectedMale!.code },
+                    { userId: selectedFemale!.userId, code: selectedFemale!.code },
+                    allLogs,
+                    allPairs
+                );
+                setIsInbred(inbred);
+            };
+            check();
         } else {
             setIsInbred(false);
         }
@@ -289,32 +301,27 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     const handleHybridToggle = (checked: boolean) => {
         setIsHybridMode(checked);
-        setSelectedMaleId(baseCreature?.gender === 'male' ? baseCreature.id : undefined);
-        setSelectedFemaleId(baseCreature?.gender === 'female' ? baseCreature.id : undefined);
+        setSelectedMale(baseCreature?.gender === 'male' ? baseCreature : undefined);
+        setSelectedFemale(baseCreature?.gender === 'female' ? baseCreature : undefined);
         setSelectedSpecies(!checked && baseCreature ? baseCreature.species || '' : '');
     };
 
     const handleSpeciesChange = (species: string) => {
         setSelectedSpecies(species);
-        setSelectedMaleId(undefined);
-        setSelectedFemaleId(undefined);
+        setSelectedMale(undefined);
+        setSelectedFemale(undefined);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedMaleId || !selectedFemaleId) {
-            setError(
-                `Both a male and a female parent must be selected. ${selectedFemaleId},${selectedMaleId}`
-            );
+        if (!selectedMale || !selectedFemale) {
+            setError(`Both a male and a female parent must be selected.`);
             return;
         }
 
         setIsLoading(true);
         setError('');
         setMessage('');
-
-        const selectedMale = allCreatures.find((c) => c?.id === selectedMaleId);
-        const selectedFemale = allCreatures.find((c) => c?.id === selectedFemaleId);
 
         if (!selectedMale || !selectedFemale) {
             setError('Could not find selected parents.');
@@ -328,12 +335,12 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
             return;
         }
 
-        const possibleOffspring = getPossibleOffspringSpecies(
-            selectedMale.species,
-            selectedFemale.species
-        );
-        const pairSpecies =
-            possibleOffspring.length === 1 ? possibleOffspring[0] : selectedMale.species;
+        //const possibleOffspring = getPossibleOffspringSpecies(
+        //    selectedMale.species,
+        //    selectedFemale.species
+        //);
+        //const pairSpecies =
+        //    possibleOffspring.length === 1 ? possibleOffspring[0] : selectedMale.species;
 
         try {
             const response = await fetch('/api/breeding-pairs', {
@@ -341,9 +348,10 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairName,
-                    species: pairSpecies,
-                    maleParentId: selectedMaleId,
-                    femaleParentId: selectedFemaleId,
+                    maleParentUserId: selectedMale.userId,
+                    maleParentCode: selectedMale.code,
+                    femaleParentUserId: selectedFemale.userId,
+                    femaleParentCode: selectedFemale.code,
                     assignedGoalIds: selectedGoalIds,
                 }),
             });
@@ -472,16 +480,20 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
                 <CreatureCombobox
                     creatures={availableMales}
-                    selectedCreatureId={selectedMaleId}
-                    onSelectCreature={setSelectedMaleId}
+                    selectedCreatureId={selectedMale?.id}
+                    onSelectCreature={(id) =>
+                        setSelectedMale(allCreatures.find((c) => c?.id === id))
+                    }
                     placeholder="Select Male Parent..."
                     disabled={!isHybridMode && !selectedSpecies}
                 />
 
                 <CreatureCombobox
                     creatures={availableFemales}
-                    selectedCreatureId={selectedFemaleId}
-                    onSelectCreature={setSelectedFemaleId}
+                    selectedCreatureId={selectedFemale?.id}
+                    onSelectCreature={(id) =>
+                        setSelectedFemale(allCreatures.find((c) => c?.id === id))
+                    }
                     placeholder="Select Female Parent..."
                     disabled={!isHybridMode && !selectedSpecies}
                 />

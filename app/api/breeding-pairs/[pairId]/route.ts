@@ -15,9 +15,10 @@ const editPairSchema = z.object({
         .string()
         .min(3, 'Pair name must be at least 3 characters.')
         .max(32, 'Pair name can not be more than 32 characters.'),
-    species: z.string().min(1, 'Species is required.'),
-    maleParentId: z.string().uuid('Invalid male parent ID.'),
-    femaleParentId: z.string().uuid('Invalid female parent ID.'),
+    maleParentUserId: z.string(),
+    maleParentCode: z.string(),
+    femaleParentUserId: z.string(),
+    femaleParentCode: z.string(),
     assignedGoalIds: z.array(z.string().uuid()).optional(),
 });
 
@@ -42,7 +43,14 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { pairName, maleParentId, femaleParentId, assignedGoalIds } = validatedFields.data;
+        const {
+            pairName,
+            maleParentUserId,
+            maleParentCode,
+            femaleParentUserId,
+            femaleParentCode,
+            assignedGoalIds,
+        } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
             return NextResponse.json(
@@ -66,10 +74,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
 
         const [maleParent, femaleParent] = await Promise.all([
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, maleParentId), eq(creatures.userId, session.user.id)),
+                where: and(
+                    eq(creatures.userId, maleParentUserId),
+                    eq(creatures.code, maleParentCode)
+                ),
             }),
             db.query.creatures.findFirst({
-                where: and(eq(creatures.id, femaleParentId), eq(creatures.userId, session.user.id)),
+                where: and(
+                    eq(creatures.userId, femaleParentUserId),
+                    eq(creatures.code, femaleParentCode)
+                ),
             }),
         ]);
 
@@ -88,15 +102,17 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
         }
 
         const parentsHaveChanged =
-            maleParentId !== existingPair.maleParentId ||
-            femaleParentId !== existingPair.femaleParentId;
+            maleParentUserId !== existingPair.maleParentUserId ||
+            maleParentCode !== existingPair.maleParentCode ||
+            femaleParentUserId !== existingPair.femaleParentUserId ||
+            femaleParentCode !== existingPair.femaleParentCode;
 
         if (parentsHaveChanged) {
             const duplicatePair = await db.query.breedingPairs.findFirst({
                 where: and(
                     eq(breedingPairs.userId, session.user.id),
-                    eq(breedingPairs.maleParentId, maleParentId),
-                    eq(breedingPairs.femaleParentId, femaleParentId)
+                    eq(breedingPairs.maleParentUserId, maleParentUserId),
+                    eq(breedingPairs.maleParentCode, maleParentCode)
                 ),
             });
 
@@ -142,8 +158,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ pairId: str
             .update(breedingPairs)
             .set({
                 pairName,
-                maleParentId,
-                femaleParentId,
+                maleParentUserId,
+                maleParentCode,
+                femaleParentUserId,
+                femaleParentCode,
                 assignedGoalIds: assignedGoalIds || [],
                 updatedAt: new Date(),
             })

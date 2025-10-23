@@ -1,72 +1,101 @@
 import { db } from '@/src/db';
 import { breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
-import { and, eq, or, inArray } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import type { DbBreedingPair, DbBreedingLogEntry } from '@/types';
 
-export async function getCreatureAncestors(creatureId: string, userId: string): Promise<string[]> {
-    const ancestors = new Set<string>();
-    const queue: string[] = [creatureId];
+type CreatureKey = { userId: string; code: string };
+
+export async function getCreatureAncestors(
+    creatureKey: CreatureKey,
+    userId: string
+): Promise<CreatureKey[]> {
+    const ancestors = new Set<string>(); // Stores composite keys as "userId-code"
+    const queue: CreatureKey[] = [creatureKey];
     const processed = new Set<string>();
 
     while (queue.length > 0) {
-        const currentId = queue.shift();
-        if (!currentId || processed.has(currentId)) {
+        const currentKey = queue.shift();
+        if (!currentKey) continue;
+
+        const compositeKey = `${currentKey.userId}-${currentKey.code}`;
+        if (processed.has(compositeKey)) {
             continue;
         }
-        processed.add(currentId);
+        processed.add(compositeKey);
 
         const logEntry = await db.query.breedingLogEntries.findFirst({
             where: and(
                 eq(breedingLogEntries.userId, userId),
                 or(
-                    eq(breedingLogEntries.progeny1Id, currentId),
-                    eq(breedingLogEntries.progeny2Id, currentId)
+                    and(
+                        eq(breedingLogEntries.progeny1UserId, currentKey.userId),
+                        eq(breedingLogEntries.progeny1Code, currentKey.code)
+                    ),
+                    and(
+                        eq(breedingLogEntries.progeny2UserId, currentKey.userId),
+                        eq(breedingLogEntries.progeny2Code, currentKey.code)
+                    )
                 )
             ),
         });
 
         if (logEntry) {
             const pair = await db.query.breedingPairs.findFirst({
-                where: and(eq(breedingPairs.userId, userId), eq(breedingPairs.id, logEntry.pairId)),
+                where: eq(breedingPairs.id, logEntry.pairId),
             });
 
             if (pair) {
-                if (pair.maleParentId) {
-                    ancestors.add(pair.maleParentId);
-                    queue.push(pair.maleParentId);
+                if (pair.maleParentUserId && pair.maleParentCode) {
+                    const maleKey = { userId: pair.maleParentUserId, code: pair.maleParentCode };
+                    ancestors.add(`${maleKey.userId}-${maleKey.code}`);
+                    queue.push(maleKey);
                 }
-                if (pair.femaleParentId) {
-                    ancestors.add(pair.femaleParentId);
-                    queue.push(pair.femaleParentId);
+                if (pair.femaleParentUserId && pair.femaleParentCode) {
+                    const femaleKey = {
+                        userId: pair.femaleParentUserId,
+                        code: pair.femaleParentCode,
+                    };
+                    ancestors.add(`${femaleKey.userId}-${femaleKey.code}`);
+                    queue.push(femaleKey);
                 }
             }
         }
     }
-    return Array.from(ancestors);
+    return Array.from(ancestors).map((key) => {
+        const [userId, code] = key.split('-');
+        return { userId, code };
+    });
 }
 
 export async function calculateGeneration(
-    creatureId: string,
+    creatureKey: CreatureKey,
     allPairs: DbBreedingPair[],
     allLogs: DbBreedingLogEntry[]
 ): Promise<number | null> {
     const logEntry = allLogs.find(
-        (log) => log.progeny1Id === creatureId || log.progeny2Id === creatureId
+        (log) =>
+            (log.progeny1UserId === creatureKey.userId && log.progeny1Code === creatureKey.code) ||
+            (log.progeny2UserId === creatureKey.userId && log.progeny2Code === creatureKey.code)
     );
     if (!logEntry) return null;
 
-    const parentPair =
-        (allPairs.find((pair) => pair.id === logEntry.pairId) as DbBreedingPair) || null;
+    const parentPair = allPairs.find((pair) => pair.id === logEntry.pairId) || null;
 
     if (!parentPair) return null;
 
     const maleParent = await db.query.creatures.findFirst({
-        where: eq(creatures.id, parentPair.maleParentId!),
+        where: and(
+            eq(creatures.userId, parentPair.maleParentUserId),
+            eq(creatures.code, parentPair.maleParentCode)
+        ),
     });
     const maleParentGen = maleParent?.generation ?? 1;
 
     const femaleParent = await db.query.creatures.findFirst({
-        where: eq(creatures.id, parentPair.femaleParentId!),
+        where: and(
+            eq(creatures.userId, parentPair.femaleParentUserId),
+            eq(creatures.code, parentPair.femaleParentCode)
+        ),
     });
     const femaleParentGen = femaleParent?.generation ?? 1;
 
@@ -83,8 +112,17 @@ export async function updateDescendantGenerations(startCreatureId: string, userI
     const allLogs = await db.query.breedingLogEntries.findMany({
         where: eq(breedingLogEntries.userId, userId),
     });
+    const startCreature = await db.query.creatures.findFirst({
+        where: and(eq(creatures.id, startCreatureId), eq(creatures.userId, userId)),
+    });
 
-    const initialGeneration = await calculateGeneration(startCreatureId, allPairs, allLogs);
+    const initialGeneration = startCreature
+        ? await calculateGeneration(
+              { userId: startCreature.userId, code: startCreature.code },
+              allPairs,
+              allLogs
+          )
+        : null;
     if (initialGeneration !== null) {
         await db
             .update(creatures)
@@ -94,6 +132,11 @@ export async function updateDescendantGenerations(startCreatureId: string, userI
 
     while (creaturesToUpdate.size > 0) {
         const currentCreatureId = creaturesToUpdate.values().next().value || '';
+        const currentCreature = await db.query.creatures.findFirst({
+            where: eq(creatures.id, currentCreatureId),
+        });
+        if (!currentCreature) continue;
+
         creaturesToUpdate.delete(currentCreatureId);
 
         if (processedCreatures.has(currentCreatureId)) {
@@ -109,8 +152,14 @@ export async function updateDescendantGenerations(startCreatureId: string, userI
                 and(
                     eq(breedingPairs.userId, userId),
                     or(
-                        eq(breedingPairs.maleParentId, currentCreatureId!),
-                        eq(breedingPairs.femaleParentId, currentCreatureId!)
+                        and(
+                            eq(breedingPairs.maleParentUserId, currentCreature.userId),
+                            eq(breedingPairs.maleParentCode, currentCreature.code)
+                        ),
+                        and(
+                            eq(breedingPairs.femaleParentUserId, currentCreature.userId),
+                            eq(breedingPairs.femaleParentCode, currentCreature.code)
+                        )
                     )
                 )
             );
@@ -127,10 +176,26 @@ export async function updateDescendantGenerations(startCreatureId: string, userI
             ),
         });
 
-        const progenyIds = progenyLogs
-            .flatMap((log) => [log.progeny1Id, log.progeny2Id])
-            .filter((id): id is string => !!id);
+        const progenyKeys = progenyLogs.flatMap((log) => {
+            const keys: { userId: string; code: string }[] = [];
+            if (log.progeny1UserId && log.progeny1Code)
+                keys.push({ userId: log.progeny1UserId, code: log.progeny1Code });
+            if (log.progeny2UserId && log.progeny2Code)
+                keys.push({ userId: log.progeny2UserId, code: log.progeny2Code });
+            return keys;
+        });
 
-        progenyIds.forEach((id) => creaturesToUpdate.add(id));
+        const progenyCreatures = await db
+            .select({ id: creatures.id })
+            .from(creatures)
+            .where(
+                or(
+                    ...progenyKeys.map((k) =>
+                        and(eq(creatures.userId, k.userId), eq(creatures.code, k.code))
+                    )
+                )
+            );
+
+        progenyCreatures.forEach((c) => creaturesToUpdate.add(c.id));
     }
 }

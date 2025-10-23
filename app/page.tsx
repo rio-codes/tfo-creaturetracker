@@ -121,7 +121,10 @@ async function getHomepageStats(): Promise<HomepageStats> {
     let randomCreature: RandomCreature = null;
     const randomPair = await db.query.breedingPairs.findFirst({
         orderBy: sql`RANDOM()`,
-        where: and(isNotNull(breedingPairs.maleParentId), isNotNull(breedingPairs.femaleParentId)),
+        where: and(
+            isNotNull(breedingPairs.maleParentUserId),
+            isNotNull(breedingPairs.femaleParentUserId)
+        ),
         with: { maleParent: true, femaleParent: true },
     });
 

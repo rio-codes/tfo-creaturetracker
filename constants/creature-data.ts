@@ -97,11 +97,13 @@ export const speciesList = [
     'Transira Alsalto',
     'Vetura Oazo',
     'Vira Beko',
+	'Skeleta Koloro',
+    'Trinketa Spado'
 ];
 
 export const speciesGenes = {
     'Abomena Pahidermo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AA - Blue (purple feet)',
@@ -112,14 +114,14 @@ export const speciesGenes = {
         Head: ['AA - Green', 'Aa - Purple', 'aa - Orange'],
     },
     'Alta Koltuko': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Evergreen', 'Aa - Snow', 'aa - Golden'],
         Markings: ['AA - Blue', 'Aa - None', 'aa - Red'],
         Spots: ['AA - Stripes', 'Aa - Snowcapped', 'aa - Dusted'],
     },
     'Arba Brakumo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Bandicoot', 'Aa - Sugar glider', 'aa - Frost'],
         Gloves: ['AA - Small', 'Aa - None', 'aa - Large'],
@@ -196,7 +198,7 @@ export const speciesGenes = {
         ],
     },
     'Arda Vosto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Red Belly', 'Aa - Black', 'aa - Purple Belly'],
         Morph: [
@@ -257,14 +259,14 @@ export const speciesGenes = {
         Length: ['AA - Long', 'Aa - Short', 'aa - None'],
     },
     'Bera Manganto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Green', 'Aa - Blue', 'aa - Purple'],
         Wing: ['AA - Green', 'Aa - Blue', 'aa - Purple'],
         Markings: ['AA - Snowflakes', 'Aa', 'aa - Swirls'],
     },
     'Brila Ornamo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Red Green', 'Aa - Gold', 'aa - Blue Gold'],
         Legs: ['AA - Copper', 'Aa - Gold', 'aa - Silver'],
@@ -341,7 +343,7 @@ export const speciesGenes = {
         ],
     },
     'Degela Koro': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Orange', 'Aa - White', 'aa - Teal'],
         Markinga: ['AA - Stripe', 'Aa - Banded', 'aa - Snow'],
@@ -1163,21 +1165,21 @@ export const speciesGenes = {
         ],
     },
     'Frida Fisisto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Black', 'Aa - Blue', 'aa - Purple'],
         Belly: ['AA - Purple', 'Aa - White', 'aa - Gold'],
         Wing: ['AA - Black', 'Aa - Blue', 'aa - Purple'],
     },
     'Furioza Vizago': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Orange', 'Aa - Black', 'aa - Purple'],
         Markinga: ['AA - Whiskers', 'Aa - Mask', 'aa - Runes'],
         Markingb: ['AA - Eye Spots', 'Aa - Umbra', 'aa - Galaxy'],
     },
     'Glacia Alsalto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AABBCC - Snowfire',
@@ -1316,7 +1318,7 @@ export const speciesGenes = {
         ],
     },
     'Gudra Kornaro': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Bronze', 'Aa - Abyss', 'aa - Ghost'],
         Antlers: [
@@ -1365,7 +1367,7 @@ export const speciesGenes = {
         ],
     },
     'Inkuba Brulajo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AA - Striped (tan belly)',
@@ -1494,7 +1496,7 @@ export const speciesGenes = {
         ],
     },
     'Kauri Makzelo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Gold', 'Aa - Silver', 'aa - Stormy'],
         Markinga: ['AA - Gold Painted', 'Aa - Brindled', 'aa - Snow Leopard'],
@@ -1891,7 +1893,7 @@ export const speciesGenes = {
         ],
     },
     'Lanuga Vizago': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Gold', 'Aa - Silver', 'aa - Stormy'],
         Markinga: ['AA - Gold Painted', 'Aa - Brindled', 'aa - Snow Leopard'],
@@ -2144,7 +2146,7 @@ export const speciesGenes = {
         ],
     },
     'Malbenita Beno': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Walnut', 'Aa - Cinnamon', 'aa - Snow'],
         Morph: [
@@ -2160,7 +2162,7 @@ export const speciesGenes = {
         ],
     },
     'Malvolva Kapo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AA - White (black wingtips)',
@@ -2171,7 +2173,7 @@ export const speciesGenes = {
         Glow: ['AA - Orange', 'Aa - None', 'aa - Iridescent Blue'],
     },
     'Membra Cerbo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Tan', 'Aa - Red', 'aa - Purple'],
         Marking: ['AA - Orange Boots', 'Aa - None', 'aa - Blue Webbing'],
@@ -2617,7 +2619,7 @@ export const speciesGenes = {
         ],
     },
     'Okula Pikilo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AA - Green (orange abdomen)',
@@ -2676,7 +2678,7 @@ export const speciesGenes = {
         ],
     },
     'Osta Frakaso': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AABBCC - Dark Gray',
@@ -2778,7 +2780,7 @@ export const speciesGenes = {
         ],
     },
     'Pieda Pastigo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AABB - Pine',
@@ -3095,7 +3097,7 @@ export const speciesGenes = {
         ],
     },
     Ruzafolio: {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Red', 'Aa - Brown', 'aa - Green-Orange'],
         Leaves: [
@@ -3111,7 +3113,7 @@ export const speciesGenes = {
         ],
     },
     'Sabla Rego': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Firelit', 'Aa - Black', 'aa - Brown'],
         Markings: ['AA - Skeleton', 'Aa - none', 'aa - none'],
@@ -3612,7 +3614,7 @@ export const speciesGenes = {
         ],
     },
     'Silenta Spuristo': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AABBCC - Sunset',
@@ -3648,7 +3650,7 @@ export const speciesGenes = {
         Fire: ['AA - Large', 'Aa - Small', 'aa - None'],
     },
     'Songa Kreinto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Gold', 'Aa - Purple', 'aa - Red'],
         Legs: ['AA - Tan', 'Aa - Dark Blue', 'aa - Black'],
@@ -4008,7 +4010,7 @@ export const speciesGenes = {
         ],
     },
     Strigosto: {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: [
             'AA - Green (green eyes)',
@@ -4234,21 +4236,21 @@ export const speciesGenes = {
         ],
     },
     'Terura Fisisto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Abyss', 'Aa - Ghost', 'aa - Blood'],
         Belly: ['AA - Abyss', 'Aa - Ghost', 'aa - Blood'],
         Wing: ['AA - Abyss', 'Aa - Ghost', 'aa - Blood'],
     },
     'Timiga Dancanto': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Abdomen: ['AA - Green', 'Aa - Orange', 'aa - Blue'],
         Body: ['AA - Tan', 'Aa - Dark Brown', 'aa - Gray'],
         Legs: ['AA - Teal', 'Aa - Orange', 'aa - Purple'],
     },
     'Toksa Muko': {
-        isSeasonal: false, 
+        isSeasonal: true, 
         Gender: ['Male', 'Female'],
         Body: ['AA - Ember', 'Aa - Moss', 'aa - Decay'],
         Slime: ['AA - Yellow', 'Aa - Gray', 'aa - Green'],
@@ -4533,7 +4535,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Alta Koltuko': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -4555,7 +4557,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Arba Brakumo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -4749,7 +4751,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Bera Manganto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -4771,7 +4773,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Brila Ornamo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -4862,7 +4864,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Degela Koro': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -5745,7 +5747,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Frida Fisisto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -5767,7 +5769,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Furioza Vizago': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -5789,7 +5791,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Glacia Alsalto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -5949,7 +5951,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Gudra Kornaro': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6008,7 +6010,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Inkuba Brulajo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6155,7 +6157,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Kauri Makzelo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6606,7 +6608,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Lanuga Vizago': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6887,7 +6889,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Malbenita Beno': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6910,7 +6912,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Malvolva Kapo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -6932,7 +6934,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Membra Cerbo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -7440,7 +7442,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Okula Pikilo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -7513,7 +7515,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Osta Frakaso': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -7618,7 +7620,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Pieda Pastigo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -7966,7 +7968,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     Ruzafolio: {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -7989,7 +7991,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Sabla Rego': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -8524,7 +8526,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Silenta Spuristo': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -8575,7 +8577,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Songa Kreinto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -8956,7 +8958,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     Strigosto: {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -9213,7 +9215,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Terura Fisisto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -9235,7 +9237,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Timiga Dancanto': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },
@@ -9257,7 +9259,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
     'Toksa Muko': {
-        isSeasonal: false,
+        isSeasonal: true,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
             { genotype: 'Female', phenotype: 'Female' },

@@ -456,8 +456,20 @@ export async function fetchBreedingPairsWithStats(
                 femaleParent: femaleCreatures,
             })
             .from(breedingPairs)
-            .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id));
+            .leftJoin(
+                maleCreatures,
+                and(
+                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                    eq(breedingPairs.maleParentCode, maleCreatures.code)
+                )
+            )
+            .leftJoin(
+                femaleCreatures,
+                and(
+                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                )
+            );
 
         const pinnedResults = await commonQuery
             .where(and(...conditions, eq(breedingPairs.isPinned, true)))
@@ -490,8 +502,20 @@ export async function fetchBreedingPairsWithStats(
         const totalCountResult = await db
             .select({ value: count() })
             .from(breedingPairs)
-            .leftJoin(maleCreatures, eq(breedingPairs.maleParentId, maleCreatures.id))
-            .leftJoin(femaleCreatures, eq(breedingPairs.femaleParentId, femaleCreatures.id))
+            .leftJoin(
+                maleCreatures,
+                and(
+                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                    eq(breedingPairs.maleParentCode, maleCreatures.code)
+                )
+            )
+            .leftJoin(
+                femaleCreatures,
+                and(
+                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                )
+            )
             .where(and(...conditions, eq(breedingPairs.isPinned, false)));
 
         const totalPages = Math.ceil(totalCountResult[0].value / itemsPerPage);

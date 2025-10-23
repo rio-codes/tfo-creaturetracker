@@ -14,6 +14,7 @@ import {
     index,
     uniqueIndex,
     serial,
+    foreignKey,
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
 
@@ -247,8 +248,9 @@ export const creatures = pgTable(
     'creature',
     {
         id: text('id')
-            .primaryKey()
-            .$defaultFn(() => crypto.randomUUID()),
+            .notNull()
+            .unique()
+            .$defaultFn(() => createId()),
         userId: text('user_id')
             .notNull()
             .references(() => users.id, { onDelete: 'cascade' }),
@@ -270,19 +272,26 @@ export const creatures = pgTable(
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
     (table) => [
-        {
-            userCreatureCodeIndex: uniqueIndex('user_creature_code_idx').on(
-                table.userId,
-                table.code
-            ),
-            userIdx: index('creature_userId_idx').on(table.userId),
-            speciesIdx: index('creature_species_idx').on(table.species),
-            genderIdx: index('creature_gender_idx').on(table.gender),
-            pinnedIdx: index('creature_pinned_idx').on(table.isPinned),
-            createdIdx: index('creature_created_at_idx').on(table.createdAt),
-        },
+        primaryKey({ columns: [table.userId, table.code] }),
+        index('creature_userId_idx').on(table.userId),
+        index('creature_species_idx').on(table.species),
+        index('creature_gender_idx').on(table.gender),
+        index('creature_pinned_idx').on(table.isPinned),
+        index('creature_created_at_idx').on(table.createdAt),
     ]
 );
+
+export const creaturesRelations = relations(creatures, ({ one, many }) => ({
+    user: one(users, {
+        fields: [creatures.userId],
+        references: [users.id],
+    }),
+    maleInPairs: many(breedingPairs, { relationName: 'maleParent' }),
+    femaleInPairs: many(breedingPairs, { relationName: 'femaleParent' }),
+    progenyInLogs1: many(breedingLogEntries, { relationName: 'progeny1' }),
+    progenyInLogs2: many(breedingLogEntries, { relationName: 'progeny2' }),
+    inAchievedGoals: many(achievedGoals),
+}));
 
 export const researchGoals = pgTable(
     'research_goals',
@@ -324,12 +333,10 @@ export const breedingPairs = pgTable(
             .references(() => users.id, { onDelete: 'cascade' }),
         pairName: text('pair_name').notNull(),
         species: text('species').notNull(),
-        maleParentId: text('male_parent_id')
-            .notNull()
-            .references(() => creatures.id, { onDelete: 'cascade' }),
-        femaleParentId: text('female_parent_id')
-            .notNull()
-            .references(() => creatures.id, { onDelete: 'cascade' }),
+        maleParentUserId: text('male_parent_user_id').notNull(),
+        maleParentCode: text('male_parent_code').notNull(),
+        femaleParentUserId: text('female_parent_user_id').notNull(),
+        femaleParentCode: text('female_parent_code').notNull(),
         assignedGoalIds: jsonb('assigned_goal_ids').$type<string[]>(),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
@@ -341,15 +348,36 @@ export const breedingPairs = pgTable(
     (table) => [
         {
             userPairNameIndex: uniqueIndex('user_pair_name_idx').on(table.userId, table.pairName),
+            maleParentFk: foreignKey({
+                columns: [table.maleParentUserId, table.maleParentCode],
+                foreignColumns: [creatures.userId, creatures.code],
+            }).onDelete('cascade'),
+            femaleParentFk: foreignKey({
+                columns: [table.femaleParentUserId, table.femaleParentCode],
+                foreignColumns: [creatures.userId, creatures.code],
+            }).onDelete('cascade'),
             userIdx: index('pair_userId_idx').on(table.userId),
-            maleParentIdx: index('pair_maleParentId_idx').on(table.maleParentId),
-            femaleParentIdx: index('pair_femaleParentId_idx').on(table.femaleParentId),
             speciesIdx: index('pair_species_idx').on(table.species),
             pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
             createdIdx: index('pair_created_at_idx').on(table.createdAt),
         },
     ]
 );
+
+export const breedingPairsRelations = relations(breedingPairs, ({ one, many }) => ({
+    user: one(users, { fields: [breedingPairs.userId], references: [users.id] }),
+    maleParent: one(creatures, {
+        fields: [breedingPairs.maleParentUserId, breedingPairs.maleParentCode],
+        references: [creatures.userId, creatures.code],
+        relationName: 'maleParent',
+    }),
+    femaleParent: one(creatures, {
+        fields: [breedingPairs.femaleParentUserId, breedingPairs.femaleParentCode],
+        references: [creatures.userId, creatures.code],
+        relationName: 'femaleParent',
+    }),
+    logs: many(breedingLogEntries),
+}));
 
 export const breedingLogEntries = pgTable(
     'breeding_log_entries',
@@ -363,34 +391,45 @@ export const breedingLogEntries = pgTable(
         pairId: text('pair_id')
             .notNull()
             .references(() => breedingPairs.id, { onDelete: 'cascade' }),
-        progeny1Id: text('progeny_1_id').references(() => creatures.id, {
-            onDelete: 'set null',
-        }),
-        progeny2Id: text('progeny_2_id').references(() => creatures.id, {
-            onDelete: 'set null',
-        }),
+        progeny1UserId: text('progeny_1_user_id'),
+        progeny1Code: text('progeny_1_code'),
+        progeny2UserId: text('progeny_2_user_id'),
+        progeny2Code: text('progeny_2_code'),
         notes: text('notes'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
     (table) => [
         {
             userLogPairIndex: uniqueIndex('user_log_pair_idx').on(table.userId, table.pairId),
-            userIdx: index('log_pairId_idx').on(table.pairId),
-            progeny1Idx: index('log_progeny1Id_idx').on(table.progeny1Id),
-            progeny2Idx: index('log_progeny2Id_idx').on(table.progeny2Id),
+            userIdx: index('log_userId_idx').on(table.userId),
             pairIdx: index('log_pairId_idx').on(table.pairId),
+            progeny1Fk: foreignKey({
+                columns: [table.progeny1UserId, table.progeny1Code],
+                foreignColumns: [creatures.userId, creatures.code],
+            }).onDelete('set null'),
+            progeny2Fk: foreignKey({
+                columns: [table.progeny2UserId, table.progeny2Code],
+                foreignColumns: [creatures.userId, creatures.code],
+            }).onDelete('set null'),
         },
     ]
 );
 
-export const breedingPairsRelations = relations(breedingPairs, ({ one }) => ({
-    maleParent: one(creatures, {
-        fields: [breedingPairs.maleParentId],
-        references: [creatures.id],
+export const breedingLogEntriesRelations = relations(breedingLogEntries, ({ one }) => ({
+    user: one(users, { fields: [breedingLogEntries.userId], references: [users.id] }),
+    pair: one(breedingPairs, {
+        fields: [breedingLogEntries.pairId],
+        references: [breedingPairs.id],
     }),
-    femaleParent: one(creatures, {
-        fields: [breedingPairs.femaleParentId],
-        references: [creatures.id],
+    progeny1: one(creatures, {
+        fields: [breedingLogEntries.progeny1UserId, breedingLogEntries.progeny1Code],
+        references: [creatures.userId, creatures.code],
+        relationName: 'progeny1',
+    }),
+    progeny2: one(creatures, {
+        fields: [breedingLogEntries.progeny2UserId, breedingLogEntries.progeny2Code],
+        references: [creatures.userId, creatures.code],
+        relationName: 'progeny2',
     }),
 }));
 
@@ -412,6 +451,8 @@ export const achievedGoals = pgTable(
         matchingProgenyId: text('matching_progeny_id')
             .notNull()
             .references(() => creatures.id, { onDelete: 'cascade' }),
+        matchingProgenyUserId: text('matching_progeny_user_id').notNull(),
+        matchingProgenyCode: text('matching_progeny_code').notNull(),
         achievedAt: timestamp('achieved_at').defaultNow().notNull(),
     },
     (table) => [
@@ -420,9 +461,26 @@ export const achievedGoals = pgTable(
             goalIdx: index('achieved_goal_goalId_idx').on(table.goalId),
             logEntryIdx: index('achieved_goal_logEntryId_idx').on(table.logEntryId),
             progenyIdx: index('achieved_goal_progenyId_idx').on(table.matchingProgenyId),
+            progenyFk: foreignKey({
+                columns: [table.matchingProgenyUserId, table.matchingProgenyCode],
+                foreignColumns: [creatures.userId, creatures.code],
+            }).onDelete('cascade'),
         },
     ]
 );
+
+export const achievedGoalsRelations = relations(achievedGoals, ({ one }) => ({
+    user: one(users, { fields: [achievedGoals.userId], references: [users.id] }),
+    goal: one(researchGoals, { fields: [achievedGoals.goalId], references: [researchGoals.id] }),
+    logEntry: one(breedingLogEntries, {
+        fields: [achievedGoals.logEntryId],
+        references: [breedingLogEntries.id],
+    }),
+    matchingProgeny: one(creatures, {
+        fields: [achievedGoals.matchingProgenyUserId, achievedGoals.matchingProgenyCode],
+        references: [creatures.userId, creatures.code],
+    }),
+}));
 
 export const userTabs = pgTable(
     'user_tabs',

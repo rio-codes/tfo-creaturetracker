@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Info, Pin, PinOff, Loader2 } from 'lucide-react';
+import { Info } from 'lucide-react';
 import type { EnrichedResearchGoal } from '@/types';
 import { MessageUserButton } from '@/components/custom-buttons/message-user-button';
 import { FindWishlistPairsDialog } from '@/components/custom-dialogs/find-wishlist-pairs-dialog';
@@ -19,18 +19,7 @@ interface WishlistCardProps {
 }
 
 export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
-    const [isPinning, setIsPinning] = useState(false); // This state is for potential future pinning feature
     const { goal, owner } = wish;
-
-    const prefilledSubject = `I have a creature matching "${goal.name}"`;
-    const prefilledBody = `Hello ${owner.username},\n\nI saw your research goal "${
-        goal.name
-    }" on the Community Wishlist and I have a creature that might be a perfect match!\n\n[creature:]\n\nLet me know if you're interested in a trade.`;
-
-    const mailtoLink = `mailto:${owner.username}@tfo.creaturetracker.net?subject=${encodeURIComponent(
-        prefilledSubject
-    )}&body=${encodeURIComponent(prefilledBody)}`;
-
     return (
         <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple dark:text-barely-lilac p-4 flex flex-col gap-4">
             <Image
@@ -75,7 +64,7 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
                     </Button>
                 </FindWishlistPairsDialog>
                 <MessageUserButton
-                    profileUserId={owner.id || 'user'}
+                    profileUserId={owner.id}
                     prefillMessage={`Hello! I saw your wishlist goal "${goal.name}" and I might have a creature that can help.`}
                 />
             </div>

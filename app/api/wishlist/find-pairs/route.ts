@@ -3,10 +3,9 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures, breedingPairs } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
+import { enrichAndSerializeCreature } from '@/lib/client-serialization';
 import { checkForInbreeding } from '@/lib/breeding-rules';
 import { calculateGeneProbability } from '@/lib/genetics';
-import type { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { z } from 'zod';
 

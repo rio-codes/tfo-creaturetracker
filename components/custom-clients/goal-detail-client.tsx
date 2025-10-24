@@ -45,6 +45,7 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
     const [excludeGender, setExcludeGender] = useState(false);
     const [allPairs, setAllPairs] = useState<EnrichedBreedingPair[]>([]);
     const [isFindingPairs, setIsFindingPairs] = useState<boolean>(false);
+    const [isSearching, setIsSearching] = useState<boolean>(false);
 
     useEffect(() => {
         if (goal) {
@@ -316,15 +317,15 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             goal={goal}
                             open={isFindingPairs}
                             onOpenChange={setIsFindingPairs}
-                            onLoadingChange={setIsFindingPairs}
+                            onLoadingChange={setIsSearching}
                         />
 
                         <Button
                             onClick={() => setIsFindingPairs(true)}
-                            disabled={isFindingPairs}
+                            disabled={isSearching}
                             className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                         >
-                            {isFindingPairs ? (
+                            {isSearching ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <Search className="mr-2 h-4 w-4" />

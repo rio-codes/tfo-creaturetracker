@@ -70,7 +70,9 @@ export function FindPotentialPairsDialog({
     useEffect(() => {
         if (!open) {
             setPotentialPairPredictions([]);
-            onLoadingChange(false);
+            if (isLoading) {
+                onLoadingChange(false);
+            }
             return;
         }
 

@@ -220,7 +220,9 @@ export function ManageBreedingPairsForm({
     return (
         <div className="space-y-6">
             <div>
-                <h4 className="font-bold text-pompaca-purple mb-2">Existing Pairs</h4>
+                <h4 className="font-bold text-pompaca-purple dark-text-purple-300 hallowsnight:text-cimo-crimson mb-2">
+                    Existing Pairs
+                </h4>
                 <div className="space-y-2 max-h-40 overflow-y-auto p-1">
                     {existingPairs.filter((p) => !p.isArchived).length > 0 ? (
                         existingPairs
@@ -250,7 +252,9 @@ export function ManageBreedingPairsForm({
             </div>
 
             <div>
-                <h4 className="font-bold text-pompaca-purple mb-2">Create New Pair</h4>
+                <h4 className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson b-2">
+                    Create New Pair
+                </h4>
                 <form onSubmit={handleCreatePair} className="space-y-4">
                     <Input
                         placeholder="New Pair Name (Optional)"
@@ -277,7 +281,7 @@ export function ManageBreedingPairsForm({
                                 </div>
                             )}
                             <div className="overflow-x-auto">
-                                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg border min-w-max">
+                                <div className="flex justify-center items-start gap-2 mt-4 p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple rounded-lg border min-w-max">
                                     {maleParent && (
                                         <div className="flex flex-col items-center w-36">
                                             <img

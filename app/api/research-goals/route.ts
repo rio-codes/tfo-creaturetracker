@@ -26,7 +26,8 @@ const goalSchema = z.object({
             isOptional: z.boolean(),
         })
     ),
-    goalMode: z.enum(['genotype', 'phenotype']),
+    goalMode: z.enum(['genotype', 'phenotype']).optional().default('phenotype'),
+    targetGeneration: z.number().optional().default(1).nullable(),
 });
 
 export function validateGoalData(
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-        const { name, species, genes, goalMode } = validatedFields.data;
+        const { name, species, genes, goalMode, targetGeneration } = validatedFields.data;
         if (hasObscenity(name)) {
             console.log('Inappropriate name provided for changed research goal');
             return NextResponse.json(
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
                 imageUrl: blobUrl,
                 genes: genes,
                 goalMode: goalMode,
+                targetGeneration: targetGeneration,
                 updatedAt: new Date(),
             })
             .returning();

@@ -38,6 +38,7 @@ export type User = Omit<DbUser, 'createdAt' | 'updatedAt'> & {
         imageUrl: string;
         name: string;
     } | null;
+    allowWishlistGoalSaving?: boolean;
 };
 
 export type CreatureKey = {
@@ -61,6 +62,7 @@ export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt
     excludedGenes?: {
         [category: string]: { phenotype: string[] };
     } | null;
+    targetGeneration?: number | null;
 };
 
 export type EnrichedBreedingPair = Omit<DbBreedingPair, 'createdAt' | 'updatedAt'> & {

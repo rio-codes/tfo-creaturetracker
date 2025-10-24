@@ -89,6 +89,7 @@ const settingsFormSchema = z
         showFriendsList: z.boolean().optional(),
         preserveFilters: z.boolean().optional(),
         showFulfillable: z.boolean().optional(),
+        allowWishlistGoalSaving: z.boolean().optional(),
         confirmPassword: z.string().optional(),
     })
     .refine(
@@ -139,6 +140,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
             showFriendsList: user.showFriendsList ?? false,
             preserveFilters: user.preserveFilters ?? false,
             showFulfillable: user.showFulfillable ?? false,
+            allowWishlistGoalSaving: user.allowWishlistGoalSaving ?? false,
         },
     });
 
@@ -354,6 +356,29 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                         Enter up to 5 social media links, one per line.
                                     </FormDescription>
                                     <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="allowWishlistGoalSaving"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                        <FormLabel>
+                                            Allow others to save your Wishlist goals
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Enable this to let other users save a copy of your
+                                            public goals to their own collection.
+                                        </FormDescription>
+                                    </div>
                                 </FormItem>
                             )}
                         />

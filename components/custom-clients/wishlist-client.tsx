@@ -18,10 +18,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { speciesList, structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
 
 type WishlistItem = {
     goal: EnrichedResearchGoal;
-    owner: { username: string | null; id: string };
+    owner: { username: string | null; id: string; allowWishlistGoalSaving: boolean };
 };
 
 // TODO: use existing gene matching logic, add image matching for creatures without genes
@@ -58,28 +59,57 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
     const [query, setQuery] = useState(searchParams.get('query') || '');
     const [showMatches, setShowMatches] = useState(searchParams.get('showMatches') === 'true');
     const [isSeasonal, setIsSeasonal] = useState(searchParams.get('isSeasonal') === 'true');
+    const [species, setSpecies] = useState(searchParams.get('species') || 'all');
+    const [generation, setGeneration] = useState(searchParams.get('generation') || '');
+    const [geneCategory, setGeneCategory] = useState(searchParams.get('geneCategory') || '');
+    const [geneQuery, setGeneQuery] = useState(searchParams.get('geneQuery') || '');
     const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'updatedAt'); // Add sortBy state
     const [debouncedQuery] = useDebounce(query, 500);
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
-        if (debouncedQuery) params.set('query', debouncedQuery);
-        else params.delete('query');
-        if (showMatches) params.set('showMatches', 'true');
-        else params.delete('showMatches');
-        if (isSeasonal) params.set('isSeasonal', 'true');
-        else params.delete('isSeasonal');
+        const setOrDelete = (key: string, value: string | boolean) => {
+            if (value && value !== 'all' && value !== 'any') {
+                params.set(key, String(value));
+            } else {
+                params.delete(key);
+            }
+        };
+
+        setOrDelete('query', debouncedQuery);
+        setOrDelete('showMatches', showMatches);
+        setOrDelete('isSeasonal', isSeasonal);
+        setOrDelete('species', species);
+        setOrDelete('generation', generation);
+        setOrDelete('geneCategory', geneCategory);
+        setOrDelete('geneQuery', geneQuery);
         params.set('sortBy', sortBy); // Add sortBy to URL params
-        router.replace(`?${params.toString()}`);
-    }, [debouncedQuery, showMatches, isSeasonal, sortBy, pathname, router, searchParams]);
+        router.replace(`${pathname}?${params.toString()}`);
+    }, [
+        debouncedQuery,
+        showMatches,
+        isSeasonal,
+        species,
+        generation,
+        geneCategory,
+        geneQuery,
+        sortBy,
+        pathname,
+        router,
+        searchParams,
+    ]);
 
     const apiParams = useMemo(() => {
         const params = new URLSearchParams();
         if (debouncedQuery) params.set('query', debouncedQuery);
         if (isSeasonal) params.set('isSeasonal', 'true');
+        if (species && species !== 'all') params.set('species', species);
+        if (generation) params.set('generation', generation);
+        if (geneCategory && geneCategory !== 'any') params.set('geneCategory', geneCategory);
+        if (geneQuery && geneQuery !== 'any') params.set('geneQuery', geneQuery);
         params.set('sortBy', sortBy); // Add sortBy to API params
         return params;
-    }, [debouncedQuery, isSeasonal, sortBy]);
+    }, [debouncedQuery, isSeasonal, species, generation, geneCategory, geneQuery, sortBy]);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['wishlist', apiParams.toString()],
@@ -108,6 +138,29 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
         return data;
     }, [data, showMatches, creatureMatchMap]);
 
+    const availableGeneCategories = useMemo(() => {
+        if (!species || species === 'all') return [];
+        return Object.keys((structuredGeneData as AllSpeciesGeneData)[species] || {}).filter(
+            (cat) => cat !== 'Gender' && cat !== 'isSeasonal' && cat !== 'hasNoGenetics'
+        );
+    }, [species]);
+
+    const availableGeneOptions = useMemo(() => {
+        if (!species || species === 'all' || !geneCategory || geneCategory === 'any') return [];
+        const categoryData = (structuredGeneData as AllSpeciesGeneData)[species]?.[geneCategory];
+        if (typeof categoryData !== 'object' || !Array.isArray(categoryData)) {
+            return [];
+        }
+        const phenotypes = new Set(categoryData.map((g) => g.phenotype));
+        return Array.from(phenotypes).map((p) => ({ value: p, label: p }));
+    }, [species, geneCategory]);
+
+    const handleSpeciesChange = (value: string) => {
+        setSpecies(value);
+        setGeneCategory('');
+        setGeneQuery('');
+    };
+
     return (
         <div>
             <div className="flex flex-wrap gap-4 mb-6">
@@ -133,6 +186,71 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
                     />
                     <Label htmlFor="is-seasonal">Only show seasonal species</Label>
                 </div>
+            </div>
+            <div className="flex flex-wrap gap-4 mb-6">
+                <Select value={species} onValueChange={handleSpeciesChange}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Species" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Species</SelectItem>
+                        {speciesList.map((s) => (
+                            <SelectItem key={s} value={s}>
+                                {s}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select value={generation} onValueChange={setGeneration}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Generation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="1">Any Generation</SelectItem>
+                        {[...Array(10).keys()].map((i) => (
+                            <SelectItem key={i + 1} value={String(i + 1)}>
+                                G{i + 1}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                {species !== 'all' && (
+                    <>
+                        <Select value={geneCategory} onValueChange={setGeneCategory}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Trait Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="any">Any Trait</SelectItem>
+                                {availableGeneCategories.map((cat) => (
+                                    <SelectItem key={cat} value={cat}>
+                                        {cat}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        {geneCategory && geneCategory !== 'any' && (
+                            <Select value={geneQuery} onValueChange={setGeneQuery}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Trait" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="any">Any</SelectItem>
+                                    {availableGeneOptions.map((opt) => (
+                                        <SelectItem key={opt.value} value={opt.value}>
+                                            {opt.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </>
+                )}
+            </div>
+            <div className="flex flex-wrap gap-4 mb-6">
                 {/* Add the Sort By dropdown */}
                 <div className="flex items-center space-x-2">
                     <Label htmlFor="sort-by">Sort by</Label>

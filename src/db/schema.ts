@@ -118,7 +118,6 @@ export const users = pgTable('user', {
     goalsItemsPerPage: integer('goals_items_per_page').default(9).notNull(),
     pairsItemsPerPage: integer('pairs_items_per_page').default(10).notNull(),
     apiKey: text('api_key').unique(),
-    tutorialProgress: integer('tutorial_progress').default(-1).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     bio: text('bio'),
@@ -138,6 +137,7 @@ export const users = pgTable('user', {
     showFriendsList: boolean('show_friends_list').default(true).notNull(),
     preserveFilters: boolean('preserve_filters').default(false).notNull(),
     showFulfillable: boolean('show_fulfillable').default(false).notNull(),
+    allowWishlistGoalSaving: boolean('allow_wishlist_goal_saving').default(false).notNull(),
 });
 
 export const accounts = pgTable(
@@ -311,6 +311,7 @@ export const researchGoals = pgTable(
         excludedGenes: jsonb('excluded_genes').$type<{
             [category: string]: { phenotype: string[] };
         }>(),
+        targetGeneration: integer('target_generation').default(1),
         assignedPairIds: jsonb('assigned_pair_ids').$type<string[]>(),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),

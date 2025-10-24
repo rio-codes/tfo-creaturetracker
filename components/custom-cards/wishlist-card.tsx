@@ -2,33 +2,26 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+// import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Mail, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import type { EnrichedResearchGoal } from '@/types';
+import { MessageUserButton } from '@/components/custom-buttons/message-user-button';
+import { FindWishlistPairsDialog } from '@/components/custom-dialogs/find-wishlist-pairs-dialog';
 
 interface WishlistCardProps {
     wish: {
         goal: EnrichedResearchGoal;
-        owner: { username: string | null; id: string };
+        owner: { username: string | null; id: string; allowWishlistGoalSaving: boolean };
     };
     matchingCreatureId?: string | null;
 }
 
 export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
     const { goal, owner } = wish;
-
-    const prefilledSubject = `I have a creature matching "${goal.name}"`;
-    const prefilledBody = `Hello ${owner.username},\n\nI saw your research goal "${
-        goal.name
-    }" on the Community Wishlist and I have a creature that might be a perfect match!\n\n[creature:]\n\nLet me know if you're interested in a trade.`;
-
-    const mailtoLink = `mailto:${owner.username}@tfo.creaturetracker.net?subject=${encodeURIComponent(
-        prefilledSubject
-    )}&body=${encodeURIComponent(prefilledBody)}`;
-
     return (
-        <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple dark:text-barely-lilac p-4 gap-4 items-center">
+        <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-pompaca-purple dark:text-barely-lilac p-4 flex flex-col gap-4">
             <Image
                 src={goal.imageUrl || '/images/misc/placeholder.png'}
                 alt={goal.name}
@@ -58,26 +51,22 @@ export function WishlistCard({ wish, matchingCreatureId }: WishlistCardProps) {
                     </p>
                 )}
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-auto">
                 <Link href={`/share/goals/${goal.id}`} passHref>
                     <Button size="sm" variant="outline" className="w-full">
                         <Info className="mr-2 h-4 w-4" />
                         Details
                     </Button>
                 </Link>
-                {matchingCreatureId ? (
-                    <a href={mailtoLink}>
-                        <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Message
-                        </Button>
-                    </a>
-                ) : (
-                    <Button size="sm" disabled variant="secondary" className="w-full">
-                        <Mail className="mr-2 h-4 w-4" />
-                        Message
+                <FindWishlistPairsDialog goal={goal} owner={owner}>
+                    <Button size="sm" variant="outline" className="w-full">
+                        Can I Breed This?
                     </Button>
-                )}
+                </FindWishlistPairsDialog>
+                <MessageUserButton
+                    profileUserId={owner.id}
+                    prefillMessage={`Hello! I saw your wishlist goal "${goal.name}" and I might have a creature that can help.`}
+                />
             </div>
         </Card>
     );

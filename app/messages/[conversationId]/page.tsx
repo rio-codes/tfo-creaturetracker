@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { SendHorizonal, ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 import { type MessageWithSender, type EnrichedConversation } from '@/lib/definitions';
 import { getRandomCapsuleAvatar } from '@/lib/avatars';
@@ -68,7 +69,10 @@ export default function MessageView({ params }: { params: { conversationId: stri
     const { data: session } = useSession();
     const queryClient = useQueryClient();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const [newMessage, setNewMessage] = useState('');
+
+    const searchParams = useSearchParams();
+    const prefill = searchParams.get('prefill');
+    const [newMessage, setNewMessage] = useState(prefill || '');
 
     const { data: messages, isLoading: isLoadingMessages } = useQuery<MessageWithSender[]>({
         queryKey: ['messages', conversationId],
@@ -145,6 +149,12 @@ export default function MessageView({ params }: { params: { conversationId: stri
             supabase.removeChannel(channel);
         };
     }, [conversationId, queryClient]);
+
+    useEffect(() => {
+        if (prefill) {
+            window.history.replaceState(null, '', `/messages/${conversationId}`);
+        }
+    }, [prefill, conversationId]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

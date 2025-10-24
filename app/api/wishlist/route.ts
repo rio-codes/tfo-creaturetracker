@@ -9,12 +9,33 @@ export async function GET(req: Request) {
     const query = searchParams.get('query');
     const species = searchParams.get('species');
     const isSeasonal = searchParams.get('isSeasonal') === 'true';
+    const generation = searchParams.get('generation');
+    const geneCategory = searchParams.get('geneCategory');
+    const geneQuery = searchParams.get('geneQuery');
+
     const sortBy = searchParams.get('sortBy') || 'updatedAt';
 
     try {
         const seasonalSpecies = Object.entries(structuredGeneData)
             .filter(([, data]) => (data as any).isSeasonal)
             .map(([speciesName]) => speciesName);
+
+        let geneString: string | undefined;
+        if (species && species !== 'all' && geneCategory && geneQuery && geneQuery !== 'any') {
+            const speciesGeneInfo = structuredGeneData[species];
+            const categoryGenes = speciesGeneInfo?.[geneCategory];
+            if (typeof categoryGenes === 'object' && Array.isArray(categoryGenes)) {
+                // For wishlist, we are always matching against the goal's phenotype
+                const matchingGene = categoryGenes.find((g) => g.phenotype === geneQuery);
+                if (matchingGene) {
+                    // We construct a string to match the JSONB structure
+                    geneString = `%"${geneCategory}":{"phenotype":"${geneQuery}"%`;
+                } else {
+                    // If no gene matches, return no results
+                    return NextResponse.json([]);
+                }
+            }
+        }
 
         const phenotypeGeneStrings: string[] = [];
         if (query) {
@@ -48,6 +69,8 @@ export async function GET(req: Request) {
                 : undefined,
             species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
             isSeasonal ? inArray(researchGoals.species, seasonalSpecies) : undefined,
+            generation ? eq(researchGoals.targetGeneration, Number(generation)) : undefined,
+            geneString ? like(researchGoals.genes, geneString) : undefined,
         ].filter(Boolean);
 
         const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
@@ -64,6 +87,7 @@ export async function GET(req: Request) {
                 owner: {
                     username: users.username,
                     id: users.id,
+                    allowWishlistGoalSaving: users.allowWishlistGoalSaving,
                 },
             })
             .from(researchGoals)

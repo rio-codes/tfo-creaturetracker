@@ -36,6 +36,7 @@ const editGoalSchema = z.object({
             })
         )
         .optional(),
+    targetGeneration: z.number().optional().default(1).nullable(),
 });
 
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
@@ -146,7 +147,8 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { name, species, genes, goalMode, isPublic, excludedGenes } = validatedFields.data;
+        const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration } =
+            validatedFields.data;
 
         if (hasObscenity(name)) {
             return NextResponse.json(
@@ -196,7 +198,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 }
             } catch (e) {
                 console.error('Failed to generate new goal image', e);
-                // Don't block the update if image generation fails
             }
         }
 
@@ -211,6 +212,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 updatedAt: new Date(),
                 isPublic,
                 excludedGenes,
+                targetGeneration: targetGeneration ?? 1,
             })
             .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
             .returning();
@@ -263,15 +265,12 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
             });
 
             if (!goalToDelete) {
-                return null; // Will be handled outside the transaction
+                return null;
             }
 
-            // Now, delete the goal
             await tx.delete(researchGoals).where(eq(researchGoals.id, params.goalId));
 
-            // If the goal was assigned to any pairs, update them
             if (goalToDelete.assignedPairIds && goalToDelete.assignedPairIds.length > 0) {
-                // Fetch all pairs that were assigned this goal
                 const assignedPairs = await tx.query.breedingPairs.findMany({
                     where: and(
                         eq(breedingPairs.userId, userId),
@@ -280,7 +279,6 @@ export async function DELETE(req: Request, props: { params: Promise<{ goalId: st
                     columns: { id: true, assignedGoalIds: true },
                 });
 
-                // For each pair, remove the deleted goal's ID from its list
                 for (const pair of assignedPairs) {
                     const updatedGoalIds = (pair.assignedGoalIds || []).filter(
                         (id) => id !== params.goalId

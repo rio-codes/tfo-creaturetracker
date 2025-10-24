@@ -2,7 +2,6 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import nextConfig from './next.config.mjs';
 import '@next/eslint-plugin-next';
 
 export default defineConfig([

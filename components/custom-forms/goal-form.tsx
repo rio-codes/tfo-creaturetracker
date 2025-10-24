@@ -48,7 +48,9 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         goal?.excludedGenes || {}
     );
     const [isPublic, setIsPublic] = useState(goal?.isPublic || false);
-    const [targetGeneration, setTargetGeneration] = useState<number | undefined>(goal?.targetGeneration ?? undefined);
+    const [targetGeneration, setTargetGeneration] = useState<number | undefined>(
+        goal?.targetGeneration ?? undefined
+    );
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -321,9 +323,14 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     <Label htmlFor="target-generation">Target Generation (Optional)</Label>
                     <Select
                         value={targetGeneration ? String(targetGeneration) : ''}
-                        onValueChange={(value) => setTargetGeneration(value ? parseInt(value) : undefined)}
+                        onValueChange={(value) =>
+                            setTargetGeneration(value ? parseInt(value) : undefined)
+                        }
                     >
-                        <SelectTrigger id="target-generation" className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
+                        <SelectTrigger
+                            id="target-generation"
+                            className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss"
+                        >
                             <SelectValue placeholder="Any Generation" />
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
@@ -337,7 +344,6 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     </Select>
                 </div>
             )}
-            </div>
             {/* Goal Mode Selector */}
             <div className="space-y-2">
                 <Label>Goal Mode</Label>

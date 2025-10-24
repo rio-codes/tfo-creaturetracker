@@ -2,7 +2,6 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import nextConfig from 'next.config.js';
 import '@next/eslint-plugin-next';
 
 export default defineConfig([
@@ -26,7 +25,6 @@ export default defineConfig([
     ]),
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
-    nextConfig,
     {
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',

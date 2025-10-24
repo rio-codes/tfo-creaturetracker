@@ -121,7 +121,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         }
     }, [baseCreature, initialGoal, isHybridMode, selectedMale, selectedFemale]);
 
-    const { allCreatures, allPairs, allGoals } = useMemo(
+    const { allCreatures, allGoals } = useMemo(
         () => ({
             allCreatures: context?.allCreatures || [],
             allPairs: context?.allPairs || [],
@@ -132,20 +132,9 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     const existingPartnerIds = useMemo(() => {
         if (!baseCreature) return new Set();
-        return new Set(
-            allPairs
-                .filter(
-                    (p) =>
-                        (p.maleParentUserId === baseCreature.userId &&
-                            p.maleParentCode === baseCreature.code) ||
-                        (p.femaleParentUserId === baseCreature.userId &&
-                            p.femaleParentCode === baseCreature.code)
-                )
-                .map((p) =>
-                    p.maleParentCode === baseCreature.code ? p.femaleParentCode : p.maleParentCode
-                )
-        );
-    }, [allPairs, baseCreature]);
+        // This logic is now handled by the suitableMates calculation in the API
+        return new Set();
+    }, [baseCreature]);
 
     const { availableMales, availableFemales } = useMemo(() => {
         let males = allCreatures.filter((c) => c?.gender === 'male' && c.growthLevel === 3);

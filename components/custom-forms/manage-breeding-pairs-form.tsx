@@ -222,23 +222,25 @@ export function ManageBreedingPairsForm({
             <div>
                 <h4 className="font-bold text-pompaca-purple mb-2">Existing Pairs</h4>
                 <div className="space-y-2 max-h-40 overflow-y-auto p-1">
-                    {existingPairs.length > 0 ? (
-                        existingPairs.map((pair) => (
-                            <div
-                                key={pair.id}
-                                className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss p-2 rounded-md"
-                            >
-                                <span className="text-ellipsis">{pair.pairName}</span>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleRemovePair(pair.id)}
-                                    disabled={isLoading}
+                    {existingPairs.filter((p) => !p.isArchived).length > 0 ? (
+                        existingPairs
+                            .filter((p) => !p.isArchived)
+                            .map((pair) => (
+                                <div
+                                    key={pair.id}
+                                    className="flex items-center justify-between bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss p-2 rounded-md"
                                 >
-                                    <Trash2 className="h-4 w-4 text-red-500" />
-                                </Button>
-                            </div>
-                        ))
+                                    <span className="text-ellipsis">{pair.pairName}</span>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleRemovePair(pair.id)}
+                                        disabled={isLoading}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                </div>
+                            ))
                     ) : (
                         <p className="text-sm text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                             This creature is not in any pairs.

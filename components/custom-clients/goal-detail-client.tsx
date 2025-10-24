@@ -28,9 +28,8 @@ import { Label } from '../ui/label';
 import { InfoDisplay } from '../misc-custom-components/info-display';
 import { ShareGoalButton } from '../misc-custom-components/share-goal-button';
 import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
-import { EditGoalDialog } from '../custom-dialogs/edit-goal-dialog';
-import { FindPotentialPairsDialog } from '../custom-dialogs/find-potential-pairs-dialog';
-import { AssignPairDialog } from '../custom-dialogs/assign-breeding-pair-dialog';
+import { ManageGoalPairsDialog } from '../custom-dialogs/manage-goal-pairs-dialog';
+import { FindPotentialPairsDialog } from '@/components/custom-dialogs/find-potential-pairs-dialog';
 import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
 
 type GoalDetailClientProps = {
@@ -43,10 +42,9 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
     const router = useRouter();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [imageUrl, setImageUrl] = useState(goal?.imageUrl ?? '');
-    const [findPairsDialogOpen, setFindPairsDialogOpen] = useState(false);
-    const [isFindingPairs, setIsFindingPairs] = useState(false);
     const [excludeGender, setExcludeGender] = useState(false);
     const [allPairs, setAllPairs] = useState<EnrichedBreedingPair[]>([]);
+    const [isFindingPairs, setIsFindingPairs] = useState<boolean>(false);
 
     useEffect(() => {
         if (goal) {
@@ -221,7 +219,9 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             />
                         </div>
                     </div>
-                    <EditGoalDialog goal={goal} isAdminView={false} variant="detail" />
+                    <ManageGoalPairsDialog goal={goal}>
+                        <Button>Manage Breeding Pairs</Button>
+                    </ManageGoalPairsDialog>
                 </div>
             </div>
             {/* Top Section: Goal Details */}
@@ -312,13 +312,17 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                         Breeding Pairs
                     </h2>
                     <div className="flex flex-col sm:flex-row gap-2">
+                        <FindPotentialPairsDialog
+                            goal={goal}
+                            open={isFindingPairs}
+                            onOpenChange={setIsFindingPairs}
+                            onLoadingChange={setIsFindingPairs}
+                        />
+
                         <Button
-                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
-                            onClick={() => {
-                                setIsFindingPairs(true);
-                                setFindPairsDialogOpen(true);
-                            }}
+                            onClick={() => setIsFindingPairs(true)}
                             disabled={isFindingPairs}
+                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                         >
                             {isFindingPairs ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -327,17 +331,6 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                             )}
                             Look for Pairs
                         </Button>
-                        <FindPotentialPairsDialog
-                            goal={goal}
-                            open={findPairsDialogOpen}
-                            onOpenChange={setFindPairsDialogOpen}
-                            onLoadingChange={setIsFindingPairs}
-                        />
-                        <AssignPairDialog goal={goal} predictions={initialPredictions}>
-                            <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
-                                Manage Breeding Pairs
-                            </Button>
-                        </AssignPairDialog>
                     </div>
                 </div>
                 {hasMounted ? (

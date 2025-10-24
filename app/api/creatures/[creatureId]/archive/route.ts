@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures, breedingPairs } from '@/src/db/schema';
-import { eq, and, or, inArray } from 'drizzle-orm';
+import { creatures, breedingPairs, researchGoals } from '@/src/db/schema';
+import { eq, and, or, inArray, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { logUserAction } from '@/lib/user-actions';
 
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
             });
 
             if (!creatureToUpdate) {
-                return []; // Abort
+                return [];
             }
 
             const updateResult = await tx
@@ -42,14 +42,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
                 .returning();
 
             if (updateResult.length === 0) {
-                return []; // Abort transaction
+                return [];
             }
 
             if (isArchived) {
-                // If archiving a creature, archive all its pairs.
-                await tx
-                    .update(breedingPairs)
-                    .set({ isArchived: true })
+                const pairsToArchive = await tx
+                    .select({ id: breedingPairs.id })
+                    .from(breedingPairs)
                     .where(
                         and(
                             eq(breedingPairs.userId, userId),
@@ -65,8 +64,34 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
                             )
                         )
                     );
+
+                if (pairsToArchive.length > 0) {
+                    const pairIdsToArchive = pairsToArchive.map((p) => p.id);
+                    await tx
+                        .update(breedingPairs)
+                        .set({ isArchived: true })
+                        .where(inArray(breedingPairs.id, pairIdsToArchive));
+                    const goalsToUpdate = await tx
+                        .select()
+                        .from(researchGoals)
+                        .where(
+                            and(
+                                eq(researchGoals.userId, userId),
+                                // This is a PostgreSQL-specific operator to check if a JSONB array contains any elements from another array.
+                                sql`${researchGoals.assignedPairIds} ?| ${pairIdsToArchive}`
+                            )
+                        );
+                    for (const goal of goalsToUpdate) {
+                        const updatedAssignedIds =
+                            goal.assignedPairIds?.filter((id) => !pairIdsToArchive.includes(id)) ||
+                            [];
+                        await tx
+                            .update(researchGoals)
+                            .set({ assignedPairIds: updatedAssignedIds })
+                            .where(eq(researchGoals.id, goal.id));
+                    }
+                }
             } else {
-                // If un-archiving, find pairs where this creature is a parent.
                 const pairsToConsider = await tx.query.breedingPairs.findMany({
                     where: and(
                         eq(breedingPairs.userId, userId),
@@ -103,10 +128,10 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
                     if (otherParentIds.length > 0) {
                         const otherParents = await tx.query.creatures.findMany({
                             where: and(
-                                eq(creatures.userId, userId), // Make sure to only check the current user's creatures
+                                eq(creatures.userId, userId),
                                 inArray(creatures.code, otherParentIds)
                             ),
-                            columns: { code: true, isArchived: true }, // We need the code to identify them later
+                            columns: { code: true, isArchived: true },
                         });
 
                         const activeParentCodes = new Set(
@@ -145,6 +170,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ creatureId:
 
         revalidatePath('/breeding-pairs');
         revalidatePath('/collection');
+        revalidatePath('/research-goals');
 
         const creature = await db.query.creatures.findFirst({
             where: eq(creatures.id, creatureId),

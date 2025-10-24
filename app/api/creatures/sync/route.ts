@@ -161,11 +161,11 @@ export async function POST(req: Request) {
                 .onConflictDoUpdate({
                     target: [creatures.userId, creatures.code],
                     set: {
-                        creatureName: sql`excluded.name`,
-                        imageUrl: sql`excluded.imgsrc`,
+                        creatureName: sql`excluded.creature_name`,
+                        imageUrl: sql`excluded.image_url`,
                         growthLevel: sql`excluded.growth_level`,
                         isStunted: sql`excluded.is_stunted`,
-                        species: sql`excluded.breed_name`,
+                        species: sql`excluded.species`,
                         genetics: sql`excluded.genetics`,
                         gender: sql`excluded.gender`,
                         gottenAt: sql`excluded.gotten_at`,

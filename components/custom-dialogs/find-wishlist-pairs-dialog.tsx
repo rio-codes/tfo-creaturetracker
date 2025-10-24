@@ -40,7 +40,7 @@ type FindWishlistPairsDialogProps = {
 
 export function FindWishlistPairsDialog({
     goal,
-    owner: { username: ownerUsername, id: ownerId, allowWishlistGoalSaving },
+    owner: { username: ownerUsername, id: _ownerId, allowWishlistGoalSaving },
     children,
 }: FindWishlistPairsDialogProps) {
     const router = useRouter();

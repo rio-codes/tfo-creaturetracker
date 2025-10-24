@@ -25,7 +25,11 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
                     where: and(eq(creatures.userId, userId), eq(creatures.isArchived, false)),
                 }),
                 db.query.breedingPairs.findMany({
-                    where: eq(breedingPairs.userId, userId),
+                    // Add the condition to filter out archived pairs here
+                    where: and(
+                        eq(breedingPairs.userId, userId),
+                        eq(breedingPairs.isArchived, false)
+                    ),
                     with: {
                         maleParent: true,
                         femaleParent: true,
@@ -81,7 +85,8 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
         );
 
         const suitableMates = findSuitableMates(enrichedBaseCreature, allEnrichedCreatures).filter(
-            (mate) => mate && !existingPartnerIds.has(mate.id)
+            // Correct this to check against the creature's code, not its ID
+            (mate) => mate && !existingPartnerIds.has(mate.code)
         );
 
         return NextResponse.json({

@@ -54,7 +54,8 @@ export async function getPredictionsForGoal(goalId: string): Promise<Prediction[
         const assignedPairs = await db.query.breedingPairs.findMany({
             where: and(
                 eq(breedingPairs.userId, goal.userId),
-                inArray(breedingPairs.id, goal.assignedPairIds!)
+                inArray(breedingPairs.id, goal.assignedPairIds!),
+                eq(breedingPairs.isArchived, false)
             ),
             with: { maleParent: true, femaleParent: true },
         });

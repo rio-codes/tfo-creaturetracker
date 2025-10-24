@@ -33,7 +33,9 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
             db.query.researchGoals.findFirst({
                 where: and(eq(researchGoals.id, goalId), eq(researchGoals.userId, userId)),
             }),
-            db.query.creatures.findMany({ where: eq(creatures.userId, userId) }),
+            db.query.creatures.findMany({
+                where: and(eq(creatures.userId, userId), eq(creatures.isArchived, false)),
+            }),
             db.query.breedingPairs.findMany({ where: eq(breedingPairs.userId, userId) }),
             db.query.breedingLogEntries.findMany({ where: eq(breedingLogEntries.userId, userId) }),
         ]);

@@ -6,28 +6,23 @@ import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint, Heart, Target, Dna, Rabbit, Sparkles } from 'lucide-react';
 
-// Define the types for the props this component will receive
 type HomepageStats = {
     totalCreatures: number;
     totalPairs: number;
     totalGoals: number;
     popularSpecies: {
-        species: string | null;
+        species: string;
         count: number;
     } | null;
     prolificPair: {
-        id: string;
-        name: string | null;
+        name: string;
         timesBred: number;
-        breeder: {
-            username: string | null;
-            id: string;
-        } | null;
     } | null;
     randomCreature: {
-        image: string | null;
-        species: string | null;
-        code: string;
+        species: string;
+        pairName: string;
+        ownerUsername: string;
+        image: string;
     } | null;
 };
 
@@ -566,13 +561,22 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
                                                         className="rounded-md object-scale-down aspect-square w-full"
                                                     />
                                                     <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss text-pretty">
-                                                        A wild{' '}
+                                                        A potential{' '}
                                                         <span className="font-bold">
                                                             {stats.randomCreature.species}
                                                         </span>{' '}
-                                                        with the code{' '}
-                                                        <span>{stats.randomCreature.code}</span>{' '}
-                                                        appeared!
+                                                        from the pair{' '}
+                                                        <span className="font-bold">
+                                                            {stats.randomCreature.pairName}
+                                                        </span>{' '}
+                                                        by{' '}
+                                                        <Link
+                                                            href={`/${stats.randomCreature.ownerUsername}`}
+                                                            className="font-bold hover:underline"
+                                                        >
+                                                            {stats.randomCreature.ownerUsername}
+                                                        </Link>
+                                                        !
                                                     </p>
                                                 </div>
                                             ) : (

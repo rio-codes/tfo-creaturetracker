@@ -49,8 +49,6 @@ export async function POST(request: Request) {
 
         const existingPairsMap = new Map<string, { name: string; id: string }>();
         for (const pair of allUserPairs) {
-            const maleKey = `${pair.maleParentUserId}-${pair.maleParentCode}`;
-            const femaleKey = `${pair.femaleParentUserId}-${pair.femaleParentCode}`;
             existingPairsMap.set(`|`, { name: pair.pairName, id: pair.id });
         }
 

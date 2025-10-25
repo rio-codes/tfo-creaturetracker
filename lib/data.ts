@@ -15,7 +15,6 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
-    DbUser,
 } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
@@ -413,10 +412,6 @@ export async function fetchFilteredWishlistGoals(
     const currentPage = Number(searchParams.page) || 1;
     const { query, isSeasonal, species, generation, sortBy } = searchParams;
     const limit = 15;
-
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-    });
 
     const conditions: (SQL | undefined)[] = [
         eq(researchGoals.isPublic, true),

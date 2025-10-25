@@ -32,7 +32,6 @@ import { calculateGeneProbability } from '@/lib/genetics';
 import type {
     DbUser,
     EnrichedCreature,
-    EnrichedResearchGoal,
     DbCreature,
     GoalGene,
     DbResearchGoal,

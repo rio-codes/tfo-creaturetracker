@@ -204,7 +204,7 @@ export function CreateCreatureForm() {
             {species && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                     {/* Left Column: Gene Selectors */}
-                    <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50">
+                    <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple">
                         <div className="space-y-4">
                             {geneCategories.map((category) => (
                                 <div

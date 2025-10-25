@@ -156,7 +156,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         enrichAndSerializeCreature(creature)
     );
 
-    const featuredGoals: EnrichedResearchGoal[] = featuredGoalsDb.map((goal: DbResearchGoal) => ({
+    const featuredGoals = featuredGoalsDb.map((goal: DbResearchGoal) => ({
         ...goal,
         createdAt: goal.createdAt.toISOString(),
         updatedAt: goal.updatedAt.toISOString(),
@@ -665,7 +665,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 {featuredGoals.map((goal) => (
                                     <FeaturedGoalCard
                                         key={goal.id}
-                                        goal={goal}
+                                        goal={goal as any}
                                         achievement={achievements[goal.id]}
                                         username={user.username}
                                         progress={goalProgress[goal.id]}

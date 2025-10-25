@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/src/db';
 import { researchGoals, users } from '@/src/db/schema';
-import { and, eq, ilike, or, inArray, SQL, like, desc } from 'drizzle-orm';
+import { and, eq, ilike, or, inArray, SQL, like, desc, count } from 'drizzle-orm';
 import { structuredGeneData } from '@/constants/creature-data';
+import { auth } from '@/auth';
 
 export async function GET(req: Request) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) {
+        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('query');
     const species = searchParams.get('species');
@@ -12,8 +19,9 @@ export async function GET(req: Request) {
     const generation = searchParams.get('generation');
     const geneCategory = searchParams.get('geneCategory');
     const geneQuery = searchParams.get('geneQuery');
-
     const sortBy = searchParams.get('sortBy') || 'updatedAt';
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 15;
 
     try {
         const seasonalSpecies = Object.entries(structuredGeneData)
@@ -25,14 +33,11 @@ export async function GET(req: Request) {
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
             if (typeof categoryGenes === 'object' && Array.isArray(categoryGenes)) {
-                // For wishlist, we are always matching against the goal's phenotype
                 const matchingGene = categoryGenes.find((g) => g.phenotype === geneQuery);
                 if (matchingGene) {
-                    // We construct a string to match the JSONB structure
                     geneString = `%"${geneCategory}":{"phenotype":"${geneQuery}"%`;
                 } else {
-                    // If no gene matches, return no results
-                    return NextResponse.json([]);
+                    return NextResponse.json({ items: [], totalPages: 0 });
                 }
             }
         }
@@ -57,8 +62,10 @@ export async function GET(req: Request) {
                 }
             }
         }
+
         const whereConditions: (SQL | undefined)[] = [
             eq(researchGoals.isPublic, true),
+            eq(researchGoals.isPinnedToWishlist, false),
             query
                 ? or(
                       ilike(researchGoals.name, `%${query}%`),
@@ -69,33 +76,45 @@ export async function GET(req: Request) {
                 : undefined,
             species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
             isSeasonal ? inArray(researchGoals.species, seasonalSpecies) : undefined,
-            generation ? eq(researchGoals.targetGeneration, Number(generation)) : undefined,
+            generation && generation !== 'any'
+                ? eq(researchGoals.targetGeneration, Number(generation))
+                : undefined,
             geneString ? like(researchGoals.genes, geneString) : undefined,
         ].filter(Boolean);
 
         const where = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
-        // Dynamic orderBy clause
         const orderByClause =
             sortBy === 'species'
                 ? [researchGoals.species, desc(researchGoals.updatedAt)]
                 : [desc(researchGoals.updatedAt)];
 
-        const wishlistGoals = await db
-            .select({
-                goal: researchGoals,
-                owner: {
-                    username: users.username,
-                    id: users.id,
-                    allowWishlistGoalSaving: users.allowWishlistGoalSaving,
-                },
-            })
-            .from(researchGoals)
-            .leftJoin(users, eq(researchGoals.userId, users.id))
-            .where(where)
-            .orderBy(...orderByClause);
+        const [items, totalCountResult] = await Promise.all([
+            db
+                .select({
+                    goal: researchGoals,
+                    owner: {
+                        username: users.username,
+                        id: users.id,
+                        allowWishlistGoalSaving: users.allowWishlistGoalSaving,
+                    },
+                })
+                .from(researchGoals)
+                .leftJoin(users, eq(researchGoals.userId, users.id))
+                .where(where)
+                .orderBy(...orderByClause)
+                .limit(limit)
+                .offset((page - 1) * limit),
+            db
+                .select({ count: count() })
+                .from(researchGoals)
+                .leftJoin(users, eq(researchGoals.userId, users.id))
+                .where(where),
+        ]);
 
-        return NextResponse.json(wishlistGoals);
+        const totalPages = Math.ceil((totalCountResult[0]?.count ?? 0) / limit);
+
+        return NextResponse.json({ items, totalPages });
     } catch (error) {
         console.error('Failed to fetch wishlist goals:', error);
         return NextResponse.json({ error: 'Failed to fetch wishlist' }, { status: 500 });

@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { enrichAndSerializeGoal } from '@/lib/serialization';
 import { logUserAction } from '@/lib/user-actions';
+import { GoalGene } from '@/types';
 
 const conversionSchema = z.object({
     conversions: z.record(z.string(), z.string()),
@@ -48,11 +49,21 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
         }
 
         const enrichedGoal = enrichAndSerializeGoal(goal, goal.goalMode);
-        const updatedGenes = { ...enrichedGoal?.genes };
+        const tempGenes = { ...enrichedGoal?.genes };
+
         for (const [category, newGenotype] of Object.entries(conversions)) {
-            if (updatedGenes[category]) {
-                updatedGenes[category].genotype = newGenotype as string;
+            if (tempGenes[category]) {
+                tempGenes[category].genotype = newGenotype as string;
             }
+        }
+
+        const updatedGenes: { [category: string]: GoalGene } = {};
+        for (const [category, gene] of Object.entries(tempGenes)) {
+            updatedGenes[category] = {
+                ...gene,
+                isOptional: gene.isOptional ?? false,
+                isMultiGenotype: gene.isMultiGenotype ?? false,
+            };
         }
 
         await db

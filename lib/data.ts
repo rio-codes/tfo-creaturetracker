@@ -15,6 +15,7 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
+    DbUser,
 } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
@@ -393,6 +394,79 @@ export async function fetchFilteredResearchGoals(
     }
 }
 
+export async function fetchFilteredWishlistGoals(
+    searchParams: {
+        page?: string;
+        query?: string;
+        isSeasonal?: string;
+        species?: string;
+        generation?: string;
+        geneCategory?: string;
+        geneQuery?: string;
+        sortBy?: string;
+    } = {}
+) {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error('User is not authenticated.');
+
+    const currentPage = Number(searchParams.page) || 1;
+    const { query, isSeasonal, species, generation, sortBy } = searchParams;
+    const limit = 15;
+
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+    });
+
+    const conditions: (SQL | undefined)[] = [
+        eq(researchGoals.isPublic, true),
+        query ? ilike(researchGoals.name, `%${query}%`) : undefined,
+        isSeasonal === 'true' ? eq(researchGoals.isSeasonal, true) : undefined,
+        species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
+        generation
+            ? sql`${researchGoals.genes}->'Generation'->>'phenotype' = ${generation}`
+            : undefined,
+    ].filter(Boolean);
+    const pinnedGoalsRaw = await db.query.researchGoals.findMany({
+        where: and(
+            eq(researchGoals.isPinnedToWishlist, true), // Use isPinnedToWishlist
+            ...conditions
+        ),
+        with: { user: true },
+        orderBy: [desc(researchGoals.updatedAt)], // Order by update time or another field
+    });
+    const pinnedGoals = pinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
+
+    // --- Fetch Unpinned Goals (Paginated) ---
+    // Correctly fetch unpinned goals, excluding those already in the pinned list.
+    const unpinnedConditions = [
+        ...conditions,
+        eq(researchGoals.isPinnedToWishlist, false), // Use isPinnedToWishlist
+    ];
+
+    const unpinnedGoalsRaw = await db.query.researchGoals.findMany({
+        where: and(...unpinnedConditions),
+        with: { user: true },
+        orderBy:
+            sortBy === 'species'
+                ? [researchGoals.species, desc(researchGoals.updatedAt)]
+                : desc(researchGoals.updatedAt),
+        limit: limit,
+        offset: (currentPage - 1) * limit,
+    });
+    const unpinnedGoals = unpinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
+
+    const totalCountResult = await db
+        .select({ count: count() })
+        .from(researchGoals)
+        .where(and(...unpinnedConditions));
+
+    const totalUnpinned = totalCountResult[0]?.count ?? 0;
+    const totalPages = Math.ceil(totalUnpinned / limit);
+
+    return { pinnedGoals, unpinnedGoals, totalPages };
+}
+
 export async function fetchBreedingPairsWithStats(
     searchParams: {
         page?: string;
@@ -766,8 +840,6 @@ export async function getHomepageStats(): Promise<HomepageStats> {
         }
     }
 
-    // The random creature generation is computationally expensive and involves external API calls.
-    // For the main data library, we'll stub this out. The page component can handle it.
     const randomCreature = null;
 
     return {

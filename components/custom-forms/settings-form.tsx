@@ -237,6 +237,45 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 localStorage.removeItem('preserveFilters');
             }
 
+            if (typeof updateData.showFulfillable === 'boolean') {
+                localStorage.setItem('showFulfillable', String(updateData.showFulfillable));
+            } else {
+                localStorage.removeItem('showFulfillable');
+            }
+
+            if (typeof updateData.showLabLink === 'boolean') {
+                localStorage.setItem('showLabLink', String(updateData.showLabLink));
+            } else {
+                localStorage.removeItem('showLabLink');
+            }
+
+            if (typeof updateData.showStats === 'boolean') {
+                localStorage.setItem('showStats', String(updateData.showStats));
+            } else {
+                localStorage.removeItem('showStats');
+            }
+
+            if (typeof updateData.showFriendsList === 'boolean') {
+                localStorage.setItem('showFriendsList', String(updateData.showFriendsList));
+            } else {
+                localStorage.removeItem('showFriendsList');
+            }
+
+            if (typeof updateData.allowWishlistGoalSaving === 'boolean') {
+                localStorage.setItem(
+                    'allowWishlistGoalSaving',
+                    String(updateData.allowWishlistGoalSaving)
+                );
+            } else {
+                localStorage.removeItem('allowWishlistGoalSaving');
+            }
+
+            if (Object.keys(sessionUpdateData).length > 0) {
+                localStorage.setItem('sessionUpdateData', JSON.stringify(sessionUpdateData));
+            } else {
+                localStorage.removeItem('sessionUpdateData');
+            }
+
             await update(Object.keys(sessionUpdateData).length > 0 ? sessionUpdateData : undefined);
             router.refresh();
         } catch (error) {
@@ -359,29 +398,31 @@ export function SettingsForm({ user }: SettingsFormProps) {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="allowWishlistGoalSaving"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>
-                                            Allow others to save your Wishlist goals
-                                        </FormLabel>
-                                        <FormDescription>
-                                            Enable this to let other users save a copy of your
-                                            public goals to their own collection.
-                                        </FormDescription>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
+                        <div className="flex items-center space-x-2 pt-4">
+                            <FormField
+                                control={form.control}
+                                name="allowWishlistGoalSaving"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none">
+                                            <FormLabel className="text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
+                                                Allow others to save your Wishlist goals
+                                            </FormLabel>
+                                            <FormDescription>
+                                                Enable this to let other users save a copy of your
+                                                public goals to their own collection.
+                                            </FormDescription>
+                                        </div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
 

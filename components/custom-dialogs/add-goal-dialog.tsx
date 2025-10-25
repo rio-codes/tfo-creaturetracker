@@ -24,7 +24,7 @@ export function AddGoalDialog() {
                 <DialogHeader>
                     <DialogTitle>Create New Research Goal</DialogTitle>
                 </DialogHeader>
-                <GoalForm onSuccess={() => setIsOpen(false)} />
+                <GoalForm onSuccessAction={() => setIsOpen(false)} />
             </DialogContent>
         </Dialog>
     );

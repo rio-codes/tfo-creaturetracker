@@ -34,7 +34,7 @@ export function EditGoalDialog({ goal, isAdminView = false }: EditGoalDialogProp
                 </DialogHeader>
                 <GoalForm
                     goal={goal}
-                    onSuccess={() => setIsOpen(false)}
+                    onSuccessAction={() => setIsOpen(false)}
                     isAdminView={isAdminView}
                 />
             </DialogContent>

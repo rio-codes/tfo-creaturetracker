@@ -29,21 +29,32 @@ type GeneOption = {
 
 type GoalFormProps = {
     goal?: EnrichedResearchGoal;
-    onSuccess: () => void; // To close the parent dialog
+    onSuccessAction: () => void;
     isAdminView?: boolean;
     isPublic?: boolean;
 };
 
-export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps) {
+export function GoalForm({ goal, onSuccessAction, isAdminView = false }: GoalFormProps) {
     const router = useRouter();
     const isEditMode = !!goal;
 
     const [name, setName] = useState(goal?.name || '');
     const [species, setSpecies] = useState(goal?.species || '');
     const [goalMode, setGoalMode] = useState(goal?.goalMode || 'phenotype');
-    const [selectedGenes, setSelectedGenes] = useState<{
-        [key: string]: GoalGene;
-    }>(goal?.genes || {});
+    const [selectedGenes, setSelectedGenes] = useState<{ [key: string]: GoalGene }>(() => {
+        if (!goal?.genes) {
+            return {};
+        }
+        const initialGenes: { [key: string]: GoalGene } = {};
+        for (const [category, gene] of Object.entries(goal.genes)) {
+            initialGenes[category] = {
+                ...gene,
+                isOptional: gene.isOptional ?? false,
+                isMultiGenotype: gene.isMultiGenotype ?? false,
+            };
+        }
+        return initialGenes;
+    });
     const [excludedGenes, setExcludedGenes] = useState<{ [key: string]: { phenotype: string[] } }>(
         goal?.excludedGenes || {}
     );
@@ -123,18 +134,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
         () => (geneOptions ? Object.keys(geneOptions) : []),
         [geneOptions]
     );
-
     useEffect(() => {
-        if (isEditMode && goal?.genes) {
-            const normalizedGenes: { [key: string]: GoalGene } = {};
-            for (const [category, geneData] of Object.entries(goal.genes)) {
-                normalizedGenes[category] = {
-                    ...(geneData as GoalGene),
-                    isOptional: geneData.isOptional ?? false,
-                };
-            }
-            setSelectedGenes(normalizedGenes);
-        } else if (!isEditMode && species && geneCategories.length > 0) {
+        if (!isEditMode && species && geneCategories.length > 0) {
             const defaultSelections: { [key: string]: GoalGene } = {};
             for (const category of geneCategories) {
                 const options = geneOptions[category];
@@ -154,7 +155,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
             console.log(defaultSelections);
             setSelectedGenes(defaultSelections);
         }
-    }, [species, geneCategories, isEditMode, geneOptions, goal?.genes]);
+    }, [species, geneCategories, isEditMode, geneOptions]);
 
     const handleGeneChange = (category: string, selectedValue: string) => {
         const options = geneOptions[category];
@@ -227,7 +228,8 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     data.error || `Failed to ${isEditMode ? 'update' : 'create'} goal.`
                 );
 
-            onSuccess(); // Close dialog
+            // close dialog
+
             router.refresh(); // Re-fetch data for current route
 
             if (!isEditMode && data.goalId) {
@@ -334,7 +336,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                             <SelectValue placeholder="Any Generation" />
                         </SelectTrigger>
                         <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
-                            <SelectItem value="">Any Generation</SelectItem>
+                            <SelectItem value={'any'}>Any Generation</SelectItem>
                             {[...Array(10).keys()].map((i) => (
                                 <SelectItem key={i + 1} value={String(i + 1)}>
                                     G{i + 1}
@@ -543,7 +545,7 @@ export function GoalForm({ goal, onSuccess, isAdminView = false }: GoalFormProps
                     </Button>
                 )}
                 <div className="grow flex justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={onSuccess}>
+                    <Button type="button" onClick={onSuccessAction}>
                         Cancel
                     </Button>
                     <Button

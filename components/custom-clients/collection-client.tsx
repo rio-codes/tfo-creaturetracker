@@ -99,7 +99,7 @@ function SortableCreatureCard(props: {
     );
 }
 
-function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
+export function SortableCreatureImage({ creature }: { creature: EnrichedCreature }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: creature!.id,
     });
@@ -134,7 +134,7 @@ export function CollectionClient({
     unpinnedCreatures: initialUnpinnedCreatures,
     totalPages,
     currentUser,
-    searchParams: searchParamsFromProps, // Rename to avoid conflict
+    searchParams: searchParamsFromProps,
 }: CollectionClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -151,7 +151,7 @@ export function CollectionClient({
     );
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
-    const currentSearchParams = useSearchParams(); // Keep this for building new URLs
+    const currentSearchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
     const [pinnedCreatures, setPinnedCreatures] = useState(initialPinnedCreatures || []);
@@ -610,7 +610,7 @@ export function CollectionClient({
                 )}
 
                 {pinnedCreatures.length === 0 && unpinnedCreatures.length === 0 ? (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
+                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple rounded-lg">
                         <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"></h2>
                         <p className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             No Creatures Found

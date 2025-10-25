@@ -10,7 +10,15 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { EnrichedResearchGoal, EnrichedCreature } from '@/types';
 import { useDebounce } from 'use-debounce';
-// Import the Select component
+import type { User } from '@/types';
+import {
+    DndContext,
+    closestCenter,
+    MouseSensor,
+    TouchSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
 import {
     Select,
     SelectContent,
@@ -19,10 +27,22 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { speciesList, structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
+import { arrayMove, rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { Pagination } from '../misc-custom-components/pagination';
 
 type WishlistItem = {
     goal: EnrichedResearchGoal;
-    owner: { username: string | null; id: string; allowWishlistGoalSaving: boolean };
+    owner: { username: string | null | undefined; id: string; allowWishlistGoalSaving: boolean };
+    matchingCreatureId?: string;
+    isPinned?: boolean;
+};
+
+type WishlistClientProps = {
+    pinnedGoals: EnrichedResearchGoal[];
+    unpinnedGoals: EnrichedResearchGoal[];
+    totalPages: number;
+    currentUser?: User | null;
+    userCreatures: EnrichedCreature[];
 };
 
 // TODO: use existing gene matching logic, add image matching for creatures without genes
@@ -45,34 +65,57 @@ function creatureMatchesGoal(creature: EnrichedCreature, goal: EnrichedResearchG
     return true;
 }
 
-async function fetchWishlist(params: URLSearchParams): Promise<WishlistItem[]> {
+async function fetchUnpinnedWishlist(
+    params: URLSearchParams
+): Promise<{ items: WishlistItem[]; totalPages: number }> {
     const response = await fetch(`/api/wishlist?${params.toString()}`);
     if (!response.ok) throw new Error('Failed to fetch wishlist');
     return response.json();
 }
 
-export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreature[] }) {
+export function WishlistClient({
+    pinnedGoals: initialPinnedGoals,
+    unpinnedGoals: _initialUnpinnedGoals,
+    totalPages: initialTotalPages,
+    userCreatures,
+}: WishlistClientProps) {
+    const sensors = useSensors(
+        useSensor(MouseSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        })
+    );
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-
     const [query, setQuery] = useState(searchParams.get('query') || '');
     const [showMatches, setShowMatches] = useState(searchParams.get('showMatches') === 'true');
     const [isSeasonal, setIsSeasonal] = useState(searchParams.get('isSeasonal') === 'true');
     const [species, setSpecies] = useState(searchParams.get('species') || 'all');
-    const [generation, setGeneration] = useState(searchParams.get('generation') || '');
+    const [generation, setGeneration] = useState(searchParams.get('generation') || 'any');
     const [geneCategory, setGeneCategory] = useState(searchParams.get('geneCategory') || '');
     const [geneQuery, setGeneQuery] = useState(searchParams.get('geneQuery') || '');
     const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'updatedAt'); // Add sortBy state
     const [debouncedQuery] = useDebounce(query, 500);
+    const [page, _setPage] = useState(Number(searchParams.get('page')) || 1);
+    const [pinnedGoals, setPinnedGoals] = useState<EnrichedResearchGoal[]>(
+        initialPinnedGoals || []
+    );
+    const [totalPages, setTotalPages] = useState<number>(initialTotalPages || 0);
 
     useEffect(() => {
-        const params = new URLSearchParams(searchParams);
-        const setOrDelete = (key: string, value: string | boolean) => {
+        const params = new URLSearchParams();
+
+        const setOrDelete = (key: string, value: string | boolean | number) => {
             if (value && value !== 'all' && value !== 'any') {
                 params.set(key, String(value));
-            } else {
-                params.delete(key);
             }
         };
 
@@ -83,7 +126,11 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
         setOrDelete('generation', generation);
         setOrDelete('geneCategory', geneCategory);
         setOrDelete('geneQuery', geneQuery);
-        params.set('sortBy', sortBy); // Add sortBy to URL params
+        params.set('sortBy', sortBy);
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
         router.replace(`${pathname}?${params.toString()}`);
     }, [
         debouncedQuery,
@@ -94,49 +141,107 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
         geneCategory,
         geneQuery,
         sortBy,
+        page,
         pathname,
         router,
-        searchParams,
     ]);
+
+    useEffect(() => {
+        setPinnedGoals(initialPinnedGoals || []);
+    }, [initialPinnedGoals]);
+
+    const pinnedItems = useMemo(() => {
+        return pinnedGoals.map((goal) => ({
+            goal,
+            owner: {
+                id: goal.userId,
+                username: goal.user?.username,
+                allowWishlistGoalSaving: goal.user?.allowWishlistGoalSaving ?? false,
+            },
+        }));
+    }, [pinnedGoals]);
 
     const apiParams = useMemo(() => {
         const params = new URLSearchParams();
         if (debouncedQuery) params.set('query', debouncedQuery);
         if (isSeasonal) params.set('isSeasonal', 'true');
         if (species && species !== 'all') params.set('species', species);
-        if (generation) params.set('generation', generation);
+        if (generation && generation !== 'any') params.set('generation', generation);
         if (geneCategory && geneCategory !== 'any') params.set('geneCategory', geneCategory);
         if (geneQuery && geneQuery !== 'any') params.set('geneQuery', geneQuery);
-        params.set('sortBy', sortBy); // Add sortBy to API params
+        params.set('sortBy', sortBy);
+        params.set('page', String(page));
+        params.set('limit', '15');
         return params;
-    }, [debouncedQuery, isSeasonal, species, generation, geneCategory, geneQuery, sortBy]);
+    }, [debouncedQuery, isSeasonal, species, generation, geneCategory, geneQuery, sortBy, page]);
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ['wishlist', apiParams.toString()],
-        queryFn: () => fetchWishlist(apiParams),
+        queryKey: ['unpinned-wishlist', apiParams.toString()],
+        queryFn: () => fetchUnpinnedWishlist(apiParams),
+        placeholderData: (previousData) => previousData,
     });
 
     const creatureMatchMap = useMemo(() => {
         const map = new Map<string, string>();
-        if (!data) return map;
-        for (const wish of data) {
+        const unpinnedGoals = data?.items?.map((item) => item.goal) || [];
+        const allGoals = [...pinnedGoals, ...unpinnedGoals];
+
+        for (const goal of allGoals) {
             for (const creature of userCreatures) {
-                if (creatureMatchesGoal(creature, wish.goal)) {
-                    map.set(wish.goal.id, creature!.id);
+                if (creatureMatchesGoal(creature, goal)) {
+                    map.set(goal.id, creature!.id);
                     break;
                 }
             }
         }
         return map;
-    }, [data, userCreatures]);
+    }, [pinnedGoals, data, userCreatures]);
 
-    const filteredData = useMemo(() => {
-        if (!data) return [];
+    const filteredUnpinnedItems = useMemo(() => {
+        if (!data?.items) return [];
         if (showMatches) {
-            return data.filter((wish) => creatureMatchMap.has(wish.goal.id));
+            return data.items.filter((wish) => creatureMatchMap.has(wish.goal.id));
         }
-        return data;
+        return data.items;
     }, [data, showMatches, creatureMatchMap]);
+
+    useEffect(() => {
+        if (data) {
+            setTotalPages(data.totalPages);
+        }
+    }, [data]);
+
+    const handleDragStart = (event: any) => {
+        if (window.navigator.vibrate) {
+            if (event.activatorEvent.type.startsWith('touch')) {
+                window.navigator.vibrate(50); // A short, crisp vibration
+            }
+        }
+    };
+
+    const handleDragEnd = async (event: any) => {
+        const { active, over } = event; // Ensure 'over' is not null
+        if (over && active.id !== over.id) {
+            const oldIndex = pinnedGoals.findIndex(
+                (c: EnrichedResearchGoal) => c?.id === active.id
+            );
+            const newIndex = pinnedGoals.findIndex((c: EnrichedResearchGoal) => c?.id === over.id);
+            const newOrder = arrayMove(pinnedGoals, oldIndex, newIndex);
+            setPinnedGoals(newOrder);
+
+            const orderedIds = newOrder.map((c: EnrichedResearchGoal) => c!.id);
+            try {
+                await fetch('/api/reorder-pinned', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'goal', orderedIds }), // Change 'creature' to 'goal'
+                });
+            } catch (error) {
+                console.error('Failed to save new order', error);
+                setPinnedGoals(pinnedGoals); // Revert on failure
+            }
+        }
+    };
 
     const availableGeneCategories = useMemo(() => {
         if (!species || species === 'all') return [];
@@ -192,7 +297,7 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Species" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-ebena-lavender dark:bg-dusk-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-dusk-purple dark:text-purple-400">
                         <SelectItem value="all">All Species</SelectItem>
                         {speciesList.map((s) => (
                             <SelectItem key={s} value={s}>
@@ -206,8 +311,8 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Generation" />
                     </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="1">Any Generation</SelectItem>
+                    <SelectContent className="bg-ebena-lavender dark:bg-dusk-purple hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson text-dusk-purple dark:text-purple-400">
+                        <SelectItem value="any">All Generations</SelectItem>
                         {[...Array(10).keys()].map((i) => (
                             <SelectItem key={i + 1} value={String(i + 1)}>
                                 G{i + 1}
@@ -279,20 +384,52 @@ export function WishlistClient({ userCreatures }: { userCreatures: EnrichedCreat
             )}
 
             {!isLoading && !error && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {filteredData.length > 0 ? (
-                        filteredData.map((wish) => (
-                            <WishlistCard
-                                key={wish.goal.id}
-                                wish={wish}
-                                matchingCreatureId={creatureMatchMap.get(wish.goal.id)}
-                            />
-                        ))
-                    ) : (
-                        <p>No public goals match your criteria.</p>
-                    )}
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Render Pinned Goals (Sortable) */}
+                        <SortableContext
+                            items={pinnedGoals.map((g) => g.id)}
+                            strategy={rectSortingStrategy}
+                        >
+                            {pinnedItems.map((wish) => (
+                                <WishlistCard
+                                    key={wish.goal.id}
+                                    wish={wish}
+                                    matchingCreatureId={creatureMatchMap.get(wish.goal.id)}
+                                    isPinned={true}
+                                />
+                            ))}
+                        </SortableContext>
+
+                        {/* Render Unpinned Goals (Not Sortable) */}
+                        {filteredUnpinnedItems.length > 0
+                            ? filteredUnpinnedItems.map((wish) => (
+                                  <WishlistCard
+                                      key={wish.goal.id}
+                                      wish={wish}
+                                      matchingCreatureId={creatureMatchMap.get(wish.goal.id)}
+                                      isPinned={false}
+                                  />
+                              ))
+                            : // Only show this message if there are no pinned goals either
+                              pinnedItems.length === 0 && (
+                                  <p>No public goals match your criteria.</p>
+                              )}
+                    </div>
+                </DndContext>
+            )}
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-4">
+                    <Pagination totalPages={totalPages} />
                 </div>
             )}
         </div>
     );
 }
+
+export default WishlistClient;

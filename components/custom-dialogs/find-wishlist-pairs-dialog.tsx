@@ -31,7 +31,7 @@ type PotentialPairPrediction = {
 type FindWishlistPairsDialogProps = {
     goal: EnrichedResearchGoal;
     owner: {
-        username: string | null;
+        username: string | null | undefined;
         id: string;
         allowWishlistGoalSaving: boolean;
     };

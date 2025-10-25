@@ -47,6 +47,7 @@ const settingsSchema = z
         showFriendsList: z.boolean().optional(),
         preserveFilters: z.boolean().optional(),
         confirmPassword: z.string().optional(),
+        allowWishlistGoalSaving: z.boolean().optional(),
     })
     .refine(
         (data) => {
@@ -86,8 +87,10 @@ export async function PATCH(req: Request) {
             ...updateData,
         };
 
+        let passwordWasChanged = false;
         if (password) {
             dataToUpdate.password = await hash(password, 10);
+            passwordWasChanged = true;
         }
 
         if (Object.keys(dataToUpdate).length > 0) {
@@ -97,10 +100,22 @@ export async function PATCH(req: Request) {
         const username = session.user.username;
         track('settings_updated', { username });
 
-        if (dataToUpdate) {
+        // Log password change specifically
+        if (passwordWasChanged) {
             await logUserAction({
                 action: 'user.password_change',
-                description: `Changed settings for user "${username}".`,
+                description: `User "${username}" changed their password.`,
+            });
+        }
+
+        // Log other general settings changes
+        const otherChanges = Object.keys(updateData).filter(
+            (key) => !['featuredCreatureIds', 'featuredGoalIds'].includes(key)
+        );
+        if (otherChanges.length > 0) {
+            await logUserAction({
+                action: 'user.settings_update',
+                description: `User "${username}" updated settings: ${otherChanges.join(', ')}.`,
             });
         }
 

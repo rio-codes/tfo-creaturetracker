@@ -53,16 +53,20 @@ export type GoalGene = {
     isOptional: boolean;
 };
 
-export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt' | 'genes'> & {
+export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt'> & {
+    imageUrl?: string | null;
+    genes: { [category: string]: GoalGene };
+    excludedGenes?: { [category: string]: { phenotype: string[] } } | null;
+    assignedPairIds?: string[] | null;
+    targetGeneration?: number | null;
     createdAt: string;
     updatedAt: string;
-    genes: {
-        [category: string]: GoalGene;
-    };
-    excludedGenes?: {
-        [category: string]: { phenotype: string[] };
-    } | null;
-    targetGeneration?: number | null;
+    user?:
+        | DbUser
+        | {
+              username: string | null;
+              allowWishlistGoalSaving: boolean;
+          };
 };
 
 export type EnrichedBreedingPair = Omit<DbBreedingPair, 'createdAt' | 'updatedAt'> & {

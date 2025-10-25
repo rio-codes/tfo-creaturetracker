@@ -39,6 +39,10 @@ const editGoalSchema = z.object({
     targetGeneration: z.number().optional().default(1).nullable(),
 });
 
+const wishlistPinSchema = z.object({
+    isPinnedToWishlist: z.boolean(),
+});
+
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
     const session = await auth();
@@ -128,17 +132,72 @@ export async function PUT(req: Request, props: { params: Promise<{ goalId: strin
 
 export async function PATCH(req: Request, props: { params: Promise<{ goalId: string }> }) {
     const params = await props.params;
+    const { searchParams } = new URL(req.url);
+    const action = searchParams.get('action');
+
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
+    // Handle pinning to wishlist
+    if (action === 'pin-to-wishlist') {
+        try {
+            const body = await req.json();
+            const validated = wishlistPinSchema.safeParse(body);
+
+            if (!validated.success) {
+                console.error('Zod validation failed for wishlist pin:', validated.error);
+                return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
+            }
+
+            const { isPinnedToWishlist } = validated.data;
+
+            const [updatedGoal] = await db
+                .update(researchGoals)
+                .set({
+                    isPinnedToWishlist,
+                    updatedAt: new Date(),
+                })
+                .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
+                .returning({
+                    id: researchGoals.id,
+                    name: researchGoals.name,
+                });
+
+            if (!updatedGoal) {
+                return NextResponse.json(
+                    { error: 'Goal not found or you do not have permission to pin it.' },
+                    { status: 404 }
+                );
+            }
+
+            await logUserAction({
+                action: 'goal.wishlist_pin',
+                description: `${isPinnedToWishlist ? 'Pinned' : 'Unpinned'} goal "${updatedGoal.name}" on community wishlist.`,
+                link: `/research-goals/${updatedGoal.id}`,
+            });
+
+            revalidatePath('/community-wishlist');
+            revalidatePath(`/research-goals/${params.goalId}`);
+
+            return NextResponse.json({
+                message: `Goal ${isPinnedToWishlist ? 'pinned' : 'unpinned'} successfully.`,
+            });
+        } catch (error) {
+            console.error('Failed to update wishlist pin status:', error);
+            return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
+        }
+    }
+
+    // Handle standard goal edit (existing logic)
     try {
         const body = await req.json();
         const validatedFields = editGoalSchema.safeParse(body);
 
         if (!validatedFields.success) {
+            // ... existing error handling
             const { fieldErrors } = validatedFields.error.flatten();
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
@@ -147,6 +206,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
+        // ... rest of your existing goal editing logic
         const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration } =
             validatedFields.data;
 

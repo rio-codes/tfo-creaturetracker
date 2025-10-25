@@ -94,5 +94,7 @@ export const enrichAndSerializeGoal = (
         genes: enrichedGenes,
         createdAt: goal.createdAt.toISOString(),
         updatedAt: goal.updatedAt.toISOString(),
+        excludedGenes: goal.excludedGenes,
+        assignedPairIds: goal.assignedPairIds,
     };
 };

@@ -143,7 +143,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 setMissingCreatures(data.missingCreatures);
                 setShowArchiveConfirm(true);
                 alertService.success(data.message, { autoClose: true, keepAfterRouteChange: true });
-                // Don't close the main dialog, let the archive confirmation handle it.
                 setStatus('idle');
                 router.refresh();
             } else {
@@ -208,7 +207,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to add tab.');
 
-            await fetchUserTabs(); // Refresh the list
+            await fetchUserTabs();
             setShowAddForm(false);
             setNewTabId('');
             setNewTabName('');
@@ -250,7 +249,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 autoClose: true,
                 keepAfterRouteChange: true,
             });
-            setUserTabs(originalTabs); // Revert on error
+            setUserTabs(originalTabs);
         }
     };
 

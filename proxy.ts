@@ -4,7 +4,13 @@ import { auth } from '@/auth';
 const PUBLIC_ROUTES = ['/login', '/register'];
 const PUBLIC_PREFIXES = ['/api/', '/share/'];
 
-const PROTECTED_ROUTES = ['/collection', '/breeding-pairs', '/research-goals', '/settings'];
+const PROTECTED_ROUTES = [
+    '/collection',
+    '/breeding-pairs',
+    '/research-goals',
+    '/settings',
+    '/community-wishlist',
+];
 const ADMIN_ROUTES = ['/admin'];
 
 export default auth((req: any) => {

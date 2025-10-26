@@ -21,7 +21,6 @@ import {
     SQL,
     sql,
     isNotNull,
-    exists,
     notExists,
 } from 'drizzle-orm';
 import type {

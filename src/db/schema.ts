@@ -235,6 +235,7 @@ export const pendingRegistrations = pgTable('pending_registration', {
 });
 
 export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'unknown']);
+
 export const creatureOriginEnum = pgEnum('origin', [
     'cupboard',
     'genome-splicer',
@@ -270,6 +271,8 @@ export const creatures = pgTable(
         generation: integer('generation').default(1).notNull(),
         origin: creatureOriginEnum('origin').default('unknown'),
         fulfillsWish: boolean('fulfills_wish').default(false).notNull(),
+        isForSaleOrTrade: boolean('is_for_sale_or_trade').default(false).notNull(),
+        isForStud: boolean('is_for_stud').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

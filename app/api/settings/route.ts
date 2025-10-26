@@ -47,6 +47,7 @@ const settingsSchema = z
         showFriendsList: z.boolean().optional(),
         preserveFilters: z.boolean().optional(),
         confirmPassword: z.string().optional(),
+        showFulfillable: z.boolean().optional(),
         allowWishlistGoalSaving: z.boolean().optional(),
     })
     .refine(
@@ -71,6 +72,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json();
+        console.log(body);
         const validated = settingsSchema.safeParse(body);
 
         if (!validated.success) {

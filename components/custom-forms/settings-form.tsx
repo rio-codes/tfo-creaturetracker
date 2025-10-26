@@ -37,7 +37,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-// This schema should align with the one in `app/api/settings/route.ts`
 const settingsFormSchema = z
     .object({
         email: z.string().email().optional(),
@@ -122,6 +121,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
     const [avatarFile, setAvatarFile] = useState<File | null>(null); // State for the selected avatar file
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.image as any);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsFormSchema),
         defaultValues: {

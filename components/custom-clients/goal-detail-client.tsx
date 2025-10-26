@@ -31,13 +31,26 @@ import { analyzeProgenyAgainstGoal } from '@/lib/goal-analysis';
 import { ManageGoalPairsDialog } from '../custom-dialogs/manage-goal-pairs-dialog';
 import { FindPotentialPairsDialog } from '@/components/custom-dialogs/find-potential-pairs-dialog';
 import { ResponsiveCreatureLink } from '../misc-custom-components/responsive-creature-link';
+import { SuggestedParents } from '../misc-custom-components/suggested-parents';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
+import { CreatureCard } from '@/components/custom-cards/creature-card';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
     initialPredictions: Prediction[];
+    availableCreatures: EnrichedCreature[];
 };
 
-export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientProps) {
+export function GoalDetailClient({
+    goal,
+    initialPredictions,
+    availableCreatures,
+}: GoalDetailClientProps) {
     const hasMounted = useMounted();
     const router = useRouter();
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -96,8 +109,6 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
         </div>
     );
 
-    // retrieve all breeding pairs from db
-
     const assignedPredictions = useMemo(() => {
         const assignedIds = new Set(goal?.assignedPairIds || []);
         return initialPredictions.filter((p) => assignedIds.has(p.pairId!));
@@ -116,12 +127,10 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                     }))
             );
 
-        // Deduplicate progeny in case it's part of multiple assigned pairs
         const uniqueProgeny = Array.from(
             new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
         ) as (EnrichedCreature & { parentPairName: string })[];
 
-        // Final type guard to ensure all items are valid creatures
         return uniqueProgeny.filter(
             (p): p is EnrichedCreature & { parentPairName: string } => !!p.id
         );
@@ -140,7 +149,6 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                     }))
             );
 
-        // Deduplicate progeny in case it's part of multiple assigned pairs
         const uniqueProgeny = Array.from(
             new Map(progenyWithPairInfo.map((p) => [p.id, p])).values()
         ) as EnrichedCreature[];
@@ -306,6 +314,62 @@ export function GoalDetailClient({ goal, initialPredictions }: GoalDetailClientP
                     </div>
                 </Card>
             </div>
+            {/* Suggested Parent Genes Section */}
+            <div className="mt-10">
+                <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
+                    Suggested Parent Genes
+                </h2>
+                <Card className="bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border">
+                    <CardContent className="p-4">
+                        <Accordion type="single" collapsible className="w-full">
+                            {geneEntries
+                                .filter(([, gene]) => !gene.isOptional)
+                                .map(
+                                    ([category, gene]) =>
+                                        category !== 'Gender' && (
+                                            <AccordionItem value={category} key={category}>
+                                                <AccordionTrigger className="font-semibold text-lg">
+                                                    {category}: {gene.phenotype}
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    <SuggestedParents
+                                                        species={goal.species}
+                                                        category={category}
+                                                        targetGene={gene}
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )
+                                )}
+                        </Accordion>
+                    </CardContent>
+                </Card>
+            </div>
+            {/* Available Creatures Section */}
+            {availableCreatures.length > 0 && (
+                <div className="mt-10">
+                    <h2 className="text-3xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
+                        Available for Breeding
+                    </h2>
+                    <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mb-4">
+                        The following creatures from other users are marked as available for trade
+                        or studding and could be useful for this goal.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {availableCreatures.map(
+                            (creature) =>
+                                creature && (
+                                    <CreatureCard
+                                        key={creature.id}
+                                        creature={creature}
+                                        currentUser={null}
+                                        isAdminView={false}
+                                    />
+                                )
+                        )}
+                    </div>
+                </div>
+            )}
             {/* Bottom Section */}
             <div className="mt-10">
                 <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:items-center mb-4">

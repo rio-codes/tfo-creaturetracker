@@ -54,7 +54,28 @@ export async function GET() {
             .innerJoin(users, eq(participants.userId, users.id))
             .where(inArray(participants.conversationId, conversationIds));
 
-        const enrichedConversations = conversationIds.map((convId) => {
+        // Group participants by conversation ID to validate them
+        const participantsByConversation = allParticipants.reduce(
+            (acc, p) => {
+                if (!acc[p.conversationId]) {
+                    acc[p.conversationId] = [];
+                }
+                acc[p.conversationId].push(p);
+                return acc;
+            },
+            {} as Record<string, typeof allParticipants>
+        );
+
+        // Filter out conversations that don't have exactly 2 participants
+        const validConversationIds = Object.keys(participantsByConversation).filter(
+            (convId) => participantsByConversation[convId].length === 2
+        );
+
+        if (validConversationIds.length === 0) {
+            return NextResponse.json([]);
+        }
+
+        const enrichedConversations = validConversationIds.map((convId) => {
             const otherParticipants = allParticipants.filter(
                 (p) => p.conversationId === convId && p.userId !== userId
             );

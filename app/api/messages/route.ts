@@ -52,7 +52,6 @@ export async function GET(req: Request) {
                 },
             },
             orderBy: [messages.createdAt], // Order ascending to get oldest first
-            limit: 100,
         });
         return NextResponse.json(conversationMessages, { status: 200 });
     } catch (error) {

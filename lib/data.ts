@@ -8,7 +8,7 @@ import {
     researchGoals,
     users,
 } from '@/src/db/schema';
-import { and, ilike, like, or, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
+import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,
@@ -845,4 +845,27 @@ export async function getHomepageStats(): Promise<HomepageStats> {
         prolificPair,
         randomCreature,
     };
+}
+
+export async function fetchAvailableCreaturesForGoal(
+    species: string,
+    ownerId: string
+): Promise<EnrichedCreature[]> {
+    try {
+        const availableCreatures = await db.query.creatures.findMany({
+            where: and(eq(creatures.species, species), ne(creatures.userId, ownerId)),
+            with: {
+                user: {
+                    columns: {
+                        username: true,
+                    },
+                },
+            },
+        });
+
+        return availableCreatures.map(enrichAndSerializeCreature);
+    } catch (error) {
+        console.error('Error fetching available creatures:', error);
+        return [];
+    }
 }

@@ -15,6 +15,9 @@ import {
     Trash2,
     Sparkles,
     Pencil,
+    Tag,
+    ShoppingBag,
+    HeartHandshake,
 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -38,6 +41,16 @@ import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';
 import { SetGenerationDialog } from '../custom-dialogs/set-generation-dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CreatureCardProps {
     creature: EnrichedCreature;
@@ -65,6 +78,9 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
     const [parentPair, setParentPair] = useState<EnrichedBreedingPair | null>(null);
     const [isParentOfPair, setIsParentOfPair] = useState(false);
     const [_isContextLoading, setIsContextLoading] = useState(true);
+    const [isUpdatingAvailability, setIsUpdatingAvailability] = useState(false);
+    const [isForSale, setIsForSale] = useState(creature?.isForSaleOrTrade);
+    const [isForStud, setIsForStud] = useState(creature?.isForStud);
 
     useEffect(() => {
         if (isAdminView) {
@@ -194,6 +210,33 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
         }
     };
 
+    const handleAvailabilityChange = async (
+        field: 'isForSaleOrTrade' | 'isForStud',
+        value: boolean
+    ) => {
+        setIsUpdatingAvailability(true);
+        try {
+            const response = await fetch(`/api/creatures/${creature.id}/availability`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [field]: value }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update availability.');
+            }
+            toast.success('Creature availability updated!');
+            if (field === 'isForSaleOrTrade') setIsForSale(value);
+            if (field === 'isForStud') setIsForStud(value);
+
+            router.refresh();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+        } finally {
+            setIsUpdatingAvailability(false);
+        }
+    };
+
     return (
         <Card
             className={`relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
@@ -214,6 +257,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                     </TooltipProvider>
                 </div>
             )}
+
             <div className={`${creature.isArchived ? 'opacity-50' : 'opacity-100'}`}>
                 {creature.isArchived && (
                     <div className="absolute top-2 left-2 z-20 flex items-center gap-2 rounded-full bg-gray-500/80 px-3 py-1 text-white text-xs font-bold">
@@ -269,6 +313,71 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                         </TooltipProvider>
                     </div>
                 )}
+                {/* Add Availability Dropdown for owner */}
+                {!isAdminView && currentUser?.id === creature.userId && (
+                    <div className="absolute bottom-2 left-2 z-10">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={isUpdatingAvailability || creature.isArchived}
+                                    className="h-8 w-8 rounded-full hover:bg-pompaca-purple/20"
+                                >
+                                    {isUpdatingAvailability ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                        <Tag className="h-5 w-5 text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson" />
+                                    )}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                className="bg-barely-liac text-pompaca-purple dark:bg-pompaca-purple dark:text-purple-300 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
+                                onCloseAutoFocus={(e) => e.preventDefault()}
+                            >
+                                <DropdownMenuLabel>Set Availability</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="isForSale"
+                                            checked={isForSale}
+                                            onCheckedChange={(checked) =>
+                                                handleAvailabilityChange(
+                                                    'isForSaleOrTrade',
+                                                    !!checked
+                                                )
+                                            }
+                                        />
+                                        <label
+                                            htmlFor="isForSale"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            For Sale / Trade
+                                        </label>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="isForStud"
+                                            checked={isForStud}
+                                            onCheckedChange={(checked) =>
+                                                handleAvailabilityChange('isForStud', !!checked)
+                                            }
+                                        />
+                                        <label
+                                            htmlFor="isForStud"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            For Stud
+                                        </label>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                )}
                 <CardContent className="p-4">
                     {/* Creature Image */}
                     <div className="rounded-lg p-4 mb-4 flex justify-center">
@@ -278,6 +387,25 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                             className="w-35 h-35 object-scale-down"
                         />
                     </div>
+                    {(isForSale || isForStud) && (
+                        <div className="flex items-center gap-2 text-xs font-semibold mb-2">
+                            {isForStud && (
+                                <Badge variant="outline" className="text-blue-600 border-blue-600">
+                                    <HeartHandshake className="mr-1 h-3 w-3" />
+                                    For Stud
+                                </Badge>
+                            )}
+                            {isForSale && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-purple-600 border-purple-600"
+                                >
+                                    <ShoppingBag className="mr-1 h-3 w-3" />
+                                    For Sale/Trade
+                                </Badge>
+                            )}
+                        </div>
+                    )}
                     <div className="flex-col text-sm h-30 hallowsnight:text-cimo-crimson">
                         <div>
                             <strong>Name:</strong> {creature.creatureName}

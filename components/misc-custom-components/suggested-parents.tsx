@@ -110,7 +110,8 @@ export function SuggestedParents({ species, category, targetGene }: SuggestedPar
                         className="flex items-center justify-between p-2 rounded-md bg-black/5 dark:bg-white/5"
                     >
                         <span className="font-medium">
-                            {s.parentAPhenotype} x {s.parentBPhenotype}
+                            {s.parentAPhenotype} ({s.parentAGenotype}) x {s.parentBPhenotype} (
+                            {s.parentBGenotype})
                         </span>
                         {getProbabilityBadge(s.probability)}
                     </li>

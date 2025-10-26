@@ -39,6 +39,7 @@ import {
     AccordionTrigger,
 } from '@/components/ui/accordion';
 import { CreatureCard } from '@/components/custom-cards/creature-card';
+import Link from 'next/link';
 
 type GoalDetailClientProps = {
     goal: EnrichedResearchGoal;
@@ -358,13 +359,21 @@ export function GoalDetailClient({
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {availableCreatures.map(
                             (creature) =>
-                                creature && (
-                                    <CreatureCard
-                                        key={creature.id}
-                                        creature={creature}
-                                        currentUser={null}
-                                        isAdminView={false}
-                                    />
+                                creature &&
+                                creature.user && (
+                                    <div key={creature.id} className="flex flex-col gap-2">
+                                        <CreatureCard
+                                            creature={creature}
+                                            currentUser={null}
+                                            isAdminView={false}
+                                        />
+                                        <Link
+                                            href={`/${creature.user.username}`}
+                                            className="text-center text-sm font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson hover:underline"
+                                        >
+                                            View {creature.user.username}'s Profile
+                                        </Link>
+                                    </div>
                                 )
                         )}
                     </div>

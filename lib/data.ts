@@ -853,7 +853,11 @@ export async function fetchAvailableCreaturesForGoal(
 ): Promise<EnrichedCreature[]> {
     try {
         const availableCreatures = await db.query.creatures.findMany({
-            where: and(eq(creatures.species, species), ne(creatures.userId, ownerId)),
+            where: and(
+                eq(creatures.species, species),
+                ne(creatures.userId, ownerId),
+                or(eq(creatures.isForSaleOrTrade, true), eq(creatures.isForStud, true))
+            ),
             with: {
                 user: {
                     columns: {

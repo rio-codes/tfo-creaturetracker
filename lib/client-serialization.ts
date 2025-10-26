@@ -2,7 +2,7 @@ import { structuredGeneData } from '@/constants/creature-data';
 import type { DbCreature, DbResearchGoal, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 
 export const enrichAndSerializeCreature = (
-    creature: DbCreature | null
+    creature: (DbCreature & { user?: { username: string | null } | null }) | null
 ): EnrichedCreature | null => {
     if (!creature) return null;
     const speciesGeneData = structuredGeneData[creature.species || ''];

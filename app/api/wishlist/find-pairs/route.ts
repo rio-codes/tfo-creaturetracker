@@ -53,11 +53,18 @@ export async function POST(request: Request) {
         }
 
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
-        const males = enrichedCreatures.filter((c) => c?.gender === 'male' && c?.growthLevel === 3);
-        const females = enrichedCreatures.filter(
+        let males = enrichedCreatures.filter((c) => c?.gender === 'male' && c?.growthLevel === 3);
+        let females = enrichedCreatures.filter(
             (c) => c?.gender === 'female' && c?.growthLevel === 3
         );
 
+        const MAX_CREATURES_TO_CHECK = 50;
+        if (males.length > MAX_CREATURES_TO_CHECK) {
+            males = males.sort(() => 0.5 - Math.random()).slice(0, MAX_CREATURES_TO_CHECK);
+        }
+        if (females.length > MAX_CREATURES_TO_CHECK) {
+            females = females.sort(() => 0.5 - Math.random()).slice(0, MAX_CREATURES_TO_CHECK);
+        }
         const combinations: any[] = [];
         for (const male of males) {
             for (const female of females) {

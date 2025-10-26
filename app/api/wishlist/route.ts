@@ -65,7 +65,7 @@ export async function GET(req: Request) {
 
         const whereConditions: (SQL | undefined)[] = [
             eq(researchGoals.isPublic, true),
-            eq(researchGoals.isPinnedToWishlist, false),
+            eq(researchGoals.isPinned, false),
             query
                 ? or(
                       ilike(researchGoals.name, `%${query}%`),

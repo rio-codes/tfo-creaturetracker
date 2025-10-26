@@ -6,9 +6,24 @@ import {
     breedingPairs,
     breedingLogEntries,
     researchGoals,
+    wishlistPins,
     users,
 } from '@/src/db/schema';
-import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
+import {
+    and,
+    ilike,
+    like,
+    or,
+    ne,
+    eq,
+    desc,
+    count,
+    SQL,
+    sql,
+    isNotNull,
+    exists,
+    notExists,
+} from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,
@@ -422,25 +437,37 @@ export async function fetchFilteredWishlistGoals(
             ? sql`${researchGoals.genes}->'Generation'->>'phenotype' = ${generation}`
             : undefined,
     ].filter(Boolean);
+
     const pinnedGoalsRaw = await db.query.researchGoals.findMany({
-        where: and(
-            eq(researchGoals.isPinnedToWishlist, true), // Use isPinnedToWishlist
-            ...conditions
-        ),
-        with: { user: true },
-        orderBy: [desc(researchGoals.updatedAt)], // Order by update time or another field
+        where: (goals, { exists, and, eq }) =>
+            and(
+                ...conditions,
+                exists(
+                    db
+                        .select({ n: sql`1` })
+                        .from(wishlistPins)
+                        .where(
+                            and(eq(wishlistPins.goalId, goals.id), eq(wishlistPins.userId, userId))
+                        )
+                )
+            ),
+        orderBy: [desc(researchGoals.updatedAt)],
     });
     const pinnedGoals = pinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
 
-    // --- Fetch Unpinned Goals (Paginated) ---
-    // Correctly fetch unpinned goals, excluding those already in the pinned list.
-    const unpinnedConditions = [
-        ...conditions,
-        eq(researchGoals.isPinnedToWishlist, false), // Use isPinnedToWishlist
-    ];
-
     const unpinnedGoalsRaw = await db.query.researchGoals.findMany({
-        where: and(...unpinnedConditions),
+        where: (goals, { and, notExists, eq }) =>
+            and(
+                ...conditions,
+                notExists(
+                    db
+                        .select({ n: sql`1` })
+                        .from(wishlistPins)
+                        .where(
+                            and(eq(wishlistPins.goalId, goals.id), eq(wishlistPins.userId, userId))
+                        )
+                )
+            ),
         with: { user: true },
         orderBy:
             sortBy === 'species'
@@ -449,12 +476,28 @@ export async function fetchFilteredWishlistGoals(
         limit: limit,
         offset: (currentPage - 1) * limit,
     });
+
     const unpinnedGoals = unpinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
 
     const totalCountResult = await db
         .select({ count: count() })
         .from(researchGoals)
-        .where(and(...unpinnedConditions));
+        .where(
+            and(
+                ...conditions,
+                notExists(
+                    db
+                        .select({ n: sql`1` })
+                        .from(wishlistPins)
+                        .where(
+                            and(
+                                eq(wishlistPins.goalId, researchGoals.id),
+                                eq(wishlistPins.userId, userId)
+                            )
+                        )
+                )
+            )
+        );
 
     const totalUnpinned = totalCountResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalUnpinned / limit);
@@ -484,11 +527,9 @@ export async function fetchBreedingPairsWithStats(
     });
     const itemsPerPage = user?.pairsItemsPerPage ?? 10;
 
-    // Aliases for joining creatures table twice
     const maleCreatures = alias(creatures, 'male_creatures');
     const femaleCreatures = alias(creatures, 'female_creatures');
 
-    // Build conditions for filtering
     const conditions: SQL<unknown>[] | undefined = [
         eq(breedingPairs.userId, userId),
         showArchived !== 'true' ? eq(breedingPairs.isArchived, false) : undefined,
@@ -517,7 +558,6 @@ export async function fetchBreedingPairsWithStats(
         if (geneMode === 'genotype') {
             geneStrings = [`%${geneCategory}:${geneQuery}%`];
         } else {
-            // Phenotype mode
             const speciesGeneInfo = structuredGeneData[species];
             const categoryGenes = speciesGeneInfo?.[geneCategory];
             if (typeof categoryGenes === 'object' && Array.isArray(categoryGenes)) {

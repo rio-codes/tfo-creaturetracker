@@ -17,6 +17,10 @@ type ParentPairSuggestion = {
     probability: number;
 };
 
+function parseGenotypeToLoci(genotype: string): string[] {
+    return genotype.match(/.{1,2}/g) || [];
+}
+
 function getPunnettSquare(p1Locus: string, p2Locus: string): string[] {
     const outcomes: string[] = [];
     const p1Alleles = [p1Locus[0], p1Locus[1]];
@@ -32,13 +36,35 @@ function getPunnettSquare(p1Locus: string, p2Locus: string): string[] {
 }
 
 function calculatePairProbability(
-    parentALocus: string,
-    parentBLocus: string,
-    targetLocus: string
+    parentAGenotype: string,
+    parentBGenotype: string,
+    targetGenotype: string
 ): number {
-    const outcomes = getPunnettSquare(parentALocus, parentBLocus);
-    const successfulOutcomes = outcomes.filter((o) => o === targetLocus).length;
-    return successfulOutcomes / 4;
+    const parentALoci = parseGenotypeToLoci(parentAGenotype);
+    const parentBLoci = parseGenotypeToLoci(parentBGenotype);
+    const targetLoci = parseGenotypeToLoci(targetGenotype);
+
+    // If genotypes have different numbers of loci, they are incompatible.
+    if (parentALoci.length !== targetLoci.length || parentBLoci.length !== targetLoci.length) {
+        return 0;
+    }
+
+    let combinedProbability = 1;
+
+    for (let i = 0; i < targetLoci.length; i++) {
+        const targetLocus = [targetLoci[i][0], targetLoci[i][1]].sort().join('');
+        const outcomes = getPunnettSquare(parentALoci[i], parentBLoci[i]);
+        const successfulOutcomes = outcomes.filter((o) => o === targetLocus).length;
+        const locusProbability = successfulOutcomes / 4;
+
+        // If any locus has a 0% chance, the total probability is 0.
+        if (locusProbability === 0) {
+            return 0;
+        }
+        combinedProbability *= locusProbability;
+    }
+
+    return combinedProbability;
 }
 
 export function SuggestedParents({ species, category, targetGene }: SuggestedParentsProps) {
@@ -49,7 +75,9 @@ export function SuggestedParents({ species, category, targetGene }: SuggestedPar
         const categoryGenes = speciesGeneInfo[category];
         if (!Array.isArray(categoryGenes)) return [];
 
-        const targetGenotype = [targetGene.genotype[0], targetGene.genotype[1]].sort().join('');
+        const targetGenotype = parseGenotypeToLoci(targetGene.genotype)
+            .map((locus) => [locus[0], locus[1]].sort().join(''))
+            .join('');
         const pairSuggestions = new Map<string, ParentPairSuggestion>();
 
         for (const parentA of categoryGenes) {

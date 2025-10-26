@@ -537,15 +537,15 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                     {!isAdminView && !creature.isArchived ? (
                         <>
                             <ManageBreedingPairsDialog baseCreature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
-                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-24 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson flex-1">
+                                    <span className="text-wrap text-sm leading-tight">
                                         Manage Breeding Pairs
                                     </span>
                                 </Button>
                             </ManageBreedingPairsDialog>
                             <LogAsProgenyDialog creature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
-                                    <span className="text-wrap wrap-normal text-sm/tight">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-24 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson flex-1">
+                                    <span className="text-wrap text-sm leading-tight">
                                         Log as Progeny
                                     </span>
                                 </Button>
@@ -553,10 +553,10 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-23 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-24 h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson flex-1"
                                         disabled={isDeleting || isArchiving}
                                     >
-                                        <span className="text-wrap wrap-normal gap-y-1 text-sm/tight">
+                                        <span className="text-wrap text-sm leading-tight">
                                             Remove From Collection
                                         </span>
                                     </Button>

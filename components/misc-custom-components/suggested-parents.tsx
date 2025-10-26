@@ -31,14 +31,6 @@ function getPunnettSquare(p1Locus: string, p2Locus: string): string[] {
     return outcomes;
 }
 
-function getIdealAlleles(targetLocus: string): string[] {
-    if (targetLocus[0] === targetLocus[1]) {
-        return [targetLocus[0]];
-    } else {
-        return [targetLocus[0], targetLocus[1]];
-    }
-}
-
 function calculatePairProbability(
     parentALocus: string,
     parentBLocus: string,

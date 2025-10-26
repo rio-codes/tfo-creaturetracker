@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { researchGoals, goalModeEnum, breedingPairs } from '@/src/db/schema';
+import { researchGoals, goalModeEnum, breedingPairs, wishlistPins } from '@/src/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -40,7 +40,7 @@ const editGoalSchema = z.object({
 });
 
 const wishlistPinSchema = z.object({
-    isPinnedToWishlist: z.boolean(),
+    isPinned: z.boolean(),
 });
 
 export async function GET(req: Request, props: { params: Promise<{ goalId: string }> }) {
@@ -141,7 +141,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
     }
     const userId = session.user.id;
 
-    // Handle pinning to wishlist
     if (action === 'pin-to-wishlist') {
         try {
             const body = await req.json();
@@ -151,13 +150,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 console.error('Zod validation failed for wishlist pin:', validated.error);
                 return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
             }
+            const { isPinned } = validated.data;
 
-            const { isPinnedToWishlist } = validated.data;
-
+            // We only need to touch the goal to update its `updatedAt` timestamp
+            // to bump it in sorted lists, but pinning itself is now in a separate table.
             const [updatedGoal] = await db
                 .update(researchGoals)
                 .set({
-                    isPinnedToWishlist,
                     updatedAt: new Date(),
                 })
                 .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
@@ -168,138 +167,143 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
 
             if (!updatedGoal) {
                 return NextResponse.json(
-                    { error: 'Goal not found or you do not have permission to pin it.' },
+                    { error: 'Goal not found or you do not have permission to modify it.' },
                     { status: 404 }
                 );
             }
 
+            if (isPinned) {
+                await db
+                    .insert(wishlistPins)
+                    .values({
+                        userId: userId,
+                        goalId: params.goalId,
+                    })
+                    .onConflictDoNothing();
+            } else {
+                await db
+                    .delete(wishlistPins)
+                    .where(
+                        and(eq(wishlistPins.userId, userId), eq(wishlistPins.goalId, params.goalId))
+                    );
+            }
+
             await logUserAction({
                 action: 'goal.wishlist_pin',
-                description: `${isPinnedToWishlist ? 'Pinned' : 'Unpinned'} goal "${updatedGoal.name}" on community wishlist.`,
                 link: `/research-goals/${updatedGoal.id}`,
+                description: `${isPinned ? 'Pinned' : 'Unpinned'} a goal on the community wishlist.`,
             });
 
             revalidatePath('/community-wishlist');
-            revalidatePath(`/research-goals/${params.goalId}`);
 
             return NextResponse.json({
-                message: `Goal ${isPinnedToWishlist ? 'pinned' : 'unpinned'} successfully.`,
+                message: `Goal ${isPinned ? 'pinned' : 'unpinned'} successfully.`,
             });
         } catch (error) {
             console.error('Failed to update wishlist pin status:', error);
             return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
         }
-    }
+    } else {
+        // Handle standard goal edit (the "original" function)
+        try {
+            const body = await req.json();
+            const validatedFields = editGoalSchema.safeParse(body);
 
-    // Handle standard goal edit (existing logic)
-    try {
-        const body = await req.json();
-        const validatedFields = editGoalSchema.safeParse(body);
-
-        if (!validatedFields.success) {
-            // ... existing error handling
-            const { fieldErrors } = validatedFields.error.flatten();
-            const errorMessage = Object.values(fieldErrors)
-                .flatMap((errors) => errors)
-                .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
-            return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
-        }
-
-        // ... rest of your existing goal editing logic
-        const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration } =
-            validatedFields.data;
-
-        if (hasObscenity(name)) {
-            return NextResponse.json(
-                { error: 'The provided name contains inappropriate language.' },
-                { status: 400 }
-            );
-        }
-
-        const existingGoal = await db.query.researchGoals.findFirst({
-            where: and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)),
-        });
-
-        if (!existingGoal) {
-            return NextResponse.json(
-                {
-                    error: 'Goal not found or you do not have permission to edit it.',
-                },
-                { status: 404 }
-            );
-        }
-
-        let newImageUrl = existingGoal.imageUrl;
-        const genesChanged = JSON.stringify(existingGoal.genes) !== JSON.stringify(genes);
-
-        if (genesChanged || existingGoal.species !== species) {
-            try {
-                const genotypesForUrl = Object.fromEntries(
-                    Object.entries(genes).map(([category, selection]) => {
-                        const geneSelection = selection as { genotype: string };
-                        return [category, geneSelection.genotype];
-                    })
+            if (!validatedFields.success) {
+                const errorMessage = validatedFields.error.issues
+                    .map((issue) => issue.message)
+                    .join('; ');
+                console.error('Zod Validation Failed:', errorMessage);
+                return NextResponse.json(
+                    { error: errorMessage || 'Invalid input.' },
+                    { status: 400 }
                 );
-                const tfoApiUrl = constructTfoImageUrl(species, genotypesForUrl);
-                const imageResponse = await fetch(tfoApiUrl);
-                if (imageResponse.ok) {
-                    const imageBlob = await imageResponse.blob();
-                    const blob = await vercelBlobPut(
-                        `goals/${params.goalId}-${Date.now()}.png`,
-                        imageBlob,
-                        {
-                            access: 'public',
-                            contentType: 'image/png',
-                            addRandomSuffix: true,
-                        }
-                    );
-                    newImageUrl = blob.url;
-                }
-            } catch (e) {
-                console.error('Failed to generate new goal image', e);
             }
-        }
 
-        await db
-            .update(researchGoals)
-            .set({
-                name,
-                species,
-                genes,
-                goalMode,
-                imageUrl: newImageUrl,
-                updatedAt: new Date(),
-                isPublic,
-                excludedGenes,
-                targetGeneration: targetGeneration ?? 1,
-            })
-            .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
-            .returning();
+            const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration } =
+                validatedFields.data;
 
-        if (session.user.role === 'admin') {
-            await logAdminAction({
-                action: 'research_goal.admin_edit',
-                targetType: 'research_goal',
-                targetUserId: existingGoal.userId,
-                targetId: params.goalId,
-                details: { updatedFields: Object.keys(validatedFields.data), goalName: name },
+            if (hasObscenity(name)) {
+                return NextResponse.json(
+                    { error: 'The provided name contains inappropriate language.' },
+                    { status: 400 }
+                );
+            }
+
+            const existingGoal = await db.query.researchGoals.findFirst({
+                where: and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)),
             });
+
+            if (!existingGoal) {
+                return NextResponse.json(
+                    {
+                        error: 'Goal not found or you do not have permission to edit it.',
+                    },
+                    { status: 404 }
+                );
+            }
+
+            let newImageUrl = existingGoal.imageUrl;
+            const genesChanged = JSON.stringify(existingGoal.genes) !== JSON.stringify(genes);
+
+            if (genesChanged || existingGoal.species !== species) {
+                try {
+                    const genotypesForUrl = Object.fromEntries(
+                        Object.entries(genes).map(([category, selection]) => {
+                            const geneSelection = selection as { genotype: string };
+                            return [category, geneSelection.genotype];
+                        })
+                    );
+                    const tfoApiUrl = constructTfoImageUrl(species, genotypesForUrl);
+                    const imageResponse = await fetch(tfoApiUrl);
+                    if (imageResponse.ok) {
+                        const imageBlob = await imageResponse.blob();
+                        const blob = await vercelBlobPut(
+                            `goals/${params.goalId}-${Date.now()}.png`,
+                            imageBlob,
+                            {
+                                access: 'public',
+                                contentType: 'image/png',
+                                addRandomSuffix: true,
+                            }
+                        );
+                        newImageUrl = blob.url;
+                    }
+                } catch (e) {
+                    console.error('Failed to generate new goal image', e);
+                }
+            }
+
+            await db
+                .update(researchGoals)
+                .set({
+                    name,
+                    species,
+                    genes,
+                    goalMode,
+                    imageUrl: newImageUrl,
+                    updatedAt: new Date(),
+                    isPublic,
+                    excludedGenes,
+                    targetGeneration: targetGeneration ?? 1,
+                })
+                .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
+                .returning();
+
+            await logUserAction({
+                action: 'goal.update',
+                description: `Updated research goal "${existingGoal.name}"`,
+                link: `/research-goals/${existingGoal.id}`,
+            });
+
+            revalidatePath('/research-goals');
+            revalidatePath(`/research-goals/${params.goalId}`);
+
+            return NextResponse.json({ message: 'Goal updated successfully!' });
+        } catch (error: any) {
+            console.error('Failed to update research goal:', error);
+            return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
         }
-
-        await logUserAction({
-            action: 'goal.update',
-            description: `Updated research goal "${existingGoal.name}"`,
-            link: `/research-goals/${existingGoal.id}`,
-        });
-
-        revalidatePath('/research-goals');
-        revalidatePath(`/research-goals/${params.goalId}`);
-
-        return NextResponse.json({ message: 'Goal updated successfully!' });
-    } catch (error: any) {
-        console.error('Failed to update research goal:', error);
-        return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
     }
 }
 

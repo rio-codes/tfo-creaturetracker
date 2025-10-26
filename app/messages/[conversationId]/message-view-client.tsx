@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabase';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 // This fetch function remains for client-side refetching
 async function fetchMessages(conversationId: string): Promise<MessageWithSender[]> {
@@ -52,7 +51,7 @@ function MessageItem({
                 className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg ${
                     isOwnMessage
                         ? 'bg-pompaca-purple text-white hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson'
-                        : 'bg-gray-200 dark:bg-gray-700'
+                        : 'bg-barely-lilac text-pompaca-purple dark:bg-dusk-purple dark:text-deep-purple hallowsnight:bg-ruzafolio-scarlet/50 hallowsnight:text-abyss'
                 }`}
             >
                 <p className="text-sm">{message.content}</p>
@@ -80,18 +79,22 @@ export function MessageViewClient({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [newMessage, setNewMessage] = useState('');
 
-    const { data: messages, isLoading: isLoadingMessages } = useQuery<MessageWithSender[]>({
+    const { data: messages, isPending: isMessagesPending } = useQuery<MessageWithSender[]>({
         queryKey: ['messages', conversationId],
         queryFn: () => fetchMessages(conversationId),
-        initialData: initialMessages, // Use initial data from the server
-        staleTime: 1000 * 60, // 1 minute
+        initialData: initialMessages,
+        initialDataUpdatedAt: Date.now(),
+        staleTime: 1000 * 60,
     });
 
-    const { data: conversation } = useQuery<EnrichedConversation>({
-        queryKey: ['conversation', conversationId],
-        queryFn: async () => initialConversation, // The query function now just returns the initial data
-        initialData: initialConversation,
-    });
+    const { data: conversation, isPending: isConversationPending } = useQuery<EnrichedConversation>(
+        {
+            queryKey: ['conversation', conversationId],
+            queryFn: () => Promise.resolve(initialConversation),
+            initialData: initialConversation,
+            staleTime: 1000 * 60 * 5,
+        }
+    );
 
     const sendMessageMutation = useMutation({
         mutationFn: (content: string) =>
@@ -109,13 +112,10 @@ export function MessageViewClient({
     });
 
     const scrollToBottom = () => {
-        if (scrollAreaRef.current) {
-            const viewport = scrollAreaRef.current.querySelector(
-                'div[data-radix-scroll-area-viewport]'
-            );
-            if (viewport) {
-                viewport.scrollTop = viewport.scrollHeight;
-            }
+        const scrollArea = scrollAreaRef.current;
+        if (scrollArea) {
+            // For a simple div, we can just set scrollTop to scrollHeight
+            scrollArea.scrollTop = scrollArea.scrollHeight;
         }
     };
 
@@ -125,7 +125,7 @@ export function MessageViewClient({
 
     useEffect(() => {
         const channel = supabase
-            .channel(`conversation:`)
+            .channel(`conversation:${conversationId}`)
             .on('broadcast', { event: 'new_message' }, (payload) => {
                 queryClient.setQueryData(
                     ['messages', conversationId],
@@ -153,7 +153,7 @@ export function MessageViewClient({
     const otherParticipant = conversation?.otherParticipants[0];
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full bg-barely-lilac dark:bg-dusk-purple hallowsnight:bg-blood-bay-wine text-pompaca-purple dark:text-deep-purple hallowsnight:text-cimo-crimson">
             {/* Header */}
             <header className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700">
                 <Link href="/messages" className="md:hidden mr-4">
@@ -161,7 +161,9 @@ export function MessageViewClient({
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                 </Link>
-                {otherParticipant ? (
+                {isConversationPending ? (
+                    <Skeleton className="h-8 w-48" />
+                ) : otherParticipant ? (
                     <>
                         <Image
                             src={
@@ -175,15 +177,13 @@ export function MessageViewClient({
                         />
                         <h2 className="text-lg font-semibold">{otherParticipant.username}</h2>
                     </>
-                ) : (
-                    <Skeleton className="h-8 w-48" />
-                )}
+                ) : null}
             </header>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                <div className="space-y-4">
-                    {isLoadingMessages && !initialMessages ? ( // Only show skeleton if there's no initial data
+            <div className="flex-1 p-4 overflow-y-auto" ref={scrollAreaRef}>
+                <div className="space-y-4 ">
+                    {isMessagesPending ? (
                         <div className="space-y-4">
                             <Skeleton className="h-12 w-2/3" />
                             <Skeleton className="h-16 w-1/2 self-end ml-auto" />
@@ -199,7 +199,7 @@ export function MessageViewClient({
                         ))
                     )}
                 </div>
-            </ScrollArea>
+            </div>
 
             {/* Input Form */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">

@@ -30,39 +30,32 @@ export function WishlistCard({
     isPinned: isPinnedProp,
 }: WishlistCardProps) {
     const { goal, owner } = wish;
-
-    // Initialize state from the prop
     const [isPinned, setIsPinned] = useState(isPinnedProp);
     const [isPinning, setIsPinning] = useState(false);
     const router = useRouter();
 
-    // Add a useEffect to sync state if the prop changes
     useEffect(() => {
         setIsPinned(isPinnedProp);
     }, [isPinnedProp]);
 
     const handlePinToggle = async () => {
         setIsPinning(true);
-        // Use a function form of setState to ensure we have the latest state
         const newPinState = !isPinned;
         try {
             const response = await fetch(`/api/research-goals/${goal.id}?action=pin-to-wishlist`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isPinnedToWishlist: newPinState }),
+                body: JSON.stringify({ isPinned: newPinState }),
             });
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to update pin status.');
             }
-            // Optimistically update the local state
             setIsPinned(newPinState);
-            // Refresh server data to get the canonical state
             router.refresh();
         } catch (error: any) {
             console.error(error);
             alert(`Could not update pin status: ${error.message}`);
-            // Revert optimistic update on failure
             setIsPinned(!newPinState);
         } finally {
             setIsPinning(false);

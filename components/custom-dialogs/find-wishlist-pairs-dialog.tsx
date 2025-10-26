@@ -150,8 +150,12 @@ export function FindWishlistPairsDialog({
                                                 className="flex items-center justify-between p-2 rounded-md bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss"
                                             >
                                                 <p>
-                                                    {maleParent?.creatureName} &{' '}
-                                                    {femaleParent?.creatureName}
+                                                    {maleParent?.creatureName} ({maleParent?.code})
+                                                    (G
+                                                    {maleParent?.generation}) &{' '}
+                                                    {femaleParent?.creatureName} (
+                                                    {femaleParent?.code}) (G
+                                                    {femaleParent?.generation})
                                                 </p>
                                                 <Button
                                                     size="sm"

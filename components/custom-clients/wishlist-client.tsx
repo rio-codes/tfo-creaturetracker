@@ -104,7 +104,7 @@ export function WishlistClient({
     const [geneQuery, setGeneQuery] = useState(searchParams.get('geneQuery') || '');
     const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'updatedAt'); // Add sortBy state
     const [debouncedQuery] = useDebounce(query, 500);
-    const [page, _setPage] = useState(Number(searchParams.get('page')) || 1);
+    const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
     const [pinnedGoals, setPinnedGoals] = useState<EnrichedResearchGoal[]>(
         initialPinnedGoals || []
     );
@@ -272,14 +272,20 @@ export function WishlistClient({
                 <Input
                     placeholder="Search by goal, species, user, or gene..."
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) => {
+                        setQuery(e.target.value);
+                        setPage(1);
+                    }}
                     className="max-w-sm"
                 />
                 <div className="flex items-center space-x-2">
                     <Checkbox
                         id="show-matches"
                         checked={showMatches}
-                        onCheckedChange={(checked) => setShowMatches(!!checked)}
+                        onCheckedChange={(checked) => {
+                            setShowMatches(!!checked);
+                            setPage(1);
+                        }}
                     />
                     <Label htmlFor="show-matches">Only show goals I can fulfill</Label>
                 </div>
@@ -287,13 +293,22 @@ export function WishlistClient({
                     <Checkbox
                         id="is-seasonal"
                         checked={isSeasonal}
-                        onCheckedChange={(checked) => setIsSeasonal(!!checked)}
+                        onCheckedChange={(checked) => {
+                            setIsSeasonal(!!checked);
+                            setPage(1);
+                        }}
                     />
                     <Label htmlFor="is-seasonal">Only show seasonal species</Label>
                 </div>
             </div>
             <div className="flex flex-wrap gap-4 mb-6">
-                <Select value={species} onValueChange={handleSpeciesChange}>
+                <Select
+                    value={species}
+                    onValueChange={(value) => {
+                        handleSpeciesChange(value);
+                        setPage(1);
+                    }}
+                >
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Species" />
                     </SelectTrigger>
@@ -307,7 +322,13 @@ export function WishlistClient({
                     </SelectContent>
                 </Select>
 
-                <Select value={generation} onValueChange={setGeneration}>
+                <Select
+                    value={generation}
+                    onValueChange={(value) => {
+                        setGeneration(value);
+                        setPage(1);
+                    }}
+                >
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Generation" />
                     </SelectTrigger>
@@ -323,7 +344,13 @@ export function WishlistClient({
 
                 {species !== 'all' && (
                     <>
-                        <Select value={geneCategory} onValueChange={setGeneCategory}>
+                        <Select
+                            value={geneCategory}
+                            onValueChange={(value) => {
+                                setGeneCategory(value);
+                                setPage(1);
+                            }}
+                        >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Trait Category" />
                             </SelectTrigger>
@@ -338,7 +365,13 @@ export function WishlistClient({
                         </Select>
 
                         {geneCategory && geneCategory !== 'any' && (
-                            <Select value={geneQuery} onValueChange={setGeneQuery}>
+                            <Select
+                                value={geneQuery}
+                                onValueChange={(value) => {
+                                    setGeneQuery(value);
+                                    setPage(1);
+                                }}
+                            >
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Trait" />
                                 </SelectTrigger>
@@ -359,7 +392,13 @@ export function WishlistClient({
                 {/* Add the Sort By dropdown */}
                 <div className="flex items-center space-x-2">
                     <Label htmlFor="sort-by">Sort by</Label>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select
+                        value={sortBy}
+                        onValueChange={(value) => {
+                            setSortBy(value);
+                            setPage(1);
+                        }}
+                    >
                         <SelectTrigger id="sort-by" className="w-[180px]">
                             <SelectValue placeholder="Sort by..." />
                         </SelectTrigger>
@@ -425,7 +464,7 @@ export function WishlistClient({
             )}
             {totalPages > 1 && (
                 <div className="flex justify-center mt-4">
-                    <Pagination totalPages={totalPages} />
+                    <Pagination totalPages={totalPages} currentPage={page} onPageChange={setPage} />
                 </div>
             )}
         </div>

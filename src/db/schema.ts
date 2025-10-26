@@ -321,7 +321,6 @@ export const researchGoals = pgTable(
         goalMode: goalModeEnum('goal_mode').default('phenotype').notNull(),
         isPublic: boolean('is_public').default(false).notNull(),
         isSeasonal: boolean('is_seasonal').default(false).notNull(),
-        isPinnedToWishlist: boolean('is_pinned_to_wishlist').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
@@ -331,6 +330,20 @@ export const researchGoals = pgTable(
         index('goal_pinned_idx').on(table.isPinned),
         index('goal_created_at_idx').on(table.createdAt),
     ]
+);
+
+export const wishlistPins = pgTable(
+    'wishlist_pins',
+    {
+        userId: text('user_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        goalId: text('goal_id')
+            .notNull()
+            .references(() => researchGoals.id, { onDelete: 'cascade' }),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => [primaryKey({ columns: [table.userId, table.goalId] })]
 );
 
 export const researchGoalsRelations = relations(researchGoals, ({ one }) => ({

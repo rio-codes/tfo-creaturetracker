@@ -15,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabase';
 
-// This fetch function remains for client-side refetching
 async function fetchMessages(conversationId: string): Promise<MessageWithSender[]> {
     const res = await fetch(`/api/messages?conversationId=${conversationId}`);
     if (!res.ok) {
@@ -28,7 +27,6 @@ async function fetchMessages(conversationId: string): Promise<MessageWithSender[
     }));
 }
 
-// MessageItem component can stay here or be moved to its own file
 function MessageItem({
     message,
     isOwnMessage,
@@ -50,13 +48,17 @@ function MessageItem({
             <div
                 className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg ${
                     isOwnMessage
-                        ? 'bg-pompaca-purple text-white hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson'
-                        : 'bg-barely-lilac text-pompaca-purple dark:bg-dusk-purple dark:text-deep-purple hallowsnight:bg-ruzafolio-scarlet/50 hallowsnight:text-abyss'
+                        ? 'bg-dusk-purple dark:bg-pompaca-purple dark:text-barely-lilac text-barely-lilac hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson'
+                        : 'bg-ebena-lavender text-pompaca-purple dark:bg-pompaca-purple/70 dark:text-deep-purple hallowsnight:bg-ruzafolio-scarlet/50 hallowsnight:text-cimo-crimson/75'
                 }`}
             >
-                <p className="text-sm">{message.content}</p>
-                <p className={`text-xs mt-1 ${isOwnMessage ? 'text-purple-200' : 'text-gray-500'}`}>
-                    {format(message.createdAt, 'p')}
+                <p className="text-sm text-pompaca-purple dark:text-barely-lilac hallowsnight:text-blood-bay-wine">
+                    {message.content}
+                </p>
+                <p
+                    className={`text-xs mt-1 ${isOwnMessage ? 'text-pompaca-purple dark:text-barely-lilac hallowsnight:text-abyss' : 'text-dusk-purple hallowsnight:text-abyss'}`}
+                >
+                    {format(message.createdAt, 'P, p')}
                 </p>
             </div>
         </div>
@@ -105,6 +107,7 @@ export function MessageViewClient({
             }),
         onSuccess: () => {
             setNewMessage('');
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
         },
         onError: (error) => {
             console.error('Failed to send message:', error);
@@ -145,7 +148,7 @@ export function MessageViewClient({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim()) {
+        if (newMessage.trim() && !sendMessageMutation.isPending) {
             sendMessageMutation.mutate(newMessage.trim());
         }
     };
@@ -208,7 +211,7 @@ export function MessageViewClient({
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 resize-none"
+                        className="flex-1 resize-none hallowsnight:text-cimo-crimson/70 placeholder:text-pompaca-purple dark:placeholder:text-barely-lilac hallowsnight:placeholder:text-cimo-crimson/70"
                         rows={1}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {

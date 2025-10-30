@@ -32,7 +32,7 @@ jobs:
                   POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
 
             - name: Upload backup artifact
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v5
               with:
                   name: database-backup
                   path: ${{ env.BACKUP_FILENAME }}

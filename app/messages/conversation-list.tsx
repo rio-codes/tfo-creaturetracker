@@ -55,7 +55,7 @@ function ConversationItem({ conversation }: { conversation: EnrichedConversation
                 height={40}
                 className="rounded-full mr-3"
             />
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1">
                 <div className="flex justify-between items-center">
                     <p className="font-semibold truncate text-ebena-lavender hallowsnight:text-cimo-crimson">
                         {otherParticipant.username}
@@ -66,7 +66,7 @@ function ConversationItem({ conversation }: { conversation: EnrichedConversation
                         </p>
                     )}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                <p className="text-sm dark:text-barely-lilac text-barely-lilac hallowsnight:bg-ruzafolio-scarlet hallowsnight:text-cimo-crimson/70 text-ellipsis overflow-hidden whitespace-nowrap">
                     {lastMessage?.content || 'No messages yet'}
                 </p>
             </div>

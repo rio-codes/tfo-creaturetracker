@@ -41,7 +41,7 @@
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@hookform/resolvers": "^5.2.2",
-        "@hyperdx/browser": "^0.21.2",
+        "@hyperdx/browser": "^0.22.0",
         "@hyperdx/cli": "^0.1.0",
         "@hyperdx/node-opentelemetry": "^0.9.0",
         "@mui/icons-material": "^7.3.4",

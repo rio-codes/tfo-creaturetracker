@@ -38,8 +38,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.65.0(react@19.2.0))
       '@hyperdx/browser':
-        specifier: ^0.21.2
-        version: 0.21.2(zone.js@0.14.10)
+        specifier: ^0.22.0
+        version: 0.22.0(zone.js@0.14.10)
       '@hyperdx/cli':
         specifier: ^0.1.0
         version: 0.1.0
@@ -998,8 +998,8 @@ packages:
     resolution: {integrity: sha512-e5+YUKENATs1JgYHMzTr2MW/NDcXGfYFAuOQU8gJgF/kEh4EqKgfGrfLI67bMD4tbhZVlkigz/9YYwWcbOFthg==}
     engines: {node: '>=10.13.0'}
 
-  '@hyperdx/browser@0.21.2':
-    resolution: {integrity: sha512-zDxW9cTRMEfn+DXv1t0Y0fn62tu8CD7dFz29YUZ39+Csr2trVEj8d7SFEHDVcuC2fKYF0Mb9c5P6KwRIq4pO+A==}
+  '@hyperdx/browser@0.22.0':
+    resolution: {integrity: sha512-ZwZDtL1v2O3+6UmJYFZYZYFha/B/0GbatKL+PvzZPJfWADGyXt7zPwyZC4IKNVFl0v8KGZCesJr6otH1PKGZaA==}
 
   '@hyperdx/cli@0.1.0':
     resolution: {integrity: sha512-U26tsUSbxMsczbKvQ5mFYum6RQ3aZ11zcfxNFRfjYQ+14Qv0Ba3mvZsZJTqq2vgLYd1x60pdPNRka2PBwLZJ+g==}
@@ -6977,7 +6977,7 @@ snapshots:
 
   '@hutson/parse-repository-url@5.0.0': {}
 
-  '@hyperdx/browser@0.21.2(zone.js@0.14.10)':
+  '@hyperdx/browser@0.22.0(zone.js@0.14.10)':
     dependencies:
       '@hyperdx/otel-web': 0.16.3(zone.js@0.14.10)
       '@hyperdx/otel-web-session-recorder': 0.16.2(@hyperdx/otel-web@0.16.3(zone.js@0.14.10))

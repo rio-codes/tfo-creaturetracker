@@ -1,8 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { X, Loader2, PlusCircle, Trash2, GripVertical, Edit } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import {
+    X,
+    Loader2,
+    PlusCircle,
+    Trash2,
+    GripVertical,
+    Edit,
+    CheckCircle,
+    XCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,13 +45,27 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { JSX } from 'react/jsx-runtime';
+import { Progress } from '@/components/ui/progress';
 
 type DialogProps = {
     isOpen: boolean;
     onClose: () => void;
 };
 
-type SyncStatus = 'idle' | 'loading' | 'success' | 'error';
+type SyncState = 'idle' | 'syncing' | 'confirming' | 'complete' | 'error';
+
+type SyncProgress = {
+    overall: {
+        current: number;
+        total: number;
+        percent: number;
+    };
+    currentTab: {
+        name: string;
+        progress: number;
+        message: string;
+    };
+};
 
 type MissingCreature = {
     id: string;
@@ -61,16 +84,16 @@ type UserTab = {
 export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [newTabId, setNewTabId] = useState('');
     const [newTabName, setNewTabName] = useState('');
-    const [status, setStatus] = useState<SyncStatus>('idle');
-    const [message, setMessage] = useState('');
+    const [syncState, setSyncState] = useState<SyncState>('idle');
     const [userTabs, setUserTabs] = useState<UserTab[]>([]);
     const [isLoadingTabs, setIsLoadingTabs] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
     const [missingCreatures, setMissingCreatures] = useState<MissingCreature[]>([]);
-    const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
     const [editingTabId, setEditingTabId] = useState<number | null>(null);
     const [editingTabName, setEditingTabName] = useState('');
+    const [syncProgress, setSyncProgress] = useState<SyncProgress | null>(null);
+    const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
     const router = useRouter();
 
@@ -82,6 +105,19 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             activationConstraint: { delay: 250, tolerance: 5 },
         })
     );
+
+    const isFullSync = useMemo(() => {
+        const enabledTabs = userTabs.filter((t) => t.isSyncEnabled);
+        if (enabledTabs.length === 0 || userTabs.length === 0) return false;
+        return enabledTabs.length === userTabs.length;
+    }, [userTabs]);
+
+    const handleClose = () => {
+        onClose();
+        setTimeout(() => {
+            resetState();
+        }, 300);
+    };
 
     const fetchUserTabs = async () => {
         setIsLoadingTabs(true);
@@ -100,6 +136,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
     useEffect(() => {
         if (isOpen) {
+            resetState();
             fetchUserTabs();
         }
         setEditingTabId(null);
@@ -110,64 +147,90 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         return null;
     }
 
-    const handleSyncAll = async () => {
-        setStatus('loading');
-        setMessage('');
-        const tabsToSync = userTabs.filter((tab) => tab.isSyncEnabled).map((tab) => tab.tabId);
-
-        const isSyncingAllSavedTabs =
-            userTabs.length > 0 && userTabs.every((tab) => tabsToSync.includes(tab.tabId));
+    const handleSync = () => {
+        const tabsToSync = userTabs.filter((tab) => tab.isSyncEnabled);
         if (tabsToSync.length === 0) {
-            setStatus('idle');
-            alertService.warn('No tabs selected for syncing.', {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
+            alertService.warn('No tabs selected for syncing.');
             return;
         }
 
-        try {
-            const response = await fetch('/api/creatures/sync-all', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tabIds: tabsToSync, fullSync: isSyncingAllSavedTabs }),
+        setSyncState('syncing');
+        const eventSource = new EventSource('/api/creatures/sync-all');
+
+        eventSource.addEventListener('tab-start', (event) => {
+            const data = JSON.parse(event.data);
+            setSyncProgress({
+                overall: {
+                    current: data.current,
+                    total: data.total,
+                    percent: ((data.current - 1) / data.total) * 100,
+                },
+                currentTab: {
+                    name: data.tabName,
+                    progress: 0,
+                    message: 'Starting...',
+                },
             });
+        });
 
-            const data = await response.json();
+        eventSource.addEventListener('tab-progress', (event) => {
+            const data = JSON.parse(event.data);
+            setSyncProgress((prev) => {
+                if (!prev) return null;
+                const overallPercent =
+                    ((prev.overall.current - 1) / prev.overall.total) * 100 +
+                    data.progress / prev.overall.total;
+                return {
+                    ...prev,
+                    overall: { ...prev.overall, percent: overallPercent },
+                    currentTab: {
+                        ...prev.currentTab,
+                        progress: data.progress,
+                        message: data.message,
+                    },
+                };
+            });
+        });
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Something went wrong during sync.');
-            }
+        eventSource.addEventListener('sync-error', async (event) => {
+            const data = JSON.parse(event.data);
+            setErrorMessages((prev) => [...prev, data.message]);
+        });
 
-            if (data.missingCreatures && data.missingCreatures.length > 0) {
-                setMissingCreatures(data.missingCreatures);
-                setShowArchiveConfirm(true);
-                alertService.success(data.message, { autoClose: true, keepAfterRouteChange: true });
-                setStatus('idle');
-                router.refresh();
-            } else {
-                setStatus('success');
-                setMessage(data.message);
-                handleClose();
-                alertService.success(data.message, {
-                    autoClose: true,
-                    keepAfterRouteChange: true,
+        eventSource.addEventListener('done', async (event) => {
+            const data = JSON.parse(event.data);
+            eventSource.close();
+
+            if (isFullSync) {
+                const response = await fetch('/api/creatures/archive-many', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ allTfoCreatureCodes: data.allTfoCreatureCodes }),
                 });
-                router.refresh();
+                const missingData = await response.json();
+                if (missingData.missingCreatures && missingData.missingCreatures.length > 0) {
+                    setMissingCreatures(missingData.missingCreatures);
+                    setSyncState('confirming');
+                    return;
+                }
             }
-        } catch (error: any) {
-            console.error('Failed to sync creatures', error);
-            setStatus('error');
-            setMessage(error.message);
-            alertService.error(error.message, {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
-        }
+
+            setSyncState('complete');
+            router.refresh();
+        });
+
+        eventSource.onerror = () => {
+            setErrorMessages((prev) => [
+                ...prev,
+                'A network error occurred. Sync may be incomplete.',
+            ]);
+            setSyncState('error');
+            eventSource.close();
+        };
     };
 
     const handleArchiveMissing = async () => {
-        setStatus('loading');
+        setSyncState('syncing'); // Show a loading state
         try {
             const creatureIds = missingCreatures.map((c) => c.id);
             const response = await fetch('/api/creatures/archive-many', {
@@ -179,22 +242,19 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             if (!response.ok) throw new Error(data.error);
 
             alertService.success(`${creatureIds.length} creatures archived.`, {
-                autoClose: true,
-                keepAfterRouteChange: true,
+                autoClose: false,
             });
-            setShowArchiveConfirm(false);
-            setMissingCreatures([]);
-            handleClose();
+            setSyncState('complete');
             router.refresh();
         } catch (error: any) {
-            alertService.error(error.message, { autoClose: true, keepAfterRouteChange: true });
+            alertService.error(error.message);
+            setSyncState('error');
         }
     };
 
     const handleAddTab = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage('');
-        setStatus('loading');
+        setIsLoadingTabs(true);
         try {
             const response = await fetch('/api/users/tabs', {
                 method: 'POST',
@@ -211,11 +271,11 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             setShowAddForm(false);
             setNewTabId('');
             setNewTabName('');
-            setStatus('idle');
         } catch (error: any) {
             console.error('Failed to add tab', error);
-            setStatus('error');
-            setMessage(error.message);
+            alertService.error(error.message);
+        } finally {
+            setIsLoadingTabs(false);
         }
     };
 
@@ -245,10 +305,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             );
         } catch (error) {
             console.error('Failed to update all tabs sync status', error);
-            alertService.error('Failed to update all tabs.', {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
+            alertService.error('Failed to update all tabs.');
             setUserTabs(originalTabs);
         }
     };
@@ -268,10 +325,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         } catch (error) {
             console.error('Failed to update sync status', error);
             // Rollback optimistic update
-            alertService.error('Failed to update sync status.', {
-                autoClose: true,
-                keepAfterRouteChange: true,
-            });
+            alertService.error('Failed to update sync status.');
             fetchUserTabs(); // Revert on error
         }
     };
@@ -330,16 +384,16 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         }
     };
 
-    const handleClose = () => {
-        onClose();
-        setTimeout(() => {
-            setNewTabId('');
-            setNewTabName('');
-            setStatus('idle');
-            setMessage('');
-            setShowAddForm(false);
-            setEditingTabId(null);
-        }, 300);
+    const resetState = () => {
+        setNewTabId('');
+        setNewTabName('');
+        setSyncState('idle');
+        setUserTabs([]);
+        setShowAddForm(false);
+        setMissingCreatures([]);
+        setEditingTabId(null);
+        setSyncProgress(null);
+        setErrorMessages([]);
     };
 
     function SortableTabItem({ tab }: { tab: UserTab }): JSX.Element {
@@ -408,215 +462,289 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         );
     }
 
+    const renderIdleContent = () => (
+        <>
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                    Add or Update Creatures
+                </h2>
+                <Button variant="ghost" size="icon" onClick={handleClose}>
+                    <X className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
+                </Button>
+            </div>
+
+            <div>
+                <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mb-4">
+                    <span>
+                        Enter the Tab ID from your TFO tab&#39;s URL. For example, if the URL is
+                        <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
+                            .../tab/username/tab_name/12345/1/...
+                        </code>
+                        , your Tab ID is{' '}
+                        <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
+                            12345
+                        </code>
+                        . For the default tab, use{' '}
+                        <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
+                            0
+                        </code>
+                        .
+                    </span>
+                    <br></br>
+                    <span className="font-semibold text-sm py-1 mt-1">
+                        NOTE: The tab must be set to &#34;Public&#34; in TFO to fetch your
+                        creatures.
+                    </span>
+                </p>
+            </div>
+
+            {/* Saved Tabs List */}
+            <div className="space-y-2">
+                <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium text-lg">
+                    Saved Tabs
+                </Label>
+                <div className="flex items-center space-x-2 pl-1 pt-1">
+                    <Checkbox
+                        id="select-all-tabs"
+                        checked={
+                            userTabs.length > 0 && userTabs.every((t) => t.isSyncEnabled)
+                                ? true
+                                : userTabs.some((t) => t.isSyncEnabled)
+                                  ? 'indeterminate'
+                                  : false
+                        }
+                        onCheckedChange={handleToggleAll}
+                        disabled={userTabs.length === 0}
+                    />
+                    <Label
+                        htmlFor="select-all-tabs"
+                        className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+                    >
+                        Select/Deselect All
+                    </Label>
+                </div>
+                <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-2">
+                    {isLoadingTabs ? (
+                        <div className="flex justify-center items-center h-full">
+                            <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
+                        </div>
+                    ) : userTabs.length > 0 ? (
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={userTabs.map((t) => t.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {userTabs.map((tab) => (
+                                    <SortableTabItem key={tab.id} tab={tab} />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
+                    ) : (
+                        <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
+                            No saved tabs yet.
+                        </p>
+                    )}
+                </ScrollArea>
+            </div>
+
+            {/* Add New Tab Form */}
+            {showAddForm ? (
+                <form
+                    onSubmit={handleAddTab}
+                    className="space-y-2 p-2 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50"
+                >
+                    <Input
+                        type="number"
+                        placeholder="New Tab ID"
+                        value={newTabId}
+                        onChange={(e) => setNewTabId(e.target.value)}
+                        className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
+                        required
+                    />
+                    <Input
+                        type="text"
+                        placeholder="Tab Name (Optional)"
+                        value={newTabName}
+                        onChange={(e) => setNewTabName(e.target.value)}
+                        className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowAddForm(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            size="sm"
+                            className="bg-pompaca-purple text-barely-lilac"
+                            disabled={isLoadingTabs}
+                        >
+                            {isLoadingTabs ? (
+                                <Loader2 className="animate-spin h-4 w-4" />
+                            ) : (
+                                'Save Tab'
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            ) : (
+                <Button variant="outline" className="w-full" onClick={() => setShowAddForm(true)}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Tab
+                </Button>
+            )}
+
+            <div className="flex justify-end gap-4 pt-4">
+                <Button
+                    variant="ghost"
+                    onClick={handleClose}
+                    className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine"
+                >
+                    Close
+                </Button>
+                <Button
+                    onClick={handleSync}
+                    className="w-32 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                    disabled={userTabs.filter((t) => t.isSyncEnabled).length === 0}
+                >
+                    Sync Checked
+                </Button>
+            </div>
+        </>
+    );
+
+    const renderSyncingContent = () => (
+        <div className="flex flex-col items-center justify-center space-y-4 p-8 min-h-[300px]">
+            <Loader2 className="h-12 w-12 animate-spin text-pompaca-purple dark:text-purple-300" />
+            <h2 className="text-2xl font-bold">Syncing Creatures...</h2>
+            {syncProgress && (
+                <div className="w-full space-y-3 text-center">
+                    <p className="text-sm text-dusk-purple dark:text-purple-400">
+                        Overall Progress ({syncProgress.overall.current}/
+                        {syncProgress.overall.total})
+                    </p>
+                    <Progress value={syncProgress.overall.percent} className="w-full" />
+                    <p className="font-semibold">{syncProgress.currentTab.name}</p>
+                    <Progress value={syncProgress.currentTab.progress} className="w-full" />
+                    <p className="text-xs text-dusk-purple dark:text-purple-400 h-4">
+                        {syncProgress.currentTab.message}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+
+    const renderConfirmContent = () => (
+        <AlertDialog open={syncState === 'confirming'} onOpenChange={() => {}}>
+            <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Archive Missing Creatures?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        The following {missingCreatures.length} creatures were not found in your
+                        synced tabs. Would you like to archive them?
+                        <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-2">
+                            <ul className="text-xs list-disc list-inside">
+                                {missingCreatures.map((c) => (
+                                    <li key={c.id}>
+                                        {c.creatureName || 'Unnamed'} ({c.code})
+                                    </li>
+                                ))}
+                            </ul>
+                        </ScrollArea>
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel
+                        onClick={() => {
+                            setSyncState('complete');
+                            router.refresh();
+                        }}
+                    >
+                        No, Keep Them
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={handleArchiveMissing}>
+                        Yes, Archive Them
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
+
+    const renderCompleteContent = () => (
+        <div className="flex flex-col items-center justify-center space-y-4 p-8 min-h-[300px]">
+            <CheckCircle className="h-16 w-16 text-green-500" />
+            <h2 className="text-2xl font-bold">Sync Complete!</h2>
+            {errorMessages.length > 0 && (
+                <div className="w-full text-left">
+                    <p className="font-semibold text-yellow-600 dark:text-yellow-400">
+                        Completed with some warnings:
+                    </p>
+                    <ScrollArea className="h-24 mt-2 rounded-md border bg-ebena-lavender/50 p-2">
+                        <ul className="text-xs list-disc list-inside space-y-1">
+                            {errorMessages.map((msg, i) => (
+                                <li key={i}>{msg}</li>
+                            ))}
+                        </ul>
+                    </ScrollArea>
+                </div>
+            )}
+            <Button onClick={handleClose} className="mt-4">
+                Close
+            </Button>
+        </div>
+    );
+
+    const renderErrorContent = () => (
+        <div className="flex flex-col items-center justify-center space-y-4 p-8 min-h-[300px]">
+            <XCircle className="h-16 w-16 text-red-500" />
+            <h2 className="text-2xl font-bold">Sync Failed</h2>
+            <div className="w-full text-left">
+                <p className="font-semibold">The following errors occurred:</p>
+                <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 p-2">
+                    <ul className="text-xs list-disc list-inside space-y-1">
+                        {errorMessages.map((msg, i) => (
+                            <li key={i}>{msg}</li>
+                        ))}
+                    </ul>
+                </ScrollArea>
+            </div>
+            <Button onClick={handleClose} variant="destructive" className="mt-4">
+                Close
+            </Button>
+        </div>
+    );
+
+    const renderContent = () => {
+        switch (syncState) {
+            case 'syncing':
+                return renderSyncingContent();
+            case 'confirming':
+                return renderConfirmContent();
+            case 'complete':
+                return renderCompleteContent();
+            case 'error':
+                return renderErrorContent();
+            case 'idle':
+            default:
+                return renderIdleContent();
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/80 z-40 flex items-center justify-center">
-            {/* Main Dialog */}
             <div
                 className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet rounded-lg shadow-xl p-6 space-y-4 w-full max-w-md z-50"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                        Add or Update Creatures
-                    </h2>
-                    <Button variant="ghost" size="icon" onClick={handleClose}>
-                        <X className="h-4 w-4 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine" />
-                    </Button>
-                </div>
-
-                <div>
-                    <p className="text-md justify-items-evenly text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mb-4">
-                        <span>
-                            Enter the Tab ID from your TFO tab&#39;s URL. For example, if the URL is
-                            <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
-                                .../tab/username/tab_name/12345/1/...
-                            </code>
-                            , your Tab ID is{' '}
-                            <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
-                                12345
-                            </code>
-                            . For the default tab, use{' '}
-                            <code className="bg-ebena-lavender text-pompaca-purple p-1 rounded mx-1">
-                                0
-                            </code>
-                            .
-                        </span>
-                        <br></br>
-                        <span className="font-semibold text-sm py-1 mt-1">
-                            NOTE: The tab must be set to &#34;Public&#34; in TFO to fetch your
-                            creatures.
-                        </span>
-                    </p>
-                </div>
-
-                {/* Saved Tabs List */}
-                <div className="space-y-2">
-                    <Label className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson font-medium text-lg">
-                        Saved Tabs
-                    </Label>
-                    <div className="flex items-center space-x-2 pl-1 pt-1">
-                        <Checkbox
-                            id="select-all-tabs"
-                            checked={
-                                userTabs.length > 0 && userTabs.every((t) => t.isSyncEnabled)
-                                    ? true
-                                    : userTabs.some((t) => t.isSyncEnabled)
-                                      ? 'indeterminate'
-                                      : false
-                            }
-                            onCheckedChange={handleToggleAll}
-                            disabled={userTabs.length === 0}
-                        />
-                        <Label
-                            htmlFor="select-all-tabs"
-                            className="text-sm font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
-                        >
-                            Select/Deselect All
-                        </Label>
-                    </div>
-                    <ScrollArea className="h-40 w-full rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-2">
-                        {isLoadingTabs ? (
-                            <div className="flex justify-center items-center h-full">
-                                <Loader2 className="animate-spin text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson" />
-                            </div>
-                        ) : userTabs.length > 0 ? (
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={userTabs.map((t) => t.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    {userTabs.map((tab) => (
-                                        <SortableTabItem key={tab.id} tab={tab} />
-                                    ))}
-                                </SortableContext>
-                            </DndContext>
-                        ) : (
-                            <p className="text-sm text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-4">
-                                No saved tabs yet.
-                            </p>
-                        )}
-                    </ScrollArea>
-                </div>
-
-                {/* Add New Tab Form */}
-                {showAddForm ? (
-                    <form
-                        onSubmit={handleAddTab}
-                        className="space-y-2 p-2 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50"
-                    >
-                        <Input
-                            type="number"
-                            placeholder="New Tab ID"
-                            value={newTabId}
-                            onChange={(e) => setNewTabId(e.target.value)}
-                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
-                            required
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Tab Name (Optional)"
-                            value={newTabName}
-                            onChange={(e) => setNewTabName(e.target.value)}
-                            className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet"
-                        />
-                        <div className="flex justify-end gap-2">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowAddForm(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                size="sm"
-                                className="bg-pompaca-purple text-barely-lilac"
-                                disabled={status === 'loading'}
-                            >
-                                {status === 'loading' ? (
-                                    <Loader2 className="animate-spin h-4 w-4" />
-                                ) : (
-                                    'Save Tab'
-                                )}
-                            </Button>
-                        </div>
-                    </form>
-                ) : (
-                    <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => setShowAddForm(true)}
-                    >
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Tab
-                    </Button>
-                )}
-
-                {/* Error Display */}
-                {status === 'error' && message && (
-                    <p className="text-sm text-red-500 text-center">{message}</p>
-                )}
-
-                <div className="flex justify-end gap-4 pt-4">
-                    <Button
-                        variant="ghost"
-                        onClick={handleClose}
-                        className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine"
-                    >
-                        Close
-                    </Button>
-                    <Button
-                        onClick={handleSyncAll}
-                        className="w-32 bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                        disabled={status === 'loading'}
-                    >
-                        {status === 'loading' ? (
-                            <Loader2 className="animate-spin" />
-                        ) : (
-                            'Sync All Checked'
-                        )}
-                    </Button>
-                </div>
+                {renderContent()}
             </div>
-
-            {/* Archive Confirmation Dialog */}
-            <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-                <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Archive Missing Creatures?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            The following {missingCreatures.length} creatures were not found in your
-                            synced tabs. Would you like to archive them?
-                            <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-2">
-                                <ul className="text-xs list-disc list-inside">
-                                    {missingCreatures.map((c) => (
-                                        <li key={c.id}>
-                                            {c.creatureName || 'Unnamed'} ({c.code})
-                                        </li>
-                                    ))}
-                                </ul>
-                            </ScrollArea>
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel
-                            onClick={() => {
-                                setShowArchiveConfirm(false);
-                                handleClose();
-                            }}
-                        >
-                            No, Keep Them
-                        </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleArchiveMissing}>
-                            Yes, Archive Them
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     );
 }

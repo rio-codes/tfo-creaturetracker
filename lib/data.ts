@@ -411,97 +411,63 @@ export async function fetchFilteredWishlistGoals(
     searchParams: {
         page?: string;
         query?: string;
-        isSeasonal?: string;
         species?: string;
-        generation?: string;
-        geneCategory?: string;
-        geneQuery?: string;
-        sortBy?: string;
     } = {}
 ) {
+    const currentPage = Number(searchParams.page) || 1;
+    const { query, species } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
 
-    const currentPage = Number(searchParams.page) || 1;
-    const { query, isSeasonal, species, generation, sortBy } = searchParams;
-    const limit = 15;
-
-    const conditions: (SQL | undefined)[] = [
-        eq(researchGoals.isPublic, true),
-        query ? ilike(researchGoals.name, `%${query}%`) : undefined,
-        isSeasonal === 'true' ? eq(researchGoals.isSeasonal, true) : undefined,
-        species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
-        generation
-            ? sql`${researchGoals.genes}->'Generation'->>'phenotype' = ${generation}`
-            : undefined,
-    ].filter(Boolean);
-
-    const pinnedGoalsRaw = await db.query.researchGoals.findMany({
-        where: (goals, { exists, and, eq }) =>
-            and(
-                ...conditions,
-                exists(
-                    db
-                        .select({ n: sql`1` })
-                        .from(wishlistPins)
-                        .where(
-                            and(eq(wishlistPins.goalId, goals.id), eq(wishlistPins.userId, userId))
-                        )
-                )
-            ),
-        orderBy: [desc(researchGoals.updatedAt)],
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
     });
-    const pinnedGoals = pinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
+    const itemsPerPage = user?.goalsItemsPerPage ?? 12;
 
-    const unpinnedGoalsRaw = await db.query.researchGoals.findMany({
-        where: (goals, { and, notExists, eq }) =>
-            and(
-                ...conditions,
-                notExists(
-                    db
-                        .select({ n: sql`1` })
-                        .from(wishlistPins)
-                        .where(
-                            and(eq(wishlistPins.goalId, goals.id), eq(wishlistPins.userId, userId))
-                        )
-                )
-            ),
-        with: { user: true },
-        orderBy:
-            sortBy === 'species'
-                ? [researchGoals.species, desc(researchGoals.updatedAt)]
-                : desc(researchGoals.updatedAt),
-        limit: limit,
-        offset: (currentPage - 1) * limit,
-    });
+    try {
+        const conditions = [
+            eq(researchGoals.userId, userId),
+            query ? ilike(researchGoals.name, `%${query}%`) : undefined,
+            species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
+        ].filter(Boolean);
+        const pinnedWishlistGoalsRaw = await db
+            .select()
+            .from(researchGoals)
+            .where(and(...conditions, eq(researchGoals.isPinnedToWishlist, true)))
+            .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
 
-    const unpinnedGoals = unpinnedGoalsRaw.map((g) => enrichAndSerializeGoal(g, g.goalMode));
-
-    const totalCountResult = await db
-        .select({ count: count() })
-        .from(researchGoals)
-        .where(
-            and(
-                ...conditions,
-                notExists(
-                    db
-                        .select({ n: sql`1` })
-                        .from(wishlistPins)
-                        .where(
-                            and(
-                                eq(wishlistPins.goalId, researchGoals.id),
-                                eq(wishlistPins.userId, userId)
-                            )
-                        )
-                )
-            )
+        const pinnedWishlistGoals = pinnedWishlistGoalsRaw.map((goal) =>
+            enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
-    const totalUnpinned = totalCountResult[0]?.count ?? 0;
-    const totalPages = Math.ceil(totalUnpinned / limit);
+        const unpinnedConditions = [...conditions, eq(researchGoals.isPinnedToWishlist, false)];
+        const offset = (currentPage - 1) * itemsPerPage;
 
-    return { pinnedGoals, unpinnedGoals, totalPages };
+        const unpinnedGoalsRaw = await db
+            .select()
+            .from(researchGoals)
+            .where(and(...unpinnedConditions))
+            .orderBy(desc(researchGoals.createdAt), desc(researchGoals.id))
+            .limit(itemsPerPage)
+            .offset(offset);
+
+        const unpinnedWishlistGoals = unpinnedGoalsRaw.map((goal) =>
+            enrichAndSerializeGoal(goal, goal.goalMode)
+        );
+
+        const totalCountResult = await db
+            .select({ count: count() })
+            .from(researchGoals)
+            .where(and(...unpinnedConditions));
+        const totalUnpinned = totalCountResult[0]?.count ?? 0;
+        const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
+
+        return { pinnedWishlistGoals, unpinnedWishlistGoals, totalPages };
+    } catch (error) {
+        console.error(error);
+        return { pinnedWishlistGoals: [], unpinnedWishlistGoals: [], totalPages: 0 };
+    }
 }
 
 export async function fetchBreedingPairsWithStats(

@@ -321,6 +321,7 @@ export const researchGoals = pgTable(
         goalMode: goalModeEnum('goal_mode').default('phenotype').notNull(),
         isPublic: boolean('is_public').default(false).notNull(),
         isSeasonal: boolean('is_seasonal').default(false).notNull(),
+        isPinnedToWishlist: boolean('is_pinned_to_wishlist').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

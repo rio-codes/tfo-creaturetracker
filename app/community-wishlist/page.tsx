@@ -26,7 +26,7 @@ export default async function WishlistPage(props: {
     const session = await auth();
 
     // Fetch all data in parallel
-    const [{ pinnedGoals, unpinnedGoals, totalPages }, userCreatures, currentUser] =
+    const [{ pinnedWishlistGoals, unpinnedWishlistGoals, totalPages }, userCreatures, currentUser] =
         await Promise.all([
             fetchFilteredWishlistGoals(searchParams),
             getAllEnrichedCreaturesForUser(),
@@ -48,8 +48,8 @@ export default async function WishlistPage(props: {
                 </p>
                 <Suspense fallback={<div>Loading wishlist...</div>}>
                     <WishlistClient
-                        pinnedGoals={pinnedGoals}
-                        unpinnedGoals={unpinnedGoals}
+                        pinnedGoals={pinnedWishlistGoals}
+                        unpinnedGoals={unpinnedWishlistGoals}
                         totalPages={totalPages}
                         userCreatures={userCreatures}
                         currentUser={currentUser ?? null}

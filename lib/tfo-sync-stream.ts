@@ -112,7 +112,13 @@ export async function* syncTfoTabsAndStream(
                     isStunted: tfoCreature.isStunted,
                     species: tfoCreature.breedName?.trim(),
                     genetics: tfoCreature.genetics,
-                    gender: tfoCreature.gender.toLowerCase(),
+                    gender: tfoCreature.gender as
+                        | 'male'
+                        | 'female'
+                        | 'genderless'
+                        | 'unknown'
+                        | null
+                        | undefined,
                     updatedAt: new Date(),
                     isArchived: false,
                 };

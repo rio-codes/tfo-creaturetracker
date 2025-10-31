@@ -6,23 +6,9 @@ import {
     breedingPairs,
     breedingLogEntries,
     researchGoals,
-    wishlistPins,
     users,
 } from '@/src/db/schema';
-import {
-    and,
-    ilike,
-    like,
-    or,
-    ne,
-    eq,
-    desc,
-    count,
-    SQL,
-    sql,
-    isNotNull,
-    notExists,
-} from 'drizzle-orm';
+import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,

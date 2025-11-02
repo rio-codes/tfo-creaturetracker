@@ -92,10 +92,9 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
             genetics: tfoCreature.genetics,
             gender:
                 (tfoCreature.gender?.toLowerCase() as 'male' | 'female' | 'unknown' | null) || null,
-            updatedAt: new Date(),
         };
-
-        // Using onConflictDoUpdate with explicit values is safer than raw SQL with `excluded`.
+        // Drizzle-ORM automatically manages `createdAt` and `updatedAt` with defaultNow().
+        // Explicitly setting `updatedAt` here or in onConflictDoUpdate will cause conflicts.
         await db
             .insert(creatures)
             .values(valuesToInsert)
@@ -110,7 +109,6 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
                     genetics: valuesToInsert.genetics,
                     gender: valuesToInsert.gender,
                     gottenAt: valuesToInsert.gottenAt,
-                    updatedAt: new Date(),
                 },
             });
 

@@ -52,10 +52,16 @@ export async function GET() {
 
                 revalidatePath('/collection');
             } catch (error) {
-                console.error('Streaming sync failed:', error);
-                send(
-                    `event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`
-                );
+				if (error instanceof Error && error.message.includes('network error')) {
+					send(
+						`event: error\ndata: ${JSON.stringify({ message: 'A network error occurred. Sync may be incomplete.' })}\n\n`
+					);
+				} else {
+					console.error('Streaming sync failed:', error);
+					send(
+						`event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`
+					);
+				}
             } finally {
                 controller.close();
             }

@@ -1,5 +1,74 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.20.0 (2025-10-31)
+
+- feat(collection): ✨ redesign of syncing dialog with progress indicator and helpful errors ([d2a3d8e](https://github.com/rio-codes/tfo-creaturetracker/commit/d2a3d8e))
+- fix(wishlist): 🐛 add pinned wishlist goals as separate db column, fix route
+- fix(wishlist): 🐛 further fix to wishlist bug, build errors
+
+## <small> 1.19.1 (2025-10-25)</small>
+
+- fix(wishlist/messaging): 🐛 fix many issues introduced by new features ([#357](https://github.com/rio-codes/tfo-creaturetracker/issues/357))
+- build(deps): bump next-auth from 5.0.0-beta.29 to 5.0.0-beta.30 ([#359](https://github.com/rio-codes/tfo-creaturetracker/issues/359))
+- build(deps): bump next-auth from 5.0.0-beta.29 to 5.0.0-beta.30 ([#359](https://github.com/rio-codes/tfo-creaturetracker/issues/359))
+- build(deps): bump actions/upload-artifact from 4 to 5 ([#358](https://github.com/rio-codes/tfo-creaturetracker/issues/358))
+- build(deps): bump the all-dependencies group across 1 directory with 2 updates ([#368](https://github.com/rio-codes/tfo-creaturetracker/issues/368))
+
+## 1.19.0 (2025-10-25)
+
+- feat(goals): ✨ implement suggested parent traits on goal tracker, availability for stud/trade/sale
+- fix(goals): 🐛 add genotype to suggested parent traits, fix owner link
+- fix(goals): 🚑️ fix logic on suggested parents
+
+## <small> 1.18.1 (2025-10-25)</small>
+
+- fix(wishlist): 🐛 fix wishlist pinning route and ui, theming, type errors ([#349](https://github.com/rio-codes/tfo-creaturetracker/issues/349))
+- fix(wishlist): 🚑️ add redirect to login for wishlist
+- fix(collection): 🚑️ fixing db error
+- feat(goals): ✨ implement suggested parent traits on goal tracker, availability for stud/trade/sale
+
+## 1.18.0 (2025-10-25)
+
+- feat(wishlist): ✨ add target gen to public goals, update db and api, add checking for pairs and optional saving ([#347])
+- fix(pairs): 🐛 fix archived pair goal assignment bug ([#348](https://github.com/rio-codes/tfo-creaturetracker/issues/348))
+- fix(pairs): 🐛 fix for find pairs dialog closing immediately
+- fix(wishlist): 🐛 fix wishlist pinning route and ui, theming, type errors ([#349](https://github.com/rio-codes/tfo-creaturetracker/issues/349))
+- fix(wishlist): 🚑️ add redirect to login for wishlist
+- fix(collection): 🚑️ fixing db error
+
+## <small>1.17.4 (2025-10-23)</small>
+
+- feat(goals): ✨ add ability to exclude outcomes from optional genes Fixes [#303](https://github.com/rio-codes/tfo-creaturetracker/issues/303)
+- chore(config): 🎨 update config files
+- style(wishlist): 💄 color tweak on wishlist toggle
+- fix(homepage): 🚨 fix build error
+- fix(config): 🔧 change next config import in eslint config
+
+See [[#303](https://github.com/rio-codes/tfo-creaturetracker/issues/303)](https://github.com/rio-codes/tfo-creaturetracker/issues/303) for details
+
+## <small>1.17.3 (2025-10-23)</small>
+
+- feat(goals): ✨ exclude optional traits from goals ([#337](https://github.com/rio-codes/tfo-creaturetracker/issues/337))
+- chore(config): 🎨 update config files for next and TS
+- fix(config): 🐛 ignore change to next types file
+- feat(goals): ✨ add optional traits to goals
+- fix(db): 🚨 import GoalGene type into db schema
+
+fixes [#303](https://github.com/rio-codes/tfo-creaturetracker/issues/303)
+
+## <small>1.17.2 (2025-10-23)</small>
+
+- fix(wishlist): ✨ add sorting by species or recent to wishlist
+- fix(supabase): 🐛 fix users online count, closes [#273](https://github.com/rio-codes/tfo-creaturetracker/issues/273)
+- fix(collection): 🐛 add batching to sync and sync-all, closes [#247](https://github.com/rio-codes/tfo-creaturetracker/issues/247) ([#336](https://github.com/rio-codes/tfo-creaturetracker/issues/336))
+
+## <small>1.17.1 (2025-10-23)</small>
+
+- docs(docs): 📝 update news and changelog
+- chore(config): 🔧 update gitignore
+- fix(wishlist): 💄 fix hallowsnight theme on wishlist
+- fix(wishlist): 💄 fix font colors in all three themes on wishlist
+
 ## 1.17.0 (2025-10-23)
 
 - feat(wishlist): ✨ Implement public wishlist page and features! ([#335](https://github.com/rio-codes/tfo-creaturetracker/issues/335))

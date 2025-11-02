@@ -19,9 +19,10 @@
         ],
         "preMajor": true,
         "scope": [
+            "homepage",
             "collection",
-            "breeding-pairs",
-            "research-goals",
+            "pairs",
+            "goals",
             "profile",
             "auth",
             "settings",
@@ -36,7 +37,11 @@
             "vercel",
             "hyperdx",
             "docs",
-            "release"
+            "release",
+            "wishlist",
+            "messaging",
+            "homepage",
+            "supabase"
         ]
     }
 }

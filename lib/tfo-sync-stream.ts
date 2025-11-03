@@ -116,7 +116,7 @@ export async function* syncTfoTabsAndStream(
                         | 'male'
                         | 'female'
                         | 'genderless'
-                        | 'unknown'
+                        | 'Unknown'
                         | null
                         | undefined,
                     updatedAt: new Date(),
@@ -137,8 +137,13 @@ export async function* syncTfoTabsAndStream(
                 })}\n\n`;
             }
         } catch (error: any) {
-            yield `event: error\ndata: ${JSON.stringify({ message: error.message })}\n\n`;
-        }
+			if (error instanceof Error && error.message.includes('network error')) {
+				continue;
+			} else {
+				console.error('Streaming sync failed:', error);
+				yield `event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`;
+			}
+		}
     }
 
     yield `event: done\ndata: ${JSON.stringify({

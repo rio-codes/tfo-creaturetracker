@@ -234,7 +234,7 @@ export const pendingRegistrations = pgTable('pending_registration', {
     expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
 });
 
-export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'unknown', 'Unknown']);
+export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'Unknown']);
 
 export const creatureOriginEnum = pgEnum('origin', [
     'cupboard',

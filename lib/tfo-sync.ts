@@ -91,10 +91,8 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
             species: tfoCreature.breedName?.trim(),
             genetics: tfoCreature.genetics,
             gender:
-                (tfoCreature.gender?.toLowerCase() as 'male' | 'female' | 'unknown' | null) || null,
+                (tfoCreature.gender as 'male' | 'female' | 'Unknown' | null) || null,
         };
-        // Drizzle-ORM automatically manages `createdAt` and `updatedAt` with defaultNow().
-        // Explicitly setting `updatedAt` here or in onConflictDoUpdate will cause conflicts.
         await db
             .insert(creatures)
             .values(valuesToInsert)

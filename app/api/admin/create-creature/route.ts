@@ -71,7 +71,7 @@ export async function POST(req: Request) {
             species,
             genetics: geneticsString,
             imageUrl: blobUrl,
-            gender: gender.toLowerCase() as 'male' | 'female' | 'unknown',
+            gender: gender.toLowerCase() as 'male' | 'female' | 'Unknown',
             growthLevel: 3, // Default to adult
             isPinned: false,
             updatedAt: new Date(),

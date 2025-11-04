@@ -18,8 +18,8 @@ type LogBreedingFormProps = {
 };
 export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFormProps) {
     const router = useRouter();
-    const [progeny1Id, setProgeny1Id] = useState<string | undefined>(undefined);
-    const [progeny2Id, setProgeny2Id] = useState<string | undefined>(undefined);
+    const [progeny1Id, setProgeny1Id] = useState<string | null>(null);
+    const [progeny2Id, setProgeny2Id] = useState<string | null>(null);
     const [notes, setNotes] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -39,14 +39,19 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
         e.preventDefault();
         setIsLoading(true);
         setError('');
+        const progeny1 = allCreatures.find((c) => c?.id === progeny1Id);
+        const progeny2 = allCreatures.find((c) => c?.id === progeny2Id);
         try {
             const response = await fetch('/api/breeding-log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pairId: pair!.id,
-                    progeny1Id: progeny1Id || null,
-                    progeny2Id: progeny2Id || null,
+                    // Use the userId and code from the found creature objects
+                    progeny1UserId: progeny1?.userId || null,
+                    progeny1Code: progeny1?.code || null,
+                    progeny2UserId: progeny2?.userId || null,
+                    progeny2Code: progeny2?.code || null,
                     notes,
                 }),
             });
@@ -61,15 +66,14 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
             setIsLoading(false);
         }
     };
-
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <Label>Progeny 1 (Optional)</Label>
                 <CreatureCombobox
                     creatures={potentialProgeny.filter((p) => p?.id !== progeny2Id)}
-                    selectedCreatureId={progeny1Id}
-                    onSelectCreature={setProgeny1Id}
+                    selectedCreatureId={progeny1Id ?? undefined} // Change here
+                    onSelectCreature={(id) => setProgeny1Id(id ?? null)} // Change here
                     placeholder="Select first offspring..."
                 />
             </div>
@@ -78,8 +82,8 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
                 <Label>Progeny 2 (Optional)</Label>
                 <CreatureCombobox
                     creatures={potentialProgeny.filter((p) => p?.id !== progeny1Id)}
-                    selectedCreatureId={progeny2Id}
-                    onSelectCreature={setProgeny2Id}
+                    selectedCreatureId={progeny2Id ?? undefined} // Change here
+                    onSelectCreature={(id) => setProgeny2Id(id ?? null)} // Change here
                     placeholder="Select second offspring..."
                 />
             </div>

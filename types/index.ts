@@ -105,3 +105,19 @@ export type SerializedBreedingLogEntry = Omit<DbBreedingLogEntry, 'createdAt' | 
     createdAt: string;
     updatedAt: string;
 };
+
+export type EnrichedChecklist = {
+    id: string;
+    userId: string;
+    name: string;
+    species: string;
+    targetGenes: { category: string; geneCount: number }[];
+    assignments: Record<string, { userId: string; code: string } | null>;
+    isPublic: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    progress: {
+        filled: number;
+        total: number;
+    };
+};

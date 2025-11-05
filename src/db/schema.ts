@@ -138,6 +138,7 @@ export const users = pgTable('user', {
     preserveFilters: boolean('preserve_filters').default(false).notNull(),
     showFulfillable: boolean('show_fulfillable').default(false).notNull(),
     allowWishlistGoalSaving: boolean('allow_wishlist_goal_saving').default(false).notNull(),
+    featuredChecklistIds: jsonb('featured_checklist_ids').$type<string[]>(),
 });
 
 export const accounts = pgTable(
@@ -234,7 +235,13 @@ export const pendingRegistrations = pgTable('pending_registration', {
     expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
 });
 
-export const creatureGenderEnum = pgEnum('gender', ['male', 'female', 'genderless', 'Unknown']);
+export const creatureGenderEnum = pgEnum('gender', [
+    'male',
+    'female',
+    'genderless',
+    'Unknown',
+    'unknown',
+]);
 
 export const creatureOriginEnum = pgEnum('origin', [
     'cupboard',
@@ -548,3 +555,28 @@ export const userActionLog = pgTable(
         index('user_action_log_timestamp_idx').on(table.timestamp),
     ]
 );
+
+export const checklists = pgTable('checklist', {
+    id: text('id')
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 100 }).notNull(),
+    species: varchar('species', { length: 50 }).notNull(),
+    targetGenes: jsonb('target_genes').notNull().$type<{ category: string; geneCount: number }[]>(),
+    assignments: jsonb('assignments')
+        .$type<Record<string, { userId: string; code: string } | null>>()
+        .default({}),
+    isPublic: boolean('is_public').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const checklistRelations = relations(checklists, ({ one }) => ({
+    user: one(users, {
+        fields: [checklists.userId],
+        references: [users.id],
+    }),
+}));

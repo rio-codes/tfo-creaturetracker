@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { alertService, Alert as AlertTypeFromService, AlertType } from '@/services/alert.service';

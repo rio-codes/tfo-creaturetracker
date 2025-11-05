@@ -7,6 +7,7 @@ import {
     breedingLogEntries,
     researchGoals,
     users,
+    checklists,
 } from '@/src/db/schema';
 import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
 import type {
@@ -15,6 +16,7 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
+    EnrichedChecklist,
 } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
@@ -28,6 +30,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
 import { auth } from '@/auth';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair[]> {
     const session = await auth();
@@ -862,5 +865,105 @@ export async function fetchAvailableCreaturesForGoal(
     } catch (error) {
         console.error('Error fetching available creatures:', error);
         return [];
+    }
+}
+
+// Make sure to import the new type
+
+// Helper to calculate total slots
+function calculateTotalSlots(targetGenes: { geneCount: number }[]): number {
+    if (!targetGenes || targetGenes.length === 0) {
+        return 0;
+    }
+
+    const geneTypeMap: Record<number, number> = { 1: 3, 2: 9, 3: 27 };
+
+    return targetGenes.reduce((total, gene) => {
+        return total * (geneTypeMap[gene.geneCount] || 1);
+    }, 1);
+}
+
+export async function getChecklists() {
+    noStore();
+    const session = await auth();
+    if (!session?.user?.id) {
+        return [];
+    }
+
+    try {
+        const userChecklists = await db.query.checklists.findMany({
+            where: (checklists, { eq }) => eq(checklists.userId, session.user.id),
+            orderBy: (checklists, { desc }) => [desc(checklists.createdAt)],
+        });
+
+        return userChecklists.map((checklist) => {
+            const totalSlots = calculateTotalSlots(checklist.targetGenes as any);
+            const filledSlots = Object.values(checklist.assignments as any).filter(
+                (val: any) => val !== null && val !== undefined
+            ).length;
+
+            return {
+                ...checklist,
+                id: checklist.id,
+                progress: {
+                    _filled: filledSlots,
+                    checklist: checklist.assignments
+                        ? Object.values(checklist.assignments).filter(
+                              (val) => val !== null && val !== undefined
+                          ).length
+                        : 0,
+                    total: totalSlots,
+                },
+            };
+        });
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch checklists.');
+    }
+}
+
+export async function getChecklistById(id: string): Promise<EnrichedChecklist | null> {
+    noStore();
+    const session = await auth();
+
+    if (!id) {
+        return null;
+    }
+
+    try {
+        const checklist = await db.query.checklists.findFirst({
+            where: eq(checklists.id, id),
+        });
+
+        if (!checklist) return null;
+
+        if (!checklist.isPublic && checklist.userId !== session?.user?.id) {
+            return null;
+        }
+
+        const totalSlots = calculateTotalSlots(checklist.targetGenes);
+        const filledSlots = checklist.assignments
+            ? Object.values(
+                  checklist.assignments as Record<
+                      string,
+                      {
+                          userId: string;
+                          code: string;
+                      } | null
+                  >
+              ).filter((val) => val !== null && val !== undefined).length
+            : 0;
+
+        return {
+            ...(checklist as any),
+            id: checklist.id,
+            progress: {
+                filled: filledSlots,
+                total: totalSlots,
+            },
+        };
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch checklist.');
     }
 }

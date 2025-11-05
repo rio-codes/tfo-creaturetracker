@@ -456,12 +456,11 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl md:text-3xl">
-                        Safe Hallowsnight to You, TFO.CT Researchers. Stay warm...
+                        Wow, that was strange. Did anyone else...Oh, hello! Welcome to TFO.ct.
                     </h1>
                     <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson/80 mt-2 text-lg">
                         Welcome back to your dashboard for managing creatures, breeding pairs, and
-                        research goals in The Final Outpost. I don&#39;t blame you for being a bit
-                        spun about.
+                        research goals in The Final Outpost.
                     </p>
                 </header>
 

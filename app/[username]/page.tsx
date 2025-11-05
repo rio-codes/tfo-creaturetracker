@@ -9,6 +9,7 @@ import {
     achievedGoals,
     breedingLogEntries,
     breedingPairs,
+    userAchievements,
 } from '@/src/db/schema';
 import { eq, and, inArray, or as drizzleOr } from 'drizzle-orm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -78,7 +79,7 @@ type UserStats = {
     achievedGoalNames: string[];
 };
 
-async function fetchUserProfile(username: string, sessionUserId?: string | null) {
+async function fetchUserProfile(username: string, sessionUserId?: string | null): Promise<any> {
     const user = (await db.query.users.findFirst({
         where: eq(users.username, username),
         columns: {
@@ -182,7 +183,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
               )
         : [];
 
-    const achievements: AchievementMap = achievementsList.reduce((acc, item) => {
+    const achievedGoalsByGoalId: AchievementMap = achievementsList.reduce((acc, item) => {
         if (item.achieved_goal && item.creature) {
             acc[item.achieved_goal.goalId] = { creature: item.creature };
         }
@@ -321,7 +322,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
     const progenyByCompositeKey = new Map(allProgeny.map((p) => [`${p.userId}-${p.code}`, p]));
 
     for (const goal of featuredGoals) {
-        if (achievements[goal.id]) continue;
+        if (achievedGoalsByGoalId[goal.id]) continue;
 
         const assignedPairIds = goal.assignedPairIds || [];
         const assignedPairsForGoal = allAssignedPairs.filter((p) => assignedPairIds.includes(p.id));
@@ -446,15 +447,20 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
         };
     }
 
+    const achievements = await db.query.userAchievements.findMany({
+        where: eq(userAchievements.userId, user.id),
+    });
+
     return {
         user,
         featuredCreatures,
         featuredGoals,
         friendship,
-        achievements,
+        achievedGoalsByGoalId,
         goalProgress,
         stats,
         friends,
+        achievements,
     };
 }
 
@@ -488,10 +494,11 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         featuredCreatures,
         featuredGoals,
         friendship,
-        achievements,
+        achievedGoalsByGoalId,
         goalProgress,
         stats,
         friends,
+        achievements,
     } = data;
 
     return (
@@ -502,7 +509,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                         <AvatarImage src={user.image ?? undefined} alt={user.username} />
                         <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-grow">
+                    <div className="grow">
                         <CardTitle className="text-3xl text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                             {user.username}
                             {user.pronouns && (
@@ -557,7 +564,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                         )}
                     </div>
                     {user.bio && (
-                        <div className="mt-4 border-1 p-3 rounded-md bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 z-10">
+                        <div className="mt-4 border p-3 rounded-md bg-dusk-purple text-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900 z-10">
                             <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
                                 Bio
                             </h2>
@@ -616,9 +623,11 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                                 </div>
                                                 <ScrollArea className="h-40">
                                                     <ul className="list-disc list-inside space-y-1 text-sm">
-                                                        {stats.achievedGoalNames?.map((name, i) => (
-                                                            <li key={i}>{name}</li>
-                                                        ))}
+                                                        {stats.achievedGoalNames?.map(
+                                                            (name: string, i: number) => (
+                                                                <li key={i}>{name}</li>
+                                                            )
+                                                        )}
                                                     </ul>
                                                 </ScrollArea>
                                             </div>
@@ -644,7 +653,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 Featured Creatures
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {featuredCreatures.map((creature) => (
+                                {featuredCreatures.map((creature: EnrichedCreature) => (
                                     <FeaturedCreatureCard
                                         key={creature!.id}
                                         creature={creature}
@@ -661,11 +670,11 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 Featured Research Goals
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {featuredGoals.map((goal) => (
+                                {featuredGoals.map((goal: DbResearchGoal) => (
                                     <FeaturedGoalCard
                                         key={goal.id}
                                         goal={goal as any}
-                                        achievement={achievements[goal.id]}
+                                        achievement={achievedGoalsByGoalId[goal.id]}
                                         username={user.username}
                                         progress={goalProgress[goal.id]}
                                         currentUser={
@@ -683,42 +692,79 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                                 Friends ({friends.length})
                             </h2>
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
-                                {friends.map((friend) => (
-                                    <Link href={`/${friend.username}`} key={friend.id}>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Avatar className="h-16 w-16 hover:ring-2 hover:ring-pompaca-purple dark:hover:ring-purple-300 transition-all">
-                                                        <AvatarImage
-                                                            src={friend.image ?? undefined}
-                                                            alt={friend.username}
-                                                        />
-                                                        <AvatarFallback>
-                                                            {friend.username
-                                                                .charAt(0)
-                                                                .toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{friend.username}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </Link>
-                                ))}
+                                {friends.map(
+                                    (friend: { id: string; username: string; image: string }) => (
+                                        <Link href={`/${friend.username}`} key={friend.id}>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Avatar className="h-16 w-16 hover:ring-2 hover:ring-pompaca-purple dark:hover:ring-purple-300 transition-all">
+                                                            <AvatarImage
+                                                                src={friend.image ?? undefined}
+                                                                alt={friend.username}
+                                                            />
+                                                            <AvatarFallback>
+                                                                {friend.username
+                                                                    .charAt(0)
+                                                                    .toUpperCase()}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{friend.username}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </Link>
+                                    )
+                                )}
                             </div>
                         </div>
                     )}
 
-                    <div className="mt-8">
-                        <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
-                            Achievements
-                        </h2>
-                        <div className="text-center text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine italic py-8 bg-dusk-purple/20 rounded-lg">
-                            <p>No achievements to display yet.</p>
+                    {achievements && achievements.length > 0 && (
+                        <div className="mt-8">
+                            <h2 className="text-xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4">
+                                Achievements
+                            </h2>
+                            <div>
+                                {console.log(achievements)}
+                                {achievements.map((ach: any) => (
+                                    <TooltipProvider key={ach.id}>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <div className="text-center items-center object-top flex-col w-16 h-16 rounded-md bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:bg-abyss hallowsnight:text-blood-bay-wine">
+                                                    <img
+                                                        src={
+                                                            '/images/achievements/' +
+                                                            ach.achievementId +
+                                                            '.png'
+                                                        }
+                                                        alt={ach.name}
+                                                        className="rounded-md object-none object-center justify-items-center w-16 h-16"
+                                                    />
+                                                    <div className="text-xs wrap-normal">
+                                                        {ach.name}
+                                                    </div>
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:bg-abyss hallowsnight:text-blood-bay-wine">
+                                                <p className="font-bold">{ach.name}</p>
+                                                <p className="text-sm">{ach.description}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Achieved:{' '}
+                                                    {new Date(ach.achievedAt).toLocaleDateString()}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Art by {ach.artist}
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

@@ -85,7 +85,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
     return (
-        <ThemeProvider defaultTheme="hallowsnight">
+        <ThemeProvider defaultTheme="dark">
             <QueryClientProvider client={queryClient}>
                 <SessionProvider>
                     <ThemeSyncer />

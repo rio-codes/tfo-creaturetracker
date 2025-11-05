@@ -18,7 +18,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
 import { GoalGene } from '@/types';
-import { Description } from '@mui/icons-material';
 
 export const achievementTypeEnum = pgEnum('achievement_type', [
     'manual',
@@ -599,6 +598,7 @@ export const achievements = pgTable('achievements', {
     description: text('description').notNull(),
     type: achievementTypeEnum('type').default('event').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    artist: text('artist').notNull(),
 });
 
 export const userAchievements = pgTable(

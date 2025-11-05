@@ -883,7 +883,7 @@ function calculateTotalSlots(targetGenes: { geneCount: number }[]): number {
     }, 1);
 }
 
-export async function getChecklists(): Promise<EnrichedChecklist[]> {
+export async function getChecklists() {
     noStore();
     const session = await auth();
     if (!session?.user?.id) {
@@ -897,16 +897,21 @@ export async function getChecklists(): Promise<EnrichedChecklist[]> {
         });
 
         return userChecklists.map((checklist) => {
-            const totalSlots = calculateTotalSlots(checklist.targetGenes);
-            const filledSlots = Object.values(checklist.assignments).filter(
-                (val) => val !== null
+            const totalSlots = calculateTotalSlots(checklist.targetGenes as any);
+            const filledSlots = Object.values(checklist.assignments as any).filter(
+                (val: any) => val !== null && val !== undefined
             ).length;
 
             return {
                 ...checklist,
                 id: checklist.id,
                 progress: {
-                    filled: filledSlots,
+                    _filled: filledSlots,
+                    checklist: checklist.assignments
+                        ? Object.values(checklist.assignments).filter(
+                              (val) => val !== null && val !== undefined
+                          ).length
+                        : 0,
                     total: totalSlots,
                 },
             };
@@ -937,12 +942,20 @@ export async function getChecklistById(id: string): Promise<EnrichedChecklist | 
         }
 
         const totalSlots = calculateTotalSlots(checklist.targetGenes);
-        const filledSlots = Object.values(checklist.assignments).filter(
-            (val) => val !== null
-        ).length;
+        const filledSlots = checklist.assignments
+            ? Object.values(
+                  checklist.assignments as Record<
+                      string,
+                      {
+                          userId: string;
+                          code: string;
+                      } | null
+                  >
+              ).filter((val) => val !== null && val !== undefined).length
+            : 0;
 
         return {
-            ...checklist,
+            ...(checklist as any),
             id: checklist.id,
             progress: {
                 filled: filledSlots,

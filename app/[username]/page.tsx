@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics';
+import { CreateChecklistDialog } from '@/components/custom-dialogs/create-checklist-dialog';
 
 import type {
     DbUser,

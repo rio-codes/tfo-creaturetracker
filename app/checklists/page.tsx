@@ -8,7 +8,7 @@ export default async function ChecklistsPage() {
 
     return (
         <>
-            <ChecklistsClient checklists={checklists} />
+            <ChecklistsClient checklists={checklists as any} />
         </>
     );
 }

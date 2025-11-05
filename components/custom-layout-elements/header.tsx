@@ -31,6 +31,7 @@ export default function Header() {
         { href: '/research-goals', label: 'Research Goals', icon: '🧪' },
         { href: '/breeding-pairs', label: 'Breeding Pairs', icon: '💜' },
         { href: '/community-wishlist', label: 'Community Wishlist', icon: '✨' },
+        { href: '/checklists', label: 'Checklists', icon: '📝' },
         { href: '/help', label: 'Help', icon: '❓' },
     ];
 

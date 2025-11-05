@@ -133,10 +133,19 @@ export function Footer() {
                     </span>
                     <br></br>
                     <span>
-                        All art is the copyright of respective artists on{' '}
+                        All creature art is the copyright of respective artists on{' '}
                         <a href="https://finaloutpost.net/" className="underline">
                             The Final Outpost
                         </a>
+                        .
+                    </span>
+                    <br></br>
+                    <span>
+                        Icons on navigation buttons designed by{' '}
+                        <a href="https://game-icons.net/about.html#authors" className="underline">
+                            contributors to game-icons.net
+                        </a>
+                        .
                     </span>
                 </div>
                 <div className="flex-col justify-items-end">

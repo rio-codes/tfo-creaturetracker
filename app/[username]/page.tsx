@@ -29,7 +29,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateGeneProbability } from '@/lib/genetics';
-import { CreateChecklistDialog } from '@/components/custom-dialogs/create-checklist-dialog';
 
 import type {
     DbUser,
@@ -504,7 +503,6 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
     return (
         <div className="container mx-auto py-10 ">
-            <CreateChecklistDialog />
             <Card className="bg-ebena-lavender text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet border-pompaca-purple/30 drop-shadow-md drop-shadow-gray-500 dark:drop-shadow-gray-900">
                 <CardHeader className="flex flex-col sm:flex-row items-start gap-4">
                     <Avatar className="h-24 w-24 border-2 border-pompaca-purple dark:border-purple-400 rounded-full drop-shadow-lg drop-shadow-gray-500 dark:drop-shadow-gray-900 z-20">

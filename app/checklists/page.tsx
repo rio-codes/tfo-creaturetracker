@@ -1,6 +1,5 @@
 import { getChecklists } from '@/lib/data';
 import { ChecklistsClient } from '@/components/custom-clients/checklists-client';
-import { EnrichedChecklist } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +8,7 @@ export default async function ChecklistsPage() {
 
     return (
         <>
-            <ChecklistsClient checklists={checklists as EnrichedChecklist[]} />
+            <ChecklistsClient checklists={checklists as any} />
         </>
     );
 }

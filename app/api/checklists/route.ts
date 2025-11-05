@@ -21,27 +21,40 @@ const createChecklistSchema = z
     })
     .superRefine((data, ctx) => {
         const { targetGenes } = data;
-        const trihybridCount = targetGenes.filter((g) => g.geneCount === 3).length;
-        const otherCount = targetGenes.length - trihybridCount;
+        const triHybridCount = targetGenes.filter((g) => g.geneCount === 3).length;
+        const diHybridCount = targetGenes.filter((g) => g.geneCount === 2).length;
+        const monoHybridCount = targetGenes.filter((g) => g.geneCount === 1).length;
 
-        if (trihybridCount > 1) {
+        if (triHybridCount > 0) {
+            if (triHybridCount > 1 || diHybridCount > 0 || monoHybridCount > 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'If a tri-hybrid gene is selected, no other genes can be.',
+                    path: ['targetGenes'],
+                });
+            }
+            return;
+        }
+
+        // If we are here, triHybridCount is 0.
+        if (diHybridCount > 1) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Cannot select more than one tri-hybrid gene.',
+                message: 'Cannot select more than one di-hybrid gene.',
                 path: ['targetGenes'],
             });
         }
-        if (trihybridCount === 1 && otherCount > 0) {
+        if (diHybridCount === 1 && monoHybridCount > 1) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Cannot select other genes with a tri-hybrid gene.',
+                message: 'If a di-hybrid gene is selected, only one mono-hybrid gene can be added.',
                 path: ['targetGenes'],
             });
         }
-        if (trihybridCount === 0 && otherCount > 2) {
+        if (diHybridCount === 0 && monoHybridCount > 3) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Cannot select more than two mono-hybrid or di-hybrid genes.',
+                message: 'Cannot select more than three mono-hybrid genes.',
                 path: ['targetGenes'],
             });
         }

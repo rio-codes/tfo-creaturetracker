@@ -83,14 +83,27 @@ export function CreateChecklistForm({ onSuccess }: CreateChecklistFormProps) {
         const isSelected = selectedGenes.some((g) => g.category === gene.category);
         if (isSelected) return false;
 
-        const hasTriHybrid = selectedGenes.some((g) => g.geneCount === 3);
-        const nonTriHybridCount = selectedGenes.filter((g) => g.geneCount !== 3).length;
+        const triHybridCount = selectedGenes.filter((g) => g.geneCount === 3).length;
+        const diHybridCount = selectedGenes.filter((g) => g.geneCount === 2).length;
+        const monoHybridCount = selectedGenes.filter((g) => g.geneCount === 1).length;
 
         if (gene.geneCount === 3) {
-            return hasTriHybrid || nonTriHybridCount > 0;
-        } else {
-            return hasTriHybrid || nonTriHybridCount >= 2;
+            // Disable selecting a tri-hybrid if any other gene is already selected.
+            return selectedGenes.length > 0;
         }
+        if (gene.geneCount === 2) {
+            // Disable selecting a di-hybrid if a tri-hybrid, another di-hybrid, or more than one mono-hybrid is selected.
+            return triHybridCount > 0 || diHybridCount > 0 || monoHybridCount > 1;
+        }
+        if (gene.geneCount === 1) {
+            // Disable selecting a mono-hybrid if a tri-hybrid is selected, or if a di-hybrid and another mono-hybrid are selected, or if three mono-hybrids are already selected.
+            return (
+                triHybridCount > 0 ||
+                (diHybridCount > 0 && monoHybridCount >= 1) ||
+                monoHybridCount >= 3
+            );
+        }
+        return false;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

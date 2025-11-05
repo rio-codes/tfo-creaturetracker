@@ -19,6 +19,13 @@ import {
 import { createId } from '@paralleldrive/cuid2';
 import { GoalGene } from '@/types';
 
+export const achievementTypeEnum = pgEnum('achievement_type', [
+    'manual',
+    'automatic',
+    'event',
+    'hidden',
+]);
+
 export const conversations = pgTable('conversations', {
     id: varchar('id', { length: 255 })
         .$defaultFn(() => createId())
@@ -140,6 +147,10 @@ export const users = pgTable('user', {
     allowWishlistGoalSaving: boolean('allow_wishlist_goal_saving').default(false).notNull(),
     featuredChecklistIds: jsonb('featured_checklist_ids').$type<string[]>(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+    userAchievements: many(userAchievements),
+}));
 
 export const accounts = pgTable(
     'account',
@@ -577,6 +588,50 @@ export const checklists = pgTable('checklist', {
 export const checklistRelations = relations(checklists, ({ one }) => ({
     user: one(users, {
         fields: [checklists.userId],
+        references: [users.id],
+    }),
+}));
+
+export const achievements = pgTable('achievements', {
+    id: varchar('id', { length: 255 }).primaryKey(),
+    name: text('name').notNull(),
+    description: text('description').notNull(),
+    type: achievementTypeEnum('type').default('event').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    artist: text('artist').notNull(),
+});
+
+export const userAchievements = pgTable(
+    'user_achievements',
+    {
+        userId: text('user_id')
+            .notNull()
+            .references(() => users.id, { onDelete: 'cascade' }),
+        achievementId: varchar('achievement_id', { length: 255 })
+            .notNull()
+            .references(() => achievements.id, { onDelete: 'cascade' }),
+        name: text('name').notNull(),
+        achievedAt: timestamp('achieved_at').defaultNow().notNull(),
+        artist: text('artist').notNull(),
+        description: text('description').notNull(),
+    },
+    (t) => ({
+        pk: primaryKey({ columns: [t.userId, t.achievementId] }),
+        userIdx: index('user_achievements_userId_idx').on(t.userId),
+    })
+);
+
+export const achievementsRelations = relations(achievements, ({ many }) => ({
+    userAchievements: many(userAchievements),
+}));
+
+export const userAchievementsRelations = relations(userAchievements, ({ one }) => ({
+    achievement: one(achievements, {
+        fields: [userAchievements.achievementId],
+        references: [achievements.id],
+    }),
+    user: one(users, {
+        fields: [userAchievements.userId],
         references: [users.id],
     }),
 }));

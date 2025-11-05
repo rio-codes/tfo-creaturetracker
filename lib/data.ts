@@ -906,7 +906,7 @@ export async function getChecklists() {
                 ...checklist,
                 id: checklist.id,
                 progress: {
-                    _filled: filledSlots,
+                    filled: filledSlots,
                     checklist: checklist.assignments
                         ? Object.values(checklist.assignments).filter(
                               (val) => val !== null && val !== undefined

@@ -162,9 +162,13 @@ export function CreateChecklistForm({ onSuccess }: CreateChecklistFormProps) {
                     <SelectTrigger className="bg-barely-lilac dark:bg-deep-purple hallowsnight:bg-abyss">
                         <SelectValue placeholder="Select a species" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson">
                         {speciesList.map((s) => (
-                            <SelectItem key={s} value={s}>
+                            <SelectItem
+                                className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson"
+                                key={s}
+                                value={s}
+                            >
                                 {s}
                             </SelectItem>
                         ))}

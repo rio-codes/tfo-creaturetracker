@@ -78,6 +78,7 @@ export function WishlistClient({
     unpinnedGoals: _initialUnpinnedGoals,
     totalPages: initialTotalPages,
     userCreatures,
+    currentUser,
 }: WishlistClientProps) {
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -199,11 +200,19 @@ export function WishlistClient({
 
     const filteredUnpinnedItems = useMemo(() => {
         if (!data?.items) return [];
+
         if (showMatches) {
-            return data.items.filter((wish) => creatureMatchMap.has(wish.goal.id));
+            return data.items.filter(
+                (wish) => creatureMatchMap.has(wish.goal.id) && wish.owner.id !== currentUser?.id
+            );
         }
-        return data.items;
-    }, [data, showMatches, creatureMatchMap]);
+
+        return data.items.filter((wish) => {
+            const canFulfill = creatureMatchMap.has(wish.goal.id);
+            const isOwner = wish.owner.id === currentUser?.id;
+            return isOwner || !canFulfill;
+        });
+    }, [data, showMatches, creatureMatchMap, currentUser]);
 
     useEffect(() => {
         if (data) {

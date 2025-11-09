@@ -340,6 +340,7 @@ export const researchGoals = pgTable(
         isPublic: boolean('is_public').default(false).notNull(),
         isSeasonal: boolean('is_seasonal').default(false).notNull(),
         isPinnedToWishlist: boolean('is_pinned_to_wishlist').default(false).notNull(),
+        isAchieved: boolean('is_achieved').default(false).notNull(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

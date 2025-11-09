@@ -1,9 +1,75 @@
 import { db } from '@/src/db';
 import { breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
 import { and, eq, or, inArray } from 'drizzle-orm';
-import type { DbBreedingPair, DbBreedingLogEntry } from '@/types';
+import type {
+    DbBreedingPair,
+    DbBreedingLogEntry,
+    EnrichedCreature,
+    EnrichedResearchGoal,
+    GoalGene,
+} from '@/types';
+import { structuredGeneData, AllSpeciesGeneData } from '@/constants/creature-data';
 
 type CreatureKey = { userId: string; code: string };
+
+export function creatureMatchesGoal(
+    creature: EnrichedCreature,
+    goal: EnrichedResearchGoal
+): boolean {
+    if (creature?.species !== goal.species) return false;
+
+    // Ensure goal.genes is not null or undefined
+    if (!goal.genes) return false;
+
+    // Check for excluded genes first. If the creature has any excluded gene, it's not a match.
+    if (goal.excludedGenes) {
+        for (const [category, excludedData] of Object.entries(goal.excludedGenes)) {
+            const creatureGene = creature.geneData.find((g) => g.category === category);
+            if (creatureGene && excludedData.phenotype.includes(creatureGene.phenotype)) {
+                return false;
+            }
+        }
+    }
+
+    const nonOptionalGenes = Object.values(goal.genes as Record<string, GoalGene>).filter(
+        (g) => !g.isOptional
+    );
+
+    // If there are no non-optional genes to check, it cannot be a match.
+    if (nonOptionalGenes.length === 0) return false;
+
+    for (const [category, targetGene] of Object.entries(goal.genes as Record<string, GoalGene>)) {
+        if (!targetGene.isOptional) {
+            const creatureGene = creature.geneData.find((g) => g.category === category);
+            console.log('checking gene ', creatureGene, targetGene);
+            if (!creatureGene) return false;
+
+            if (goal.goalMode === 'genotype') {
+                if (creatureGene.genotype !== targetGene.genotype) {
+                    return false;
+                }
+            } else {
+                // Look up the goal's phenotype dynamically instead of relying on the stored value.
+                const speciesGeneData = (structuredGeneData as AllSpeciesGeneData)[goal.species];
+                const categoryData = speciesGeneData?.[category];
+
+                if (Array.isArray(categoryData)) {
+                    const goalGeneInfo = categoryData.find(
+                        (g) => g.genotype === targetGene.genotype
+                    );
+                    const goalPhenotype = goalGeneInfo?.phenotype;
+
+                    if (!goalPhenotype || creatureGene.phenotype !== goalPhenotype) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
 export async function getCreatureAncestors(
     creatureKey: CreatureKey,

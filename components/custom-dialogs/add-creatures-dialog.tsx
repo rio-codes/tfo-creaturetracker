@@ -46,13 +46,20 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { JSX } from 'react/jsx-runtime';
 import { Progress } from '@/components/ui/progress';
+import { PostSyncAnalysis } from '../misc-custom-components/post-sync-analysis';
+import type { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 
 type DialogProps = {
     isOpen: boolean;
     onClose: () => void;
 };
 
-type SyncState = 'idle' | 'syncing' | 'confirming' | 'complete' | 'error';
+type SyncState = 'idle' | 'syncing' | 'analyzing' | 'post-sync-analysis' | 'complete' | 'error';
+
+type AnalysisResult = {
+    matchingGoals: { goal: EnrichedResearchGoal; matchingCreature: EnrichedCreature }[];
+    archivableCreatures: { id: string; code: string; creatureName: string | null }[];
+};
 
 type SyncProgress = {
     overall: {
@@ -65,12 +72,6 @@ type SyncProgress = {
         progress: number;
         message: string;
     };
-};
-
-type MissingCreature = {
-    id: string;
-    code: string;
-    creatureName: string | null;
 };
 
 type UserTab = {
@@ -88,12 +89,12 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [userTabs, setUserTabs] = useState<UserTab[]>([]);
     const [isLoadingTabs, setIsLoadingTabs] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
-    const [missingCreatures, setMissingCreatures] = useState<MissingCreature[]>([]);
 
     const [editingTabId, setEditingTabId] = useState<number | null>(null);
     const [editingTabName, setEditingTabName] = useState('');
     const [syncProgress, setSyncProgress] = useState<SyncProgress | null>(null);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
+    const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
 
     const router = useRouter();
 
@@ -200,23 +201,32 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         eventSource.addEventListener('done', async (event) => {
             const data = JSON.parse(event.data);
             eventSource.close();
+            setSyncState('analyzing');
 
-            if (isFullSync) {
-                const response = await fetch('/api/creatures/archive-many', {
+            try {
+                const analysisResponse = await fetch('/api/creatures/post-sync-analysis', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ allTfoCreatureCodes: data.allTfoCreatureCodes }),
+                    body: JSON.stringify({
+                        syncedCreatureCodes: data.allTfoCreatureCodes,
+                        allTfoCreatureCodes: data.allTfoCreatureCodes,
+                        isFullSync,
+                    }),
                 });
-                const missingData = await response.json();
-                if (missingData.missingCreatures && missingData.missingCreatures.length > 0) {
-                    setMissingCreatures(missingData.missingCreatures);
-                    setSyncState('confirming');
-                    return;
-                }
-            }
 
-            setSyncState('complete');
-            router.refresh();
+                if (!analysisResponse.ok) {
+                    throw new Error('Analysis request failed.');
+                }
+
+                const results = await analysisResponse.json();
+                setAnalysisResults(results);
+                setSyncState('post-sync-analysis');
+            } catch (e) {
+                console.error('Post-sync analysis failed', e);
+                // If analysis fails, just go to complete state
+                setSyncState('complete');
+                router.refresh();
+            }
         });
 
         eventSource.onerror = () => {
@@ -227,29 +237,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             setSyncState('error');
             eventSource.close();
         };
-    };
-
-    const handleArchiveMissing = async () => {
-        setSyncState('syncing'); // Show a loading state
-        try {
-            const creatureIds = missingCreatures.map((c) => c.id);
-            const response = await fetch('/api/creatures/archive-many', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ creatureIds }),
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
-
-            alertService.success(`${creatureIds.length} creatures archived.`, {
-                autoClose: false,
-            });
-            setSyncState('complete');
-            router.refresh();
-        } catch (error: any) {
-            alertService.error(error.message);
-            setSyncState('error');
-        }
     };
 
     const handleAddTab = async (e: React.FormEvent) => {
@@ -390,7 +377,6 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setSyncState('idle');
         setUserTabs([]);
         setShowAddForm(false);
-        setMissingCreatures([]);
         setEditingTabId(null);
         setSyncProgress(null);
         setErrorMessages([]);
@@ -641,40 +627,27 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         </div>
     );
 
-    const renderConfirmContent = () => (
-        <AlertDialog open={syncState === 'confirming'} onOpenChange={() => {}}>
-            <AlertDialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet">
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Archive Missing Creatures?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        The following {missingCreatures.length} creatures were not found in your
-                        synced tabs. Would you like to archive them?
-                        <ScrollArea className="h-32 mt-2 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 p-2">
-                            <ul className="text-xs list-disc list-inside">
-                                {missingCreatures.map((c) => (
-                                    <li key={c.id}>
-                                        {c.creatureName || 'Unnamed'} ({c.code})
-                                    </li>
-                                ))}
-                            </ul>
-                        </ScrollArea>
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel
-                        onClick={() => {
-                            setSyncState('complete');
-                            router.refresh();
-                        }}
-                    >
-                        No, Keep Them
-                    </AlertDialogCancel>
-                    <AlertDialogAction onClick={handleArchiveMissing}>
-                        Yes, Archive Them
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+    const renderAnalyzingContent = () => (
+        <div className="flex flex-col items-center justify-center space-y-4 p-8 min-h-[300px]">
+            <Loader2 className="h-12 w-12 animate-spin text-pompaca-purple dark:text-purple-300" />
+            <h2 className="text-2xl font-bold">Analyzing Sync Results...</h2>
+            <p className="text-sm text-dusk-purple dark:text-purple-400">
+                Checking for goal completions and other updates.
+            </p>
+        </div>
+    );
+
+    const renderPostSyncAnalysisContent = () => (
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                    Sync Analysis
+                </h2>
+            </div>
+            {analysisResults && (
+                <PostSyncAnalysis results={analysisResults} onComplete={handleClose} />
+            )}
+        </div>
     );
 
     const renderCompleteContent = () => (
@@ -725,8 +698,10 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         switch (syncState) {
             case 'syncing':
                 return renderSyncingContent();
-            case 'confirming':
-                return renderConfirmContent();
+            case 'analyzing':
+                return renderAnalyzingContent();
+            case 'post-sync-analysis':
+                return renderPostSyncAnalysisContent();
             case 'complete':
                 return renderCompleteContent();
             case 'error':

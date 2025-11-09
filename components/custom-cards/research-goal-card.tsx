@@ -11,6 +11,7 @@ import {
     UserRoundMinus,
     Loader2,
     Sparkle,
+    Award,
     Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -128,6 +129,32 @@ export function ResearchGoalCard({
 
     return (
         <Card className="relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson border-border overflow-hidden drop-shadow-md drop-shadow-gray-500">
+            {goal.isAchieved && (
+                <div className="absolute top-10 left-2 z-20">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Badge className="bg-green-500 text-white hover:bg-green-600 border-2 border-green-700">
+                                    <Award className="mr-1 h-4 w-4" />
+                                    Achieved
+                                </Badge>
+                            </TooltipTrigger>
+                            {goal.isAchieved && (
+                                <TooltipContent className="bg-ebena-lavender dark:bg-midnight-purple text-pompaca-purple dark:text-barely-lilac hallowsnight:bg-abyss hallowsnight:text-blood-bay-wine">
+                                    <p className="font-bold">Completed by:</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <img
+                                            src={goal?.imageUrl || '/images/misc/placeholder.png'}
+                                            alt={goal.name}
+                                            className="w-10 h-10 rounded-md bg-white/20"
+                                        />
+                                    </div>
+                                </TooltipContent>
+                            )}
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            )}
             {/* Goal Mode Badge */}
             <div className="absolute top-2 left-2 z-10">
                 <InfoDisplay
@@ -305,7 +332,11 @@ export function ResearchGoalCard({
 
                 {/* Action Buttons */}
                 <div className="flex w-full gap-x-2 justify-center">
-                    <Link href={`/research-goals/${goal?.id}`} passHref>
+                    <Link
+                        href={`/research-goals/${goal?.id}`}
+                        passHref
+                        className={goal.isAchieved ? 'pointer-events-none' : ''}
+                    >
                         <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 h-13 w-30 text-sm/tight hallowsnight:text-cimo-crimson hallowsnight:bg-blood-bay-wine">
                             <span className="text-wrap wrap-normal text-xs">Goal Tracker</span>
                         </Button>

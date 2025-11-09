@@ -5,12 +5,24 @@ import {
     creatures,
     breedingPairs,
     breedingLogEntries,
-    achievedGoals,
     researchGoals,
     users,
     checklists,
 } from '@/src/db/schema';
-import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
+import {
+    and,
+    ilike,
+    like,
+    or,
+    ne,
+    eq,
+    desc,
+    count,
+    SQL,
+    sql,
+    isNotNull,
+    or as drizzleOr,
+} from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,
@@ -342,7 +354,6 @@ export async function fetchFilteredResearchGoals(
 ) {
     const currentPage = (await Number(searchParams.page)) || 1;
     const { query, species } = await searchParams;
-    console.log('params: ', query, species);
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
@@ -352,27 +363,23 @@ export async function fetchFilteredResearchGoals(
     });
     const itemsPerPage = user?.goalsItemsPerPage ?? 12;
 
-    const conditions = [
+    const conditions: (SQL | undefined)[] = [
         eq(researchGoals.userId, userId),
-        eq(researchGoals.species, species || ''),
-        query
-            ? or(
-                  ilike(researchGoals.name, `%${query}%`),
-                  ilike(researchGoals.species, `%${query}%`)
-              )
-            : undefined,
+        // This condition was missing from your latest version
+        eq(researchGoals.isAchieved, false),
+        query ? ilike(researchGoals.name, `%${query}%`) : undefined,
+        species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
     ].filter(Boolean);
 
     console.log('conditions: ', conditions);
 
     try {
+        // 2. Update the pinned goals query
         const pinnedGoalsRaw = await db
             .select()
             .from(researchGoals)
             .where(and(...conditions, eq(researchGoals.isPinned, true)))
             .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
-
-        console.log(pinnedGoalsRaw?.map((goal) => goal.name));
 
         const pinnedGoals = pinnedGoalsRaw
             .map((goal) => {
@@ -392,47 +399,25 @@ export async function fetchFilteredResearchGoals(
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedGoals = unpinnedGoalsRaw
-            .map((goal) => enrichAndSerializeGoal({ ...goal }, goal.goalMode))
-            .filter((g): g is EnrichedResearchGoal => g !== null);
-
         const unpinnedConditions = [...conditions, eq(researchGoals.isPinned, false)];
+
+        const unpinnedGoals = unpinnedGoalsRaw
+            .map((goal) => {
+                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
+            })
+            .filter((g): g is EnrichedResearchGoal => g !== null);
 
         const totalCountResult = await db
             .select({ count: count() })
             .from(researchGoals)
-            .where(and(...unpinnedConditions));
+            .where(and(...conditions, eq(researchGoals.isPinned, false)));
+
         const totalUnpinned = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
-        // Fetch achieved goals
-        const achievedGoalsRaw = await db
-            .select()
-            .from(researchGoals)
-            .leftJoin(achievedGoals, eq(researchGoals.id, achievedGoals.goalId))
-            .leftJoin(
-                creatures,
-                and(
-                    eq(achievedGoals.matchingProgenyUserId, creatures.userId),
-                    eq(achievedGoals.matchingProgenyCode, creatures.code)
-                )
-            )
-            .where(and(eq(researchGoals.userId, userId), eq(researchGoals.isAchieved, true)))
-            .orderBy(desc(researchGoals.updatedAt));
-
-        const achievedGoalsEnriched = achievedGoalsRaw.map((row) => {
-            const enrichedGoal = enrichAndSerializeGoal(
-                row.research_goals,
-                row.research_goals.goalMode
-            );
-            if (!enrichedGoal) return null;
-            return enrichedGoal;
-        });
-
         return {
             pinnedGoals: pinnedGoals as EnrichedResearchGoal[],
-            unpinnedGoals: unpinnedGoals as EnrichedResearchGoal[],
-            achievedGoals: achievedGoalsEnriched as EnrichedResearchGoal[],
+            unpinnedGoals: unpinnedGoalsRaw as unknown as EnrichedResearchGoal[],
             totalPages: totalPages as number,
         };
     } catch (error) {

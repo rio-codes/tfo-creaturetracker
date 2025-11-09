@@ -50,11 +50,14 @@ export async function checkForInbreeding(
     maleKey: CreatureKey,
     femaleKey: CreatureKey
 ): Promise<boolean> {
-    if (!maleKey || !femaleKey || !maleKey.userId) {
+    if (!maleKey?.userId || !femaleKey?.userId) {
         return false;
     }
 
-    // 2. Update the logic to use getCreatureAncestors
+    if (maleKey.userId === femaleKey.userId && maleKey.code === femaleKey.code) {
+        return false;
+    }
+
     const [maleAncestorKeys, femaleAncestorKeys] = await Promise.all([
         getCreatureAncestors(maleKey, maleKey.userId),
         getCreatureAncestors(femaleKey, femaleKey.userId),
@@ -63,14 +66,14 @@ export async function checkForInbreeding(
     const maleAncestors = new Set(maleAncestorKeys.map((k) => `${k.userId}-${k.code}`));
     const femaleAncestors = new Set(femaleAncestorKeys.map((k) => `${k.userId}-${k.code}`));
 
-    // Check for direct parent/child or other ancestor relationship
     if (maleAncestors.has(`${femaleKey.userId}-${femaleKey.code}`)) return true;
+
     if (femaleAncestors.has(`${maleKey.userId}-${maleKey.code}`)) return true;
 
-    // Check for shared ancestors (siblings, cousins, etc.)
     for (const ancestor of maleAncestors) {
-        if (femaleAncestors.has(ancestor)) return true;
+        if (femaleAncestors.has(ancestor)) {
+            return true;
+        }
     }
-
     return false;
 }

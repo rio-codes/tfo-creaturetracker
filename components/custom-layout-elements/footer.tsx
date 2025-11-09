@@ -144,8 +144,9 @@ export function Footer() {
                         Icons on navigation buttons designed by{' '}
                         <a href="https://game-icons.net/about.html#authors" className="underline">
                             contributors to game-icons.net
-                        </a>
-                        .
+                        </a>{' '}
+                        and is licensed under{' '}
+                        <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
                     </span>
                 </div>
                 <div className="flex-col justify-items-end">

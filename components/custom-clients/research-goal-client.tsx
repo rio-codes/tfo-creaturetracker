@@ -256,152 +256,151 @@ export function ResearchGoalClient({
                                 Show Achieved Goals
                             </Label>
                         </div>
-
-                        {/* Pinned Goals */}
-                        {pinnedGoals.length > 0 && (
-                            <div className="mb-12">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
-                                        Pinned Goals
-                                    </h2>
-                                    {isMounted && (
-                                        <Button
-                                            onClick={() => setIsReorderDialogOpen(true)}
-                                            className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                        >
-                                            Reorder
-                                        </Button>
-                                    )}
-                                </div>
-
-                                {/* Desktop: Draggable Grid */}
-                                <div className="hidden md:block">
-                                    <DndContext
-                                        sensors={sensors}
-                                        collisionDetection={closestCenter}
-                                        onDragStart={handleDragStart}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        <SortableContext
-                                            items={pinnedGoals.map((g) => g.id)}
-                                            strategy={rectSortingStrategy}
-                                        >
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                {pinnedGoals.map((goal) => (
-                                                    <SortableGoalCard
-                                                        key={goal.id}
-                                                        goal={goal}
-                                                        currentUser={currentUser}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </SortableContext>
-                                    </DndContext>
-                                </div>
-
-                                {/* Mobile: Static Grid */}
-                                <div className="grid grid-cols-1 gap-6 md:hidden">
-                                    {pinnedGoals.map((goal) => (
-                                        <ResearchGoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            currentUser={currentUser}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Unpinned Goals */}
-                        {initialUnpinnedGoals.length > 0 && (
-                            <div>
-                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                                    All Goals
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                    {initialUnpinnedGoals.map((goal) => (
-                                        <ResearchGoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            currentUser={currentUser}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Achieved Goals */}
-                        {showAchieved && achievedGoals.length > 0 && (
-                            <div className="mt-12">
-                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                                    Achieved Goals
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                    {achievedGoals.map((goal) => (
-                                        <ResearchGoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            currentUser={currentUser}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {pinnedGoals.length === 0 &&
-                        initialUnpinnedGoals.length === 0 &&
-                        (!showAchieved || achievedGoals.length === 0) ? (
-                            <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple  rounded-lg">
-                                <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                                    No Goals Found
-                                </h2>
-                                <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
-                                    Try adjusting your search or filter, or create a new goal.
-                                </p>
-                            </div>
-                        ) : null}
-
-                        {/* Pagination */}
-                        <div className="mt-8 flex justify-center">
-                            <Pagination totalPages={totalPages} />
-                        </div>
-
-                        {/* Reorder Dialog for Mobile */}
-                        <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
-                            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle>Reorder Pinned Goals</DialogTitle>
-                                </DialogHeader>
-                                <div className="max-h-[80vh] overflow-y-auto p-2">
-                                    <DndContext
-                                        sensors={sensors}
-                                        collisionDetection={closestCenter}
-                                        onDragStart={handleDragStart}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        <SortableContext
-                                            items={pinnedGoals.map((g) => g.id)}
-                                            strategy={rectSortingStrategy}
-                                        >
-                                            <div className="grid grid-cols-4 gap-2">
-                                                {pinnedGoals.map((goal) => (
-                                                    <SortableGoalImage key={goal.id} goal={goal} />
-                                                ))}
-                                            </div>
-                                        </SortableContext>
-                                    </DndContext>
-                                </div>
-                                <DialogFooter className="pt-4 sm:justify-center">
-                                    <Button
-                                        onClick={() => setIsReorderDialogOpen(false)}
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                    >
-                                        Done
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
                     </div>
+                    {/* Pinned Goals */}
+                    {pinnedGoals.length > 0 && (
+                        <div className="mb-12">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
+                                    Pinned Goals
+                                </h2>
+                                {isMounted && (
+                                    <Button
+                                        onClick={() => setIsReorderDialogOpen(true)}
+                                        className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    >
+                                        Reorder
+                                    </Button>
+                                )}
+                            </div>
+
+                            {/* Desktop: Draggable Grid */}
+                            <div className="hidden md:block">
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragStart={handleDragStart}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={pinnedGoals.map((g) => g.id)}
+                                        strategy={rectSortingStrategy}
+                                    >
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {pinnedGoals.map((goal) => (
+                                                <SortableGoalCard
+                                                    key={goal.id}
+                                                    goal={goal}
+                                                    currentUser={currentUser}
+                                                />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            </div>
+
+                            {/* Mobile: Static Grid */}
+                            <div className="grid grid-cols-1 gap-6 md:hidden">
+                                {pinnedGoals.map((goal) => (
+                                    <ResearchGoalCard
+                                        key={goal.id}
+                                        goal={goal}
+                                        currentUser={currentUser}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Unpinned Goals */}
+                    {initialUnpinnedGoals.length > 0 && (
+                        <div>
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                                All Goals
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                {initialUnpinnedGoals.map((goal) => (
+                                    <ResearchGoalCard
+                                        key={goal.id}
+                                        goal={goal}
+                                        currentUser={currentUser}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Achieved Goals */}
+                    {showAchieved && achievedGoals.length > 0 && (
+                        <div className="mt-12">
+                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                                Achieved Goals
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                {achievedGoals.map((goal) => (
+                                    <ResearchGoalCard
+                                        key={goal.id}
+                                        goal={goal}
+                                        currentUser={currentUser}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {pinnedGoals.length === 0 &&
+                    initialUnpinnedGoals.length === 0 &&
+                    (!showAchieved || achievedGoals.length === 0) ? (
+                        <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple  rounded-lg">
+                            <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                No Goals Found
+                            </h2>
+                            <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
+                                Try adjusting your search or filter, or create a new goal.
+                            </p>
+                        </div>
+                    ) : null}
+
+                    {/* Pagination */}
+                    <div className="mt-8 flex justify-center">
+                        <Pagination totalPages={totalPages} />
+                    </div>
+
+                    {/* Reorder Dialog for Mobile */}
+                    <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
+                        <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle>Reorder Pinned Goals</DialogTitle>
+                            </DialogHeader>
+                            <div className="max-h-[80vh] overflow-y-auto p-2">
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragStart={handleDragStart}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={pinnedGoals.map((g) => g.id)}
+                                        strategy={rectSortingStrategy}
+                                    >
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {pinnedGoals.map((goal) => (
+                                                <SortableGoalImage key={goal.id} goal={goal} />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            </div>
+                            <DialogFooter className="pt-4 sm:justify-center">
+                                <Button
+                                    onClick={() => setIsReorderDialogOpen(false)}
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                >
+                                    Done
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
         </div>

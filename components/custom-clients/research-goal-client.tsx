@@ -25,6 +25,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -42,6 +44,7 @@ import { User } from '@/types';
 type ResearchGoalClientProps = {
     pinnedGoals: EnrichedResearchGoal[];
     unpinnedGoals: EnrichedResearchGoal[];
+    achievedGoals: EnrichedResearchGoal[];
     totalPages: number;
     currentUser?: User | null;
     allCreatures: EnrichedCreature[];
@@ -91,7 +94,7 @@ function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 aspect-square flex items-center justify-center"
+            className="p-1 border rounded-md bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple aspect-square flex items-center justify-center"
         >
             <img
                 src={goal.imageUrl || '/images/misc/placeholder.png'}
@@ -105,23 +108,29 @@ function SortableGoalImage({ goal }: { goal: EnrichedResearchGoal }) {
 export function ResearchGoalClient({
     pinnedGoals: initialPinnedGoals,
     unpinnedGoals: initialUnpinnedGoals,
+    achievedGoals,
     totalPages,
     currentUser,
     allCreatures,
 }: ResearchGoalClientProps) {
     const [pinnedGoals, setPinnedGoals] = useState(initialPinnedGoals);
-    const [unpinnedGoals, setUnpinnedGoals] = useState(initialUnpinnedGoals);
     const [isMounted, setIsMounted] = useState(false);
     const [isReorderDialogOpen, setIsReorderDialogOpen] = useState(false);
+    const [showAchieved, setShowAchieved] = useState(false);
+
+    console.log(
+        '[ResearchGoalClient] Rendering. Received props:',
+        `Pinned: ${initialPinnedGoals.length}`,
+        `Unpinned: ${initialUnpinnedGoals.length}`
+    );
+
+    useEffect(() => {
+        setPinnedGoals(initialPinnedGoals);
+    }, [initialPinnedGoals]);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    useEffect(() => {
-        setPinnedGoals(initialPinnedGoals);
-        setUnpinnedGoals(initialUnpinnedGoals);
-    }, [initialPinnedGoals, initialUnpinnedGoals]);
 
     const ownedSpecies = useMemo(() => {
         if (!allCreatures) return [];
@@ -202,10 +211,10 @@ export function ResearchGoalClient({
                 <AddGoalDialog />
 
                 {/* Search and Filters */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                <div className="flex flex-col gap-4 mb-8">
                     {/* Search Bar */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple hallowsnight:text-cimo-crimson dark:text-purple-400 hallowsnight:text-blood-bay-wine h-4 w-4 z-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pompaca-purple hallowsnight:text-cimo-crimson dark:text-purple-400 h-4 w-4 z-10" />
                         <Input
                             placeholder="search for a goal by name..."
                             className="pl-10 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss border-pompaca-purple dark:border-purple-400 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson focus-visible:ring-0 placeholder:text-dusk-purple dark:placeholder:text-purple-400 drop-shadow-sm hallowsnight:placeholder:text-cimo-crimson drop-shadow-gray-500"
@@ -214,149 +223,186 @@ export function ResearchGoalClient({
                         />
                     </div>
 
-                    {/* Species Filter */}
-                    <Select
-                        defaultValue={searchParams.get('species') || 'all'}
-                        onValueChange={(value) => handleFilterChange('species', value)}
-                    >
-                        <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                            <SelectItem value="all">All Species</SelectItem>
-                            {ownedSpecies.map((species) => (
-                                <SelectItem key={species} value={species}>
-                                    {species}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        {/* Species Filter */}
+                        <Select
+                            defaultValue={searchParams.get('species') || 'all'}
+                            onValueChange={(value) => handleFilterChange('species', value)}
+                        >
+                            <SelectTrigger className="w-full md:w-48 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400 drop-shadow-sm drop-shadow-gray-500 focus-visible:ring-0">
+                                <SelectValue placeholder="Filter by species" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                <SelectItem value="all">All Species</SelectItem>
+                                {ownedSpecies.map((species) => (
+                                    <SelectItem key={species} value={species}>
+                                        {species}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                                id="show-achieved"
+                                checked={showAchieved}
+                                onCheckedChange={(checked) => setShowAchieved(!!checked)}
+                                className="border-pompaca-purple dark:border-purple-400"
+                            />
+                            <Label
+                                htmlFor="show-achieved"
+                                className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+                            >
+                                Show Achieved Goals
+                            </Label>
+                        </div>
+
+                        {/* Pinned Goals */}
+                        {pinnedGoals.length > 0 && (
+                            <div className="mb-12">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
+                                        Pinned Goals
+                                    </h2>
+                                    {isMounted && (
+                                        <Button
+                                            onClick={() => setIsReorderDialogOpen(true)}
+                                            className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                        >
+                                            Reorder
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {/* Desktop: Draggable Grid */}
+                                <div className="hidden md:block">
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={pinnedGoals.map((g) => g.id)}
+                                            strategy={rectSortingStrategy}
+                                        >
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {pinnedGoals.map((goal) => (
+                                                    <SortableGoalCard
+                                                        key={goal.id}
+                                                        goal={goal}
+                                                        currentUser={currentUser}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
+                                </div>
+
+                                {/* Mobile: Static Grid */}
+                                <div className="grid grid-cols-1 gap-6 md:hidden">
+                                    {pinnedGoals.map((goal) => (
+                                        <ResearchGoalCard
+                                            key={goal.id}
+                                            goal={goal}
+                                            currentUser={currentUser}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Unpinned Goals */}
+                        {initialUnpinnedGoals.length > 0 && (
+                            <div>
+                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                                    All Goals
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                    {initialUnpinnedGoals.map((goal) => (
+                                        <ResearchGoalCard
+                                            key={goal.id}
+                                            goal={goal}
+                                            currentUser={currentUser}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Achieved Goals */}
+                        {showAchieved && achievedGoals.length > 0 && (
+                            <div className="mt-12">
+                                <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
+                                    Achieved Goals
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                    {achievedGoals.map((goal) => (
+                                        <ResearchGoalCard
+                                            key={goal.id}
+                                            goal={goal}
+                                            currentUser={currentUser}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {pinnedGoals.length === 0 &&
+                        initialUnpinnedGoals.length === 0 &&
+                        (!showAchieved || achievedGoals.length === 0) ? (
+                            <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple  rounded-lg">
+                                <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                    No Goals Found
+                                </h2>
+                                <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
+                                    Try adjusting your search or filter, or create a new goal.
+                                </p>
+                            </div>
+                        ) : null}
+
+                        {/* Pagination */}
+                        <div className="mt-8 flex justify-center">
+                            <Pagination totalPages={totalPages} />
+                        </div>
+
+                        {/* Reorder Dialog for Mobile */}
+                        <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
+                            <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
+                                <DialogHeader>
+                                    <DialogTitle>Reorder Pinned Goals</DialogTitle>
+                                </DialogHeader>
+                                <div className="max-h-[80vh] overflow-y-auto p-2">
+                                    <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragStart={handleDragStart}
+                                        onDragEnd={handleDragEnd}
+                                    >
+                                        <SortableContext
+                                            items={pinnedGoals.map((g) => g.id)}
+                                            strategy={rectSortingStrategy}
+                                        >
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {pinnedGoals.map((goal) => (
+                                                    <SortableGoalImage key={goal.id} goal={goal} />
+                                                ))}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
+                                </div>
+                                <DialogFooter className="pt-4 sm:justify-center">
+                                    <Button
+                                        onClick={() => setIsReorderDialogOpen(false)}
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    >
+                                        Done
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
-
-                {/* Pinned Goals */}
-                {pinnedGoals.length > 0 && (
-                    <div className="mb-12">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-b-2 border-pompaca-purple/30 pb-2">
-                                Pinned Goals
-                            </h2>
-                            {isMounted && (
-                                <Button
-                                    onClick={() => setIsReorderDialogOpen(true)}
-                                    className="md:hidden bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                >
-                                    Reorder
-                                </Button>
-                            )}
-                        </div>
-
-                        {/* Desktop: Draggable Grid */}
-                        <div className="hidden md:block">
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragStart={handleDragStart}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={pinnedGoals.map((g) => g.id)}
-                                    strategy={rectSortingStrategy}
-                                >
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {pinnedGoals.map((goal) => (
-                                            <SortableGoalCard
-                                                key={goal.id}
-                                                goal={goal}
-                                                currentUser={currentUser}
-                                            />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
-                        </div>
-
-                        {/* Mobile: Static Grid */}
-                        <div className="grid grid-cols-1 gap-6 md:hidden">
-                            {pinnedGoals.map((goal) => (
-                                <ResearchGoalCard
-                                    key={goal.id}
-                                    goal={goal}
-                                    currentUser={currentUser}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Unpinned Goals */}
-                {unpinnedGoals.length > 0 && (
-                    <div>
-                        <h2 className="text-2xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-4 border-b-2 border-pompaca-purple/30 pb-2">
-                            All Goals
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            {unpinnedGoals.map((goal) => (
-                                <ResearchGoalCard
-                                    key={goal.id}
-                                    goal={goal}
-                                    currentUser={currentUser}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {pinnedGoals.length === 0 && unpinnedGoals.length === 0 ? (
-                    <div className="text-center py-16 px-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet/50 rounded-lg">
-                        <h2 className="text-2xl font-semibold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                            No Goals Found
-                        </h2>
-                        <p className="text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine mt-2">
-                            Try adjusting your search or filter, or create a new goal.
-                        </p>
-                    </div>
-                ) : null}
-
-                {/* Pagination */}
-                <div className="mt-8 flex justify-center">
-                    <Pagination totalPages={totalPages} />
-                </div>
-
-                {/* Reorder Dialog for Mobile */}
-                <Dialog open={isReorderDialogOpen} onOpenChange={setIsReorderDialogOpen}>
-                    <DialogContent className="bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet max-w-[95vw] sm:max-w-lg">
-                        <DialogHeader>
-                            <DialogTitle>Reorder Pinned Goals</DialogTitle>
-                        </DialogHeader>
-                        <div className="max-h-[80vh] overflow-y-auto p-2">
-                            <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragStart={handleDragStart}
-                                onDragEnd={handleDragEnd}
-                            >
-                                <SortableContext
-                                    items={pinnedGoals.map((g) => g.id)}
-                                    strategy={rectSortingStrategy}
-                                >
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {pinnedGoals.map((goal) => (
-                                            <SortableGoalImage key={goal.id} goal={goal} />
-                                        ))}
-                                    </div>
-                                </SortableContext>
-                            </DndContext>
-                        </div>
-                        <DialogFooter className="pt-4 sm:justify-center">
-                            <Button
-                                onClick={() => setIsReorderDialogOpen(false)}
-                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                            >
-                                Done
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
             </div>
         </div>
     );

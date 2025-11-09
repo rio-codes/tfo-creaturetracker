@@ -201,6 +201,19 @@ export function GoalDetailClient({
 
     return (
         <div className="space-y-8">
+            {goal.isAchieved && (
+                <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 flex items-center gap-4">
+                    <Award className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    <div>
+                        <h3 className="text-xl font-bold text-green-800 dark:text-green-200">
+                            Goal Achieved!
+                        </h3>
+                        <p className="text-green-700 dark:text-green-300">
+                            This research goal has been completed.
+                        </p>
+                    </div>
+                </div>
+            )}
             <meta property="og:image" content="{imageUrl}" />
             <div className="flex-col gap-4">
                 <div className="flex justify-between items-start gap-4">

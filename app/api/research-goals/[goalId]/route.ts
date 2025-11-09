@@ -204,7 +204,6 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
             return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });
         }
     } else {
-        // Handle standard goal edit (the "original" function)
         try {
             const body = await req.json();
             const validatedFields = editGoalSchema.safeParse(body);

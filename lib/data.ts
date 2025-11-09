@@ -5,6 +5,7 @@ import {
     creatures,
     breedingPairs,
     breedingLogEntries,
+    achievedGoals,
     researchGoals,
     users,
     checklists,
@@ -14,9 +15,9 @@ import type {
     DbBreedingLogEntry,
     DbBreedingPair,
     EnrichedCreature,
-    EnrichedResearchGoal,
     EnrichedBreedingPair,
     EnrichedChecklist,
+    EnrichedResearchGoal,
 } from '@/types';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
@@ -339,8 +340,9 @@ export async function fetchFilteredResearchGoals(
         species?: string;
     } = {}
 ) {
-    const currentPage = Number(searchParams.page) || 1;
-    const { query, species } = searchParams;
+    const currentPage = (await Number(searchParams.page)) || 1;
+    const { query, species } = await searchParams;
+    console.log('params: ', query, species);
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User is not authenticated.');
@@ -352,9 +354,16 @@ export async function fetchFilteredResearchGoals(
 
     const conditions = [
         eq(researchGoals.userId, userId),
-        query ? ilike(researchGoals.name, `%${query}%`) : undefined,
-        species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
+        eq(researchGoals.species, species || ''),
+        query
+            ? or(
+                  ilike(researchGoals.name, `%${query}%`),
+                  ilike(researchGoals.species, `%${query}%`)
+              )
+            : undefined,
     ].filter(Boolean);
+
+    console.log('conditions: ', conditions);
 
     try {
         const pinnedGoalsRaw = await db
@@ -363,24 +372,31 @@ export async function fetchFilteredResearchGoals(
             .where(and(...conditions, eq(researchGoals.isPinned, true)))
             .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
 
-        const pinnedGoals = pinnedGoalsRaw.map((goal) =>
-            enrichAndSerializeGoal(goal, goal.goalMode)
-        );
+        console.log(pinnedGoalsRaw?.map((goal) => goal.name));
 
-        const unpinnedConditions = [...conditions, eq(researchGoals.isPinned, false)];
+        const pinnedGoals = pinnedGoalsRaw
+            .map((goal) => {
+                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
+            })
+            .filter((g): g is EnrichedResearchGoal => g !== null);
+
+        console.log(pinnedGoals?.map((goal) => goal.name));
+
         const offset = (currentPage - 1) * itemsPerPage;
 
         const unpinnedGoalsRaw = await db
             .select()
             .from(researchGoals)
-            .where(and(...unpinnedConditions))
+            .where(and(...conditions, eq(researchGoals.isPinned, false)))
             .orderBy(desc(researchGoals.createdAt), desc(researchGoals.id))
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedGoals = unpinnedGoalsRaw.map((goal) =>
-            enrichAndSerializeGoal(goal, goal.goalMode)
-        );
+        const unpinnedGoals = unpinnedGoalsRaw
+            .map((goal) => enrichAndSerializeGoal({ ...goal }, goal.goalMode))
+            .filter((g): g is EnrichedResearchGoal => g !== null);
+
+        const unpinnedConditions = [...conditions, eq(researchGoals.isPinned, false)];
 
         const totalCountResult = await db
             .select({ count: count() })
@@ -389,10 +405,39 @@ export async function fetchFilteredResearchGoals(
         const totalUnpinned = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
-        return { pinnedGoals, unpinnedGoals, totalPages };
+        // Fetch achieved goals
+        const achievedGoalsRaw = await db
+            .select()
+            .from(researchGoals)
+            .leftJoin(achievedGoals, eq(researchGoals.id, achievedGoals.goalId))
+            .leftJoin(
+                creatures,
+                and(
+                    eq(achievedGoals.matchingProgenyUserId, creatures.userId),
+                    eq(achievedGoals.matchingProgenyCode, creatures.code)
+                )
+            )
+            .where(and(eq(researchGoals.userId, userId), eq(researchGoals.isAchieved, true)))
+            .orderBy(desc(researchGoals.updatedAt));
+
+        const achievedGoalsEnriched = achievedGoalsRaw.map((row) => {
+            const enrichedGoal = enrichAndSerializeGoal(
+                row.research_goals,
+                row.research_goals.goalMode
+            );
+            if (!enrichedGoal) return null;
+            return enrichedGoal;
+        });
+
+        return {
+            pinnedGoals: pinnedGoals as EnrichedResearchGoal[],
+            unpinnedGoals: unpinnedGoals as EnrichedResearchGoal[],
+            achievedGoals: achievedGoalsEnriched as EnrichedResearchGoal[],
+            totalPages: totalPages as number,
+        };
     } catch (error) {
         console.error(error);
-        return { pinnedGoals: [], unpinnedGoals: [], totalPages: 0 };
+        return { pinnedGoals: [], unpinnedGoals: [], achievedGoals: [], totalPages: 0 };
     }
 }
 
@@ -913,7 +958,7 @@ export async function getChecklists() {
                           ).length
                         : 0,
                     total: totalSlots,
-                },
+                }, // Add this new property
             };
         });
     } catch (error) {

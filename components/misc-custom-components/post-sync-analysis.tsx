@@ -24,6 +24,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
     const router = useRouter();
     const { width, height } = useWindowSize();
     const [isLoading, setIsLoading] = useState(false);
+    const [currentResults, setCurrentResults] = useState<AnalysisResult>(results);
     const [showConfetti, _setShowConfetti] = useState(
         results.matchingGoals.length > 0 ? true : false
     );
@@ -36,8 +37,20 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
             });
             if (!response.ok) throw new Error('Failed to mark goal as achieved.');
             toast.success('Goal marked as achieved!');
-            router.refresh(); // Refresh data to reflect change
-            onComplete(); // Or move to next step if there are more actions
+            router.refresh();
+            const newResults = {
+                ...currentResults,
+                matchingGoals: currentResults.matchingGoals.filter(
+                    (match) => match.goal.id !== goalId
+                ),
+            };
+            setCurrentResults(newResults);
+            if (
+                newResults.matchingGoals.length === 0 &&
+                newResults.archivableCreatures.length === 0
+            ) {
+                onComplete();
+            }
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -60,9 +73,11 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
         }
     };
 
+    // In post-sync-analysis.tsx
+
     const handleArchiveCreatures = async () => {
         setIsLoading(true);
-        const creatureIds = results.archivableCreatures.map((c) => c.id);
+        const creatureIds = currentResults.archivableCreatures.map((c) => c.id);
         try {
             const response = await fetch('/api/creatures/archive-many', {
                 method: 'POST',
@@ -72,7 +87,19 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
             if (!response.ok) throw new Error('Failed to archive creatures.');
             toast.success(`${creatureIds.length} creatures archived.`);
             router.refresh();
-            onComplete();
+
+            const newResults = {
+                ...currentResults,
+                archivableCreatures: [],
+            };
+            setCurrentResults(newResults);
+
+            if (
+                newResults.matchingGoals.length === 0 &&
+                newResults.archivableCreatures.length === 0
+            ) {
+                onComplete();
+            }
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -81,7 +108,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
     };
 
     return (
-        <div className="p-4 space-y-6 overflow-y-auto">
+        <div className="p-4 space-y-6 overflow-y-auto max-h-[70vh]">
             {showConfetti && <Confetti width={width} height={height} recycle={false} />}
 
             {results.matchingGoals.length > 0 && (
@@ -99,7 +126,8 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
                         {results.matchingGoals.map(({ goal, matchingCreature }) => (
                             <div
                                 key={goal.id}
-                                className="p-3 rounded-md bg-white dark:bg-slate-800 flex justify-between items-center"
+                                // Add flex-col and md:flex-row to this container
+                                className="p-3 rounded-md bg-white dark:bg-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-2"
                             >
                                 <div>
                                     <p className="font-semibold">{goal.name}</p>
@@ -108,12 +136,14 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
                                         {matchingCreature?.code})
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                {/* Change this div to be responsive */}
+                                <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
                                     <Button
                                         size="sm"
                                         variant="outline"
                                         onClick={() => handleDeleteGoal(goal.id)}
                                         disabled={isLoading}
+                                        className="w-full" // Make button full width on mobile
                                     >
                                         <Trash2 className="mr-2 h-4 w-4" /> Delete Goal
                                     </Button>
@@ -121,7 +151,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
                                         size="sm"
                                         onClick={() => handleMarkAchieved(goal.id)}
                                         disabled={isLoading}
-                                        className="bg-green-600 hover:bg-green-700"
+                                        className="bg-green-600 hover:bg-green-700 w-full" // Make button full width on mobile
                                     >
                                         <Check className="mr-2 h-4 w-4" /> Mark Achieved
                                     </Button>

@@ -9,20 +9,7 @@ import {
     users,
     checklists,
 } from '@/src/db/schema';
-import {
-    and,
-    ilike,
-    like,
-    or,
-    ne,
-    eq,
-    desc,
-    count,
-    SQL,
-    sql,
-    isNotNull,
-    or as drizzleOr,
-} from 'drizzle-orm';
+import { and, ilike, like, or, ne, eq, desc, count, SQL, sql, isNotNull } from 'drizzle-orm';
 import type {
     DbBreedingLogEntry,
     DbBreedingPair,
@@ -398,14 +385,6 @@ export async function fetchFilteredResearchGoals(
             .orderBy(desc(researchGoals.createdAt), desc(researchGoals.id))
             .limit(itemsPerPage)
             .offset(offset);
-
-        const unpinnedConditions = [...conditions, eq(researchGoals.isPinned, false)];
-
-        const unpinnedGoals = unpinnedGoalsRaw
-            .map((goal) => {
-                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
-            })
-            .filter((g): g is EnrichedResearchGoal => g !== null);
 
         const totalCountResult = await db
             .select({ count: count() })

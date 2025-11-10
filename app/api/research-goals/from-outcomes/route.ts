@@ -36,6 +36,7 @@ const createGoalSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
     goalMode: z.enum(goalModeEnum.enumValues),
     optionalGenes: z.record(z.string(), z.boolean()),
+    isPublic: z.boolean(),
 });
 
 export async function POST(req: Request) {
@@ -126,6 +127,7 @@ export async function POST(req: Request) {
                 imageUrl: blobUrl,
                 gender: gender,
                 genes: goalGenes,
+                isPublic: validated.data.isPublic,
                 goalMode: goalMode,
                 assignedPairIds: [pairId],
                 updatedAt: new Date(),

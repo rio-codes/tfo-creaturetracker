@@ -34,12 +34,8 @@ export async function POST(req: Request) {
         }
         const { species, genes } = validatedFields.data;
 
-        // get genotype to construct image url
         const genotypesForUrl = Object.fromEntries(
-            Object.entries(genes).map(([category, selection]) => {
-                const geneSelection = selection as { genotype: string };
-                return [category, geneSelection.genotype];
-            })
+            Object.entries(genes).map(([category, selection]) => [category, selection.genotype])
         );
 
         const imageUrl = constructTfoImageUrl(species, genotypesForUrl, 'female');

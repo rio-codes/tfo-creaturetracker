@@ -68,7 +68,7 @@ const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
 
     return (
         <p
-            className="pt-1 text-xs text-dusk-purple break-words"
+            className="pt-1 text-xs text-dusk-purple wrap-break-word"
             dangerouslySetInnerHTML={{ __html: summary }}
             title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
         />
@@ -114,6 +114,8 @@ export function BreedingPairCard({
     if (!pair?.maleParent || !pair.femaleParent) {
         return null;
     }
+
+    console.log('assigned goals!! ', pair?.assignedGoalIds);
 
     const handlePinToggle = async () => {
         setIsPinning(true);
@@ -291,7 +293,7 @@ export function BreedingPairCard({
                                     )}
                                 </div>
                             </div>
-                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 rounded-md border p-2">
+                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple rounded-md border p-2">
                                 {pair.progeny && pair.progeny.length > 0 ? (
                                     <ul className="text-xs space-y-1">
                                         {pair.progeny.map((p) => {
@@ -429,7 +431,7 @@ export function BreedingPairCard({
                             </ScrollArea>
 
                             <h4 className="font-bold text-sm mb-1">Assigned Goals</h4>
-                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50 hallowsnight:text-cimo-crimson rounded-md border p-2">
+                            <ScrollArea className="flex-grow bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple  hallowsnight:text-cimo-crimson rounded-md border p-2">
                                 {pair.assignedGoals && pair.assignedGoals.length > 0 ? (
                                     <ul className="text-xs space-y-1">
                                         {pair.assignedGoals.map((g) => (

@@ -18,7 +18,7 @@ export function constructTfoImageUrl(
         throw new Error(`Invalid or missing species code for: ${species}`);
     }
 
-    const baseUrl = process.env.TFO_BASE_URL;
+    const baseUrl = 'https://finaloutpost.net/ln';
 
     const genderGenotype = genderInput?.toUpperCase();
     let gender = '';

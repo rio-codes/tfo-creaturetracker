@@ -32,6 +32,7 @@ const createGoalSchema = z.object({
     pairId: z.string().uuid(),
     goalName: z.string().min(3, 'Goal name must be at least 3 characters.'),
     species: z.string(),
+    gender: z.enum(['male', 'female']),
     selectedGenotypes: z.record(z.string(), z.string()),
     goalMode: z.enum(goalModeEnum.enumValues),
     optionalGenes: z.record(z.string(), z.boolean()),
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
             console.error('Zod Validation Failed in from-outcomes', { fieldErrors });
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
-        const { pairId, goalName, species, selectedGenotypes, goalMode, optionalGenes } =
+        const { pairId, goalName, species, gender, selectedGenotypes, goalMode, optionalGenes } =
             validated.data;
 
         const speciesGeneData = (structuredGeneData as Record<string, SpeciesGeneData>)[species];
@@ -92,7 +93,27 @@ export async function POST(req: Request) {
             };
         }
 
-        const tfoImageUrl = constructTfoImageUrl(species, selectedGenotypes);
+        // Add Gender back into the goalGenes object for saving and image generation
+        if (gender === 'female') {
+            goalGenes['Gender'] = {
+                genotype: 'F',
+                phenotype: 'Female',
+                isMultiGenotype: false,
+                isOptional: !!optionalGenes['Gender'],
+            };
+        } else {
+            goalGenes['Gender'] = {
+                genotype: 'M',
+                phenotype: 'Male',
+                isMultiGenotype: false,
+                isOptional: !!optionalGenes['Gender'],
+            };
+        }
+
+        // Create a simple { category: genotype } map for the image URL
+        const genotypesForUrl = { ...selectedGenotypes, Gender: gender === 'female' ? 'F' : 'M' };
+
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl, gender);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
@@ -103,6 +124,7 @@ export async function POST(req: Request) {
                 name: goalName,
                 species: species,
                 imageUrl: blobUrl,
+                gender: gender,
                 genes: goalGenes,
                 goalMode: goalMode,
                 assignedPairIds: [pairId],

@@ -111,6 +111,7 @@ const getRandomCreature = cache(
             const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } =
                 {};
 
+            // Assuming we only care about the first possible species outcome for the random creature.
             const firstSpeciesOutcome = outcomesByCategory[0];
 
             if (firstSpeciesOutcome) {
@@ -137,7 +138,12 @@ const getRandomCreature = cache(
             );
             let imageUrl: string | null = null;
             try {
-                const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
+                const randomGender = Math.random() < 0.5 ? 'female' : 'male';
+                const tfoImageUrl = constructTfoImageUrl(
+                    randomPair.species,
+                    selectedGenotypes,
+                    randomGender
+                );
                 const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
                 imageUrl = await fetchAndUploadWithRetry(
                     bustedTfoImageUrl,

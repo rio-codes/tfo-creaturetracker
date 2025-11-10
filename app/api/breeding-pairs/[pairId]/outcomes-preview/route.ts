@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache';
 
 const previewSchema = z.object({
     selectedGenotypes: z.record(z.string(), z.string()),
+    gender: z.enum(['male', 'female']),
 });
 
 export async function POST(req: Request, props: { params: Promise<{ pairId: string }> }) {
@@ -32,7 +33,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
-        const { selectedGenotypes } = validated.data;
+        const { selectedGenotypes, gender } = validated.data;
 
         const pair = await db.query.breedingPairs.findFirst({
             where: and(
@@ -45,7 +46,7 @@ export async function POST(req: Request, props: { params: Promise<{ pairId: stri
             return NextResponse.json({ error: 'Breeding pair not found.' }, { status: 404 });
         }
 
-        const tfoImageUrl = constructTfoImageUrl(pair.species, selectedGenotypes);
+        const tfoImageUrl = constructTfoImageUrl(pair.species, selectedGenotypes, gender);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(
             bustedTfoImageUrl,

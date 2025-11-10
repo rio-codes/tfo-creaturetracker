@@ -5,11 +5,8 @@ import { creatures, breedingPairs } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature } from '@/lib/client-serialization';
 import { checkForInbreeding } from '@/lib/breeding-rules';
-import {
-    calculateBreedingOutcomes,
-    calculateGeneProbability,
-    getPossibleOffspringSpecies,
-} from '@/lib/genetics';
+import { calculateGeneProbability } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { z } from 'zod';
 import { OffspringOutcome } from '@/lib/hybridization-rules';
 import type { GoalGene } from '@/types';
@@ -91,8 +88,8 @@ export async function POST(request: Request) {
 
                 for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
                     const chance = calculateGeneProbability(
-                        calculateBreedingOutcomes(male, female),
-                        possibleOffspring.find((o) => o.species === goal.species)?.species || '',
+                        male,
+                        female,
                         category,
                         targetGeneInfo as GoalGene,
                         goal.goalMode

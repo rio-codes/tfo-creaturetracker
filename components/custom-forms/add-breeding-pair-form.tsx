@@ -25,7 +25,7 @@ import type {
 import { validatePairing } from '@/lib/breeding-rules-client';
 import { speciesList } from '@/constants/creature-data';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type AddPairFormProps = {
     baseCreature?: EnrichedCreature | null;

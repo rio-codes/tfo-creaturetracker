@@ -5,9 +5,9 @@ import { creatures, breedingPairs, breedingLogEntries, researchGoals } from '@/s
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
 import { checkForInbreeding } from '@/lib/breeding-rules';
-import { calculateBreedingOutcomes, calculateGeneProbability } from '@/lib/genetics';
+import { calculateGeneProbability } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import type { EnrichedCreature, GoalGene } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
 import { OffspringOutcome } from '@/lib/hybridization-rules';
 
 type PotentialPairPrediction = {
@@ -83,9 +83,8 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
 
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal.genes)) {
                     const chance = calculateGeneProbability(
-                        calculateBreedingOutcomes(male, female),
-                        possibleOffspring.find((o) => o.species === enrichedGoal.species)
-                            ?.species || '',
+                        male,
+                        female,
                         category,
                         targetGeneInfo as GoalGene,
                         goal.goalMode

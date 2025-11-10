@@ -40,7 +40,19 @@ export async function POST(req: Request, props: { params: Promise<{ goalId: stri
             ])
         );
 
-        const tfoImageUrl = constructTfoImageUrl(goal.species, genotypesForUrl);
+        let gender = '';
+
+        if (goal.gender == 'male' || goal.gender == 'female') {
+            gender = goal.gender;
+        } else {
+            gender = 'female';
+        }
+
+        const tfoImageUrl = constructTfoImageUrl(
+            goal.species,
+            genotypesForUrl,
+            gender as 'male' | 'female'
+        );
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, `goal-${goal.id}`, 3);
 

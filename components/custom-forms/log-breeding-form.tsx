@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type { EnrichedCreature } from '@/types';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type LogBreedingFormProps = {
     allCreatures: EnrichedCreature[];

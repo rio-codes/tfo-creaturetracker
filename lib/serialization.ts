@@ -12,7 +12,7 @@ import { db } from '@/src/db';
 import { and, eq, or } from 'drizzle-orm';
 import { breedingLogEntries, achievedGoals, breedingPairs, creatures } from '@/src/db/schema';
 import { checkForInbreeding } from './breeding-rules';
-import { calculateGeneProbability, calculateBreedingOutcomes } from './genetics';
+import { calculateGeneProbability } from './genetics';
 
 export { enrichAndSerializeCreature, enrichAndSerializeGoal };
 
@@ -168,11 +168,8 @@ export const enrichAndSerializeBreedingPair = async (
         for (const [category, targetGeneInfo] of Object.entries(enrichedGoal.genes)) {
             const targetGene = targetGeneInfo as any;
             const chance = calculateGeneProbability(
-                calculateBreedingOutcomes(
-                    enrichAndSerializeCreature(pair.maleParent),
-                    enrichAndSerializeCreature(pair.femaleParent)
-                ),
-                enrichedGoal.species,
+                enrichAndSerializeCreature(pair.maleParent),
+                enrichAndSerializeCreature(pair.femaleParent),
                 category,
                 targetGene,
                 enrichedGoal.goalMode

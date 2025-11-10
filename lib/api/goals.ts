@@ -10,7 +10,7 @@ import type {
     EnrichedCreature,
 } from '@/types';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
-import { calculateBreedingOutcomes, calculateGeneProbability } from '@/lib/genetics';
+import { calculateGeneProbability } from '@/lib/genetics';
 import { eq, or, and, inArray } from 'drizzle-orm';
 
 export async function getGoalById(id: string): Promise<EnrichedResearchGoal | null> {
@@ -73,8 +73,8 @@ export async function getPredictionsForGoal(goalId: string): Promise<Prediction[
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal!.genes)) {
                     const targetGene = targetGeneInfo as any;
                     const chance = calculateGeneProbability(
-                        calculateBreedingOutcomes(enrichedMaleParent, enrichedFemaleParent),
-                        goal.species,
+                        enrichedMaleParent,
+                        enrichedFemaleParent,
                         category,
                         targetGeneInfo as GoalGene,
                         goal.goalMode

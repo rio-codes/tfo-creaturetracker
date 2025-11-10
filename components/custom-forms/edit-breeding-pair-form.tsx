@@ -12,7 +12,7 @@ import { Loader2, Trash2, Network } from 'lucide-react';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
 import { validatePairing } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type EditBreedingPairFormProps = {
     pair: EnrichedBreedingPair;

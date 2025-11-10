@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { creatures, breedingPairs, breedingLogEntries } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature, enrichAndSerializeBreedingPair } from '@/lib/serialization';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import type { EnrichedBreedingPair } from '@/types';
 
 export async function GET(request: Request, props: { params: Promise<{ creatureId: string }> }) {

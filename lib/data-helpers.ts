@@ -9,7 +9,7 @@ import type {
 } from '@/types';
 
 import { checkForInbreeding } from '@/lib/breeding-rules';
-import { calculateBreedingOutcomes, calculateGeneProbability } from '@/lib/genetics';
+import { calculateGeneProbability } from '@/lib/genetics';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 export const enrichAndSerializeBreedingPair = async (
     pair: DbBreedingPair & {
@@ -72,8 +72,8 @@ export const enrichAndSerializeBreedingPair = async (
         for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
             const targetGene = targetGeneInfo as any;
             const chance = calculateGeneProbability(
-                calculateBreedingOutcomes(enrichedMaleParent, enrichedFemaleParent),
-                goal.species,
+                enrichedMaleParent,
+                enrichedFemaleParent,
                 category,
                 targetGeneInfo as GoalGene,
                 goal.goalMode

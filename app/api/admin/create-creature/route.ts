@@ -11,6 +11,7 @@ const createCreatureSchema = z.object({
     creatureName: z.string().min(1),
     creatureCode: z.string().min(1),
     species: z.string().min(1),
+    gender: z.enum(['male', 'female']),
     genes: z.record(
         z.string(),
         z.object({
@@ -41,21 +42,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
-        const { creatureName, creatureCode, species, genes } = validated.data;
+        const { creatureName, creatureCode, species, gender, genes } = validated.data;
 
         // 1. Construct genetics string and genotypes for URL
         const genotypesForUrl: { [key: string]: string } = {};
-        let gender = 'unknown';
-
         for (const [category, geneInfo] of Object.entries(genes)) {
             genotypesForUrl[category] = geneInfo.genotype;
-            if (geneInfo && category === 'Gender' && typeof geneInfo.genotype === 'string') {
-                gender = geneInfo.genotype.toLowerCase();
-            }
         }
 
         // 2. Create image
-        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl, gender);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, creatureCode, 3);
 

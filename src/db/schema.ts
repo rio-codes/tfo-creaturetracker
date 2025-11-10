@@ -335,6 +335,7 @@ export const researchGoals = pgTable(
         name: text('name').notNull(),
         species: text('species').notNull(),
         imageUrl: text('image_url'),
+        gender: creatureGenderEnum('gender').notNull(),
         genes: jsonb('genes').notNull().$type<{ [category: string]: GoalGene }>(),
         excludedGenes: jsonb('excluded_genes').$type<{
             [category: string]: { phenotype: string[] };

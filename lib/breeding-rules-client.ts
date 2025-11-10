@@ -30,24 +30,39 @@ export function getPossibleOffspringSpecies(
     femaleSpecies: string
 ): OffspringOutcome[] {
     if (maleSpecies === femaleSpecies) {
-        return [{ species: maleSpecies, probability: 1 }];
+        return [
+            {
+                species: maleSpecies,
+                probability: 1,
+                geneOutcomes: {},
+            },
+        ];
     }
 
-    // This is a simplified client-side version.
-    // For simplicity, we'll assume equal probability if not specified.
-    // A more robust solution might fetch rules from an API.
     if (
         (maleSpecies === 'Tagluma Valso' && femaleSpecies === 'Nokta Voko') ||
         (maleSpecies === 'Nokta Voko' && femaleSpecies === 'Tagluma Valso')
     ) {
-        return [{ species: 'Koro Voko', probability: 1 }];
+        return [
+            {
+                species: 'Koro Voko',
+                probability: 1,
+                geneOutcomes: {},
+            },
+        ];
     }
 
     if (
         (maleSpecies === 'Klara Alsalto' && femaleSpecies === 'Glacia Alsalto') ||
         (maleSpecies === 'Glacia Alsalto' && femaleSpecies === 'Klara Alsalto')
     ) {
-        return [{ species: 'Transira Alsalto', probability: 1 }];
+        return [
+            {
+                species: 'Transira Alsalto',
+                probability: 1,
+                geneOutcomes: {},
+            },
+        ];
     }
 
     // For pairs that can produce either parent's species
@@ -61,8 +76,16 @@ export function getPossibleOffspringSpecies(
     for (const pair of hybridPairs) {
         if (pair.includes(maleSpecies) && pair.includes(femaleSpecies)) {
             return [
-                { species: maleSpecies, probability: 0.5 },
-                { species: femaleSpecies, probability: 0.5 },
+                {
+                    species: maleSpecies,
+                    probability: 0.5,
+                    geneOutcomes: {},
+                },
+                {
+                    species: femaleSpecies,
+                    probability: 0.5,
+                    geneOutcomes: {},
+                },
             ];
         }
     }

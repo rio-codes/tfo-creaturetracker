@@ -253,7 +253,13 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                             return [category, geneSelection.genotype];
                         })
                     );
-                    const tfoApiUrl = constructTfoImageUrl(species, genotypesForUrl);
+                    const tfoApiUrl = constructTfoImageUrl(
+                        species,
+                        genotypesForUrl,
+                        existingGoal.gender === 'male' || existingGoal.gender === 'female'
+                            ? existingGoal.gender
+                            : 'female'
+                    );
                     const imageResponse = await fetch(tfoApiUrl);
                     if (imageResponse.ok) {
                         const imageBlob = await imageResponse.blob();

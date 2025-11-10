@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useMemo } from 'react';
+import React, { useState } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,7 @@ const createCreatureFormSchema = z.object({
     creatureName: z.string().min(1, 'Creature name is required.'),
     creatureCode: z.string().min(1, 'Creature code is required.'),
     species: z.string().min(1, 'Species is required.'),
+    gender: z.enum(['male', 'female']),
     genes: z.record(
         z.string(),
         z.object({
@@ -42,6 +43,9 @@ type CreateCreatureFormValues = z.infer<typeof createCreatureFormSchema>;
 
 export function CreateCreatureForm() {
     const router = useRouter();
+    const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+    const [previewError, setPreviewError] = useState('');
 
     const form = useForm<CreateCreatureFormValues>({
         resolver: zodResolver(createCreatureFormSchema),
@@ -49,13 +53,12 @@ export function CreateCreatureForm() {
             creatureName: '',
             creatureCode: '',
             species: '',
+            gender: 'female',
             genes: {},
         },
     });
 
     const species = form.watch('species');
-    const selectedGenes = form.watch('genes');
-    const previewImageUrl = form.watch('previewImageUrl' as any); // Using as any to attach to form state
 
     const geneOptions = useMemo(() => {
         if (!species || !structuredGeneData[species] || structuredGeneData[species].hasNoGenetics)
@@ -65,7 +68,7 @@ export function CreateCreatureForm() {
         } = {};
 
         for (const [category, genes] of Object.entries(structuredGeneData[species])) {
-            // Skip non-array properties like 'isSeasonal' or 'hasNoGenetics'
+            // Skip non-array properties like 'isSeasonal' or 'hasNoGenetics' or 'Gender'
             if (!Array.isArray(genes)) {
                 continue;
             }
@@ -73,10 +76,7 @@ export function CreateCreatureForm() {
             optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
                 (gene) => ({
                     value: gene.genotype,
-                    display:
-                        category === 'Gender'
-                            ? gene.genotype
-                            : `${gene.phenotype} (${gene.genotype})`,
+                    display: `${gene.phenotype} (${gene.genotype})`,
                     selection: {
                         phenotype: gene.phenotype,
                         genotype: gene.genotype,
@@ -94,28 +94,48 @@ export function CreateCreatureForm() {
         [geneOptions]
     );
 
+    useEffect(() => {
+        if (species && geneCategories.length > 0) {
+            const defaultSelections: { [key: string]: any } = {};
+            for (const category of geneCategories) {
+                const options = geneOptions[category];
+                if (options && options.length > 0) {
+                    defaultSelections[category] = options[0].selection;
+                }
+            }
+            form.setValue('genes', defaultSelections);
+        } else {
+            form.setValue('genes', {});
+        }
+        setPreviewImageUrl(null);
+    }, [species, geneCategories, geneOptions, form]);
+
     const handlePreview = async () => {
-        form.setValue('isPreviewLoading' as any, true);
-        form.setValue('previewError' as any, '');
-        form.setValue('previewImageUrl' as any, null);
+        setIsPreviewLoading(true);
+        setPreviewError('');
+        setPreviewImageUrl(null);
+
+        const currentGenes = form.getValues('genes');
+
         try {
             const response = await fetch('/api/admin/creature-preview', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     species: form.getValues('species'),
-                    genes: form.getValues('genes'),
+                    gender: form.getValues('gender'),
+                    genes: currentGenes,
                 }),
             });
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to create image.');
             }
-            form.setValue('previewImageUrl' as any, data.imageUrl);
+            setPreviewImageUrl(data.imageUrl);
         } catch (err: any) {
-            form.setValue('previewError' as any, err.message);
+            setPreviewError(err.message);
         } finally {
-            form.setValue('isPreviewLoading' as any, false);
+            setIsPreviewLoading(false);
         }
     };
 
@@ -136,8 +156,6 @@ export function CreateCreatureForm() {
         }
     };
 
-    const isPreviewLoading = form.watch('isPreviewLoading' as any);
-    const previewError = form.watch('previewError' as any);
     const { isSubmitting } = form.formState;
 
     return (
@@ -199,6 +217,27 @@ export function CreateCreatureForm() {
                                                 {s}
                                             </SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="gender-select">Gender</Label>
+                        <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger
+                                        id="gender-select"
+                                        className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
+                                    >
+                                        <SelectValue placeholder="Select Gender..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                        <SelectItem value="female">Female</SelectItem>
+                                        <SelectItem value="male">Male</SelectItem>
                                     </SelectContent>
                                 </Select>
                             )}

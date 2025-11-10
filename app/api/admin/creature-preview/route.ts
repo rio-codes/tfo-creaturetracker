@@ -6,13 +6,10 @@ import { fetchAndUploadWithRetry } from '@/lib/data';
 
 const previewCreatureSchema = z.object({
     species: z.string().min(1),
+    gender: z.enum(['male', 'female', 'unknown']),
     genes: z.record(
         z.string(),
-        z.object({
-            genotype: z.string(),
-            phenotype: z.string(),
-            isMultiGenotype: z.boolean(),
-        })
+        z.any() // We only need the genotype, so we can be less strict.
     ),
 });
 
@@ -29,19 +26,21 @@ export async function POST(req: Request) {
 
         if (!validated.success) {
             return NextResponse.json(
-                { error: 'Invalid input.', details: validated.error.flatten() },
+                { error: 'Invalid input.', details: validated.error.format() },
                 { status: 400 }
             );
         }
 
-        const { species, genes } = validated.data;
+        const { species, gender, genes } = validated.data;
 
         const genotypesForUrl: { [key: string]: string } = {};
         for (const [category, geneInfo] of Object.entries(genes)) {
-            genotypesForUrl[category] = geneInfo.genotype;
+            if (geneInfo && typeof geneInfo.genotype === 'string') {
+                genotypesForUrl[category] = geneInfo.genotype;
+            }
         }
 
-        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl, gender);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
 
         const referenceId = `admin-preview-${crypto.randomUUID()}`;

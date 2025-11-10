@@ -22,8 +22,8 @@ import type {
     DbBreedingLogEntry,
     SerializedBreedingLogEntry,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type EditLogDialogProps = {
     children: React.ReactNode;

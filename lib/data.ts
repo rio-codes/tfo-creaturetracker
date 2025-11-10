@@ -117,8 +117,8 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
 
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal!.genes)) {
                     const chance = calculateGeneProbability(
-                        calculateBreedingOutcomes(enrichedMaleParent, enrichedFemaleParent),
-                        pair.species,
+                        enrichedMaleParent,
+                        enrichedFemaleParent,
                         category,
                         targetGeneInfo as GoalGene,
                         goal.goalMode

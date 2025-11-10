@@ -50,6 +50,7 @@ export function ViewOutcomesDialog({
     const [allOutcomes, setAllOutcomes] = useState<SpeciesBreedingOutcome[]>([]);
     const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedGender, setSelectedGender] = useState<'male' | 'female'>('female');
     const [_defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [selectedGenotypes, setSelectedGenotypes] = useState<{
@@ -67,13 +68,13 @@ export function ViewOutcomesDialog({
     }, [allOutcomes, selectedSpecies]);
 
     const updatePreviewImage = useCallback(
-        async (genotypes: { [key: string]: string }, _species: string | null) => {
+        async (genotypes: { [key: string]: string }, gender: 'male' | 'female') => {
             setIsLoading(true);
             try {
                 const response = await fetch(`/api/breeding-pairs/${pair.id}/outcomes-preview`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ selectedGenotypes: genotypes }),
+                    body: JSON.stringify({ selectedGenotypes: genotypes, gender: gender }),
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -88,7 +89,7 @@ export function ViewOutcomesDialog({
             }
             return null;
         },
-        [pair.id, selectedSpecies]
+        [pair.id]
     );
 
     const handleSaveAsGoal = async () => {
@@ -106,6 +107,7 @@ export function ViewOutcomesDialog({
                     species: selectedSpecies,
                     pairId: pair.id,
                     selectedGenotypes: selectedGenotypes,
+                    gender: selectedGender,
                     goalMode: goalMode,
                     isPublic: isPublic,
                     optionalGenes: optionalGenes,
@@ -168,11 +170,8 @@ export function ViewOutcomesDialog({
                                 firstSpeciesOutcomes[category][0].genotype;
                         }
                         setSelectedGenotypes(initialSelections);
-
-                        const initialUrl = await updatePreviewImage(
-                            initialSelections,
-                            firstSpecies
-                        );
+                        setSelectedGender('female'); // Default to female
+                        const initialUrl = await updatePreviewImage(initialSelections, 'female');
                         if (initialUrl) {
                             setDefaultPreviewUrl(initialUrl);
                         }
@@ -193,7 +192,7 @@ export function ViewOutcomesDialog({
         }
 
         const handler = setTimeout(() => {
-            updatePreviewImage(selectedGenotypes, selectedSpecies);
+            updatePreviewImage(selectedGenotypes, selectedGender);
         }, 500);
 
         return () => clearTimeout(handler);
@@ -220,7 +219,7 @@ export function ViewOutcomesDialog({
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a species to view outcomes..." />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="w-max bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs">
                                     {allOutcomes.map((outcome) => (
                                         <SelectItem key={outcome.species} value={outcome.species}>
                                             {outcome.species} (
@@ -236,6 +235,32 @@ export function ViewOutcomesDialog({
                             {isLoading && !currentOutcomes ? (
                                 <Loader2 className="animate-spin" />
                             ) : null}
+                            <div className="space-y-1">
+                                <Label className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson text-xs">
+                                    Gender
+                                </Label>
+                                <Select
+                                    value={selectedGender}
+                                    onValueChange={(value) =>
+                                        setSelectedGender(value as 'male' | 'female')
+                                    }
+                                >
+                                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss px-1 text-xs">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent
+                                        position="item-aligned"
+                                        className="w-max bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs"
+                                    >
+                                        <SelectItem value="female" className="text-xs">
+                                            Female
+                                        </SelectItem>
+                                        <SelectItem value="male" className="text-xs">
+                                            Male
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             {currentOutcomes &&
                                 Object.entries(currentOutcomes).map(
                                     ([category, categoryOutcomes]) => (
@@ -267,8 +292,11 @@ export function ViewOutcomesDialog({
                                                             value={o.genotype}
                                                             className="text-xs"
                                                         >
-                                                            {o.phenotype} ({o.genotype}) -{' '}
-                                                            <span className="font-semibold">
+                                                            {category === 'Gender'
+                                                                ? o.phenotype
+                                                                : `${o.phenotype} (${o.genotype})`}{' '}
+                                                            -{' '}
+                                                            <span className="font-semibold ">
                                                                 {(o.probability * 100).toFixed(2)}%
                                                             </span>
                                                         </SelectItem>

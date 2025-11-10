@@ -13,7 +13,7 @@ import type {
     EnrichedResearchGoal,
     Prediction,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type ManagePairsFormProps = {

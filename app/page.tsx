@@ -58,7 +58,12 @@ const getRandomCreature = cache(
             );
             let imageUrl: string | null = null;
             try {
-                const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
+                const randomGender = Math.random() < 0.5 ? 'female' : 'male';
+                const tfoImageUrl = constructTfoImageUrl(
+                    randomPair.species,
+                    selectedGenotypes,
+                    randomGender
+                );
                 const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
                 imageUrl = await fetchAndUploadWithRetry(
                     bustedTfoImageUrl,

@@ -35,17 +35,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
-
-type Outcome = {
-    genotype: string;
-    phenotype: string;
-    probability: number;
-};
-
-type OutcomesByCategory = {
-    [category: string]: Outcome[];
-};
+import type { SpeciesBreedingOutcome } from '@/lib/genetics';
 
 type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
 
@@ -58,9 +48,10 @@ export function ViewOutcomesDialog({
 }) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
-    const [outcomes, setOutcomes] = useState<OutcomesByCategory | null>(null);
+    const [outcomes, setOutcomes] = useState<SpeciesBreedingOutcome[] | null>(null);
+    const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(null);
+    const [_defaultPreviewUrl, setDefaultPreviewUrl] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [selectedGenotypes, setSelectedGenotypes] = useState<{
         [key: string]: string;
@@ -68,14 +59,9 @@ export function ViewOutcomesDialog({
     const [showSaveDialog, setShowSaveDialog] = useState(false);
     const [newGoalName, setNewGoalName] = useState('');
     const [isSavingGoal, setIsSavingGoal] = useState(false);
-    const [possibleOffspringSpecies, setPossibleOffspringSpecies] = useState<string[]>([]);
     const [isPublic, setIsPublic] = useState(false);
     const [goalMode, setGoalMode] = useState<'phenotype' | 'genotype'>('phenotype');
     const [optionalGenes, setOptionalGenes] = useState<Record<string, boolean>>({});
-
-    const isCrossBreed = useMemo(() => {
-        return pair.maleParent?.species !== pair.femaleParent?.species;
-    }, [pair]);
 
     const updatePreviewImage = useCallback(
         async (genotypes: { [key: string]: string }) => {
@@ -84,7 +70,10 @@ export function ViewOutcomesDialog({
                 const response = await fetch(`/api/breeding-pairs/${pair.id}/outcomes-preview`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ selectedGenotypes: genotypes }),
+                    body: JSON.stringify({
+                        selectedGenotypes: genotypes,
+                        species: selectedSpecies,
+                    }),
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -99,7 +88,7 @@ export function ViewOutcomesDialog({
             }
             return null;
         },
-        [pair.id]
+        [pair.id, selectedSpecies]
     );
 
     const handleSaveAsGoal = async () => {
@@ -114,7 +103,7 @@ export function ViewOutcomesDialog({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     goalName: newGoalName,
-                    species: pair.species,
+                    species: selectedSpecies,
                     pairId: pair.id,
                     selectedGenotypes: selectedGenotypes,
                     goalMode: goalMode,
@@ -143,15 +132,6 @@ export function ViewOutcomesDialog({
         }
     };
 
-    const mostLikelyGenotypes = useMemo(() => {
-        if (!outcomes) return {};
-        const result: { [key: string]: string } = {};
-        for (const category in outcomes) {
-            result[category] = outcomes[category][0].genotype;
-        }
-        return result;
-    }, [outcomes]);
-
     useEffect(() => {
         if (showSaveDialog) {
             setOptionalGenes({});
@@ -159,18 +139,27 @@ export function ViewOutcomesDialog({
         }
     }, [showSaveDialog]);
 
+    const setInitialGenotypesForSpecies = useCallback(
+        (species: string, allOutcomes: SpeciesBreedingOutcome[]) => {
+            const speciesOutcome = allOutcomes.find((o) => o.species === species);
+            if (!speciesOutcome) return {};
+
+            const initialSelections: { [key: string]: string } = {
+                Gender: 'Female',
+            };
+            const geneOutcomes = speciesOutcome.geneOutcomes;
+            for (const category in geneOutcomes) {
+                initialSelections[category] = geneOutcomes[category][0].genotype;
+            }
+            setSelectedGenotypes(initialSelections);
+            return initialSelections;
+        },
+        []
+    );
     useEffect(() => {
         if (!isOpen) {
             setOutcomes(null);
-            return;
-        }
-
-        const offspringSpecies = getPossibleOffspringSpecies(
-            pair.maleParent!.species!,
-            pair.femaleParent!.species!
-        );
-        setPossibleOffspringSpecies(offspringSpecies);
-        if (isCrossBreed) {
+            setSelectedSpecies(null);
             return;
         }
 
@@ -184,15 +173,17 @@ export function ViewOutcomesDialog({
                     const data = await outcomesResponse.json();
                     setOutcomes(data.outcomes);
 
-                    const initialSelections: { [key: string]: string } = {};
-                    for (const category in data.outcomes) {
-                        initialSelections[category] = data.outcomes[category][0].genotype;
-                    }
-                    setSelectedGenotypes(initialSelections);
-
-                    const initialUrl = await updatePreviewImage(initialSelections);
-                    if (initialUrl) {
-                        setDefaultPreviewUrl(initialUrl);
+                    const firstSpecies = data.outcomes[0]?.species;
+                    if (firstSpecies) {
+                        setSelectedSpecies(firstSpecies);
+                        const initialGenotypes = setInitialGenotypesForSpecies(
+                            firstSpecies,
+                            data.outcomes
+                        );
+                        const initialUrl = await updatePreviewImage(initialGenotypes);
+                        if (initialUrl) {
+                            setDefaultPreviewUrl(initialUrl);
+                        }
                     }
                 } catch (error) {
                     console.error(error);
@@ -202,7 +193,7 @@ export function ViewOutcomesDialog({
             };
             fetchInitialData();
         }
-    }, [isOpen, pair, outcomes, isCrossBreed, updatePreviewImage]);
+    }, [isOpen, pair.id]); // Only re-run when dialog opens or pair changes
 
     useEffect(() => {
         if (Object.keys(selectedGenotypes).length === 0) {
@@ -214,7 +205,24 @@ export function ViewOutcomesDialog({
         }, 500);
 
         return () => clearTimeout(handler);
-    }, [selectedGenotypes, mostLikelyGenotypes, defaultPreviewUrl, updatePreviewImage]);
+    }, [selectedGenotypes, updatePreviewImage]);
+
+    const handleSpeciesChange = (species: string) => {
+        setSelectedSpecies(species);
+        if (outcomes) {
+            setInitialGenotypesForSpecies(species, outcomes);
+        }
+    };
+
+    const currentSpeciesOutcomes = useMemo(
+        () => outcomes?.find((o) => o.species === selectedSpecies),
+        [outcomes, selectedSpecies]
+    );
+
+    const isHybridPair =
+        pair.maleParent?.species !== pair.femaleParent?.species &&
+        pair.maleParent &&
+        pair.femaleParent;
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -226,34 +234,50 @@ export function ViewOutcomesDialog({
                 <DialogHeader>
                     <DialogTitle>Possible Outcomes for {pair.pairName}</DialogTitle>
                 </DialogHeader>
-                {isCrossBreed ? (
-                    <div className="p-4 text-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple rounded-md">
-                        <h3 className="font-bold text-lg">Cross-Species Breeding</h3>
-                        <p className="mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
-                            This pair can produce the following species:
-                        </p>
-                        <ul className="font-semibold my-2">
-                            {possibleOffspringSpecies.map((species) => (
-                                <li key={species}>{species}</li>
-                            ))}
-                        </ul>
-                        <p className="text-xs italic text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
-                            Detailed gene predictions for cross-species and hybrid pairings are not
-                            yet supported.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-4">
-                        <div className="space-y-4 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-4">
-                            {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
-                            {outcomes &&
-                                Object.entries(outcomes).map(([category, categoryOutcomes]) => (
+                <div className="flex flex-col gap-4">
+                    <div className="space-y-4 rounded-md border bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple p-4">
+                        {isLoading && !outcomes ? <Loader2 className="animate-spin" /> : null}
+                        {outcomes && (outcomes.length > 1 || isHybridPair) && (
+                            <div className="space-y-1">
+                                <Label className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson text-xs">
+                                    Offspring Species
+                                </Label>
+                                <Select
+                                    value={selectedSpecies ?? ''}
+                                    onValueChange={handleSpeciesChange}
+                                >
+                                    <SelectTrigger className="w-full bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss px-1 text-xs">
+                                        <SelectValue placeholder="Select Species..." />
+                                    </SelectTrigger>
+                                    <SelectContent
+                                        position="item-aligned"
+                                        className="w-max bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs"
+                                    >
+                                        {outcomes.map((o) => (
+                                            <SelectItem
+                                                key={o.species}
+                                                value={o.species}
+                                                className="text-xs"
+                                            >
+                                                {o.species} -{' '}
+                                                <span className="font-semibold">
+                                                    {(o.probability * 100).toFixed(2)}%
+                                                </span>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                        {currentSpeciesOutcomes &&
+                            Object.entries(currentSpeciesOutcomes.geneOutcomes).map(
+                                ([category, categoryOutcomes]) => (
                                     <div key={category} className="space-y-1">
                                         <Label className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson text-xs">
                                             {category}
                                         </Label>
                                         <Select
-                                            value={selectedGenotypes[category]}
+                                            value={selectedGenotypes[category] ?? ''}
                                             onValueChange={(value: string) =>
                                                 setSelectedGenotypes((prev) => ({
                                                     ...prev,
@@ -285,34 +309,34 @@ export function ViewOutcomesDialog({
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                ))}
+                                )
+                            )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 items-center">
+                        <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple relative min-h-40">
+                            {isLoading && <Loader2 className="animate-spin absolute" />}
+                            {previewUrl && (
+                                <img
+                                    key={previewUrl} // Force re-render on URL change
+                                    src={previewUrl}
+                                    alt="Progeny Preview"
+                                    className="max-w-full max-h-full object-contain"
+                                    onError={() => setPreviewUrl(null)} // Handle broken image links
+                                />
+                            )}
+                            {!previewUrl && !isLoading && <p>No preview available.</p>}
                         </div>
-                        <div className="grid grid-cols-2 gap-4 items-center">
-                            <div className="border rounded-md flex items-center justify-center bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple relative min-h-[10rem]">
-                                {isLoading && <Loader2 className="animate-spin absolute" />}
-                                {previewUrl && (
-                                    <img
-                                        key={previewUrl} // Force re-render on URL change
-                                        src={previewUrl}
-                                        alt="Progeny Preview"
-                                        className="max-w-full max-h-full object-contain"
-                                        onError={() => setPreviewUrl(null)} // Handle broken image links
-                                    />
-                                )}
-                                {!previewUrl && !isLoading && <p>No preview available.</p>}
-                            </div>
-                            <div className="flex justify-center">
-                                <Button
-                                    onClick={() => setShowSaveDialog(true)}
-                                    disabled={!outcomes || isLoading || isCrossBreed}
-                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
-                                >
-                                    Save as Goal
-                                </Button>
-                            </div>
+                        <div className="flex justify-center">
+                            <Button
+                                onClick={() => setShowSaveDialog(true)}
+                                disabled={!outcomes || isLoading}
+                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
+                            >
+                                Save as Goal
+                            </Button>
                         </div>
                     </div>
-                )}
+                </div>
                 <DialogFooter>
                     <Button
                         variant="ghost"
@@ -391,13 +415,15 @@ export function ViewOutcomesDialog({
                                 <p className="text-xs text-dusk-purple dark:text-purple-400 hallowsnight:text-blood-bay-wine">
                                     Select genes to mark as optional for this goal.
                                 </p>
-                                <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple hallowsnight:bg-abyss/50">
-                                    {outcomes &&
+                                <div className="space-y-2 mt-2 rounded-md border p-2 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-midnight-purple">
+                                    {currentSpeciesOutcomes &&
                                         Object.entries(selectedGenotypes).map(
                                             ([category, selectedGenotype]) => {
-                                                const outcome = outcomes[category]?.find(
-                                                    (o) => o.genotype === selectedGenotype
-                                                );
+                                                const outcome = currentSpeciesOutcomes.geneOutcomes[
+                                                    category
+                                                ]?.find(
+                                                    (o: any) => o.genotype === selectedGenotype
+                                                ) as any;
                                                 return (
                                                     <div
                                                         key={category}
@@ -415,7 +441,7 @@ export function ViewOutcomesDialog({
                                                         />
                                                         <Label
                                                             htmlFor={`optional-${category}`}
-                                                            className="font-normal text-sm flex-grow cursor-pointer"
+                                                            className="font-normal text-sm grow cursor-pointer"
                                                         >
                                                             {category}:{' '}
                                                             {outcome?.phenotype || 'N/A'} (

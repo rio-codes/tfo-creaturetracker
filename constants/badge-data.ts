@@ -32,7 +32,7 @@ export const supportedNamedColors = [
     'darkkhaki',
     'darkmagenta',
     'darkolivegreen',
-    'darkorange',
+    'darKoronge',
     'darkorchid',
     'darkred',
     'darksalmon',

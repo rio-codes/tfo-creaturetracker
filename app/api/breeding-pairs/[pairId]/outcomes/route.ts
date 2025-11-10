@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { breedingPairs } from '@/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { calculateAllPossibleOutcomes } from '@/lib/genetics';
+import { calculateBreedingOutcomes } from '@/lib/genetics';
 
 export async function GET(req: Request, props: { params: Promise<{ pairId: string }> }) {
     const params = await props.params;
@@ -35,7 +35,7 @@ export async function GET(req: Request, props: { params: Promise<{ pairId: strin
         const maleParent = enrichAndSerializeCreature(pair.maleParent!);
         const femaleParent = enrichAndSerializeCreature(pair.femaleParent!);
 
-        const outcomes = calculateAllPossibleOutcomes(maleParent, femaleParent);
+        const outcomes = calculateBreedingOutcomes(maleParent, femaleParent);
 
         return NextResponse.json({ outcomes });
     } catch (error: any) {

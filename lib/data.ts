@@ -17,14 +17,14 @@ import type {
     EnrichedBreedingPair,
     EnrichedChecklist,
     EnrichedResearchGoal,
+    GoalGene,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import {
     enrichAndSerializeCreature,
     enrichAndSerializeGoal,
     enrichAndSerializeBreedingPair,
-} from '@/lib/serialization';
-import { calculateGeneProbability } from '@/lib/genetics';
+} from '@/lib/serialization'; // This was lib/client-serialization in your context, but based on file structure should be lib/serialization
+import { calculateGeneProbability, calculateBreedingOutcomes } from '@/lib/genetics';
 import { put as vercelBlobPut } from '@vercel/blob';
 import { alias } from 'drizzle-orm/pg-core';
 import { structuredGeneData } from '@/constants/creature-data';
@@ -98,11 +98,12 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                 !p.femaleParent.species
             )
                 return false;
-            const possibleOffspring = getPossibleOffspringSpecies(
-                p.maleParent.species,
-                p.femaleParent.species
+            // Use the full calculation to get the definitive list of offspring species
+            const outcomes = calculateBreedingOutcomes(
+                enrichAndSerializeCreature(p.maleParent),
+                enrichAndSerializeCreature(p.femaleParent)
             );
-            return possibleOffspring.includes(goal.species);
+            return outcomes.some((outcome) => outcome.species === goal.species);
         });
 
         const predictions = relevantPairs
@@ -115,13 +116,12 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                 const chancesByCategory: { [key: string]: number } = {};
 
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal!.genes)) {
-                    const targetGene = targetGeneInfo as any;
                     const chance = calculateGeneProbability(
-                        enrichedMaleParent,
-                        enrichedFemaleParent,
+                        calculateBreedingOutcomes(enrichedMaleParent, enrichedFemaleParent),
+                        pair.species,
                         category,
-                        targetGene as any,
-                        goalMode
+                        targetGeneInfo as GoalGene,
+                        goal.goalMode
                     );
                     chancesByCategory[category] = chance;
 
@@ -248,35 +248,29 @@ export async function fetchFilteredCreatures(
     };
     const growthLevel = stage ? stageToGrowthLevel[stage] : undefined;
 
+    const geneJsonbQuery =
+        query && isGeneSearch
+            ? sql`EXISTS (SELECT 1 FROM jsonb_each(creatures.genetics) as j(key, value) WHERE value->>'genotype' ILIKE ${`%${geneQueryValue}%`})`
+            : undefined;
+
     const conditions = [
         eq(creatures.userId, userId),
         showArchived !== 'true' ? eq(creatures.isArchived, false) : undefined,
-        query && isGeneSearch
-            ? like(creatures.genetics, `%${geneQueryValue}%`)
-            : query
-              ? or(
-                    ilike(creatures.code, `%${query}%`),
-                    ilike(creatures.creatureName, `%${query}%`),
-                    ilike(sql`${creatures.origin}::text`, `%${query}%`),
-                    ilike(creatures.species, `%${query}%`),
-                    ...phenotypeGeneStrings.map((str) => like(creatures.genetics, str))
-                )
-              : undefined,
+        query && !isGeneSearch
+            ? or(
+                  ilike(creatures.code, `%${query}%`),
+                  ilike(creatures.creatureName, `%${query}%`),
+                  ilike(sql`${creatures.origin}::text`, `%${query}%`),
+                  ilike(creatures.species, `%${query}%`)
+              )
+            : undefined,
+        geneJsonbQuery, // Add the specific JSONB query condition
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
         generation ? eq(creatures.generation, Number(generation)) : undefined,
         origin && origin !== 'all' ? eq(creatures.origin, origin as any) : undefined,
     ].filter(Boolean);
-
-    if (geneQuery && geneCategory && geneString.length > 0) {
-        if (geneString.length > 1) {
-            const geneConditions = geneString.map((str) => like(creatures.genetics, str));
-            conditions.push(or(...geneConditions));
-        } else {
-            conditions.push(like(creatures.genetics, geneString[0]));
-        }
-    }
 
     console.log('Final query conditions count:', conditions.length);
 
@@ -287,10 +281,10 @@ export async function fetchFilteredCreatures(
             .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
-        const pinnedCreatures = pinnedCreaturesRaw.map((c) => {
+        const pinnedCreatures = pinnedCreaturesRaw.map((c: any) => {
             const enriched = enrichAndSerializeCreature(c);
             if (!enriched) return null;
-            const fulfillsWish = publicGoals.some((goal) => checkGoalAchieved(c, goal));
+            const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
             return {
                 ...enriched,
                 fulfillsWish,
@@ -308,10 +302,10 @@ export async function fetchFilteredCreatures(
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedCreatures = unpinnedCreaturesRaw.map((c) => {
+        const unpinnedCreatures = unpinnedCreaturesRaw.map((c: any) => {
             const enriched = enrichAndSerializeCreature(c);
             if (!enriched) return null;
-            const fulfillsWish = publicGoals.some((goal) => checkGoalAchieved(c, goal));
+            const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
             return {
                 ...enriched,
                 fulfillsWish,
@@ -352,7 +346,6 @@ export async function fetchFilteredResearchGoals(
 
     const conditions: (SQL | undefined)[] = [
         eq(researchGoals.userId, userId),
-        // This condition was missing from your latest version
         eq(researchGoals.isAchieved, false),
         query ? ilike(researchGoals.name, `%${query}%`) : undefined,
         species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
@@ -361,7 +354,6 @@ export async function fetchFilteredResearchGoals(
     console.log('conditions: ', conditions);
 
     try {
-        // 2. Update the pinned goals query
         const pinnedGoalsRaw = await db
             .select()
             .from(researchGoals)
@@ -369,12 +361,12 @@ export async function fetchFilteredResearchGoals(
             .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
 
         const pinnedGoals = pinnedGoalsRaw
-            .map((goal) => {
+            .map((goal: any) => {
                 return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
             })
-            .filter((g): g is EnrichedResearchGoal => g !== null);
+            .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
 
-        console.log(pinnedGoals?.map((goal) => goal.name));
+        console.log(pinnedGoals?.map((goal: any) => goal.name));
 
         const offset = (currentPage - 1) * itemsPerPage;
 
@@ -435,7 +427,7 @@ export async function fetchFilteredWishlistGoals(
             .where(and(...conditions, eq(researchGoals.isPinnedToWishlist, true)))
             .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
 
-        const pinnedWishlistGoals = pinnedWishlistGoalsRaw.map((goal) =>
+        const pinnedWishlistGoals = pinnedWishlistGoalsRaw.map((goal: any) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
@@ -450,7 +442,7 @@ export async function fetchFilteredWishlistGoals(
             .limit(itemsPerPage)
             .offset(offset);
 
-        const unpinnedWishlistGoals = unpinnedGoalsRaw.map((goal) =>
+        const unpinnedWishlistGoals = unpinnedGoalsRaw.map((goal: any) =>
             enrichAndSerializeGoal(goal, goal.goalMode)
         );
 
@@ -649,7 +641,7 @@ export async function getAllResearchGoalsForUser(): Promise<EnrichedResearchGoal
         const allUserGoals = await db.query.researchGoals.findMany({
             where: eq(researchGoals.userId, userId),
         });
-        return allUserGoals.map((goal) => enrichAndSerializeGoal(goal, goal.goalMode));
+        return allUserGoals.map((goal: any) => enrichAndSerializeGoal(goal, goal.goalMode));
     } catch (error) {
         console.error(error);
         return [];

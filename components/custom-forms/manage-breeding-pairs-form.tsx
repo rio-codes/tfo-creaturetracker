@@ -13,7 +13,7 @@ import type {
     EnrichedResearchGoal,
     Prediction,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
+import { getPossibleOffspringSpecies } from '@/lib/genetics';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 
 type ManagePairsFormProps = {
@@ -63,7 +63,7 @@ export function ManageBreedingPairsForm({
             baseCreature.species,
             selectedMate.species
         );
-        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species));
+        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species as any));
     }, [allGoals, baseCreature, selectedMateId, allCreatures]);
 
     const ParentGeneSummary = ({ creature }: { creature: EnrichedCreature }) => {
@@ -79,7 +79,7 @@ export function ManageBreedingPairsForm({
 
         return (
             <p
-                className="pt-1 text-xs text-dusk-purple break-words"
+                className="pt-1 text-xs text-dusk-purple wrap-break-word"
                 dangerouslySetInnerHTML={{ __html: summary }}
                 title={summary.replace(/<strong>/g, '').replace(/<\/strong>/g, '')}
             />

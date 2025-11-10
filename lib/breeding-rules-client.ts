@@ -1,61 +1,28 @@
 import type { EnrichedCreature } from '@/types';
-import { speciesList as allSpecies } from '@/constants/creature-data';
 
-export const speciesList = allSpecies;
-
-export const breedingRules = {
-    // Species that cannot breed with anything, including their own kind.
-    incompatible: new Set<string>(['Imsanga Afero']),
-
-    // Pairs of different species that can breed but do not produce a hybrid.
-    // The offspring can be of either parent's species.
-    compatible: new Set<string>([
-        ['Glacia Alsalto', 'Silenta Spuristo'].sort().join('|'),
-        ['Klara Alsalto', 'Silenta Spuristo'].sort().join('|'),
-        ['Transira Alsalto', 'Silenta Spuristo'].sort().join('|'),
-        ['Avka Felo', 'Muska Felo'].sort().join('|'),
-        ['Luna Hundo', 'Suna Hundo'].sort().join('|'),
-        ['Furioza Vizago', 'Lanuga Vizago'].sort().join('|'),
-        ['Frida Fisisto', 'Terura Fisisto'].sort().join('|'),
-        ['Rida Frakaso', 'Osta Frakaso'].sort().join('|'),
-        ['Songa Kreinto', 'Inkuba Brulajo'].sort().join('|'),
-        ['Kosmira Girafo', 'Tera Girafo'].sort().join('|'),
-        // Back-crosses are compatible and can produce offspring of either parent species.
-        ['Kora Voko', 'Nokta Voko'].sort().join('|'),
-        ['Kora Voko', 'Tagluma Valso'].sort().join('|'),
-        ['Transira Alsalto', 'Klara Alsalto'].sort().join('|'),
-        ['Transira Alsalto', 'Glacia Alsalto'].sort().join('|'),
-        ['Tonbleko', 'Ranbleko'].sort().join('|'),
-        ['Tonbleko', 'Glubleko'].sort().join('|'),
-    ]),
-
-    // Pairs of different species that produce a specific hybrid offspring.
-    hybrids: new Map<string, string>([
-        [['Glacia Alsalto', 'Klara Alsalto'].sort().join('|'), 'Transira Alsalto'],
-        [['Ranbleko', 'Glubleko'].sort().join('|'), 'Tonbleko'],
-        [['Nokta Voko', 'Tagluma Valso'].sort().join('|'), 'Kora Voko'],
-    ]),
-
-    // Specific pairings that are explicitly disallowed.
-    exceptions: new Set<string>([]),
+const compatibility: Record<string, string[]> = {
+    'Tagluma Valso': ['Nokta Voko', 'Koro Voko'],
+    'Nokta Voko': ['Tagluma Valso', 'Koro Voko'],
+    'Koro Voko': ['Tagluma Valso', 'Nokta Voko'],
+    'Tera Girafo': ['Kosmira Girafo'],
+    'Kosmira Girafo': ['Tera Girafo'],
+    'Klara Alsalto': ['Glacia Alsalto', 'Transira Alsalto', 'Silenta Spuristo'],
+    'Transira Alsalto': ['Klara Alsalto', 'Glacia Alsalto', 'Silenta Spuristo'],
+    'Glacia Alsalto': ['Klara Alsalto', 'Transira Alsalto', 'Silenta Spuristo'],
+    'Silenta Spuristo': ['Klara Alsalto', 'Glacia Alsalto', 'Transira Alsalto'],
+    'Tonbleko': ['Ranbleko', 'Glubleko'],
+    'Ranbleko': ['Tonbleko', 'Glubleko'],
+    'Glubleko': ['Tonbleko', 'Ranbleko'],
+    'Osta Frakaso': ['Rida Frakaso'],
+    'Rida Frakaso': ['Osta Frakaso'],
 };
 
-export function getPossibleOffspringSpecies(speciesA: string, speciesB: string): string[] {
-    if (speciesA === speciesB) {
-        return [speciesA];
-    }
-    const sortedPairString = [speciesA, speciesB].sort().join('|');
-
-    const hybridOffspring = breedingRules.hybrids.get(sortedPairString);
-    if (hybridOffspring) {
-        return [hybridOffspring];
-    }
-
-    if (breedingRules.compatible.has(sortedPairString)) {
-        return [speciesA, speciesB];
-    }
-
-    return []; // Incompatible
+function isPairCompatible(speciesA: string, speciesB: string): boolean {
+    if (speciesA === speciesB) return true;
+    // Check for compatibility in both directions
+    const compatibleMatesA = compatibility[speciesA];
+    const compatibleMatesB = compatibility[speciesB];
+    return compatibleMatesA?.includes(speciesB) || compatibleMatesB?.includes(speciesA) || false;
 }
 
 export function validatePairing(
@@ -69,32 +36,13 @@ export function validatePairing(
         return { isValid: false, error: 'Parent species is missing.' };
     }
 
-    if (breedingRules.incompatible.has(speciesA) || breedingRules.incompatible.has(speciesB)) {
-        return { isValid: false, error: `${speciesA} cannot breed.` };
-    }
-
-    const sortedPairString = [speciesA, speciesB].sort().join('|');
-    if (breedingRules.exceptions.has(sortedPairString)) {
-        return {
-            isValid: false,
-            error: ` and  cannot be paired together.`,
-        };
-    }
-
-    if (speciesA === speciesB) {
-        return { isValid: true };
-    }
-
-    if (
-        breedingRules.compatible.has(sortedPairString) ||
-        breedingRules.hybrids.has(sortedPairString)
-    ) {
+    if (isPairCompatible(speciesA, speciesB)) {
         return { isValid: true };
     }
 
     return {
         isValid: false,
-        error: ` and  cannot be paired together.`,
+        error: `${speciesA} and ${speciesB} cannot be paired together.`,
     };
 }
 

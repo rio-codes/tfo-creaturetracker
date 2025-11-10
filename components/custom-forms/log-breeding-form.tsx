@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import type { EnrichedCreature } from '@/types';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
+import { getPossibleOffspringSpecies } from '@/lib/genetics';
 
 type LogBreedingFormProps = {
     allCreatures: EnrichedCreature[];
@@ -32,7 +32,7 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
             pair.maleParent.species,
             pair.femaleParent.species
         );
-        return allCreatures.filter((c) => c?.species && possibleSpecies.includes(c.species));
+        return allCreatures.filter((c) => c?.species && possibleSpecies.includes(c.species as any));
     }, [allCreatures, pair.maleParent, pair.femaleParent]);
 
     const handleSubmit = async (e: React.FormEvent) => {

@@ -1,5 +1,6 @@
 import { db } from '@/src/db';
 import { creatures, userTabs } from '@/src/db/schema';
+import { structuredGeneData } from '@/constants/creature-data';
 import { eq, and, inArray } from 'drizzle-orm';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 
@@ -80,6 +81,27 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
             // If upload fails, we'll use the default value (old image or empty string)
         }
 
+        const geneticsObject: NonNullable<CreatureInsert['genetics']> = {};
+        const speciesGeneData = structuredGeneData[tfoCreature.breedName?.trim() || ''];
+
+        if (speciesGeneData) {
+            tfoCreature.genetics.split(',').forEach((part) => {
+                const [category, genotype] = part.split(':');
+                if (category && genotype) {
+                    const categoryData = speciesGeneData[category] as
+                        | { genotype: string; phenotype: string }[]
+                        | undefined;
+                    if (Array.isArray(categoryData)) {
+                        const geneInfo = categoryData.find((g) => g.genotype === genotype);
+                        geneticsObject[category] = {
+                            genotype,
+                            phenotype: geneInfo?.phenotype || 'Unknown',
+                        };
+                    }
+                }
+            });
+        }
+
         const valuesToInsert: CreatureInsert = {
             userId: userId,
             code: tfoCreature.code,
@@ -89,9 +111,8 @@ export async function syncTfoTab(userId: string, tfoUsername: string, tabId: num
             growthLevel: tfoCreature.growthLevel,
             isStunted: tfoCreature.isStunted,
             species: tfoCreature.breedName?.trim(),
-            genetics: tfoCreature.genetics,
-            gender:
-                (tfoCreature.gender as 'male' | 'female' | 'Unknown' | null) || null,
+            genetics: geneticsObject,
+            gender: (tfoCreature.gender as 'male' | 'female' | 'Unknown' | null) || null,
         };
         await db
             .insert(creatures)

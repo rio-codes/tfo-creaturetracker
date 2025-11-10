@@ -16,8 +16,8 @@ const createCreatureSchema = z.object({
         z.object({
             genotype: z.string(),
             phenotype: z.string(),
-            isMultiGenotype: z.boolean(),
-            isOptional: z.boolean(),
+            isMultiGenotype: z.boolean().optional(),
+            isOptional: z.boolean().optional(),
         })
     ),
 });
@@ -35,10 +35,9 @@ export async function POST(req: Request) {
         const validated = createCreatureSchema.safeParse(body);
 
         if (!validated.success) {
-            const flattenedError = validated.error.flatten();
-            const validatedError =
-                'Could not create creature: ' + flattenedError.fieldErrors.toString();
-            console.error(validatedError);
+            // Using .format() gives a more readable error structure
+            const formattedErrors = validated.error.format();
+            const validatedError = `Could not create creature: ${JSON.stringify(formattedErrors)}`;
             return NextResponse.json({ error: validatedError }, { status: 400 });
         }
 
@@ -46,40 +45,44 @@ export async function POST(req: Request) {
 
         // 1. Construct genetics string and genotypes for URL
         const genotypesForUrl: { [key: string]: string } = {};
-        const geneParts: string[] = [];
         let gender = 'unknown';
 
         for (const [category, geneInfo] of Object.entries(genes)) {
             genotypesForUrl[category] = geneInfo.genotype;
-            geneParts.push(`${category}:${geneInfo.genotype}`);
             if (geneInfo && category === 'Gender' && typeof geneInfo.genotype === 'string') {
-                gender = geneInfo.genotype;
+                gender = geneInfo.genotype.toLowerCase();
             }
         }
-        const geneticsString = geneParts.join(',');
 
         // 2. Create image
         const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, creatureCode, 3);
 
-        // 3. Insert into database
-        await db.insert(creatures).values({
-            userId,
-            code: creatureCode,
-            creatureName,
-            species,
-            genetics: geneticsString,
-            imageUrl: blobUrl,
-            gender: gender.toLowerCase() as 'male' | 'female' | 'Unknown',
-            growthLevel: 3, // Default to adult
-            isPinned: false,
-            updatedAt: new Date(),
-        });
+        await db
+            .insert(creatures)
+            .values({
+                userId,
+                code: creatureCode,
+                creatureName,
+                species,
+                genetics: genes,
+                imageUrl: blobUrl,
+                gender: gender as 'male' | 'female' | 'unknown',
+                growthLevel: 3, // Default to adult
+                updatedAt: new Date(),
+            })
+            .onConflictDoUpdate({
+                target: [creatures.userId, creatures.code],
+                set: {
+                    creatureName,
+                },
+            });
 
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Creature created successfully!' }, { status: 201 });
     } catch (error: any) {
+        console.error('Error creating creature:', error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

@@ -5,10 +5,11 @@ import type {
     EnrichedCreature,
     EnrichedResearchGoal,
     EnrichedBreedingPair,
+    GoalGene,
 } from '@/types';
 
 import { checkForInbreeding } from '@/lib/breeding-rules';
-import { calculateGeneProbability } from '@/lib/genetics';
+import { calculateBreedingOutcomes, calculateGeneProbability } from '@/lib/genetics';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 export const enrichAndSerializeBreedingPair = async (
     pair: DbBreedingPair & {
@@ -65,16 +66,17 @@ export const enrichAndSerializeBreedingPair = async (
         let totalChance = 0;
         let geneCount = 0;
         let isPossible = true;
-        const goalMode = goal.goalMode;
+        const enrichedMaleParent = enrichAndSerializeCreature(pair.maleParent);
+        const enrichedFemaleParent = enrichAndSerializeCreature(pair.femaleParent);
 
         for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
             const targetGene = targetGeneInfo as any;
             const chance = calculateGeneProbability(
-                enrichAndSerializeCreature(pair.maleParent!),
-                enrichAndSerializeCreature(pair.femaleParent!),
+                calculateBreedingOutcomes(enrichedMaleParent, enrichedFemaleParent),
+                goal.species,
                 category,
-                targetGene,
-                goalMode
+                targetGeneInfo as GoalGene,
+                goal.goalMode
             );
             if (!targetGene.isOptional) {
                 if (chance === 0) isPossible = false;

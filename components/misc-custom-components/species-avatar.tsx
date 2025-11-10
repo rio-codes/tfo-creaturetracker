@@ -190,9 +190,9 @@ export function SpeciesAvatar({ species, className }: { species: string; classNa
             return (
                 <img src="/images/capsules/koleratako_capsule.png" className={imgClassName}></img>
             );
-        case 'Kora Voko':
+        case 'Koro Voko':
             return (
-                <img src="/images/capsules/kora_voko_capsule.png" className={imgClassName}></img>
+                <img src="/images/capsules/Koro_voko_capsule.png" className={imgClassName}></img>
             );
         case 'Kosmira Girafo':
             return (

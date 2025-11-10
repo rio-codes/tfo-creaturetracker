@@ -10,8 +10,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Trash2, Network } from 'lucide-react';
 import type { EnrichedBreedingPair, EnrichedCreature, EnrichedResearchGoal } from '@/types';
-import { getPossibleOffspringSpecies, validatePairing } from '@/lib/breeding-rules-client';
+import { validatePairing } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
+import { getPossibleOffspringSpecies } from '@/lib/genetics';
 
 type EditBreedingPairFormProps = {
     pair: EnrichedBreedingPair;
@@ -102,7 +103,7 @@ export function EditBreedingPairForm({
             selectedMale.species,
             selectedFemale.species
         );
-        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species));
+        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species as any));
     }, [selectedMale, selectedFemale, allGoals]);
 
     useEffect(() => {

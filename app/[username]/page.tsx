@@ -28,7 +28,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { calculateGeneProbability } from '@/lib/genetics';
+import { calculateGeneProbability, calculateBreedingOutcomes } from '@/lib/genetics';
 
 import type {
     DbUser,
@@ -341,10 +341,10 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                     isPossible = true;
                 for (const [category, targetGeneInfo] of Object.entries(goal.genes)) {
                     const chance = calculateGeneProbability(
-                        enrichedMale,
-                        enrichedFemale,
+                        calculateBreedingOutcomes(enrichedMale, enrichedFemale),
+                        pair.species,
                         category,
-                        targetGeneInfo,
+                        targetGeneInfo as GoalGene,
                         goal.goalMode
                     );
                     if (!targetGeneInfo.isOptional) {

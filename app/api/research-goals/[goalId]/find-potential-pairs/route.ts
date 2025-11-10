@@ -5,9 +5,10 @@ import { creatures, breedingPairs, breedingLogEntries, researchGoals } from '@/s
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/client-serialization';
 import { checkForInbreeding } from '@/lib/breeding-rules';
-import { calculateGeneProbability } from '@/lib/genetics';
-import type { EnrichedCreature } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
+import { calculateBreedingOutcomes, calculateGeneProbability } from '@/lib/genetics';
+import type { EnrichedCreature, GoalGene } from '@/types';
+import { getPossibleOffspringSpecies } from '@/lib/genetics';
+import { OffspringOutcome } from '@/lib/hybridization-rules';
 
 type PotentialPairPrediction = {
     maleParent: EnrichedCreature;
@@ -64,8 +65,15 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
             for (const female of females) {
                 if (!male?.species || !female?.species) continue;
 
-                const possibleOffspring = getPossibleOffspringSpecies(male.species, female.species);
-                if (!possibleOffspring.includes(goal.species)) {
+                const possibleOffspring: OffspringOutcome[] = getPossibleOffspringSpecies(
+                    male.species,
+                    female.species
+                );
+                if (
+                    !possibleOffspring.some(
+                        (outcome: OffspringOutcome) => outcome.species === enrichedGoal.species
+                    )
+                ) {
                     continue;
                 }
 
@@ -75,10 +83,11 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
 
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal.genes)) {
                     const chance = calculateGeneProbability(
-                        male,
-                        female,
+                        calculateBreedingOutcomes(male, female),
+                        possibleOffspring.find((o) => o.species === enrichedGoal.species)
+                            ?.species || '',
                         category,
-                        targetGeneInfo as any, // This might need a more specific type
+                        targetGeneInfo as GoalGene,
                         goal.goalMode
                     );
                     if (!(targetGeneInfo as any).isOptional && chance === 0) {

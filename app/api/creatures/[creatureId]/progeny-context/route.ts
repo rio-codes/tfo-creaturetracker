@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { creatures, breedingPairs, breedingLogEntries } from '@/src/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { enrichAndSerializeCreature, enrichAndSerializeBreedingPair } from '@/lib/serialization';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
+import { getPossibleOffspringSpecies } from '@/lib/genetics';
 import type { EnrichedBreedingPair } from '@/types';
 
 export async function GET(request: Request, props: { params: Promise<{ creatureId: string }> }) {
@@ -59,7 +59,7 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
                     pair.maleParent.species,
                     pair.femaleParent.species
                 );
-                return possibleOffspring.includes(creature.species);
+                return possibleOffspring.some((outcome) => outcome.species === creature.species);
             })
             .map((p) => enrichAndSerializeBreedingPair(p, userId));
 

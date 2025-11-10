@@ -578,13 +578,28 @@ export async function fetchBreedingPairsWithStats(
 
         const allResults = [...pinnedResults, ...unpinnedResults];
 
+        const allUserGoals = await db.query.researchGoals.findMany({
+            where: eq(researchGoals.userId, userId),
+        });
+
         const enrichedPairPromises = allResults.map(async (result) => {
             const pairWithParents = {
                 ...result.pair,
                 maleParent: result.maleParent,
                 femaleParent: result.femaleParent,
             };
-            return enrichAndSerializeBreedingPair(pairWithParents as any, userId);
+
+            const assignedGoalsForPair = allUserGoals.filter((goal) =>
+                pairWithParents.assignedGoalIds?.includes(goal.id)
+            );
+
+            return enrichAndSerializeBreedingPair(
+                {
+                    ...pairWithParents,
+                    assignedGoals: assignedGoalsForPair.map((goal) => ({ goal })),
+                } as any,
+                userId
+            );
         });
 
         const allEnrichedPairs = (await Promise.all(enrichedPairPromises)).filter(

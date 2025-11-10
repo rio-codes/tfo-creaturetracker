@@ -107,7 +107,10 @@ export const enrichAndSerializeBreedingPair = async (
     },
     userId: string
 ): Promise<EnrichedBreedingPair | null> => {
-    if (!pair.maleParent || !pair.femaleParent) {
+    const enrichedMale = enrichAndSerializeCreature(pair.maleParent);
+    const enrichedFemale = enrichAndSerializeCreature(pair.femaleParent);
+
+    if (!enrichedMale || !enrichedFemale) {
         return null;
     }
 
@@ -168,8 +171,8 @@ export const enrichAndSerializeBreedingPair = async (
         for (const [category, targetGeneInfo] of Object.entries(enrichedGoal.genes)) {
             const targetGene = targetGeneInfo as any;
             const chance = calculateGeneProbability(
-                enrichAndSerializeCreature(pair.maleParent),
-                enrichAndSerializeCreature(pair.femaleParent),
+                enrichedMale,
+                enrichedFemale,
                 category,
                 targetGene,
                 enrichedGoal.goalMode
@@ -203,8 +206,8 @@ export const enrichAndSerializeBreedingPair = async (
         isInbred,
         createdAt: pair.createdAt.toISOString(),
         updatedAt: pair.updatedAt.toISOString(),
-        maleParent: enrichAndSerializeCreature(pair.maleParent),
-        femaleParent: enrichAndSerializeCreature(pair.femaleParent),
+        maleParent: enrichedMale,
+        femaleParent: enrichedFemale,
         assignedGoals: assignedGoals,
     };
 };

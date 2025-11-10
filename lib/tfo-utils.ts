@@ -17,7 +17,13 @@ export function constructTfoImageUrl(
         throw new Error(`Invalid or missing species code for: ${species}`);
     }
 
-    const gender = genes['Gender']?.toLowerCase();
+    const genderGenotype = genes['Gender']?.toUpperCase();
+    let gender = '';
+    if (genderGenotype === 'F') {
+        gender = 'female';
+    } else if (genderGenotype === 'M') {
+        gender = 'male';
+    }
 
     const geneticsString = Object.entries(genes)
         .filter(([category]) => category !== 'Gender')

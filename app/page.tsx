@@ -4,7 +4,7 @@ import { db } from '@/src/db';
 import { and, isNotNull, sql } from 'drizzle-orm';
 import { breedingPairs } from '@/src/db/schema';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { calculateBreedingOutcomes, SpeciesBreedingOutcome } from '@/lib/genetics';
+import { calculateBreedingOutcomes } from '@/lib/genetics';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { unstable_cache as cache } from 'next/cache';

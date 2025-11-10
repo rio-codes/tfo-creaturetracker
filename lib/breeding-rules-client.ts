@@ -1,4 +1,4 @@
-import type { EnrichedCreature } from '@/types';
+import type { EnrichedCreature, OffspringOutcome } from '@/types';
 
 const compatibility: Record<string, string[]> = {
     'Tagluma Valso': ['Nokta Voko', 'Koro Voko'],
@@ -25,6 +25,49 @@ function isPairCompatible(speciesA: string, speciesB: string): boolean {
     return compatibleMatesA?.includes(speciesB) || compatibleMatesB?.includes(speciesA) || false;
 }
 
+export function getPossibleOffspringSpecies(
+    maleSpecies: string,
+    femaleSpecies: string
+): OffspringOutcome[] {
+    if (maleSpecies === femaleSpecies) {
+        return [{ species: maleSpecies, probability: 1 }];
+    }
+
+    // This is a simplified client-side version.
+    // For simplicity, we'll assume equal probability if not specified.
+    // A more robust solution might fetch rules from an API.
+    if (
+        (maleSpecies === 'Tagluma Valso' && femaleSpecies === 'Nokta Voko') ||
+        (maleSpecies === 'Nokta Voko' && femaleSpecies === 'Tagluma Valso')
+    ) {
+        return [{ species: 'Koro Voko', probability: 1 }];
+    }
+
+    if (
+        (maleSpecies === 'Klara Alsalto' && femaleSpecies === 'Glacia Alsalto') ||
+        (maleSpecies === 'Glacia Alsalto' && femaleSpecies === 'Klara Alsalto')
+    ) {
+        return [{ species: 'Transira Alsalto', probability: 1 }];
+    }
+
+    // For pairs that can produce either parent's species
+    const hybridPairs: [string, string][] = [
+        ['Tera Girafo', 'Kosmira Girafo'],
+        ['Tagluma Valso', 'Koro Voko'],
+        ['Nokta Voko', 'Koro Voko'],
+        // Add other pairs that result in 50/50 outcomes
+    ];
+
+    for (const pair of hybridPairs) {
+        if (pair.includes(maleSpecies) && pair.includes(femaleSpecies)) {
+            return [
+                { species: maleSpecies, probability: 0.5 },
+                { species: femaleSpecies, probability: 0.5 },
+            ];
+        }
+    }
+    return [];
+}
 export function validatePairing(
     creatureA: { species?: string | null } | null,
     creatureB: { species?: string | null } | null

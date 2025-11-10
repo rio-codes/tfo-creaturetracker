@@ -1,12 +1,6 @@
-import type { EnrichedCreature, GoalGene } from '@/types';
+import type { EnrichedCreature, GoalGene, SpeciesBreedingOutcome } from '@/types';
 import { structuredGeneData } from '../constants/creature-data';
 import { hybridizationRules, OffspringOutcome } from './hybridization-rules';
-
-export type SpeciesBreedingOutcome = {
-    species: string;
-    probability: number;
-    geneOutcomes: OutcomesByCategory;
-};
 
 function splitMultiLocusGenotype(genotype: string): string[] {
     return genotype.match(/.{1,2}/g) || [];
@@ -71,39 +65,54 @@ function _calculateOutcomesForCategory(
 
     if (!maleGene && !femaleGene) return [];
 
-    let maleGenotype = maleGene?.genotype;
-    let femaleGenotype = femaleGene?.genotype;
+    const maleGenotype = maleGene?.genotype;
+    const femaleGenotype = femaleGene?.genotype;
 
-    if (!maleGenotype && femaleGenotype) {
-        // Ensure the default genotype matches the locus count of the present parent
-        maleGenotype = 'aa'.repeat(Math.max(1, femaleGenotype.length / 2));
-    } else if (maleGenotype && !femaleGenotype) {
-        // Ensure the default genotype matches the locus count of the present parent
-        femaleGenotype = 'aa'.repeat(Math.max(1, maleGenotype.length / 2));
-    } else if (!maleGenotype && !femaleGenotype) {
-        return [];
-    }
+    const maleLoci = splitMultiLocusGenotype(maleGenotype || '');
+    const femaleLoci = splitMultiLocusGenotype(femaleGenotype || '');
 
-    const maleLoci = splitMultiLocusGenotype(maleGenotype!);
-    const femaleLoci = splitMultiLocusGenotype(femaleGenotype!);
-    if (maleLoci.length !== femaleLoci.length || maleLoci.length === 0) return [];
+    const maleLociMap = new Map<string, string>();
+    maleLoci.forEach((locus) => {
+        if (locus.length > 0) {
+            const alleleLetter = locus[0].toUpperCase();
+            maleLociMap.set(alleleLetter, locus);
+        }
+    });
+
+    const femaleLociMap = new Map<string, string>();
+    femaleLoci.forEach((locus) => {
+        if (locus.length > 0) {
+            const alleleLetter = locus[0].toUpperCase();
+            femaleLociMap.set(alleleLetter, locus);
+        }
+    });
+
+    const allLocusLetters = [...new Set([...maleLociMap.keys(), ...femaleLociMap.keys()])].sort();
+
+    if (allLocusLetters.length === 0) return [];
 
     const outcomesByLocus: {
         [locusIndex: number]: { genotype: string; probability: number }[];
     } = {};
 
-    for (let i = 0; i < maleLoci.length; i++) {
-        const maleLocusGenotype = maleLoci[i];
-        const femaleLocusGenotype = femaleLoci[i];
+    for (let i = 0; i < allLocusLetters.length; i++) {
+        const letter = allLocusLetters[i];
+        const defaultGenotype = letter.toLowerCase() + letter.toLowerCase();
+
+        const maleLocusGenotype = maleLociMap.get(letter) || defaultGenotype;
+        const femaleLocusGenotype = femaleLociMap.get(letter) || defaultGenotype;
+
         const maleAlleles = getAlleles(maleLocusGenotype);
         const femaleAlleles = getAlleles(femaleLocusGenotype);
         const punnettSquare: { [key: string]: number } = {};
-        const sortedMaleAlleles = maleAlleles.sort((a, b) => {
-            return a.localeCompare(b, 'en-US', { caseFirst: 'upper' });
-        });
-        const sortedFemaleAlleles = femaleAlleles.sort((a, b) => {
-            return a.localeCompare(b, 'en-US', { caseFirst: 'upper' });
-        });
+
+        const sortedMaleAlleles = [...maleAlleles].sort((a, b) =>
+            a.localeCompare(b, 'en-US', { caseFirst: 'upper' })
+        );
+        const sortedFemaleAlleles = [...femaleAlleles].sort((a, b) =>
+            a.localeCompare(b, 'en-US', { caseFirst: 'upper' })
+        );
+
         for (const maleAllele of sortedMaleAlleles) {
             for (const femaleAllele of sortedFemaleAlleles) {
                 const childGenotype = [maleAllele, femaleAllele].sort((a, b) =>
@@ -128,9 +137,10 @@ function _calculateOutcomesForCategory(
     let combinedOutcomes: { genotype: string; probability: number }[] = [
         { genotype: '', probability: 1 },
     ];
-    for (let i = 0; i < maleLoci.length; i++) {
+    for (let i = 0; i < allLocusLetters.length; i++) {
         const newCombinedOutcomes: { genotype: string; probability: number }[] = [];
         const locusOutcomes = outcomesByLocus[i];
+        if (!locusOutcomes) continue;
         for (const existingOutcome of combinedOutcomes) {
             for (const locusOutcome of locusOutcomes) {
                 newCombinedOutcomes.push({
@@ -145,15 +155,16 @@ function _calculateOutcomesForCategory(
     const categoryGeneData = speciesGenes[category];
     if (!Array.isArray(categoryGeneData)) return [];
 
-    return combinedOutcomes.map((combo) => ({
-        genotype: (combo.genotype.match(/.{1,2}/g) || []).sort().join(''),
-        probability: combo.probability,
-        phenotype: getPhenotypeForGenotype(
-            // Use the newly sorted genotype for phenotype lookup
-            (combo.genotype.match(/.{1,2}/g) || []).sort().join(''),
-            categoryGeneData
-        ),
-    }));
+    return combinedOutcomes.map((combo) => {
+        const sortedGenotype = (combo.genotype.match(/.{1,2}/g) || [])
+            .sort((a, b) => a.localeCompare(b, 'en-US', { caseFirst: 'upper' }))
+            .join('');
+        return {
+            genotype: sortedGenotype,
+            probability: combo.probability,
+            phenotype: getPhenotypeForGenotype(sortedGenotype, categoryGeneData),
+        };
+    });
 }
 
 export function calculateBreedingOutcomes(
@@ -177,26 +188,29 @@ export function calculateBreedingOutcomes(
         const speciesGenes = structuredGeneData[offspringSpecies];
         if (!speciesGenes) continue;
 
-        if (speciesGenes.hasNoGenetics) {
-            allOutcomes.push({
-                species: offspringSpecies,
-                probability: speciesProbability,
-                geneOutcomes: {
-                    Gender: [
-                        { genotype: 'Female', phenotype: 'Female', probability: 0.5 },
-                        { genotype: 'Male', phenotype: 'Male', probability: 0.5 },
-                    ],
-                },
-            });
-            continue;
-        }
-
         const geneOutcomes: OutcomesByCategory = {
             Gender: [
-                { genotype: 'Female', phenotype: 'Female', probability: 0.5 },
-                { genotype: 'Male', phenotype: 'Male', probability: 0.5 },
+                { genotype: 'F', phenotype: 'Female', probability: 0.5 },
+                { genotype: 'M', phenotype: 'Male', probability: 0.5 },
             ],
         };
+
+        if (!speciesGenes.hasNoGenetics) {
+            for (const category in speciesGenes) {
+                if (category === 'hasNoGenetics' || category === 'Gender') continue;
+
+                const categoryOutcomes = _calculateOutcomesForCategory(
+                    maleParent,
+                    femaleParent,
+                    category,
+                    offspringSpecies
+                );
+
+                if (categoryOutcomes.length > 0) {
+                    geneOutcomes[category] = categoryOutcomes;
+                }
+            }
+        }
 
         allOutcomes.push({
             species: offspringSpecies,

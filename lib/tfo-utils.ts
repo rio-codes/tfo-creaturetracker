@@ -31,6 +31,7 @@ export function constructTfoImageUrl(
     }
 
     const geneticsString = Object.entries(genes)
+        .filter(([category]) => category !== 'Gender')
         .map(([category, genotype]) => `${category}:${genotype}`)
         .join(',');
 

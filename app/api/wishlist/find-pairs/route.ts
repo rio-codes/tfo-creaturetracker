@@ -8,6 +8,8 @@ import { checkForInbreeding } from '@/lib/breeding-rules';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { z } from 'zod';
+import { OffspringOutcome } from '@/lib/hybridization-rules';
+import type { GoalGene } from '@/types';
 
 // We'll use a simplified schema for the incoming goal data
 const goalSchema = z.object({
@@ -71,7 +73,12 @@ export async function POST(request: Request) {
                 if (!male?.species || !female?.species) continue;
 
                 const possibleOffspring = getPossibleOffspringSpecies(male.species, female.species);
-                if (!possibleOffspring.includes(goal.species)) {
+                if (
+                    !possibleOffspring.some(
+                        (outcome: OffspringOutcome) =>
+                            outcome.species === male.species || outcome.species === female.species
+                    )
+                ) {
                     continue;
                 }
 
@@ -84,7 +91,7 @@ export async function POST(request: Request) {
                         male,
                         female,
                         category,
-                        targetGeneInfo,
+                        targetGeneInfo as GoalGene,
                         goal.goalMode
                     );
                     if (!targetGeneInfo.isOptional && chance === 0) {

@@ -16,6 +16,7 @@ const goalSchema = z.object({
         .string()
         .min(3, 'Name must be at least 3 characters.')
         .max(32, 'Name must be less than 32 characters.'),
+    gender: z.enum(['male', 'female']),
     species: z.string().min(1, 'Species is required.'),
     genes: z.record(
         z.string(),
@@ -105,7 +106,7 @@ export async function POST(req: Request) {
             })
         );
 
-        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl);
+        const tfoImageUrl = constructTfoImageUrl(species, genotypesForUrl, 'female');
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, null, 3);
 
@@ -115,6 +116,7 @@ export async function POST(req: Request) {
                 userId: session.user.id,
                 name: name,
                 species: species,
+                gender: 'female',
                 imageUrl: blobUrl,
                 genes: genes,
                 goalMode: goalMode,

@@ -5,7 +5,6 @@ export const enrichAndSerializeCreature = (
     creature: (DbCreature & { user?: { username: string | null } | null }) | null
 ): EnrichedCreature | null => {
     if (!creature) return null;
-    const speciesGeneData = structuredGeneData[creature.species || ''];
     return {
         ...creature,
         createdAt: creature.createdAt.toISOString(),
@@ -14,37 +13,23 @@ export const enrichAndSerializeCreature = (
         generation: creature.generation,
         origin: creature.origin,
         progeny: [],
-        geneData:
-            creature.genetics
-                ?.split(',')
-                .map((genePair) => {
-                    const [category, genotype] = genePair.split(':');
-                    if (!category || !genotype || !speciesGeneData) return null;
+        geneData: creature.genetics
+            ? Object.entries(creature.genetics)
+                  .map(([category, geneInfo]) => {
+                      // `geneInfo` is the object: { genotype: string, phenotype: string }
+                      if (!category || !geneInfo || !geneInfo.genotype) return null;
 
-                    const categoryData = speciesGeneData[category];
-
-                    // This is the new type guard.
-                    // It checks if categoryData is an array before proceeding.
-                    if (typeof categoryData !== 'object' || !Array.isArray(categoryData)) {
-                        return null;
-                    }
-
-                    const matchedGene = categoryData.find((g) => g.genotype === genotype);
-                    return {
-                        category,
-                        genotype,
-                        phenotype: matchedGene?.phenotype || 'Unknown',
-                    };
-                })
-                .filter(
-                    (
-                        gene
-                    ): gene is {
-                        category: string;
-                        genotype: string;
-                        phenotype: string;
-                    } => gene !== null
-                ) || [],
+                      return {
+                          category,
+                          genotype: geneInfo.genotype, // Correctly access the genotype string
+                          phenotype: geneInfo.phenotype || 'Unknown', // Use the phenotype from the object
+                      };
+                  })
+                  .filter(
+                      (gene): gene is { category: string; genotype: string; phenotype: string } =>
+                          gene !== null
+                  )
+            : [],
     };
 };
 

@@ -1,0 +1,22 @@
+# dependencies
+/node_modules
+
+# next.js
+.next/
+
+# production
+build/
+
+# vercel
+.vercel/
+
+# drizzle
+/src/db/migrations
+
+# vs code
+.vscode/
+
+# public
+public/documents
+public/fonts
+public/images

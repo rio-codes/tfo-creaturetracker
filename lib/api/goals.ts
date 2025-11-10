@@ -4,6 +4,7 @@ import { db } from '@/src/db';
 import { researchGoals, breedingPairs, breedingLogEntries, creatures } from '@/src/db/schema';
 import type {
     EnrichedResearchGoal,
+    GoalGene,
     Prediction,
     EnrichedBreedingPair,
     EnrichedCreature,
@@ -75,8 +76,8 @@ export async function getPredictionsForGoal(goalId: string): Promise<Prediction[
                         enrichedMaleParent,
                         enrichedFemaleParent,
                         category,
-                        targetGene,
-                        goalMode
+                        targetGeneInfo as GoalGene,
+                        goal.goalMode
                     );
                     chancesByCategory[category] = chance;
 

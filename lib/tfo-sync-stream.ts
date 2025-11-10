@@ -2,6 +2,7 @@ import { db } from '@/src/db';
 import { creatures } from '@/src/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { fetchAndUploadWithRetry } from '@/lib/data';
+import { structuredGeneData } from '@/constants/creature-data';
 
 type CreatureInsert = typeof creatures.$inferInsert;
 
@@ -102,6 +103,27 @@ export async function* syncTfoTabsAndStream(
                     }
                 }
 
+                const geneticsObject: NonNullable<CreatureInsert['genetics']> = {};
+                const speciesGeneData = structuredGeneData[tfoCreature.breedName?.trim() || ''];
+
+                if (speciesGeneData) {
+                    tfoCreature.genetics.split(',').forEach((part) => {
+                        const [category, genotype] = part.split(':');
+                        if (category && genotype) {
+                            const categoryData = speciesGeneData[category] as
+                                | { genotype: string; phenotype: string }[]
+                                | undefined;
+                            if (Array.isArray(categoryData)) {
+                                const geneInfo = categoryData.find((g) => g.genotype === genotype);
+                                geneticsObject[category] = {
+                                    genotype,
+                                    phenotype: geneInfo?.phenotype || 'Unknown',
+                                };
+                            }
+                        }
+                    });
+                }
+
                 const creatureData: CreatureInsert = {
                     userId: userId,
                     code: tfoCreature.code,
@@ -110,8 +132,8 @@ export async function* syncTfoTabsAndStream(
                     gottenAt: tfoCreature.gotten ? new Date(tfoCreature.gotten * 1000) : null,
                     growthLevel: tfoCreature.growthLevel,
                     isStunted: tfoCreature.isStunted,
-                    species: tfoCreature.breedName?.trim(),
-                    genetics: tfoCreature.genetics,
+                    species: tfoCreature.breedName?.trim(), // This is correct
+                    genetics: geneticsObject,
                     gender: tfoCreature.gender as
                         | 'male'
                         | 'female'
@@ -137,13 +159,13 @@ export async function* syncTfoTabsAndStream(
                 })}\n\n`;
             }
         } catch (error: any) {
-			if (error instanceof Error && error.message.includes('network error')) {
-				continue;
-			} else {
-				console.error('Streaming sync failed:', error);
-				yield `event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`;
-			}
-		}
+            if (error instanceof Error && error.message.includes('network error')) {
+                continue;
+            } else {
+                console.error('Streaming sync failed:', error);
+                yield `event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`;
+            }
+        }
     }
 
     yield `event: done\ndata: ${JSON.stringify({

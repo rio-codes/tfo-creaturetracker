@@ -10,17 +10,25 @@ import { TFO_SPECIES_CODES } from '../constants/creature-data';
 
 export function constructTfoImageUrl(
     species: string,
-    genes: { [key: string]: string }
+    genes: { [key: string]: string },
+    genderInput: 'male' | 'female' | 'F' | 'M' | 'unknown'
 ): string {
     const speciesCode = TFO_SPECIES_CODES[species];
     if (!speciesCode) {
         throw new Error(`Invalid or missing species code for: ${species}`);
     }
 
-    const gender = genes['Gender']?.toLowerCase();
+    const genderGenotype = genderInput?.toUpperCase();
+    let gender = '';
+    if (genderGenotype === 'F' || genderGenotype === 'FEMALE') {
+        gender = 'female';
+    } else if (genderGenotype === 'M' || genderGenotype === 'MALE') {
+        gender = 'male';
+    } else {
+        gender = 'female';
+    }
 
     const geneticsString = Object.entries(genes)
-        .filter(([category]) => category !== 'Gender')
         .map(([category, genotype]) => `${category}:${genotype}`)
         .join(',');
 

@@ -1,12 +1,17 @@
 'use client';
 
-import React from 'react';
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Form, FormField } from '@/components/ui/form';
 import {
     Select,
     SelectContent,
@@ -18,48 +23,71 @@ import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2 } from 'lucide-react';
 import type { GoalGene } from '@/types';
 
-type GeneOption = {
-    value: string;
-    display: string;
-    selection: Omit<GoalGene, 'isOptional'>;
-};
+const createCreatureFormSchema = z.object({
+    creatureName: z.string().min(1, 'Creature name is required.'),
+    creatureCode: z.string().min(1, 'Creature code is required.'),
+    species: z.string().min(1, 'Species is required.'),
+    gender: z.enum(['male', 'female']),
+    genes: z.record(
+        z.string(),
+        z.object({
+            phenotype: z.string(),
+            genotype: z.string(),
+            isMultiGenotype: z.boolean().optional(),
+            isOptional: z.boolean().optional(),
+        })
+    ),
+});
+
+type CreateCreatureFormValues = z.infer<typeof createCreatureFormSchema>;
 
 export function CreateCreatureForm() {
     const router = useRouter();
-    const [creatureName, setCreatureName] = useState('');
-    const [creatureCode, setCreatureCode] = useState('');
-    const [species, setSpecies] = useState('');
-    const [selectedGenes, setSelectedGenes] = useState<{
-        [key: string]: GoalGene;
-    }>({});
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
     const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [previewError, setPreviewError] = useState('');
 
+    const form = useForm<CreateCreatureFormValues>({
+        resolver: zodResolver(createCreatureFormSchema),
+        defaultValues: {
+            creatureName: '',
+            creatureCode: '',
+            species: '',
+            gender: 'female',
+            genes: {},
+        },
+    });
+
+    const species = form.watch('species');
+
     const geneOptions = useMemo(() => {
-        if (!species || !structuredGeneData[species]) return {};
-        const optionsByCat: { [key: string]: GeneOption[] } = {};
+        if (!species || !structuredGeneData[species] || structuredGeneData[species].hasNoGenetics)
+            return {};
+        const optionsByCat: {
+            [key: string]: { value: string; display: string; selection: GoalGene }[];
+        } = {};
 
         for (const [category, genes] of Object.entries(structuredGeneData[species])) {
+            // Skip non-array properties like 'isSeasonal' or 'hasNoGenetics' or 'Gender'
+            if (!Array.isArray(genes)) {
+                continue;
+            }
+
             optionsByCat[category] = (genes as { genotype: string; phenotype: string }[]).map(
                 (gene) => ({
                     value: gene.genotype,
-                    display:
-                        category === 'Gender'
-                            ? gene.genotype
-                            : `${gene.phenotype} (${gene.genotype})`,
+                    display: `${gene.phenotype} (${gene.genotype})`,
                     selection: {
                         phenotype: gene.phenotype,
                         genotype: gene.genotype,
                         isMultiGenotype: false, // Not relevant for creature creation
+                        isOptional: false,
                     },
                 })
             );
         }
         return optionsByCat;
-    }, [species]);
+    }, [species]); // Dependency on species from form state
 
     const geneCategories = useMemo(
         () => (geneOptions ? Object.keys(geneOptions) : []),
@@ -68,47 +96,36 @@ export function CreateCreatureForm() {
 
     useEffect(() => {
         if (species && geneCategories.length > 0) {
-            const defaultSelections: { [key: string]: GoalGene } = {};
+            const defaultSelections: { [key: string]: any } = {};
             for (const category of geneCategories) {
                 const options = geneOptions[category];
                 if (options && options.length > 0) {
-                    let defaultOption = options[0];
-                    if (category === 'Gender') {
-                        defaultOption =
-                            options.find((opt) => opt.selection.genotype === 'Female') ||
-                            options[0];
-                    }
-                    defaultSelections[category] = {
-                        ...defaultOption.selection,
-                        isOptional: false,
-                    };
+                    defaultSelections[category] = options[0].selection;
                 }
             }
-            setSelectedGenes(defaultSelections);
-        }
-    }, [species, geneCategories, geneOptions]);
-
-    const handleGeneChange = (category: string, selectedValue: string) => {
-        const options = geneOptions[category];
-        const selectedOption = options?.find((opt) => opt.value === selectedValue);
-        if (selectedOption) {
-            setSelectedGenes((prev) => ({
-                ...prev,
-                [category]: { ...selectedOption.selection, isOptional: false },
-            }));
+            form.setValue('genes', defaultSelections);
+        } else {
+            form.setValue('genes', {});
         }
         setPreviewImageUrl(null);
-    };
+    }, [species, geneCategories, geneOptions, form]);
 
     const handlePreview = async () => {
         setIsPreviewLoading(true);
         setPreviewError('');
         setPreviewImageUrl(null);
+
+        const currentGenes = form.getValues('genes');
+
         try {
             const response = await fetch('/api/admin/creature-preview', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ species, genes: selectedGenes }),
+                body: JSON.stringify({
+                    species: form.getValues('species'),
+                    gender: form.getValues('gender'),
+                    genes: currentGenes,
+                }),
             });
             const data = await response.json();
             if (!response.ok) {
@@ -122,163 +139,212 @@ export function CreateCreatureForm() {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
+    const onSubmit = async (values: CreateCreatureFormValues) => {
         try {
-            const payload = {
-                creatureName,
-                creatureCode,
-                species,
-                genes: selectedGenes,
-            };
             const response = await fetch('/api/admin/create-creature', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(values),
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to create creature.');
 
-            alert('Creature created successfully!'); // Replace with a toast
+            toast.success('Creature created successfully!');
             router.push('/admin/creatures');
         } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsLoading(false);
+            toast.error('Error creating creature', { description: err.message });
         }
     };
 
+    const { isSubmitting } = form.formState;
+
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="space-y-4 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
-        >
-            {/* Top section for name, code, species */}
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="creature-name">Creature Name</Label>
-                        <Input
-                            id="creature-name"
-                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
-                            placeholder="e.g., Test Hybrid"
-                            value={creatureName}
-                            onChange={(e) => setCreatureName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="creature-code">Creature Code</Label>
-                        <Input
-                            id="creature-code"
-                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
-                            placeholder="e.g., ABC-XYZ"
-                            value={creatureCode}
-                            onChange={(e) => setCreatureCode(e.target.value)}
-                            required
-                        />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="species-select">Species</Label>
-                    <Select value={species} onValueChange={setSpecies} required>
-                        <SelectTrigger
-                            id="species-select"
-                            className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
-                        >
-                            <SelectValue placeholder="Select Species..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                            {speciesList.map((s) => (
-                                <SelectItem key={s} value={s}>
-                                    {s}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
-            {species && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    {/* Left Column: Gene Selectors */}
-                    <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple">
-                        <div className="space-y-4">
-                            {geneCategories.map((category) => (
-                                <div
-                                    key={category}
-                                    className="grid grid-cols-[100px_1fr] items-center gap-x-4"
-                                >
-                                    <Label className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                                        {category}
-                                    </Label>
-                                    <Select
-                                        value={selectedGenes[category]?.genotype || ''}
-                                        onValueChange={(value) => handleGeneChange(category, value)}
-                                    >
-                                        <SelectTrigger className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                                            {(geneOptions[category] || []).map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>
-                                                    {option.display}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            ))}
-                        </div>
-                    </ScrollArea>
-
-                    {/* Right Column: Preview */}
-                    <div className="space-y-4 pt-2">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                type="button"
-                                onClick={handlePreview}
-                                className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                                disabled={isPreviewLoading || !species}
-                            >
-                                {isPreviewLoading ? (
-                                    <Loader2 className="animate-spin mr-2" />
-                                ) : null}
-                                Preview Image
-                            </Button>
-                        </div>
-                        {previewError && <p className="text-sm text-red-500">{previewError}</p>}
-                        {previewImageUrl ? (
-                            <img
-                                src={previewImageUrl}
-                                alt="Creature Preview"
-                                className="w-40 h-40 object-contain mx-auto border rounded-md"
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+            >
+                {/* Top section for name, code, species */}
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="creature-name">Creature Name</Label>
+                            <FormField
+                                control={form.control}
+                                name="creatureName"
+                                render={({ field }) => (
+                                    <Input
+                                        id="creature-name"
+                                        className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
+                                        placeholder="e.g., Test Hybrid"
+                                        {...field}
+                                    />
+                                )}
                             />
-                        ) : (
-                            <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50 border rounded-md mx-auto">
-                                <p className="text-xs text-dusk-purple text-center p-2">
-                                    Click &#34;Preview Image&#34; to see the creature.
-                                </p>
-                            </div>
-                        )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="creature-code">Creature Code</Label>
+                            <FormField
+                                control={form.control}
+                                name="creatureCode"
+                                render={({ field }) => (
+                                    <Input
+                                        id="creature-code"
+                                        className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
+                                        placeholder="e.g., ABC-XYZ"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="species-select">Species</Label>
+                        <FormField
+                            control={form.control}
+                            name="species"
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger
+                                        id="species-select"
+                                        className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
+                                    >
+                                        <SelectValue placeholder="Select Species..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                        {speciesList.map((s) => (
+                                            <SelectItem key={s} value={s}>
+                                                {s}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="gender-select">Gender</Label>
+                        <FormField
+                            control={form.control}
+                            name="gender"
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger
+                                        id="gender-select"
+                                        className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400"
+                                    >
+                                        <SelectValue placeholder="Select Gender..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                        <SelectItem value="female">Female</SelectItem>
+                                        <SelectItem value="male">Male</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
                     </div>
                 </div>
-            )}
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+                {species && geneCategories.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        {/* Left Column: Gene Selectors */}
+                        <ScrollArea className="h-96 flex-col pr-4 relative border rounded-md p-4 bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-pompaca-purple">
+                            <div className="space-y-4">
+                                {geneCategories.map((category) => (
+                                    <Controller
+                                        key={category}
+                                        control={form.control}
+                                        name={`genes.${category}.genotype` as const}
+                                        render={({ field }) => (
+                                            <div className="grid grid-cols-[100px_1fr] items-center gap-x-4">
+                                                <Label className="font-medium text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                    {category}
+                                                </Label>
+                                                <Select
+                                                    value={field.value || ''}
+                                                    onValueChange={(value) => {
+                                                        const option = geneOptions[category]?.find(
+                                                            (opt) => opt.value === value
+                                                        );
+                                                        if (option) {
+                                                            form.setValue(
+                                                                `genes.${category}`,
+                                                                option.selection
+                                                            );
+                                                            form.setValue(
+                                                                'previewImageUrl' as any,
+                                                                null
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-pompaca-purple dark:border-purple-400">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                                        {(geneOptions[category] || []).map(
+                                                            (option) => (
+                                                                <SelectItem
+                                                                    key={option.value}
+                                                                    value={option.value}
+                                                                >
+                                                                    {option.display}
+                                                                </SelectItem>
+                                                            )
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                        </ScrollArea>
 
-            <div className="flex justify-end pt-4">
-                <Button
-                    type="submit"
-                    disabled={isLoading || !species || !creatureCode || !creatureName}
-                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
-                >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Creature
-                </Button>
-            </div>
-        </form>
+                        {/* Right Column: Preview */}
+                        <div className="space-y-4 pt-2">
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    onClick={handlePreview}
+                                    className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                                    disabled={isPreviewLoading || !species}
+                                >
+                                    {isPreviewLoading ? (
+                                        <Loader2 className="animate-spin mr-2" />
+                                    ) : null}
+                                    Preview Image
+                                </Button>
+                            </div>
+                            {previewError && <p className="text-sm text-red-500">{previewError}</p>}
+                            {previewImageUrl ? (
+                                <img
+                                    src={previewImageUrl}
+                                    alt="Creature Preview"
+                                    className="w-40 h-40 object-contain mx-auto border rounded-md"
+                                />
+                            ) : (
+                                <div className="w-40 h-40 flex items-center justify-center bg-ebena-lavender/20 dark:bg-midnight-purple hallowsnight:bg-abyss/50 border rounded-md mx-auto">
+                                    <p className="text-xs text-dusk-purple text-center p-2">
+                                        Click &#34;Preview Image&#34; to see the creature.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex justify-end pt-4">
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting || !species}
+                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950"
+                    >
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Create Creature
+                    </Button>
+                </div>
+            </form>
+        </Form>
     );
 }

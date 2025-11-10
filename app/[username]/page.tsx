@@ -344,7 +344,7 @@ async function fetchUserProfile(username: string, sessionUserId?: string | null)
                         enrichedMale,
                         enrichedFemale,
                         category,
-                        targetGeneInfo,
+                        targetGeneInfo as GoalGene,
                         goal.goalMode
                     );
                     if (!targetGeneInfo.isOptional) {

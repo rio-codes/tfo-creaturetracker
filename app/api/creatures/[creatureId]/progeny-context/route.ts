@@ -59,7 +59,7 @@ export async function GET(request: Request, props: { params: Promise<{ creatureI
                     pair.maleParent.species,
                     pair.femaleParent.species
                 );
-                return possibleOffspring.includes(creature.species);
+                return possibleOffspring.some((outcome) => outcome.species === creature.species);
             })
             .map((p) => enrichAndSerializeBreedingPair(p, userId));
 

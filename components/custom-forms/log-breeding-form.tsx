@@ -32,7 +32,7 @@ export function LogBreedingForm({ pair, allCreatures, onSuccess }: LogBreedingFo
             pair.maleParent.species,
             pair.femaleParent.species
         );
-        return allCreatures.filter((c) => c?.species && possibleSpecies.includes(c.species));
+        return allCreatures.filter((c) => c?.species && possibleSpecies.includes(c.species as any));
     }, [allCreatures, pair.maleParent, pair.femaleParent]);
 
     const handleSubmit = async (e: React.FormEvent) => {

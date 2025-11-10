@@ -56,6 +56,31 @@ export type GoalGene = {
     isOptional: boolean;
 };
 
+export type SpeciesBreedingOutcome = {
+    species: string;
+    probability: number;
+    geneOutcomes: {
+        [key: string]: {
+            genotype: string;
+            phenotype: string;
+            probability: number;
+        }[];
+    };
+};
+
+export type OffspringOutcome = {
+    [x: string]: any;
+    species: string;
+    probability: number;
+    geneOutcomes: {
+        [key: string]: {
+            genotype: string;
+            phenotype: string;
+            probability: number;
+        }[];
+    };
+};
+
 export type EnrichedResearchGoal = Omit<DbResearchGoal, 'createdAt' | 'updatedAt'> & {
     imageUrl?: string | null;
     genes: { [category: string]: GoalGene };

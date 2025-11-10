@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { calculateGeneProbability } from '@/lib/genetics';
 import { enrichAndSerializeCreatureWithProgeny, enrichAndSerializeGoal } from '@/lib/serialization';
+import { GoalGene } from '@/types';
 
 const predictionSchema = z.object({
     maleParentUserId: z.string(),
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
                     maleParent,
                     femaleParent,
                     category,
-                    targetGene,
+                    targetGene as GoalGene,
                     goal.goalMode
                 );
                 if (!targetGene.isOptional) {

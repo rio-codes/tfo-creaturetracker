@@ -1,5 +1,9 @@
-import type { EnrichedCreature, GoalGene } from '@/types';
+import type { EnrichedCreature, GoalGene, OffspringOutcome } from '@/types';
 import { structuredGeneData } from '../constants/creature-data';
+import {
+    hybridizationRules,
+    OffspringOutcome as HybridizationOffspringOutcome,
+} from './hybridization-rules';
 
 // NEW helper to split multi-locus genotypes
 function splitMultiLocusGenotype(genotype: string): string[] {
@@ -105,6 +109,39 @@ function calculateOutcomesForCategory(
     }));
 }
 
+export function calculateBreedingOutcomes(
+    maleParent: EnrichedCreature,
+    femaleParent: EnrichedCreature
+): OffspringOutcome[] {
+    if (!maleParent?.species || !femaleParent?.species) {
+        return [];
+    }
+
+    if (maleParent.species === femaleParent.species) {
+        return [
+            {
+                species: maleParent.species,
+                probability: 1,
+                geneOutcomes: {},
+            },
+        ];
+    }
+
+    const rule =
+        (hybridizationRules[maleParent.species]?.[femaleParent.species] as {
+            outcomes: HybridizationOffspringOutcome[];
+        }) ||
+        (hybridizationRules[femaleParent.species]?.[maleParent.species] as {
+            outcomes: HybridizationOffspringOutcome[];
+        });
+
+    if (rule) {
+        return rule.outcomes.map((outcome) => ({ ...outcome, geneOutcomes: {} }));
+    }
+
+    return [];
+}
+
 export function calculateAllPossibleOutcomes(
     maleParent: EnrichedCreature,
     femaleParent: EnrichedCreature
@@ -118,12 +155,6 @@ export function calculateAllPossibleOutcomes(
 
     const outcomes: OutcomesByCategory = {};
     const speciesGenes = structuredGeneData[species];
-
-    // Handle Gender separately as it doesn't follow standard allele inheritance.
-    outcomes['Gender'] = [
-        { genotype: 'Female', phenotype: 'Female', probability: 0.5 },
-        { genotype: 'Male', phenotype: 'Male', probability: 0.5 },
-    ];
 
     for (const category in speciesGenes) {
         if (category === 'Gender') continue;
@@ -149,9 +180,6 @@ export function calculateGeneProbability(
 
     if (!maleParent?.geneData || !femaleParent?.geneData) {
         return 0;
-    }
-    if (category === 'Gender') {
-        return 0.5;
     }
 
     const allOutcomes = calculateOutcomesForCategory(maleParent, femaleParent, category);

@@ -22,12 +22,10 @@ import type {
     EnrichedBreedingPair,
     Prediction,
 } from '@/types';
-import {
-    getPossibleOffspringSpecies,
-    validatePairing,
-    speciesList,
-} from '@/lib/breeding-rules-client';
+import { validatePairing } from '@/lib/breeding-rules-client';
+import { speciesList } from '@/constants/creature-data';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type AddPairFormProps = {
     baseCreature?: EnrichedCreature | null;
@@ -141,18 +139,22 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         let females = allCreatures.filter((c) => c?.gender === 'female' && c.growthLevel === 3);
 
         if (isHybridMode) {
-            if (selectedFemale) {
-                males = males.filter(
-                    (male) =>
-                        validatePairing(male, selectedFemale).isValid ||
-                        male?.id === selectedMale?.id
-                );
-            }
             if (selectedMale) {
                 females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
                         female?.id === selectedFemale?.id
+                );
+                console.log(
+                    `Hybrid Mode: Found ${females.length} compatible females for ${selectedMale.species}:`,
+                    females.map((f) => `${f?.creatureName} (${f?.species})`)
+                );
+            }
+            if (selectedFemale) {
+                males = males.filter(
+                    (male) =>
+                        validatePairing(male, selectedFemale).isValid ||
+                        male?.id === selectedMale?.id
                 );
             }
         } else {
@@ -181,16 +183,15 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
     ]);
 
     const assignableGoals = useMemo(() => {
-        // ... (this hook remains the same)
-        if (!selectedMale?.species || !selectedFemale?.species) return [];
+        if (!selectedMale?.species || !selectedFemale?.species || !context?.allGoals) return [];
         const possibleOffspring = getPossibleOffspringSpecies(
             selectedMale.species,
             selectedFemale.species
         );
-        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species));
+        const offspringSpecies = possibleOffspring.map((o) => o.species);
+        return context.allGoals.filter((g) => g?.species && offspringSpecies.includes(g.species));
     }, [selectedMale, selectedFemale, allGoals]);
     useEffect(() => {
-        // ... (this hook remains the same)
         if (!selectedMale || !selectedFemale) {
             setPredictions([]);
             return;
@@ -223,7 +224,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
     }, [selectedMale, selectedFemale, assignableGoals]);
 
     useEffect(() => {
-        // ... (this hook remains the same)
         if (selectedMale && selectedFemale) {
             const check = async () => {
                 try {
@@ -315,13 +315,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
             setIsLoading(false);
             return;
         }
-
-        //const possibleOffspring = getPossibleOffspringSpecies(
-        //    selectedMale.species,
-        //    selectedFemale.species
-        //);
-        //const pairSpecies =
-        //    possibleOffspring.length === 1 ? possibleOffspring[0] : selectedMale.species;
 
         try {
             const response = await fetch('/api/breeding-pairs', {

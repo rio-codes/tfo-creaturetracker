@@ -22,8 +22,8 @@ import type {
     DbBreedingLogEntry,
     SerializedBreedingLogEntry,
 } from '@/types';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type EditLogDialogProps = {
     children: React.ReactNode;
@@ -50,12 +50,10 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
 
     useEffect(() => {
         if (open) {
-            // Reset form fields to initial log state when opening
             setNotes(log.notes || '');
             setError('');
             setIsLoading(false);
 
-            // Fetch context if it's not already loaded
             if (!context) {
                 const fetchContext = async () => {
                     setIsContextLoading(true);
@@ -75,7 +73,6 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                 fetchContext();
             }
         } else {
-            // Reset context when dialog closes to ensure fresh data next time
             setContext(null);
             setProgeny1(undefined);
             setProgeny2(undefined);
@@ -112,10 +109,9 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
             pair.femaleParent.species
         );
 
-        // Find all creature IDs that are already assigned as progeny in other logs
         const assignedCreatureKeys = new Set(
             context.allLogs
-                .filter((l) => l.id !== log.id) // Exclude the current log from the check
+                .filter((l) => l.id !== log.id)
                 .flatMap((l) => [
                     l.progeny1Code ? `${l.progeny1UserId}-${l.progeny1Code}` : null,
                     l.progeny2Code ? `${l.progeny2UserId}-${l.progeny2Code}` : null,
@@ -123,9 +119,8 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
                 .filter((key): key is string => !!key)
         );
 
-        // Return creatures that match possible species and are not already assigned elsewhere
         return context.allCreatures.filter((c) => {
-            if (!c?.species || !possibleSpecies.includes(c.species)) return false;
+            if (!c?.species || !possibleSpecies.includes(c.species as any)) return false;
             const creatureKey = `${c.userId}-${c.code}`;
             return !assignedCreatureKeys.has(creatureKey);
         });

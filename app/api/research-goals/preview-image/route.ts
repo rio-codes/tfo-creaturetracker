@@ -42,7 +42,7 @@ export async function POST(req: Request) {
             })
         );
 
-        const imageUrl = constructTfoImageUrl(species, genotypesForUrl);
+        const imageUrl = constructTfoImageUrl(species, genotypesForUrl, 'female');
 
         return NextResponse.json({ imageUrl });
     } catch (error: any) {

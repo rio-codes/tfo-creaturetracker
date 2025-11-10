@@ -281,7 +281,14 @@ export const creatures = pgTable(
         growthLevel: integer('growth_level'),
         isStunted: boolean('is_stunted').default(false),
         species: text('breed_name'),
-        genetics: text('genetics'),
+        genetics: jsonb('genetics').$type<{
+            [key: string]: {
+                phenotype: string;
+                genotype: string;
+                isMultiGenotype?: boolean;
+                isOptional?: boolean;
+            };
+        }>(),
         gender: creatureGenderEnum('gender'),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
@@ -328,6 +335,7 @@ export const researchGoals = pgTable(
         name: text('name').notNull(),
         species: text('species').notNull(),
         imageUrl: text('image_url'),
+        gender: creatureGenderEnum('gender').notNull(),
         genes: jsonb('genes').notNull().$type<{ [category: string]: GoalGene }>(),
         excludedGenes: jsonb('excluded_genes').$type<{
             [category: string]: { phenotype: string[] };

@@ -3,8 +3,8 @@ import { HomePageClient } from './home/page-client';
 import { db } from '@/src/db';
 import { and, isNotNull, sql } from 'drizzle-orm';
 import { breedingPairs } from '@/src/db/schema';
-import { enrichAndSerializeCreature } from '@/lib/client-serialization';
-import { calculateAllPossibleOutcomes } from '@/lib/genetics';
+import { enrichAndSerializeCreature } from '@/lib/serialization';
+import { calculateBreedingOutcomes } from '@/lib/genetics';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { unstable_cache as cache } from 'next/cache';
@@ -24,34 +24,46 @@ const getRandomCreature = cache(
         if (randomPair && randomPair.maleParent && randomPair.femaleParent && randomPair.user) {
             const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
             const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
-            const outcomesByCategory = calculateAllPossibleOutcomes(
+            const outcomesByCategory = calculateBreedingOutcomes(
                 maleParentEnriched,
                 femaleParentEnriched
             );
             const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } =
                 {};
-            for (const category in outcomesByCategory) {
-                const outcomes = outcomesByCategory[category];
-                let rand = Math.random();
-                let chosenOutcome = outcomes[outcomes.length - 1];
-                for (const outcome of outcomes) {
-                    if (rand < outcome.probability) {
-                        chosenOutcome = outcome;
-                        break;
+
+            // Assuming we only care about the first possible species outcome for the random creature.
+            const firstSpeciesOutcome = outcomesByCategory[0];
+
+            if (firstSpeciesOutcome) {
+                for (const category in firstSpeciesOutcome.geneOutcomes) {
+                    const geneOutcomesForCategory = firstSpeciesOutcome.geneOutcomes[category];
+                    let rand = Math.random();
+                    let chosenOutcome: any =
+                        geneOutcomesForCategory[geneOutcomesForCategory.length - 1];
+                    for (const outcome of geneOutcomesForCategory) {
+                        if (rand < outcome.probability) {
+                            chosenOutcome = outcome;
+                            break;
+                        }
+                        rand -= outcome.probability;
                     }
-                    rand -= outcome.probability;
+                    selectedGenes[category] = {
+                        genotype: chosenOutcome.genotype,
+                        phenotype: chosenOutcome.phenotype,
+                    };
                 }
-                selectedGenes[category] = {
-                    genotype: chosenOutcome.genotype,
-                    phenotype: chosenOutcome.phenotype,
-                };
             }
             const selectedGenotypes = Object.fromEntries(
                 Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
             );
             let imageUrl: string | null = null;
             try {
-                const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
+                const randomGender = Math.random() < 0.5 ? 'female' : 'male';
+                const tfoImageUrl = constructTfoImageUrl(
+                    randomPair.species,
+                    selectedGenotypes,
+                    randomGender
+                );
                 const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
                 imageUrl = await fetchAndUploadWithRetry(
                     bustedTfoImageUrl,

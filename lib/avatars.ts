@@ -31,7 +31,7 @@ export const capsuleAvatars = [
     'klara_alsalto_capsule.png',
     'klipeta_kapto_capsule.png',
     'koleratako_capsule.png',
-    'kora_voko_capsule.png',
+    'Koro_voko_capsule.png',
     'kosmira_girafo_capsule.png',
     'kvieta_kiraso_capsule.png',
     'lanuga_vizago_capsule.png',

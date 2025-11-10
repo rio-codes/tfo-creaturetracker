@@ -13,9 +13,11 @@ import { subDays } from 'date-fns';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
-import { calculateAllPossibleOutcomes } from '@/lib/genetics';
+import {} from '@/lib/genetics';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
 import { fetchAndUploadWithRetry } from '@/lib/data';
+import { calculateBreedingOutcomes } from '@/lib/genetics';
+import { unstable_cache as cache } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -86,6 +88,93 @@ async function getMetrics(): Promise<Metrics> {
         recentUsers,
     };
 }
+
+const getRandomCreature = cache(
+    async () => {
+        let randomCreature = null;
+        const randomPair = await db.query.breedingPairs.findFirst({
+            orderBy: sql`RANDOM()`,
+            where: and(
+                isNotNull(breedingPairs.maleParentCode),
+                isNotNull(breedingPairs.femaleParentCode)
+            ),
+            with: { maleParent: true, femaleParent: true, user: true },
+        });
+
+        if (randomPair && randomPair.maleParent && randomPair.femaleParent && randomPair.user) {
+            const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
+            const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
+            const outcomesByCategory = calculateBreedingOutcomes(
+                maleParentEnriched,
+                femaleParentEnriched
+            );
+            const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } =
+                {};
+
+            // Assuming we only care about the first possible species outcome for the random creature.
+            const firstSpeciesOutcome = outcomesByCategory[0];
+
+            if (firstSpeciesOutcome) {
+                for (const category in firstSpeciesOutcome.geneOutcomes) {
+                    const geneOutcomesForCategory = firstSpeciesOutcome.geneOutcomes[category];
+                    let rand = Math.random();
+                    let chosenOutcome: any =
+                        geneOutcomesForCategory[geneOutcomesForCategory.length - 1];
+                    for (const outcome of geneOutcomesForCategory) {
+                        if (rand < outcome.probability) {
+                            chosenOutcome = outcome;
+                            break;
+                        }
+                        rand -= outcome.probability;
+                    }
+                    selectedGenes[category] = {
+                        genotype: chosenOutcome.genotype,
+                        phenotype: chosenOutcome.phenotype,
+                    };
+                }
+            }
+            const selectedGenotypes = Object.fromEntries(
+                Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
+            );
+            let imageUrl: string | null = null;
+            try {
+                const randomGender = Math.random() < 0.5 ? 'female' : 'male';
+                const tfoImageUrl = constructTfoImageUrl(
+                    randomPair.species,
+                    selectedGenotypes,
+                    randomGender
+                );
+                const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
+                imageUrl = await fetchAndUploadWithRetry(
+                    bustedTfoImageUrl,
+                    `admin-preview-${randomPair.id}-${Date.now()}`,
+                    3
+                );
+            } catch (error) {
+                console.error('Failed to generate preview image for admin metrics:', error);
+            }
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomCode = '';
+            for (let i = 0; i < 5; i++) {
+                randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            randomCreature = {
+                image: imageUrl,
+                species: randomPair.species,
+                code: randomCode,
+                genes: selectedGenes,
+                pairName: randomPair.pairName,
+                ownerUsername: randomPair.user.username,
+            };
+            return randomCreature;
+        } else {
+            return null;
+        }
+    },
+    ['random-creature-spotlight'],
+    { revalidate: 28800 } // 8 hours in seconds
+);
+
 async function getFunMetrics(): Promise<FunMetrics> {
     const topUserQuery = await db
         .select({
@@ -160,70 +249,8 @@ async function getFunMetrics(): Promise<FunMetrics> {
             }
         }
     }
-    let randomCreature: RandomCreature = null;
-    const randomPair = await db.query.breedingPairs.findFirst({
-        orderBy: sql`RANDOM()`,
-        where: and(
-            isNotNull(breedingPairs.maleParentUserId),
-            isNotNull(breedingPairs.femaleParentUserId)
-        ),
-        with: {
-            maleParent: true,
-            femaleParent: true,
-        },
-    });
 
-    if (randomPair && randomPair.maleParent && randomPair.femaleParent) {
-        const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
-        const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
-        const outcomesByCategory = calculateAllPossibleOutcomes(
-            maleParentEnriched,
-            femaleParentEnriched
-        );
-        const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } = {};
-        for (const category in outcomesByCategory) {
-            const outcomes = outcomesByCategory[category];
-            let rand = Math.random();
-            let chosenOutcome = outcomes[outcomes.length - 1];
-            for (const outcome of outcomes) {
-                if (rand < outcome.probability) {
-                    chosenOutcome = outcome;
-                    break;
-                }
-                rand -= outcome.probability;
-            }
-            selectedGenes[category] = {
-                genotype: chosenOutcome.genotype,
-                phenotype: chosenOutcome.phenotype,
-            };
-        }
-        const selectedGenotypes = Object.fromEntries(
-            Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
-        );
-        let imageUrl: string | null = null;
-        try {
-            const tfoImageUrl = constructTfoImageUrl(randomPair.species, selectedGenotypes);
-            const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-            imageUrl = await fetchAndUploadWithRetry(
-                bustedTfoImageUrl,
-                `pair-preview-${randomPair.id}`,
-                3
-            );
-        } catch (error) {
-            console.error('Failed to generate preview image for admin metrics:', error);
-        }
-        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let randomCode = '';
-        for (let i = 0; i < 5; i++) {
-            randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        randomCreature = {
-            image: imageUrl,
-            species: randomPair.species,
-            code: randomCode,
-            genes: selectedGenes,
-        };
-    }
+    const randomCreature = await getRandomCreature();
     return { topUser, popularSpecies, prolificPair, randomCreature };
 }
 export default async function AdminMetricsPage() {

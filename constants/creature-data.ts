@@ -48,7 +48,7 @@ export const speciesList = [
     'Klara Alsalto',
     'Klipeta Kapto',
     'Koleratako',
-    'Kora Voko',
+    'Koro Voko',
     'Kosmira Girafo',
     'Kvieta Kiraso',
     'Lanuga Vizago',
@@ -1664,7 +1664,7 @@ export const speciesGenes = {
             'aabb - Purple',
         ],
     },
-    'Kora Voko': {
+    'Koro Voko': {
         isSeasonal: false, 
         Gender: ['Male', 'Female'],
         Body: [
@@ -6366,7 +6366,7 @@ export const structuredGeneData: AllSpeciesGeneData = {
             { genotype: 'aabb', phenotype: 'Purple' },
         ],
     },
-    'Kora Voko': {
+    'Koro Voko': {
         isSeasonal: false,
         Gender: [
             { genotype: 'Male', phenotype: 'Male' },
@@ -9614,7 +9614,7 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Klara Alsalto': 'juvAD',
     'Klipeta Kapto': 'YxpzG',
     'Koleratako': 'DFUpL',
-    'Kora Voko': 'SPtOw',
+    'Koro Voko': 'SPtOw',
     'Kosmira Girafo': 'C774V',
     'Kvieta Kiraso': 'oqQ3G',
     'Lanuga Vizago': 'HANHy',

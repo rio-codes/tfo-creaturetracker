@@ -17,7 +17,12 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/shadcn-alert';
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 type GeneInfo = {
     category: string;
@@ -224,10 +229,15 @@ export function CreateChecklistForm({ onSuccess }: CreateChecklistFormProps) {
             )}
 
             {errors.form && (
-                <Alert>
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{errors.form[0]}</AlertDescription>
-                </Alert>
+                <AlertDialog
+                    open={!!errors.form}
+                    onOpenChange={(open) => !open && setErrors({ ...errors, form: undefined })}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogTitle>Error</AlertDialogTitle>
+                        <AlertDialogDescription>{errors.form?.[0]}</AlertDialogDescription>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
 
             <div className="flex justify-end pt-4">

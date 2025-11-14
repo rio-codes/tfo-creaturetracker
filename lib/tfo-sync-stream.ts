@@ -103,14 +103,19 @@ export async function* syncTfoTabsAndStream(
                     }
                 }
 
-                const geneticsObject: NonNullable<CreatureInsert['genetics']> = {};
+                const geneticsObject: { [key: string]: { genotype: string; phenotype: string } } =
+                    {};
                 const speciesGeneData = structuredGeneData[tfoCreature.breedName?.trim() || ''];
 
-                if (speciesGeneData) {
+                if (
+                    speciesGeneData &&
+                    tfoCreature.growthLevel >= 3 &&
+                    !(speciesGeneData as any).hasNoGenetics
+                ) {
                     tfoCreature.genetics.split(',').forEach((part) => {
                         const [category, genotype] = part.split(':');
                         if (category && genotype) {
-                            const categoryData = speciesGeneData[category] as
+                            const categoryData = (speciesGeneData as any)[category] as
                                 | { genotype: string; phenotype: string }[]
                                 | undefined;
                             if (Array.isArray(categoryData)) {
@@ -133,7 +138,7 @@ export async function* syncTfoTabsAndStream(
                     growthLevel: tfoCreature.growthLevel,
                     isStunted: tfoCreature.isStunted,
                     species: tfoCreature.breedName?.trim(), // This is correct
-                    genetics: geneticsObject,
+                    genetics: JSON.stringify(geneticsObject),
                     gender: tfoCreature.gender as
                         | 'male'
                         | 'female'

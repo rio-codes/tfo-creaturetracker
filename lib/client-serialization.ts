@@ -13,23 +13,17 @@ export const enrichAndSerializeCreature = (
         generation: creature.generation,
         origin: creature.origin,
         progeny: [],
-        geneData: creature.genetics
-            ? Object.entries(creature.genetics)
-                  .map(([category, geneInfo]) => {
-                      // `geneInfo` is the object: { genotype: string, phenotype: string }
-                      if (!category || !geneInfo || !geneInfo.genotype) return null;
-
+        geneData:
+            typeof creature.genetics === 'string' && creature.genetics.startsWith('{')
+                ? Object.entries(JSON.parse(creature.genetics)).map(([category, geneInfo]) => {
+                      const gene = geneInfo as { genotype: string; phenotype: string };
                       return {
                           category,
-                          genotype: geneInfo.genotype, // Correctly access the genotype string
-                          phenotype: geneInfo.phenotype || 'Unknown', // Use the phenotype from the object
+                          genotype: gene.genotype,
+                          phenotype: gene.phenotype,
                       };
                   })
-                  .filter(
-                      (gene): gene is { category: string; genotype: string; phenotype: string } =>
-                          gene !== null
-                  )
-            : [],
+                : [],
     };
 };
 

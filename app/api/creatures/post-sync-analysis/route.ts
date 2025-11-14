@@ -44,16 +44,17 @@ export async function POST(req: Request) {
             where: and(eq(researchGoals.userId, userId), eq(researchGoals.isAchieved, false)),
         });
 
-        const enrichedCreatures = newlySyncedCreatures.map(enrichAndSerializeCreature);
         const enrichedGoals = userGoals.map((g) => enrichAndSerializeGoal(g, g.goalMode));
 
         const matchingGoals = [];
         for (const goal of enrichedGoals) {
             if (!goal) continue;
-            for (const creature of enrichedCreatures) {
-                if (creature && creatureMatchesGoal(creature, goal)) {
-                    matchingGoals.push({ goal, matchingCreature: creature });
-                    break;
+            for (const creature of newlySyncedCreatures) {
+                const enrichedCreature = enrichAndSerializeCreature(creature);
+                if (enrichedCreature && creatureMatchesGoal(enrichedCreature, goal)) {
+                    console.log('Match found!');
+                    matchingGoals.push({ goal, matchingCreature: enrichedCreature });
+                    break; // Move to the next goal once a match is found
                 }
             }
         }

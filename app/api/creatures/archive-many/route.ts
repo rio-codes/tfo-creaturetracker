@@ -55,7 +55,7 @@ export async function POST(req: Request) {
                         .where(
                             and(
                                 eq(researchGoals.userId, userId),
-                                sql`${researchGoals.assignedPairIds} ?| ${pairIdsToArchive}`
+                                sql`${researchGoals.assignedPairIds} ?| array[${sql.join(pairIdsToArchive, sql`, `)}]`
                             )
                         );
 
@@ -69,6 +69,13 @@ export async function POST(req: Request) {
                             .where(eq(researchGoals.id, goal.id));
                     }
                 }
+            }
+            // Actually archive the creatures
+            if (creatureIds.length > 0) {
+                await tx
+                    .update(creatures)
+                    .set({ isArchived: true })
+                    .where(and(eq(creatures.userId, userId), inArray(creatures.id, creatureIds)));
             }
         });
 

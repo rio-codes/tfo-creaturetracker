@@ -26,6 +26,19 @@ export const achievementTypeEnum = pgEnum('achievement_type', [
     'hidden',
 ]);
 
+export const blogPosts = pgTable('blog_posts', {
+    id: text('id')
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    authorId: text('author_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const conversations = pgTable('conversations', {
     id: varchar('id', { length: 255 })
         .$defaultFn(() => createId())
@@ -281,14 +294,7 @@ export const creatures = pgTable(
         growthLevel: integer('growth_level'),
         isStunted: boolean('is_stunted').default(false),
         species: text('breed_name'),
-        genetics: text('genetics').$type<{
-            [key: string]: {
-                phenotype: string;
-                genotype: string;
-                isMultiGenotype?: boolean;
-                isOptional?: boolean;
-            };
-        }>(),
+        genetics: text('genetics'),
         gender: creatureGenderEnum('gender'),
         isPinned: boolean('is_pinned').default(false).notNull(),
         pinOrder: integer('pin_order'),
@@ -337,6 +343,7 @@ export const researchGoals = pgTable(
         imageUrl: text('image_url'),
         gender: creatureGenderEnum('gender').default('unknown').notNull(),
         genes: jsonb('genes').notNull().$type<{ [category: string]: GoalGene }>(),
+
         excludedGenes: jsonb('excluded_genes').$type<{
             [category: string]: { phenotype: string[] };
         }>(),
@@ -641,26 +648,6 @@ export const userAchievementsRelations = relations(userAchievements, ({ one }) =
     }),
     user: one(users, {
         fields: [userAchievements.userId],
-        references: [users.id],
-    }),
-}));
-
-export const blogPosts = pgTable('blog_posts', {
-    id: text('id')
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    authorId: text('author_id')
-        .notNull()
-        .references(() => users.id, { onDelete: 'cascade' }),
-    title: text('title').notNull(),
-    content: text('content').notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
-    author: one(users, {
-        fields: [blogPosts.authorId],
         references: [users.id],
     }),
 }));

@@ -283,7 +283,14 @@ export async function fetchFilteredCreatures(
             .orderBy(creatures.pinOrder, desc(creatures.createdAt));
 
         const pinnedCreatures = pinnedCreaturesRaw.map((c: any) => {
-            const enriched = enrichAndSerializeCreature(c);
+            const creatureData = {
+                ...c,
+                genetics:
+                    typeof c.genetics === 'string' && c.genetics.startsWith('{')
+                        ? JSON.parse(c.genetics)
+                        : c.genetics,
+            };
+            const enriched = enrichAndSerializeCreature(creatureData);
             if (!enriched) return null;
             const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
             return {
@@ -304,7 +311,14 @@ export async function fetchFilteredCreatures(
             .offset(offset);
 
         const unpinnedCreatures = unpinnedCreaturesRaw.map((c: any) => {
-            const enriched = enrichAndSerializeCreature(c);
+            const creatureData = {
+                ...c,
+                genetics:
+                    typeof c.genetics === 'string' && c.genetics.startsWith('{')
+                        ? JSON.parse(c.genetics)
+                        : c.genetics,
+            };
+            const enriched = enrichAndSerializeCreature(creatureData);
             if (!enriched) return null;
             const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
             return {

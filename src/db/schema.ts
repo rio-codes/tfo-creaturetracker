@@ -341,9 +341,8 @@ export const researchGoals = pgTable(
         name: text('name').notNull(),
         species: text('species').notNull(),
         imageUrl: text('image_url'),
-        gender: creatureGenderEnum('gender').default('unknown').notNull(),
+        gender: creatureGenderEnum('gender').notNull(),
         genes: jsonb('genes').notNull().$type<{ [category: string]: GoalGene }>(),
-
         excludedGenes: jsonb('excluded_genes').$type<{
             [category: string]: { phenotype: string[] };
         }>(),
@@ -473,12 +472,10 @@ export const breedingLogEntries = pgTable(
         index('log_progeny2Id_idx').on(table.progeny2Code),
         index('log_userId_idx').on(table.userId),
         foreignKey({
-            name: 'breeding_log_entries_progeny_1_fk',
             columns: [table.progeny1UserId, table.progeny1Code],
             foreignColumns: [creatures.userId, creatures.code],
         }).onDelete('set null'),
         foreignKey({
-            name: 'breeding_log_entries_progeny_2_fk',
             columns: [table.progeny2UserId, table.progeny2Code],
             foreignColumns: [creatures.userId, creatures.code],
         }).onDelete('set null'),
@@ -506,7 +503,6 @@ export const achievedGoals = pgTable(
     },
     (table) => [
         foreignKey({
-            name: 'achieved_goal_matching_progeny_fk',
             columns: [table.matchingProgenyUserId, table.matchingProgenyCode],
             foreignColumns: [creatures.userId, creatures.code],
         }).onDelete('cascade'),

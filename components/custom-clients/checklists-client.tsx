@@ -1,15 +1,62 @@
 'use client';
 
 import { ChecklistCard } from '@/components/custom-cards/checklist-card';
+import { generatePhenotypeCombinations } from '@/lib/checklist-utils';
 import { CreateChecklistDialog } from '@/components/custom-dialogs/create-checklist-dialog';
 import { Target } from 'lucide-react';
-import type { EnrichedChecklist } from '@/types';
+import type { EnrichedChecklist, EnrichedCreature } from '@/types';
 
 type ChecklistsClientProps = {
     checklists: EnrichedChecklist[];
+    allCreatures: EnrichedCreature[];
 };
 
-export function ChecklistsClient({ checklists }: ChecklistsClientProps) {
+export function ChecklistsClient({ checklists, allCreatures }: ChecklistsClientProps) {
+    const enrichedChecklists = checklists.map((checklist) => {
+        const allCombinations = generatePhenotypeCombinations(
+            checklist.species,
+            checklist.targetGenes
+        );
+        const assignedPhenotypeStrings = new Set(Object.keys(checklist.assignments));
+
+        const unassignedCombinations = allCombinations.filter(
+            (combo) => !assignedPhenotypeStrings.has(combo.phenotypeString)
+        );
+
+        if (unassignedCombinations.length === 0) {
+            return { ...checklist, hasFulfillableCreatures: false };
+        }
+
+        const assignedCreatureIds = new Set(
+            Object.values(checklist.assignments)
+                .filter(Boolean)
+                .map((a) => `${a!.userId}-${a!.code}`)
+        );
+
+        const availableCreatures = allCreatures.filter(
+            (c) => c && !assignedCreatureIds.has(`${c.userId}-${c.code}`)
+        );
+
+        const hasFulfillable = unassignedCombinations.some((combo) => {
+            return availableCreatures.some((creature) => {
+                if (!creature || creature.species !== checklist.species) return false;
+
+                const creaturePhenotypes = new Map(
+                    creature.geneData.map((g) => [g.category, g.phenotype])
+                );
+
+                return combo.phenotypes.every(
+                    (p) => creaturePhenotypes.get(p.category) === p.phenotype
+                );
+            });
+        });
+
+        return {
+            ...checklist,
+            hasFulfillableCreatures: hasFulfillable,
+        };
+    });
+
     return (
         <div className="min-h-screen bg-barely-lilac dark:bg-midnight-purple hallowsnight:bg-abyss text-midnight-purple dark:text-barely-lilac hallowsnight:text-cimo-crimson p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
@@ -24,10 +71,14 @@ export function ChecklistsClient({ checklists }: ChecklistsClientProps) {
                 </header>
 
                 <main>
-                    {checklists.length > 0 ? (
+                    {enrichedChecklists.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {checklists.map((checklist) => (
-                                <ChecklistCard key={checklist.id} checklist={checklist} />
+                            {enrichedChecklists.map((checklist) => (
+                                <ChecklistCard
+                                    key={checklist.id}
+                                    checklist={checklist}
+                                    allCreatures={allCreatures}
+                                />
                             ))}
                         </div>
                     ) : (

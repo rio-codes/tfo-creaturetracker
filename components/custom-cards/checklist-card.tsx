@@ -12,7 +12,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Target, CheckCircle, Settings } from 'lucide-react';
 import { SpeciesAvatar } from '@/components/misc-custom-components/species-avatar';
-import { EnrichedChecklist } from '@/types';
+import { EnrichedChecklist, EnrichedCreature } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -20,9 +20,10 @@ import { EditChecklistDialog } from '@/components/custom-dialogs/edit-checklist-
 
 type ChecklistCardProps = {
     checklist: EnrichedChecklist;
+    allCreatures: EnrichedCreature[];
 };
 
-export function ChecklistCard({ checklist }: ChecklistCardProps) {
+export function ChecklistCard({ checklist, allCreatures }: ChecklistCardProps) {
     const { id, name, species, progress, hasFulfillableCreatures } = checklist;
     const percentage = progress.total > 0 ? (progress.filled / progress.total) * 100 : 0;
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -49,7 +50,7 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
                             <CardDescription>{species}</CardDescription>
                         </div>
                         {hasFulfillableCreatures && (
-                            <Badge className="absolute top-12 right-2 bg-green-500 text-white">
+                            <Badge className="absolute top-12 right-2 bg-green-500 text-white animate-pulse">
                                 <CheckCircle className="w-4 h-4 mr-1" />
                                 New Match!
                             </Badge>
@@ -74,6 +75,7 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
             </Card>
             <EditChecklistDialog
                 checklist={checklist}
+                allCreatures={allCreatures}
                 isOpen={isEditDialogOpen}
                 onOpenChange={setIsEditDialogOpen}
             />

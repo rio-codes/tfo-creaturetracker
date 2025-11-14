@@ -31,6 +31,7 @@ import { structuredGeneData } from '@/constants/creature-data';
 import { auth } from '@/auth';
 import { checkGoalAchieved } from '@/lib/breeding-rules';
 import { unstable_noStore as noStore } from 'next/cache';
+import { generatePhenotypeCombinations } from '@/lib/checklist-utils';
 
 export async function getAllBreedingPairsForUser(): Promise<EnrichedBreedingPair[]> {
     const session = await auth();
@@ -912,24 +913,50 @@ export async function getChecklists() {
             orderBy: (checklists, { desc }) => [desc(checklists.createdAt)],
         });
 
+        const allCreatures = await getAllCreaturesForUser();
+
         return userChecklists.map((checklist) => {
             const totalSlots = calculateTotalSlots(checklist.targetGenes as any);
             const filledSlots = Object.values(checklist.assignments as any).filter(
                 (val: any) => val !== null && val !== undefined
             ).length;
 
+            const combinations = generatePhenotypeCombinations(
+                checklist.species,
+                checklist.targetGenes
+            );
+            let hasFulfillableCreatures = false;
+
+            for (const combo of combinations) {
+                const isAssigned =
+                    checklist.assignments && checklist.assignments[combo.phenotypeString];
+                if (!isAssigned) {
+                    const hasMatchingCreature = allCreatures.some((creature) => {
+                        if (creature?.species !== checklist.species) {
+                            return false;
+                        }
+                        return combo.phenotypes.every((p) => {
+                            if (!creature.genetics) return false;
+                            const creatureGene = creature.genetics[p.category];
+                            return creatureGene?.phenotype === p.phenotype;
+                        });
+                    });
+
+                    if (hasMatchingCreature) {
+                        hasFulfillableCreatures = true;
+                        break;
+                    }
+                }
+            }
+
             return {
                 ...checklist,
                 id: checklist.id,
                 progress: {
                     filled: filledSlots,
-                    checklist: checklist.assignments
-                        ? Object.values(checklist.assignments).filter(
-                              (val) => val !== null && val !== undefined
-                          ).length
-                        : 0,
                     total: totalSlots,
-                }, // Add this new property
+                },
+                hasFulfillableCreatures,
             };
         });
     } catch (error) {

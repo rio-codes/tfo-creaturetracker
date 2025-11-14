@@ -145,4 +145,5 @@ export type EnrichedChecklist = {
         filled: number;
         total: number;
     };
+    hasFulfillableCreatures?: boolean;
 };

@@ -18,6 +18,7 @@ export type AllSpeciesGeneData = {
 export const speciesList = [
     'Abomena Pahidermo',
     'Alta Koltuko',
+	'Amikamaro',
     'Arba Brakumo',
     'Arbara Krono',
     'Arda Vosto',
@@ -82,6 +83,7 @@ export const speciesList = [
     'Senfina Krizo',
     'Senvida Naganto',
     'Silenta Spuristo',
+	'Skeleta Koloro',
     'Songa Kreinto',
     'Stepa Safido',
     'Stranga Sciuro',
@@ -95,10 +97,9 @@ export const speciesList = [
     'Toksa Muko',
     'Tonbleko',
     'Transira Alsalto',
+	'Trinketa Spado',
     'Vetura Oazo',
-    'Vira Beko',
-	'Skeleta Koloro',
-    'Trinketa Spado'
+    'Vira Beko'
 ];
 
 export const speciesGenes = {
@@ -120,6 +121,11 @@ export const speciesGenes = {
         Markings: ['AA - Blue', 'Aa - None', 'aa - Red'],
         Spots: ['AA - Stripes', 'Aa - Snowcapped', 'aa - Dusted'],
     },
+	'Amikamaro': {
+		isSeasonal: false,
+		Gender: ['Male', 'Female'],
+		hasGenetics: false
+	},
     'Arba Brakumo': {
         isSeasonal: true, 
         Gender: ['Male', 'Female'],
@@ -3649,6 +3655,13 @@ export const speciesGenes = {
         Ice: ['AA', 'Aa', 'aa'],
         Fire: ['AA - Large', 'Aa - Small', 'aa - None'],
     },
+	'Skeleta Koloro': {
+		isSeasonal: true,
+		Gender: ['Male', 'Female'],
+		Body: ['AA - Yellow', 'Aa - Red', 'aa - Purple'],
+		Gradient: ['AA - Green', 'Aa - Teal', 'aa - Violet'],
+		Pattern: ['AA - Spirit', 'Aa - Skeleton', 'aa - Phantom']
+	},
     'Songa Kreinto': {
         isSeasonal: true, 
         Gender: ['Male', 'Female'],
@@ -4329,7 +4342,14 @@ export const speciesGenes = {
         Ice: ['AA - Large', 'Aa - Small', 'aa - None'],
         Fire: ['AA - Large', 'Aa - Small', 'aa - None'],
     },
-    'Vetura Oazo': {
+	'Trinketa Spado': {
+		isSeasonal: true,
+		Gender: ['Male', 'Female'],
+        Body: ['AA - Ginger', 'Aa - Pepper', 'aa - Cinnamon'],
+		Tailcoat: ['AA - Fleur de Lis,', 'Aa - Classic', 'aa - Ribbon'],
+		Accents: ['AA - Plague Serrated', 'Aa - Plum Harpoon', 'aa - Apple Syringe']
+	},
+	'Vetura Oazo': {
         isSeasonal: false, 
         Gender: ['Male', 'Female'],
         Body: [
@@ -9564,21 +9584,56 @@ export const structuredGeneData: AllSpeciesGeneData = {
         ],
     },
 	'Skeleta Koloro': {
-        isSeasonal: true, 
-        hasNoGenetics: true,
-        Gender: [
-            { genotype: 'Male', phenotype: 'Male' },
-            { genotype: 'Female', phenotype: 'Female' },
-        ],
-    },
-    'Trinketa Spado': {
-        isSeasonal: true,
-        hasNoGenetics: true,
+		isSeasonal: true,
 		Gender: [
-            { genotype: 'Male', phenotype: 'Male' },
-            { genotype: 'Female', phenotype: 'Female' },
-        ],
-    }
+			{ genotype: 'Male', phenotype: 'Male' },
+			{ genotype: 'Female', phenotype: 'Female' }
+		],
+		Body: [
+			{ genotype: 'AA', phenotype: 'Yellow' },
+			{ genotype: 'Aa', phenotype: 'Red' },
+			{ genotype: 'aa', phenotype: 'Purple' }
+		],
+		Gradient: [
+			{ genotype: 'AA', phenotype: 'Green' },
+			{ genotype: 'Aa', phenotype: 'Teal' },
+			{ genotype: 'aa', phenotype: 'Violet' }
+		],
+		Pattern: [
+			{ genotype: 'AA', phenotype: 'Spirit' },
+			{ genotype: 'Aa', phenotype: 'Skeleton' },
+			{ genotype: 'aa', phenotype: 'Phantom' }
+		]
+	},
+	'Trinketa Spado': {
+		isSeasonal: true,
+		Gender: [
+			{ genotype: 'Male', phenotype: 'Male' },
+			{ genotype: 'Female', phenotype: 'Female' }
+		],
+		Body: [
+			{ genotype: 'AA', phenotype: 'Ginger' },
+			{ genotype: 'Aa', phenotype: 'Pepper' },
+			{ genotype: 'aa', phenotype: 'Cinnamon' }
+		],
+		Tailcoat: [
+			{ genotype: 'AA', phenotype: 'Fleur de Lis,' },
+			{ genotype: 'Aa', phenotype: 'Classic' },
+			{ genotype: 'aa', phenotype: 'Ribbon' }
+		],
+		Accents: [
+			{ genotype: 'AA', phenotype: 'Plague Serrated' },
+			{ genotype: 'Aa', phenotype: 'Plum Harpoon' },
+			{ genotype: 'aa', phenotype: 'Apple Syringe' }
+		]
+	},
+	'Amikamaro': {
+		isSeasonal: false,
+		Gender: [
+			{ genotype: 'Male', phenotype: 'Male' },
+			{ genotype: 'Female', phenotype: 'Female' }
+		]
+	}
 };
 
 export const TFO_SPECIES_CODES: { [key: string]: string } = {
@@ -9648,6 +9703,7 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Senfina Krizo': 'zHlgm',
     'Senvida Naganto': 'lEDZw',
     'Silenta Spuristo': '4upmp',
+	'Skeleta Koloro': 'gKEKx',
     'Songa Kreinto': '3HhEm',
     'Stepa Safido': 'DU0VX',
     'Stranga Sciuro': 'k3sRE',
@@ -9661,6 +9717,7 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Toksa Muko': 'X9dht',
     'Tonbleko': 'Dbk6u',
     'Transira Alsalto': 'YsPYT',
+	'Trinketa Spado': 'axb90',
     'Vetura Oazo': 'km4eo',
     'Vira Beko': 'tagXL',
 };

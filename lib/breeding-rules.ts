@@ -55,25 +55,33 @@ export async function checkForInbreeding(
     }
 
     if (maleKey.userId === femaleKey.userId && maleKey.code === femaleKey.code) {
-        return false;
+        return true; // A creature cannot be bred with itself.
     }
 
-    const [maleAncestorKeys, femaleAncestorKeys] = await Promise.all([
-        getCreatureAncestors(maleKey, maleKey.userId),
-        getCreatureAncestors(femaleKey, femaleKey.userId),
+    const [maleAncestors, femaleAncestors] = await Promise.all([
+        getCreatureAncestors(maleKey),
+        getCreatureAncestors(femaleKey),
     ]);
 
-    const maleAncestors = new Set(maleAncestorKeys.map((k) => `${k.userId}-${k.code}`));
-    const femaleAncestors = new Set(femaleAncestorKeys.map((k) => `${k.userId}-${k.code}`));
+    const maleAncestorSet = new Set(maleAncestors.map((k) => `${k.userId}-${k.code}`));
+    const femaleAncestorSet = new Set(femaleAncestors.map((k) => `${k.userId}-${k.code}`));
 
-    if (maleAncestors.has(`${femaleKey.userId}-${femaleKey.code}`)) return true;
+    // Check if the male is a direct ancestor of the female
+    if (femaleAncestorSet.has(`${maleKey.userId}-${maleKey.code}`)) {
+        return true;
+    }
 
-    if (femaleAncestors.has(`${maleKey.userId}-${maleKey.code}`)) return true;
+    // Check if the female is a direct ancestor of the male
+    if (maleAncestorSet.has(`${femaleKey.userId}-${femaleKey.code}`)) {
+        return true;
+    }
 
-    for (const ancestor of maleAncestors) {
-        if (femaleAncestors.has(ancestor)) {
+    // Check for shared ancestors (common grandparents, etc.)
+    for (const ancestor of maleAncestorSet) {
+        if (femaleAncestorSet.has(ancestor)) {
             return true;
         }
     }
+
     return false;
 }

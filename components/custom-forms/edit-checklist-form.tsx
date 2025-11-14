@@ -38,7 +38,7 @@ type EditChecklistFormProps = {
     onSuccess: () => void;
 };
 
-export function EditChecklistForm({ checklist, allCreatures, onSuccess }: EditChecklistFormProps) {
+export function EditChecklistForm({ checklist, onSuccess }: EditChecklistFormProps) {
     const [isPending, startTransition] = useTransition();
 
     const form = useForm<z.infer<typeof formSchema>>({

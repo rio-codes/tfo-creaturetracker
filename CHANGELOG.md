@@ -1,5 +1,13 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+### 1.25.1 (2025-11-14)
+
+- docs(homepage): 📝 add changelog to footer ([9fd0c0d7](https://github.com/rio-codes/tfo-creaturetracker/commit/9fd0c0d7e07ba6c1e952bd4c3390c6bd16339b7c))
+
+## 1.25.0 (2025-11-14)
+
+- feat(admin): ✨ add blog post editor ([5f42c205](https://github.com/rio-codes/tfo-creaturetracker/commit/5f42c205398bb8660bf9c111fa11bf52fd1f7a96))
+
 ## 1.24.0 (2025-11-14)
 
 - feat(wishlist): ✨ improve checklists with edit/delete/matching notifs (#410) ([5a69638a](https://github.com/rio-codes/tfo-creaturetracker/commit/5a69638a))

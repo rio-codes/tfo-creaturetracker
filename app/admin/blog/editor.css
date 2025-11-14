@@ -1,0 +1,41 @@
+.suggestion-popup {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    z-index: 1000;
+}
+
+.suggestion-list button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.suggestion-list button:hover {
+    background: #eee;
+}
+
+.mention {
+    color: #a0aec0;
+    background-color: #e2e8f0;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.2rem;
+}
+.ProseMirror {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    min-height: 200px;
+}
+
+.ProseMirror:focus {
+    outline: none;
+    border-color: #9ecaed;
+    box-shadow: 0 0 10px #9ecaed;
+}

@@ -37,7 +37,8 @@ export async function GET(req: Request) {
             limit,
             offset,
             columns: {
-                password: false, // Exclude password from the response
+                password: false,
+                supporterTier: true,
             },
         });
 

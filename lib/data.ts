@@ -952,7 +952,7 @@ export async function getChecklists() {
                         return combo.phenotypes.every((p) => {
                             if (!creature.genetics) return false;
                             const creatureGene: any = creature.genetics[p.category as any];
-                            return creatureGene.phenotype === p.phenotype;
+                            return creatureGene && creatureGene.phenotype === p.phenotype;
                         });
                     });
 

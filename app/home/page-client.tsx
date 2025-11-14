@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint, Heart, Target, Dna, Rabbit, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';

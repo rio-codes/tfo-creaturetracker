@@ -163,6 +163,10 @@ export function Footer() {
                             Help
                         </Link>
                         <span className="hidden md:inline">|</span>
+                        <Link href="/changelog" className="hover:underline">
+                            Changelog
+                        </Link>
+                        <span className="hidden md:inline">|</span>
                         <a
                             href="https://github.com/rio-codes/tfo-creaturetracker"
                             className="hover:underline"

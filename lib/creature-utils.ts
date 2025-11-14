@@ -71,10 +71,7 @@ export function creatureMatchesGoal(
     return true;
 }
 
-export async function getCreatureAncestors(
-    creatureKey: CreatureKey,
-    userId: string
-): Promise<CreatureKey[]> {
+export async function getCreatureAncestors(creatureKey: CreatureKey): Promise<CreatureKey[]> {
     const ancestors = new Set<string>(); // Stores composite keys as "userId-code"
     const queue: CreatureKey[] = [creatureKey];
     const processed = new Set<string>();
@@ -90,17 +87,14 @@ export async function getCreatureAncestors(
         processed.add(compositeKey);
 
         const logEntry = await db.query.breedingLogEntries.findFirst({
-            where: and(
-                eq(breedingLogEntries.userId, userId),
-                or(
-                    and(
-                        eq(breedingLogEntries.progeny1UserId, currentKey.userId),
-                        eq(breedingLogEntries.progeny1Code, currentKey.code)
-                    ),
-                    and(
-                        eq(breedingLogEntries.progeny2UserId, currentKey.userId),
-                        eq(breedingLogEntries.progeny2Code, currentKey.code)
-                    )
+            where: or(
+                and(
+                    eq(breedingLogEntries.progeny1UserId, currentKey.userId),
+                    eq(breedingLogEntries.progeny1Code, currentKey.code)
+                ),
+                and(
+                    eq(breedingLogEntries.progeny2UserId, currentKey.userId),
+                    eq(breedingLogEntries.progeny2Code, currentKey.code)
                 )
             ),
         });

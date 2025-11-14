@@ -407,7 +407,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                             htmlFor={`tab-${tab.id}`}
                             className="text-pompaca-purple dark:text-purple-300"
                         >
-                            {tab.tabName || `Tab ${tab.tabId}`}
+                            {tab.tabName || `Tab ${tab.tabId}`} ({tab.tabId})
                         </Label>
                     )}
                 </div>

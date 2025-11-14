@@ -23,7 +23,7 @@ export async function GET() {
     try {
         const tabs = await db.query.userTabs.findMany({
             where: eq(userTabs.userId, userId),
-            orderBy: (userTabs, { asc }) => [asc(userTabs.createdAt)],
+            orderBy: (userTabs, { asc }) => [asc(userTabs.displayOrder), asc(userTabs.createdAt)],
         });
         return NextResponse.json(tabs);
     } catch (error) {

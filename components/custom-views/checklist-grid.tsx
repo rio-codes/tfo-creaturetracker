@@ -14,7 +14,19 @@ type ChecklistGridProps = {
 };
 
 export function ChecklistGrid({ checklist, allCreatures, isOwner }: ChecklistGridProps) {
-    const { species, targetGenes, assignments, id: checklistId } = checklist;
+    const { species, targetGenes, id: checklistId } = checklist;
+
+    const assignments = useMemo(() => {
+        if (!checklist.assignments) return {};
+        try {
+            return typeof checklist.assignments === 'string'
+                ? JSON.parse(checklist.assignments)
+                : checklist.assignments;
+        } catch (error) {
+            console.error('Failed to parse checklist assignments:', error);
+            return {};
+        }
+    }, [checklist.assignments]);
 
     const combinations = useMemo(
         () => generatePhenotypeCombinations(species, targetGenes),
@@ -58,20 +70,12 @@ export function ChecklistGrid({ checklist, allCreatures, isOwner }: ChecklistGri
                         isOwner &&
                         allCreatures.some((creature) => {
                             if (!creature || creature.species !== species) return false;
-                            return combo.phenotypes.every((p) => {
-                                if (!creature.genetics) return false;
-                                const creatureGene = creature.genetics[p.category as any];
-                                if (
-                                    creatureGene &&
-                                    typeof creatureGene === 'object' &&
-                                    'phenotype' in creatureGene
-                                ) {
-                                    return (creatureGene as any).phenotype === p.phenotype;
-                                } else if (typeof creatureGene === 'string') {
-                                    return creatureGene === p.phenotype;
-                                }
-                                return false;
-                            });
+                            const creaturePhenotypes = new Map(
+                                creature.geneData.map((g) => [g.category, g.phenotype])
+                            );
+                            return combo.phenotypes.every(
+                                (p) => creaturePhenotypes.get(p.category) === p.phenotype
+                            );
                         });
 
                     return (
@@ -82,7 +86,7 @@ export function ChecklistGrid({ checklist, allCreatures, isOwner }: ChecklistGri
                                     className={`aspect-square rounded-md flex items-center justify-center transition-all
           ${isOwner ? 'cursor-pointer hover:scale-105 hover:shadow-lg' : ''}
           ${assignedCreature ? 'bg-green-200/50 dark:bg-green-800/50' : 'bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet'}
-          ${hasMatchingCreature ? 'border-4 border-green-500' : ''}`}
+          ${hasMatchingCreature ? 'border-4 border-green-500 animate-pulse' : ''}`}
                                 >
                                     {assignedCreature ? (
                                         <img

@@ -7,17 +7,23 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { EnrichedChecklist } from '@/types';
+import { EnrichedChecklist, EnrichedCreature } from '@/types';
 import { EditChecklistForm } from '@/components/custom-forms/edit-checklist-form';
 import { useRouter } from 'next/navigation';
 
 type EditChecklistDialogProps = {
     checklist: EnrichedChecklist;
+    allCreatures: EnrichedCreature[];
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
 };
 
-export function EditChecklistDialog({ checklist, isOpen, onOpenChange }: EditChecklistDialogProps) {
+export function EditChecklistDialog({
+    checklist,
+    allCreatures,
+    isOpen,
+    onOpenChange,
+}: EditChecklistDialogProps) {
     const router = useRouter();
 
     const handleSuccess = () => {
@@ -34,7 +40,11 @@ export function EditChecklistDialog({ checklist, isOpen, onOpenChange }: EditChe
                         Make changes to your checklist here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
-                <EditChecklistForm checklist={checklist} onSuccess={handleSuccess} />
+                <EditChecklistForm
+                    checklist={checklist}
+                    allCreatures={allCreatures}
+                    onSuccess={handleSuccess}
+                />
             </DialogContent>
         </Dialog>
     );

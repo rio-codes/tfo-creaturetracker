@@ -931,7 +931,12 @@ export async function getChecklists() {
 
         return userChecklists.map((checklist) => {
             const totalSlots = calculateTotalSlots(checklist.targetGenes as any);
-            const filledSlots = Object.values(checklist.assignments as any).filter(
+            const assignments = checklist.assignments
+                ? typeof checklist.assignments === 'string'
+                    ? JSON.parse(checklist.assignments)
+                    : checklist.assignments
+                : {};
+            const filledSlots = Object.values(assignments).filter(
                 (val: any) => val !== null && val !== undefined
             ).length;
 
@@ -942,8 +947,7 @@ export async function getChecklists() {
             let hasFulfillableCreatures = false;
 
             for (const combo of combinations) {
-                const isAssigned =
-                    checklist.assignments && checklist.assignments[combo.phenotypeString];
+                const isAssigned = assignments && assignments[combo.phenotypeString];
                 if (!isAssigned) {
                     const hasMatchingCreature = allCreatures.some((creature) => {
                         if (creature?.species !== checklist.species) {

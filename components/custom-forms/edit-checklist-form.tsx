@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
-import { EnrichedChecklist } from '@/types';
+import { EnrichedChecklist, EnrichedCreature } from '@/types';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,6 +34,7 @@ const formSchema = z.object({
 
 type EditChecklistFormProps = {
     checklist: EnrichedChecklist;
+    allCreatures: EnrichedCreature[];
     onSuccess: () => void;
 };
 

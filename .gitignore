@@ -33,4 +33,7 @@ next-env.d.ts
 .vercel
 next-env.d.ts
 
+# ai
 .roo
+.aiconfig.json
+.aiexclude

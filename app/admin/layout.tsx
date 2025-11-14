@@ -24,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <NavLink href="/admin/breeding-pairs">Breeding Pairs</NavLink>
                         <NavLink href="/admin/research-goals">Research Goals</NavLink>
                         <NavLink href="/admin/audit-log">Audit Log</NavLink>
+                        <NavLink href="/admin/blog">Create/Edit Blog Posts</NavLink>
                         <NavLink href="/admin/create-creature">Create Test Creature</NavLink>
                     </nav>
                 </aside>

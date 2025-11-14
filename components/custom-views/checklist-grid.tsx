@@ -53,14 +53,27 @@ export function ChecklistGrid({ checklist, allCreatures, isOwner }: ChecklistGri
                         ? creatureMap.get(`${assignment.userId}-${assignment.code}`)
                         : null;
 
+                    const hasMatchingCreature =
+                        !assignedCreature &&
+                        isOwner &&
+                        allCreatures.some((creature) => {
+                            if (!creature || creature.species !== species) return false;
+                            return combo.phenotypes.every((p) => {
+                                if (!creature.genetics) return false;
+                                const creatureGene = creature.genetics[p.category];
+                                return creatureGene?.phenotype === p.phenotype;
+                            });
+                        });
+
                     return (
                         <Tooltip key={combo.phenotypeString}>
                             <TooltipTrigger asChild>
                                 <div
                                     onClick={() => handleSlotClick(combo)}
                                     className={`aspect-square rounded-md flex items-center justify-center transition-all
-										${isOwner ? 'cursor-pointer hover:scale-105 hover:shadow-lg' : ''}
-										${assignedCreature ? 'bg-green-200/50 dark:bg-green-800/50' : 'bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet'}`}
+          ${isOwner ? 'cursor-pointer hover:scale-105 hover:shadow-lg' : ''}
+          ${assignedCreature ? 'bg-green-200/50 dark:bg-green-800/50' : 'bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet'}
+          ${hasMatchingCreature ? 'border-4 border-green-500' : ''}`}
                                 >
                                     {assignedCreature ? (
                                         <img

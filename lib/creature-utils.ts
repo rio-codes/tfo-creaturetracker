@@ -18,8 +18,8 @@ export function creatureMatchesGoal(
 ): boolean {
     if (creature?.species !== goal.species) return false;
 
-    // Ensure goal.genes is not null or undefined
-    if (!goal.genes) return false;
+    // Ensure goal.genes and creature.genetics are not null or undefined
+    if (!goal.genes || !creature.genetics) return false;
 
     // Check for excluded genes first. If the creature has any excluded gene, it's not a match.
     if (goal.excludedGenes) {
@@ -41,7 +41,6 @@ export function creatureMatchesGoal(
     for (const [category, targetGene] of Object.entries(goal.genes as Record<string, GoalGene>)) {
         if (!targetGene.isOptional) {
             const creatureGene = creature.geneData.find((g) => g.category === category);
-            console.log('checking gene ', creatureGene, targetGene);
             if (!creatureGene) return false;
 
             if (goal.goalMode === 'genotype') {

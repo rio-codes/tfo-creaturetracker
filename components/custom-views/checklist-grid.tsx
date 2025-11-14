@@ -60,8 +60,17 @@ export function ChecklistGrid({ checklist, allCreatures, isOwner }: ChecklistGri
                             if (!creature || creature.species !== species) return false;
                             return combo.phenotypes.every((p) => {
                                 if (!creature.genetics) return false;
-                                const creatureGene = creature.genetics[p.category];
-                                return creatureGene?.phenotype === p.phenotype;
+                                const creatureGene = creature.genetics[p.category as any];
+                                if (
+                                    creatureGene &&
+                                    typeof creatureGene === 'object' &&
+                                    'phenotype' in creatureGene
+                                ) {
+                                    return (creatureGene as any).phenotype === p.phenotype;
+                                } else if (typeof creatureGene === 'string') {
+                                    return creatureGene === p.phenotype;
+                                }
+                                return false;
                             });
                         });
 

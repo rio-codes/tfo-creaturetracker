@@ -55,25 +55,17 @@ export async function POST(req: Request) {
         const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
         const blobUrl = await fetchAndUploadWithRetry(bustedTfoImageUrl, creatureCode, 3);
 
-        await db
-            .insert(creatures)
-            .values({
-                userId,
-                code: creatureCode,
-                creatureName,
-                species,
-                genetics: genes,
-                imageUrl: blobUrl,
-                gender: gender as 'male' | 'female' | 'unknown',
-                growthLevel: 3, // Default to adult
-                updatedAt: new Date(),
-            })
-            .onConflictDoUpdate({
-                target: [creatures.userId, creatures.code],
-                set: {
-                    creatureName,
-                },
-            });
+        await db.insert(creatures).values({
+            userId,
+            code: creatureCode,
+            creatureName,
+            species,
+            genetics: JSON.stringify(genes),
+            imageUrl: blobUrl,
+            gender: gender as 'male' | 'female' | 'unknown',
+            growthLevel: 3, // Default to adult
+            updatedAt: new Date(),
+        });
 
         revalidatePath('/collection');
         return NextResponse.json({ message: 'Creature created successfully!' }, { status: 201 });

@@ -237,6 +237,8 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
         }
     };
 
+    console.log(creature);
+
     return (
         <Card
             className={`relative bg-ebena-lavender dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson border-border overflow-hidden overscroll-y-contain drop-shadow-md drop-shadow-gray-500`}
@@ -501,22 +503,12 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                 <div className="whitespace-pre-line pr-4">
                                     {creature.geneData && creature.geneData.length > 0 ? (
                                         <div className="pl-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-cimo-crimson text-xs font-mono mt-1 space-y-1">
-                                            {creature.geneData.map(
-                                                (gene) =>
-                                                    gene && (
-                                                        <div key={gene.category}>
-                                                            <span className="font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                                                                {gene.category}:
-                                                            </span>
-                                                            <div className="pl-2">
-                                                                <div>
-                                                                    Phenotype: {gene.phenotype}
-                                                                </div>
-                                                                <div>Genotype: {gene.genotype}</div>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                            )}
+                                            {creature.geneData.map((gene, index) => (
+                                                <div key={index}>
+                                                    {gene.category}: {gene.genotype} (
+                                                    {gene.phenotype})
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
                                         <p>Unknown</p>

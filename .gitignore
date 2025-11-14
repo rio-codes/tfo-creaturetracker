@@ -32,3 +32,5 @@ next-env.d.ts
 .vscode/
 .vercel
 next-env.d.ts
+
+.roo

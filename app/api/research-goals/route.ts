@@ -16,7 +16,13 @@ const goalSchema = z.object({
         .string()
         .min(3, 'Name must be at least 3 characters.')
         .max(32, 'Name must be less than 32 characters.'),
-    gender: z.enum(['male', 'female']),
+    gender: z
+        .preprocess(
+            (val) => (typeof val === 'string' ? val.toLowerCase() : val),
+            z.enum(['male', 'female'])
+        )
+        .optional()
+        .default('female'),
     species: z.string().min(1, 'Species is required.'),
     genes: z.record(
         z.string(),

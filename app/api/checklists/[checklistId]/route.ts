@@ -14,9 +14,15 @@ const updateChecklistSchema = z.object({
 });
 
 export async function GET(req: Request, { params }: { params: { checklistId: string } }) {
+    const checklistId = params.checklistId;
+
+    if (!checklistId) {
+        return NextResponse.json({ error: 'Missing checklist ID.' }, { status: 400 });
+    }
+
     try {
         const checklist = await db.query.checklists.findFirst({
-            where: eq(checklists.id, params.checklistId),
+            where: eq(checklists.id, checklistId),
             with: {
                 user: {
                     columns: {
@@ -31,7 +37,7 @@ export async function GET(req: Request, { params }: { params: { checklistId: str
         }
 
         // A session is not required to view a public checklist
-        const session = await auth();
+        const session = await auth(); // Await session here
         if (!checklist.isPublic && checklist.userId !== session?.user?.id) {
             return NextResponse.json(
                 { error: 'Not authorized to view this checklist.' },
@@ -46,7 +52,14 @@ export async function GET(req: Request, { params }: { params: { checklistId: str
     }
 }
 
-export async function PUT(req: Request, { params }: { params: { checklistId: string } }) {
+export async function PUT(
+    req: Request,
+    { params: { checklistId } }: { params: { checklistId: string } }
+) {
+    if (!checklistId) {
+        return NextResponse.json({ error: 'Missing checklist ID.' }, { status: 400 });
+    }
+
     const session = await auth();
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -79,9 +92,7 @@ export async function PUT(req: Request, { params }: { params: { checklistId: str
                 isPublic,
                 updatedAt: new Date(),
             })
-            .where(
-                and(eq(checklists.id, params.checklistId), eq(checklists.userId, session.user.id))
-            )
+            .where(and(eq(checklists.id, checklistId), eq(checklists.userId, session.user.id)))
             .returning();
 
         if (!updatedChecklist) {
@@ -97,8 +108,10 @@ export async function PUT(req: Request, { params }: { params: { checklistId: str
             link: `/checklists/${updatedChecklist.id}`,
         });
 
-        revalidatePath(`/checklists/${params.checklistId}`);
-        revalidatePath(`/${session.user.username}`);
+        revalidatePath(`/checklists/${checklistId}`);
+        if (session.user.username) {
+            revalidatePath(`/${session.user.username}`);
+        }
 
         return NextResponse.json(updatedChecklist);
     } catch (error) {
@@ -107,21 +120,37 @@ export async function PUT(req: Request, { params }: { params: { checklistId: str
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { checklistId: string } }) {
+export async function DELETE(req: Request, context: { params: { checklistId: string } }) {
+    const { checklistId } = await context.params; // Await params here
+
+    if (!checklistId) {
+        return NextResponse.json({ error: 'Missing checklist ID.' }, { status: 400 });
+    }
+
     const session = await auth();
     if (!session?.user?.id) {
+        console.log('DELETE /api/checklists/[checklistId]: Not authenticated');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     try {
+        console.log(`DELETE /api/checklists/${checklistId}: Attempting to delete checklist.`);
+        console.log(`User ID: ${session.user.id}, Checklist ID: ${checklistId}`);
+
         const [deletedChecklist] = await db
             .delete(checklists)
-            .where(
-                and(eq(checklists.id, params.checklistId), eq(checklists.userId, session.user.id))
-            )
+            .where(and(eq(checklists.id, checklistId), eq(checklists.userId, session.user.id)))
             .returning();
 
+        console.log(
+            `DELETE /api/checklists/${checklistId}: Deleted checklist result:`,
+            deletedChecklist
+        );
+
         if (!deletedChecklist) {
+            console.log(
+                `DELETE /api/checklists/${checklistId}: Checklist not found or unauthorized.`
+            );
             return NextResponse.json(
                 { error: 'Checklist not found or you do not have permission to delete it.' },
                 { status: 404 }
@@ -134,11 +163,14 @@ export async function DELETE(req: Request, { params }: { params: { checklistId: 
         });
 
         revalidatePath('/checklists');
-        revalidatePath(`/${session.user.username}`);
+        if (session.user.username) {
+            revalidatePath(`/${session.user.username}`);
+        }
 
+        console.log(`DELETE /api/checklists/${checklistId}: Checklist deleted successfully.`);
         return NextResponse.json({ message: 'Checklist deleted successfully.' });
     } catch (error) {
-        console.error('Failed to delete checklist:', error);
+        console.error(`DELETE /api/checklists/${checklistId}: Failed to delete checklist:`, error);
         return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
     }
 }

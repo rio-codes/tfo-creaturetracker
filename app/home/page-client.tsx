@@ -6,6 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint, Heart, Target, Dna, Rabbit, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
+import { TFO_SPECIES_CODES } from '@/constants/creature-data';
+
+const constructClientTfoUrl = (
+    species: string,
+    genes: { [key: string]: { genotype: string } }
+) => {
+    const speciesCode = TFO_SPECIES_CODES[species as keyof typeof TFO_SPECIES_CODES];
+    if (!speciesCode) {
+        return '#'; // Return a fallback if species code is not found
+    }
+
+    const geneticsString = Object.entries(genes)
+        .map(([category, gene]) => `${category}:${gene.genotype}`)
+        .join(',');
+
+    // A gender is required, so we'll default to male for the link.
+    return `https://finaloutpost.net/ln?s=${speciesCode}&c=${geneticsString}&g=male`;
+};
 
 type HomepageStats = {
     totalCreatures: number;
@@ -24,6 +42,8 @@ type HomepageStats = {
         pairName: string;
         ownerUsername: string;
         image: string;
+        genes: { [key: string]: { genotype: string; phenotype: string } };
+        code: string;
     } | null;
 };
 
@@ -288,13 +308,23 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
                                     <CardContent className="text-center">
                                         {stats.randomCreature?.image ? (
                                             <div className="pt-2">
-                                                <img
-                                                    src={stats.randomCreature.image}
-                                                    alt={
-                                                        stats.randomCreature.species || 'A creature'
-                                                    }
-                                                    className="rounded-md object-scale-down aspect-square w-full"
-                                                />
+                                                <a
+                                                    href={constructClientTfoUrl(
+                                                        stats.randomCreature.species,
+                                                        stats.randomCreature.genes
+                                                    )}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <img
+                                                        src={stats.randomCreature.image}
+                                                        alt={
+                                                            stats.randomCreature.species ||
+                                                            'A creature'
+                                                        }
+                                                        className="rounded-md object-scale-down aspect-square w-full"
+                                                    />
+                                                </a>
                                                 <p className="text-xs mt-2 text-dusk-purple dark:text-purple-400 hallowsnight:text-abyss text-pretty">
                                                     A potential{' '}
                                                     <span className="font-bold">

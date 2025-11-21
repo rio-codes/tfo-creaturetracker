@@ -118,11 +118,12 @@ export function calculateBreedingOutcomes(
     }
 
     if (maleParent.species === femaleParent.species) {
+        const geneOutcomes = calculateAllPossibleOutcomes(maleParent, femaleParent);
         return [
             {
                 species: maleParent.species,
                 probability: 1,
-                geneOutcomes: {},
+                geneOutcomes: geneOutcomes,
             },
         ];
     }

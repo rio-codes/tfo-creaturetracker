@@ -3,6 +3,7 @@ import { creatures } from '@/src/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { fetchAndUploadWithRetry } from '@/lib/data';
 import { structuredGeneData } from '@/constants/creature-data';
+import { SyncGeneratorResult } from '@/types';
 
 type CreatureInsert = typeof creatures.$inferInsert;
 
@@ -31,15 +32,18 @@ export async function* syncTfoTabsAndStream(
     username: string,
     tabs: { tabId: number; tabName: string | null }[],
     tfoApiKey: string
-): AsyncGenerator<string> {
+): AsyncGenerator<SyncGeneratorResult> {
     const allTfoCreatureCodes: string[] = [];
 
     for (const [index, tab] of tabs.entries()) {
-        yield `event: tab-start\ndata: ${JSON.stringify({
-            tabName: tab.tabName || `Tab ${tab.tabId}`,
-            current: index + 1,
-            total: tabs.length,
-        })}\n\n`;
+        yield {
+            type: 'tab-start',
+            data: {
+                tabName: tab.tabName || `Tab ${tab.tabId}`,
+                current: index + 1,
+                total: tabs.length,
+            },
+        };
 
         try {
             const tfoApiUrl = `https://finaloutpost.net/api/v1/tab/${tab.tabId}/${username}`;
@@ -61,10 +65,13 @@ export async function* syncTfoTabsAndStream(
 
             const tfoCreatures: TfoCreature[] = data.creatures;
             if (!tfoCreatures || tfoCreatures.length === 0) {
-                yield `event: tab-progress\ndata: ${JSON.stringify({
-                    message: 'No creatures found on this tab.',
-                    progress: 100,
-                })}\n\n`;
+                yield {
+                    type: 'tab-progress',
+                    data: {
+                        message: 'No creatures found on this tab.',
+                        progress: 100,
+                    },
+                };
                 continue;
             }
 
@@ -158,23 +165,31 @@ export async function* syncTfoTabsAndStream(
                         set: creatureData,
                     });
 
-                yield `event: tab-progress\ndata: ${JSON.stringify({
-                    message: `Synced: ${tfoCreature.name || tfoCreature.code}`,
-                    progress: ((creatureIndex + 1) / tfoCreatures.length) * 100,
-                })}\n\n`;
+                yield {
+                    type: 'tab-progress',
+                    data: {
+                        message: `Synced: ${tfoCreature.name || tfoCreature.code}`,
+                        progress: ((creatureIndex + 1) / tfoCreatures.length) * 100,
+                    },
+                };
             }
         } catch (error: any) {
             if (error instanceof Error && error.message.includes('network error')) {
                 continue;
             } else {
                 console.error('Streaming sync failed:', error);
-                yield `event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`;
+                yield {
+                    type: 'error',
+                    data: { message: 'An internal server error occurred.' },
+                };
             }
         }
     }
 
-    yield `event: done\ndata: ${JSON.stringify({
-        message: 'Sync complete!',
-        allTfoCreatureCodes,
-    })}\n\n`;
+    yield {
+        type: 'done',
+        data: {
+            message: 'Sync complete!',
+        },
+    };
 }

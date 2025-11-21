@@ -85,6 +85,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [syncProgress, setSyncProgress] = useState<SyncProgress | null>(null);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
+    const [jobId, setJobId] = useState<number | null>(null);
 
     const router = useRouter();
 
@@ -134,72 +135,63 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setEditingTabName('');
     }, [isOpen]);
 
-    if (!isOpen) {
-        return null;
-    }
+    useEffect(() => {
+        if (syncState !== 'syncing' || !jobId) return;
 
-    const handleSync = () => {
-        const tabsToSync = userTabs.filter((tab) => tab.isSyncEnabled);
-        if (tabsToSync.length === 0) {
-            alertService.warn('No tabs selected for syncing.');
-            return;
-        }
+        const intervalId = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/creatures/sync-status/${jobId}`);
+                if (!response.ok) {
+                    throw new Error('Could not fetch sync status.');
+                }
+                const job = await response.json();
 
-        setSyncState('syncing');
-        const eventSource = new EventSource('/api/creatures/sync-all');
-
-        eventSource.addEventListener('tab-start', (event) => {
-            const data = JSON.parse(event.data);
-            setSyncProgress({
-                overall: {
-                    current: data.current,
-                    total: data.total,
-                    percent: ((data.current - 1) / data.total) * 100,
-                },
-                currentTab: {
-                    name: data.tabName,
-                    progress: 0,
-                    message: 'Starting...',
-                },
-            });
-        });
-
-        eventSource.addEventListener('tab-progress', (event) => {
-            const data = JSON.parse(event.data);
-            setSyncProgress((prev) => {
-                if (!prev) return null;
-                const overallPercent =
-                    ((prev.overall.current - 1) / prev.overall.total) * 100 +
-                    data.progress / prev.overall.total;
-                return {
-                    ...prev,
-                    overall: { ...prev.overall, percent: overallPercent },
-                    currentTab: {
-                        ...prev.currentTab,
-                        progress: data.progress,
-                        message: data.message,
+                setSyncProgress({
+                    overall: {
+                        current: job.processedItems,
+                        total: job.totalItems,
+                        percent: job.progress,
                     },
-                };
-            });
-        });
+                    currentTab: {
+                        name: `Syncing...`,
+                        progress: job.progress,
+                        message: `${job.processedItems} / ${job.totalItems} creatures`,
+                    },
+                });
 
-        eventSource.addEventListener('sync-error', async (event) => {
-            const data = JSON.parse(event.data);
-            setErrorMessages((prev) => [...prev, data.message]);
-        });
+                if (job.status === 'completed') {
+                    setSyncState('analyzing');
+                    clearInterval(intervalId);
+                } else if (job.status === 'failed') {
+                    const details = job.details as { error?: string };
+                    setErrorMessages((prev) => [
+                        ...prev,
+                        details?.error || 'The sync process failed.',
+                    ]);
+                    setSyncState('error');
+                    clearInterval(intervalId);
+                }
+            } catch (error) {
+                const message =
+                    error instanceof Error ? error.message : 'An unknown network error occurred.';
+                setErrorMessages((prev) => [...prev, message]);
+                setSyncState('error');
+                clearInterval(intervalId);
+            }
+        }, 2000);
 
-        eventSource.addEventListener('done', async (event) => {
-            const data = JSON.parse(event.data);
-            eventSource.close();
-            setSyncState('analyzing');
+        return () => clearInterval(intervalId);
+    }, [syncState, jobId]);
+
+    useEffect(() => {
+        const analyze = async () => {
+            if (syncState !== 'analyzing') return;
 
             try {
                 const analysisResponse = await fetch('/api/creatures/post-sync-analysis', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        syncedCreatureCodes: data.allTfoCreatureCodes,
-                        allTfoCreatureCodes: data.allTfoCreatureCodes,
                         isFullSync,
                     }),
                 });
@@ -213,20 +205,51 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
                 setSyncState('post-sync-analysis');
             } catch (e) {
                 console.error('Post-sync analysis failed', e);
-                // If analysis fails, just go to complete state
-                setSyncState('complete');
+                setSyncState('complete'); // Fallback to complete state
                 router.refresh();
             }
-        });
-
-        eventSource.onerror = () => {
-            setErrorMessages((prev) => [
-                ...prev,
-                'A network error occurred. Sync may be incomplete.',
-            ]);
-            setSyncState('error');
-            eventSource.close();
         };
+
+        analyze();
+    }, [syncState, isFullSync, router]);
+
+    if (!isOpen) {
+        return null;
+    }
+
+    const handleSync = async () => {
+        const tabsToSync = userTabs
+            .filter((tab) => tab.isSyncEnabled)
+            .map((t) => ({ id: t.tabId, name: t.tabName }));
+
+        if (tabsToSync.length === 0) {
+            alertService.warn('No tabs selected for syncing.');
+            return;
+        }
+
+        setSyncState('syncing');
+        setErrorMessages([]);
+        setSyncProgress(null);
+
+        try {
+            const response = await fetch('/api/creatures/sync-all', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tabsToSync }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to start sync job.');
+            }
+
+            setJobId(data.jobId);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+            setErrorMessages([message]);
+            setSyncState('error');
+        }
     };
 
     const handleAddTab = async (e: React.FormEvent) => {
@@ -370,6 +393,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setEditingTabId(null);
         setSyncProgress(null);
         setErrorMessages([]);
+        setJobId(null);
     };
 
     function SortableTabItem({ tab }: { tab: UserTab }): JSX.Element {
@@ -603,14 +627,11 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             {syncProgress && (
                 <div className="w-full space-y-3 text-center">
                     <p className="text-sm text-dusk-purple dark:text-purple-400">
-                        Overall Progress ({syncProgress.overall.current}/
-                        {syncProgress.overall.total})
+                        Overall Progress
                     </p>
                     <Progress value={syncProgress.overall.percent} className="w-full" />
-                    <p className="font-semibold">{syncProgress.currentTab.name}</p>
-                    <Progress value={syncProgress.currentTab.progress} className="w-full" />
                     <p className="text-xs text-dusk-purple dark:text-purple-400 h-4">
-                        {syncProgress.currentTab.message}
+                        {syncProgress.overall.current} / {syncProgress.overall.total} creatures
                     </p>
                 </div>
             )}

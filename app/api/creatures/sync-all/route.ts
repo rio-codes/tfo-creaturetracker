@@ -1,78 +1,62 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { userTabs } from '@/src/db/schema';
-import { and, eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
-import { logUserAction } from '@/lib/user-actions';
-import { syncTfoTabsAndStream } from '@/lib/tfo-sync-stream';
+import { syncJobs } from '@/src/db/schema';
+import { eq, and, or } from 'drizzle-orm';
+import { TFO_Tab } from '@/types/index';
 
-export const dynamic = 'force-dynamic'; // necessary for streaming
-
-export async function GET() {
+export async function POST(req: NextRequest) {
     const session = await auth();
-    const userId = session?.user?.id;
-    if (!userId || !session.user.username) {
-        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
+    const { tabsToSync }: { tabsToSync: TFO_Tab[] } = await req.json();
+    if (!tabsToSync || !Array.isArray(tabsToSync)) {
+        return NextResponse.json({ error: 'tabsToSync is required' }, { status: 400 });
     }
 
-    const tfoApiKey = process.env.TFO_API_KEY;
-    if (!tfoApiKey) {
-        console.error('CRITICAL: TFO_API_KEY is not set.');
-        return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 });
-    }
-
-    const username = session.user.username;
-
-    const tabsToSync = await db.query.userTabs.findMany({
-        where: and(eq(userTabs.userId, userId), eq(userTabs.isSyncEnabled, true)),
-        orderBy: (userTabs, { asc }) => [asc(userTabs.displayOrder)],
+    const existingJob = await db.query.syncJobs.findFirst({
+        where: and(
+            eq(syncJobs.ownerId, userId),
+            or(eq(syncJobs.status, 'pending'), eq(syncJobs.status, 'running'))
+        ),
     });
 
-    if (tabsToSync.length === 0) {
-        return NextResponse.json({ error: 'No tabs enabled for syncing.' }, { status: 400 });
+    if (existingJob) {
+        return NextResponse.json(
+            { message: 'A sync job is already in progress.', jobId: existingJob.id },
+            { status: 409 } // 409 Conflict
+        );
     }
 
-    const stream = new ReadableStream({
-        async start(controller) {
-            const encoder = new TextEncoder();
-            const send = (data: string) => controller.enqueue(encoder.encode(data));
+    const [newJob] = await db
+        .insert(syncJobs)
+        .values({
+            ownerId: userId,
+            status: 'pending',
+            details: { tabsToSync },
+        })
+        .returning();
 
-            try {
-                const syncGenerator = syncTfoTabsAndStream(userId, username, tabsToSync, tfoApiKey);
+    if (!newJob) {
+        return NextResponse.json({ error: 'Failed to create sync job.' }, { status: 500 });
+    }
 
-                for await (const chunk of syncGenerator) {
-                    send(chunk);
-                }
-
-                await logUserAction({
-                    action: 'sync.run',
-                    description: `Synced ${tabsToSync.length} TFO tabs.`,
-                });
-
-                revalidatePath('/collection');
-            } catch (error) {
-				if (error instanceof Error && error.message.includes('network error')) {
-					send(
-						`event: error\ndata: ${JSON.stringify({ message: 'A network error occurred. Sync may be incomplete.' })}\n\n`
-					);
-				} else {
-					console.error('Streaming sync failed:', error);
-					send(
-						`event: error\ndata: ${JSON.stringify({ message: 'An internal server error occurred.' })}\n\n`
-					);
-				}
-            } finally {
-                controller.close();
-            }
-        },
-    });
-
-    return new Response(stream, {
+    fetch(new URL('/api/creatures/sync-worker', req.url), {
+        method: 'POST',
         headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
+            // Use a secret to prevent unauthorized access to the worker
+            'Authorization': `Bearer ${process.env.INTERNAL_API_SECRET}`,
         },
+        body: JSON.stringify({ jobId: newJob.id }),
     });
+
+    // 4. Respond to the client immediately
+    return NextResponse.json(
+        { message: 'Sync job started.', jobId: newJob.id },
+        { status: 202 } // 202 Accepted
+    );
 }

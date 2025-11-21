@@ -2,14 +2,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { creatures, researchGoals } from '@/src/db/schema';
-import { and, eq, inArray, gte } from 'drizzle-orm';
+import { and, eq, gte } from 'drizzle-orm';
 import { z } from 'zod';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { creatureMatchesGoal } from '@/lib/creature-utils';
 
 const analysisSchema = z.object({
-    syncedCreatureCodes: z.array(z.string()),
-    allTfoCreatureCodes: z.array(z.string()).optional(),
     isFullSync: z.boolean(),
 });
 
@@ -28,16 +26,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
         }
 
-        const { syncedCreatureCodes, allTfoCreatureCodes, isFullSync } = validated.data;
-
-        const syncTimeWindow = new Date(Date.now() - 60 * 1000);
+        // Instead of getting codes from the client, we'll find creatures
+        // that were recently updated by the sync job.
+        const syncTimeWindow = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes ago
 
         const newlySyncedCreatures = await db.query.creatures.findMany({
-            where: and(
-                eq(creatures.userId, userId),
-                inArray(creatures.code, syncedCreatureCodes),
-                gte(creatures.updatedAt, syncTimeWindow)
-            ),
+            where: and(eq(creatures.userId, userId), gte(creatures.updatedAt, syncTimeWindow)),
         });
 
         const userGoals = await db.query.researchGoals.findMany({
@@ -58,19 +52,11 @@ export async function POST(req: Request) {
                 }
             }
         }
-        let archivableCreatures: any[] = [];
-        if (isFullSync && allTfoCreatureCodes) {
-            const userCreaturesInDb = await db.query.creatures.findMany({
-                where: and(eq(creatures.userId, userId), eq(creatures.isArchived, false)),
-                columns: { id: true, code: true, creatureName: true },
-            });
+        const archivableCreatures: any[] = [];
+        // The logic for archivable creatures is disabled for now as it requires
+        // the full list of creature codes from TFO, which we are not passing anymore.
+        // This could be re-enabled if the sync worker is updated to store this information.
 
-            const creaturesNotInTfo = userCreaturesInDb.filter(
-                (c) => !allTfoCreatureCodes.includes(c.code)
-            );
-
-            archivableCreatures = creaturesNotInTfo;
-        }
         const matchingChecklistSlots: any[] = [];
 
         return NextResponse.json({

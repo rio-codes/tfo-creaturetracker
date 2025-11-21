@@ -650,3 +650,30 @@ export const userAchievementsRelations = relations(userAchievements, ({ one }) =
         references: [users.id],
     }),
 }));
+export const syncJobs = pgTable('sync_jobs', {
+    id: serial('id').primaryKey(),
+    ownerId: text('owner_id')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    status: varchar('status', {
+        enum: ['pending', 'running', 'completed', 'failed'],
+    })
+        .notNull()
+        .default('pending'),
+    progress: integer('progress').notNull().default(0),
+    totalItems: integer('total_items').notNull().default(0),
+    processedItems: integer('processed_items').notNull().default(0),
+    details: jsonb('details'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const syncJobsRelations = relations(syncJobs, ({ one }) => ({
+    owner: one(users, {
+        fields: [syncJobs.ownerId],
+        references: [users.id],
+    }),
+}));
+
+export type SyncJob = typeof syncJobs.$inferSelect;
+export type NewSyncJob = typeof syncJobs.$inferInsert;

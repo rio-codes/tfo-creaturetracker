@@ -147,3 +147,9 @@ export type EnrichedChecklist = {
     };
     hasFulfillableCreatures?: boolean;
 };
+
+export interface TFO_Tab {
+    id: number;
+    name: string;
+    url: string;
+}

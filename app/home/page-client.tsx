@@ -107,7 +107,7 @@ function ActionButton({
             return (
                 <div className="h-100">
                     <Link href={href} className="group block">
-                        <div className="hallowsnight:bg-ruzafolio-scarlet hallowsnight:group-hover:bg-blood-bay-wine/80 hallowsnight:text-cimo-crimson/80 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 flex flex-col justify-center min-w-0 max-w-72">
+                        <div className="hallowsnight:bg-ruzafolio-scarlet hallowsnight:group-hover:bg-blood-bay-wine/80 hallowsnight:text-cimo-crimson/80 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 flex flex-col justify-between min-w-0 max-w-72">
                             <div className="relative w-full aspect-square mx-auto mb-4">
                                 <Image
                                     src={`${imgSrcPrefix}_hn.svg`}

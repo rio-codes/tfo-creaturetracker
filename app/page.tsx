@@ -22,12 +22,14 @@ const getRandomCreature = cache(
         });
 
         if (randomPair && randomPair.maleParent && randomPair.femaleParent && randomPair.user) {
+            console.log('Processing random pair for species:', randomPair.species);
             const maleParentEnriched = enrichAndSerializeCreature(randomPair.maleParent);
             const femaleParentEnriched = enrichAndSerializeCreature(randomPair.femaleParent);
             const outcomesByCategory = calculateBreedingOutcomes(
                 maleParentEnriched,
                 femaleParentEnriched
             );
+            console.log('Calculated outcomes:', JSON.stringify(outcomesByCategory, null, 2));
             const selectedGenes: { [category: string]: { genotype: string; phenotype: string } } =
                 {};
 
@@ -35,6 +37,10 @@ const getRandomCreature = cache(
             const firstSpeciesOutcome = outcomesByCategory[0];
 
             if (firstSpeciesOutcome) {
+                console.log(
+                    'First species outcome:',
+                    JSON.stringify(firstSpeciesOutcome, null, 2)
+                );
                 for (const category in firstSpeciesOutcome.geneOutcomes) {
                     const geneOutcomesForCategory = firstSpeciesOutcome.geneOutcomes[category];
                     let rand = Math.random();
@@ -56,6 +62,7 @@ const getRandomCreature = cache(
             const selectedGenotypes = Object.fromEntries(
                 Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
             );
+            console.log('Final selected genotypes:', selectedGenotypes);
             let imageUrl: string | null = null;
             try {
                 const randomGender = Math.random() < 0.5 ? 'female' : 'male';

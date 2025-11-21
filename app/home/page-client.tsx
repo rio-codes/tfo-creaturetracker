@@ -8,10 +8,7 @@ import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { TFO_SPECIES_CODES } from '@/constants/creature-data';
 
-const constructClientTfoUrl = (
-    species: string,
-    genes: { [key: string]: { genotype: string } }
-) => {
+const constructClientTfoUrl = (species: string, genes: { [key: string]: { genotype: string } }) => {
     const speciesCode = TFO_SPECIES_CODES[species as keyof typeof TFO_SPECIES_CODES];
     if (!speciesCode) {
         return '#'; // Return a fallback if species code is not found
@@ -68,14 +65,13 @@ function ActionButton({
             return (
                 <div className="h-100">
                     <Link href={href} className="group block">
-                        <div className="dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 dark:group-hover:bg-black/30 flex flex-col justify-center max-h-full min-w-0 max-w-80">
-                            <div className="relative w-60 h-60 mx-auto mb-4">
+                        <div className="dark:bg-black/20 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 dark:group-hover:bg-black/30 flex flex-col justify-between max-h-full min-w-0">
+                            <div className="relative w-full aspect-square mx-auto mb-4">
                                 <Image
                                     src={`${imgSrcPrefix}_dark.svg`}
                                     alt={`${title} icon`}
                                     fill
                                     style={{ objectFit: 'contain' }}
-                                    sizes="w-10vw h-10vw"
                                 />
                             </div>
                             <div>
@@ -90,14 +86,13 @@ function ActionButton({
             return (
                 <div className="h-100">
                     <Link href={href} className="group block">
-                        <div className="bg-ebena-lavender/50 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 flex flex-col justify-center min-w-0 max-w-80 max-h-full">
-                            <div className="relative w-60 h-60 mx-auto mb-4">
+                        <div className="bg-ebena-lavender/50 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 group-hover:bg-ebena-lavender/70 flex flex-col justify-between min-w-0 max-w-72 max-h-full">
+                            <div className="relative w-full aspect-square mx-auto mb-4">
                                 <Image
                                     src={`${imgSrcPrefix}.svg`}
                                     alt={`${title} icon`}
                                     fill
                                     style={{ objectFit: 'contain' }}
-                                    sizes="w-10vw h-10vw"
                                 />
                             </div>
                             <div>
@@ -112,14 +107,13 @@ function ActionButton({
             return (
                 <div className="h-100">
                     <Link href={href} className="group block">
-                        <div className="hallowsnight:bg-ruzafolio-scarlet hallowsnight:group-hover:bg-blood-bay-wine/80 hallowsnight:text-cimo-crimson/80 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 flex flex-col justify-center min-w-0 max-w-80">
-                            <div className="relative w-60 h-60 mx-auto mb-4 max-h-full">
+                        <div className="hallowsnight:bg-ruzafolio-scarlet hallowsnight:group-hover:bg-blood-bay-wine/80 hallowsnight:text-cimo-crimson/80 rounded-lg p-4 text-center transition-transform duration-200 ease-in-out group-hover:scale-105 flex flex-col justify-center min-w-0 max-w-72">
+                            <div className="relative w-full aspect-square mx-auto mb-4">
                                 <Image
                                     src={`${imgSrcPrefix}_hn.svg`}
                                     alt={`${title} icon`}
                                     fill
                                     style={{ objectFit: 'contain' }}
-                                    sizes="w-10vw h-10vw"
                                 />
                             </div>
                             <div>
@@ -159,46 +153,52 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
                     </p>
                 </header>
 
-                <main className="grid grid-cols-1 md:grid-cols-7 gap-8 max-w-full">
+                <main className="grid grid-cols-1 md:grid-cols-5 gap-8">
                     {/* Main Actions Column */}
-                    <div className="md:col-span-5">
-                        <h2 className="text-2xl font-bold mb-4">Get Started</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 mg:grid-cols-5 gap-6 w-full md:w-auto mb-8 md:mb-0">
-                            <ActionButton
-                                href="/collection"
-                                imgSrcPrefix="/images/navigation/my_collection"
-                                title="My Collection"
-                                description="View and manage all your creatures from The Final Outpost."
-                            />
-                            <ActionButton
-                                href="/breeding-pairs"
-                                imgSrcPrefix="/images/navigation/breeding_pairs"
-                                title="Breeding Pairs"
-                                description="Create and track your breeding projects."
-                            />
-                            <ActionButton
-                                href="/research-goals"
-                                imgSrcPrefix="/images/navigation/research_goals"
-                                title="Research Goals"
-                                description="Define and pursue specific genetic goals."
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:w-2/3 mb-8 md:mb-0 just-fy-center z-10">
-                            <ActionButton
-                                href="/community-wishlist"
-                                imgSrcPrefix="/images/navigation/community_wishlist"
-                                title="Community Wishlist"
-                                description="View other researchers' goals and share your own goals."
-                            />
-                            <ActionButton
-                                href="/checklists"
-                                imgSrcPrefix="/images/navigation/checklists"
-                                title="Custom Checklists"
-                                description="Create custom checklists for your selected genes."
-                            />
+                    <div className="md:col-span-3 space-y-8">
+                        <div>
+                            <h2 className="text-2xl font-bold mb-4">Get Started</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <ActionButton
+                                    href="/collection"
+                                    imgSrcPrefix="/images/navigation/my_collection"
+                                    title="My Collection"
+                                    description="Import, view and manage all your creatures from The Final Outpost. No more spreadsheets!"
+                                />
+                                <ActionButton
+                                    href="/breeding-pairs"
+                                    imgSrcPrefix="/images/navigation/breeding_pairs"
+                                    title="Breeding Pairs"
+                                    description="Create and track your breeding projects by pairing your synced creatures and predicting outcomes."
+                                />
+                                <ActionButton
+                                    href="/research-goals"
+                                    imgSrcPrefix="/images/navigation/research_goals"
+                                    title="Research Goals"
+                                    description="Define and pursue specific genetic goal creatures, and use our goal tracker to track your progress."
+                                />
+                                <ActionButton
+                                    href="/community-wishlist"
+                                    imgSrcPrefix="/images/navigation/community_wishlist"
+                                    title="Community Wishlist"
+                                    description="View other researchers' goals and share your own. Find out if you have a match for someone!"
+                                />
+                                <ActionButton
+                                    href="/checklists"
+                                    imgSrcPrefix="/images/navigation/checklists"
+                                    title="Custom Checklists"
+                                    description="Create custom checklists for your selected species and genes. Want to collect every Krizo crest? Do it here."
+                                />
+                                <ActionButton
+                                    href="/settings"
+                                    imgSrcPrefix="/images/navigation/settings"
+                                    title="Settings"
+                                    description="Adjust your account settings. Edit your public profile, customize the appearance of the site, and more."
+                                />
+                            </div>
                         </div>
 
-                        <div className="mt-8 max-w-full md:w-auto">
+                        <div>
                             <h2 className="text-2xl font-bold mb-4">Stats</h2>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 <Card className="bg-ebena-lavender/50 hallowsnight:bg-ruzafolio-scarlet dark:bg-black/20 border-0">

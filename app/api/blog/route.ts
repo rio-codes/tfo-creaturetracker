@@ -11,16 +11,25 @@ export async function GET() {
                 title: blogPosts.title,
                 content: blogPosts.content,
                 createdAt: blogPosts.createdAt,
-                author: {
-                    username: users.username,
-                    flair: users.supporterTier,
-                },
+                authorUsername: users.username,
+                authorFlair: users.supporterTier,
             })
             .from(blogPosts)
             .leftJoin(users, eq(blogPosts.authorId, users.id))
             .orderBy(desc(blogPosts.createdAt));
 
-        return NextResponse.json(posts);
+        const formattedPosts = posts.map((post) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            createdAt: post.createdAt,
+            author: {
+                username: post.authorUsername,
+                flair: post.authorFlair,
+            },
+        }));
+
+        return NextResponse.json(formattedPosts);
     } catch (error) {
         console.error('Failed to fetch blog posts:', error);
         return NextResponse.json({ error: 'An internal error occurred.' }, { status: 500 });

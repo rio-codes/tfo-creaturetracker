@@ -6,6 +6,7 @@ import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DbUser } from '@/types';
 import type { NextAuthConfig } from 'next-auth';
+import { db } from '@/src/db';
 
 export const authConfig = {
     session: {
@@ -26,7 +27,7 @@ export const authConfig = {
                 }
 
                 try {
-                    const { db } = await import('@/src/db');
+                    // const { db } = await import('@/src/db'); // Original line commented out
                     const user: DbUser | undefined = await db.query.users.findFirst({
                         where: eq(users.username, username),
                     });

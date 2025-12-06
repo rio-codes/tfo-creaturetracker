@@ -108,9 +108,7 @@ interface SettingsFormProps {
 }
 
 const EmojiPicker = dynamic(
-    () => {
-        return import('emoji-picker-react');
-    },
+    () => import('emoji-picker-react').then((mod) => mod.default),
     { ssr: false }
 );
 

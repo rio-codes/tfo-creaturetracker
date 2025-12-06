@@ -10,7 +10,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-const Editor = dynamic(() => import('@/app/admin/blog/editor').then((mod) => mod.Editor), {
+const Editor = dynamic(() => import('@/app/admin/blog/editor.tsx').then((mod) => mod.Editor), {
     ssr: false,
     loading: () => <p>Loading editor...</p>,
 });

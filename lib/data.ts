@@ -922,10 +922,11 @@ export async function getChecklists() {
     }
 
     try {
-        const userChecklists = await db.query.checklists.findMany({
-            where: (checklists, { eq }) => eq(checklists.userId, session.user.id),
-            orderBy: (checklists, { desc }) => [desc(checklists.createdAt)],
-        });
+        const userChecklists = await db
+            .select()
+            .from(checklists)
+            .where(eq(checklists.userId, session.user.id))
+            .orderBy(desc(checklists.createdAt));
 
         const allCreatures = await getAllCreaturesForUser();
 

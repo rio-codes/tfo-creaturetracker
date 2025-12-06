@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { checklists } from '@/src/db/schema';
+import { desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { hasObscenity } from '@/lib/obscenity';
 import { logUserAction } from '@/lib/user-actions';
@@ -119,10 +120,11 @@ export async function GET() {
     }
 
     try {
-        const userChecklists = await db.query.checklists.findMany({
-            where: (checklists, { eq }) => eq(checklists.userId, session.user.id),
-            orderBy: (checklists, { desc }) => [desc(checklists.createdAt)],
-        });
+        const userChecklists = await db
+            .select()
+            .from(checklists)
+            .where(eq(checklists.userId, session.user.id))
+            .orderBy(desc(checklists.createdAt));
 
         return NextResponse.json(userChecklists);
     } catch (error) {

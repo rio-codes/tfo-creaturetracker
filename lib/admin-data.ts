@@ -1,6 +1,7 @@
 import { db } from '@/src/db';
 import { auth } from '@/auth';
 import { users as _users } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function getAllUsers() {
     const session = await auth();
@@ -9,9 +10,9 @@ export async function getAllUsers() {
         throw new Error('Not authorized to fetch user data.');
     }
     // Fetch all users without their passwords for security.
-    return db.query.users.findMany({
-        columns: { id: true, username: true, email: true, role: true, status: true },
-    });
+    return db
+        .select({ id: _users.id, username: _users.username, email: _users.email, role: _users.role, status: _users.status })
+        .from(_users);
 }
 
 export async function getUserById(id: string) {
@@ -19,8 +20,10 @@ export async function getUserById(id: string) {
     if (session?.user?.role !== 'admin') {
         throw new Error('Not authorized to fetch user data.');
     }
-    return db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, id),
-        columns: { id: true, username: true, email: true, role: true, status: true },
-    });
+    const user = await db
+        .select({ id: _users.id, username: _users.username, email: _users.email, role: _users.role, status: _users.status })
+        .from(_users)
+        .where(eq(_users.id, id))
+        .limit(1);
+    return user[0] || null;
 }

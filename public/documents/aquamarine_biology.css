@@ -1,0 +1,548 @@
+/* 
+Aquamarine Biology
+CSS Code Credits: Lyri [#583579], Katie [#106445], Pandora [#144118] & Kat [#94329], Tawny [#251887], Hok-Z [#41458], Austin [#43750] 
+*/
+
+/* Import Font (From Google Fonts) */
+
+@import url("https://fonts.googleapis.com/css2?family=Playwrite+DE+Grund&display=swap");
+
+/* Background image, font and font color, text alignment */
+
+body {
+	background: url("https://cdn.allthepics.net/images/2026/03/31/lab.jpg") center center;
+	background-size: auto 100%;
+	font-family: "Playwrite DE Grund", sans-serif;
+	color: #1c3f36 !important;
+}
+
+/* Link colors */
+
+a:link,
+a:visited {
+	color: #1c3f36 !important;
+}
+
+a:hover {
+	color: #297560 !important;
+	transition: 0.5s;
+}
+
+/* Text input boxes */
+
+input,
+select,
+textarea {
+	background: #7cc2af !important;
+	border: none !important;
+	border-radius: 5px !important;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	color: #19765d;
+}
+
+/* CSS Credit */
+
+.breadcrumb::after {
+	content: "custom css by lyri | #583579 ";
+	color: #7cc2af;
+	font-size: 11.5px;
+	position: absolute;
+	right: 5%; /* (This may need adjusting) */
+	z-index: 100
+}
+
+/* Main panel container appearance*/
+.container.main {
+	background: radial-gradient(#7cc2af, #19765d);
+	opacity: 92%;
+	border: solid 1px #7cc2af;
+	border-radius: 4px 4px 4px 4px;
+	
+}
+
+/* Switch Account button */
+
+button.button, button.button:hover {
+	background: #19765d;
+	border: none !important;
+	border-radius: 4px;
+	text-shadow: none !important;
+	color: #7cc2af; !important
+}
+
+/* Make left panel background and border invisible */
+
+.col-md-9 {
+	background: none;
+	border-right: none
+}
+
+/* Topbar (Welcome and account navigation) */
+
+.topbar {
+	background: #5f9888 !important;
+	border: solid 1px #8696c5;
+	box-shadow: 0px 1px 10px #8696c5 !important;
+	border-radius: 0px 0px 4px 4px;
+}
+
+/* Navbar (Den/Crossroads/Etc.) */
+
+.navbar {
+	background: linear-gradient(to right, #19765d, #085e46);
+	border-bottom: none;
+	color: #aadf69;
+	border-radius: 10px 10px 0px 0px;
+	opacity: 1;
+}
+
+.navbar li a {
+	color: #7cc2af !important
+}
+
+.navbar li a:hover {
+	background: rgba(59, 80, 142, 0.9) !important;
+	border-bottom: none;
+	color: #8696c5 !important;
+	border-radius: 0px
+	filter: brightness(100%) opacity(90%);
+	transition: 0.5s !important;
+	height: 40px;
+	width: auto !important
+}
+
+/* Breadcrumb (Home button, den owner, bookmark) */
+
+.breadcrumb {
+	background: transparent !important;
+	border: solid 1px #297560 !important;
+	border-radius: 5px;
+	text-align:left !important;
+}
+
+.breadcrumb .active {
+	color: #7cc2af;
+}
+
+@media only screen and (max-width: 1199px) and (min-width: 992px)  {
+        .breadcrumb::after {
+            right: 20%
+        }
+    }
+
+    @media only screen and (max-width: 991px) and (min-width: 768px)  {
+        .breadcrumb::after {
+            right: 20%
+        }
+    }
+
+    @media only screen and (max-width: 767px) {
+        .breadcrumb::after {
+            right: 22%
+        }
+    }
+
+input.floatright, input.floatright:hover {
+	background: #19765d !important;
+	border: none !important;
+	border-radius: 4px !important;
+	color: #7cc2af !important; 
+	position: relative;
+	margin-top: 40px;
+}
+
+/* Alerts (i.e. "Your lionesses have returned from hunting!") */
+
+.alert,
+.alert-warning,
+.alert-danger {
+	background: #7cc2af !important;
+	border: none;
+	color: #085e46;
+	border-radius: 4px; !important;
+	padding: 5px;
+	margin-top: 20px;
+	text-align: right;
+}
+
+/* Main header appearance ("___"'s Den) */
+
+h1 {
+    font-size: 40px;
+    background: #7cc2af;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: right;
+}
+
+/* Secondary header */
+
+h2 {
+	font-size: 24px;
+	text-align: right;
+	color: #305b4f;
+}
+
+/* Tertiary header */
+
+h3 {
+	font-size: 14px !important;
+	text-align: right;
+	color: #305b4f;
+}
+
+/* Right-side panel appearance */
+
+.sidebar h3 {
+	background: transparent;
+	color: #7cc2af !important;
+	font-size: 22px !important;
+	text-align: right;
+	position: relative;
+	padding-top: 25px;
+}
+
+.panel {
+	background: #4ca089 !important;
+	border: solid 1px #7cc2af !important;
+	color: #1c3f36 !important;
+	border-radius: 4px;
+	text-align: right;
+}
+
+/* Progress bars (Energy, hunger, EXP, IMP) */
+.progress {
+	background: #7cc2af;
+	color: #000000 !important;
+	border-radius: 4px !important;
+}
+
+.progress-bar, .progress-bar-danger, .progress-bar-success {
+	background: linear-gradient(to right, #4ca089, #19765d, #467266);
+	border-radius: 4px !important;
+}
+
+.progress div {
+	color: #1c3f36 !important;
+	font-weight: bolder;
+}
+
+/*  Lion profile table and headers (Level, Stats, Territory Count, Etc.) */
+
+.table {
+	background: radial-gradient(#7cc2af, #19765d);
+	border: none !important;
+	border-collapse: separate;
+	border-radius: 10px;
+	box-shadow: 0px 5px 30px #19765d !important;
+}
+
+.top,
+th {
+	background: #19765d !important;
+	color: #7cc2af !important;
+	border-radius: 10px 10px 0px 0px;
+	border: 1px #7cc2af;
+}
+
+.bottom,
+th {
+	background: #085e46 !important;
+	border: 1px #7cc2af;
+	color: #7cc2af !important;
+	border-radius: 4px 4px 4px 4px;
+}
+
+td.bottom button {
+	margin-top: 10px;
+}
+
+.inner-table .left {
+	background: #19765d !important;
+	color: #7cc2af;
+	border-radius: 4px 4px 4px 4px !important;
+}
+
+.inner-table .right {
+	background: #7cc2af;
+	color: #085e46;
+	border-radius: 4px 4px 4px 4px !important;
+}
+
+td.right {
+	border-radius: 0px !important;
+}
+
+.right_odd {
+	background: none !important
+}
+
+/* Lion and user profile pictures */
+
+div#lion_image {
+	border-radius: 4px !important;
+    opacity: 0.9;
+	overflow: hidden;
+    border: solid 4px #7cc2af;
+    box-shadow: 0px 0px 5px #1D2C24;
+    transition: 0.2s;
+	margin-top: 15px; 
+	margin-left: 12px;
+}
+
+div#lion_image:hover {
+    transform: scale(1.05);
+    transition: 0.4s;
+    opacity: 1;
+    box-shadow: 0px 0px 8px #97BE96;
+}
+
+
+table#player img {
+border-radius: 4px !important;
+    opacity: 0.9;
+	overflow: hidden;
+    border: solid 4px #7cc2af;
+}
+
+/* Cave and Beetle Mound grid appearances*/
+
+.cave-grid,
+.mound-grid {
+	background: #7cc2af;
+	color: #085e46;
+	border: solid 1px #7cc2af !important;
+	border-radius: 10px !important
+}
+
+/* "King Dynasty, Pride Dynasty, Achievements, Showcase" panel appearance */
+
+.feature {
+	background: #7cc2af !important;;
+	color: #085e46 !important;;
+	border: none !important;
+	border-radius: 0px !important
+}
+
+.feature,
+div.left {
+	background: #19765d;
+}
+
+.feature,
+div.left h3 {
+	color: #7cc2af !important;
+}
+
+/* Image Replacement, will edit URLs when ready (Logo, caves, etc) */
+
+div.container.main > div:nth-child(1) > nav > div.navbar-header > a > img {
+	content: url('');
+	opacity: 1;
+	transition: 1s !important;
+}
+
+div.container.main>div:nth-child(1)>nav>div.navbar-header>a>img:hover {
+	content: url('');
+	opacity: 0.8;
+	transition: 1s !important;
+}
+
+div.cave-grid>img[src$="nestingbanner.png"] {
+	content: url('')!important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img:hover{
+	filter: brightness(90%) opacity(80%);
+	overflow: hidden;
+	transition: 0.5s !important;
+}
+
+div.cave-grid>img[src$="prideoverviewbanner.png"] {
+	content: url('')!important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img[src$="unsortedlionsbanner.png"] {
+	content: url('')!important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img {
+	content: url('')!important;
+	padding-left: 0%;
+	height: 100%;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 0px !important;
+}
+
+.mound-grid img {
+	width: 0;
+	height: 0;
+	padding-top: 10px;
+	padding-right: 120px
+}
+
+/* Image fix for mobile */
+
+@media only screen and (max-width: 767px) {
+	.container.main .hidden-xs {
+		display: block !important;
+	}
+}
+
+@media only screen and (max-width: 991px) and (min-width: 768px) {
+	display: block !important;
+}
+
+@media only screen and (min-width: 1200px) {
+	div.quote {
+		width: 790px;
+	}
+}
+
+/* Remove icons and edit text for user profile buttons */
+
+#player > tbody > tr:nth-child(3) > td:nth-child(1) > a::before {
+	opacity: 0%;
+	font-size: 0px;
+}
+
+#player > tbody > tr:nth-child(3) > td:nth-child(1) > a {
+	font-size:0px;
+}
+
+#player > tbody > tr:nth-child(3) > td:nth-child(1) > a::after {
+    content:'Block Member';
+    font-size:13px;
+}
+
+#player > tbody > tr:nth-child(3) > td:nth-child(2) > a::after {
+    content:'Friend Request';
+    font-size:13px;
+}
+
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(1) {
+    font-size:0px;
+}   
+
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(1)::after {
+    content:'Message';
+    font-size:12px;
+}
+
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(3) {
+    font-size:0px;
+}   
+
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(3)::after {
+    content:'Send Gift!';
+    font-size:12px;
+}
+
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(5) {
+    font-size:0px;
+}
+ 
+#player > tbody > tr.right > td:nth-child(1) > div.xlarge > a:nth-child(5)::after {
+    content:'Create Trade';
+    font-size:12px;
+}
+ 
+#player > tbody > tr.right > td:nth-child(1) > p > a:nth-child(3)::after {
+	padding: 15px;
+}
+
+#player > tbody > tr.right > td:nth-child(1) > p.center:nth-child(5) > a:nth-child(1) > img:nth-child(1) {
+	display: none;
+}
+
+#player > tbody > tr.right > td:nth-child(1) > p.center:nth-child(5) > a:nth-child(3) > img:nth-child(1) {
+	display: none;
+}
+
+/* Image Replacement (Will edit with images when ready) */
+
+img[src$="den_ancestors.png"] {
+	content: url('');
+	width: 2 !important;
+} 
+
+img[src$="ancestorsfem.png"] {
+	content: url('');
+	width: 2 !important;
+}
+
+img[src$="den_achievements.png"] {
+	content: url('');
+	width: 2 !important;
+}
+
+img[src$="den_showcase.png"] {
+	content: url('');
+	width: 2 !important
+}
+
+img[src$="den_beetlebook.png"] {
+	content: url('');
+	width: 2 !important 
+}
+
+/* Misc. layout fixes */
+
+hr {
+	display:none;
+}
+
+.text-muted {
+	opacity: 0%;
+}
+.center p img {
+	display: none;
+}
+.xlarge img {
+	display: none;
+}
+
+.right_odd img {
+	display: none;
+}
+
+div.col-md-3.col-sm-6.col-xs-6.mb-2.dynastylist {
+	width: 20%;
+}
+
+/* Footer */
+
+div.container.footer.center.white.visible-lg.visible-md.visible-sm, div.container.footer.center.white.visible-lg.visible-md.visible-sm a {
+	color: #ffffff !important;
+	text-shadow: #253a7a !important
+}

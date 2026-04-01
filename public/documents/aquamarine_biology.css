@@ -38,7 +38,7 @@ textarea {
 	border-radius: 5px !important;
 	box-shadow: none !important;
 	text-shadow: none !important;
-	color: #19765d;
+	color: #19765d !important;
 }
 
 /* CSS Credit */
@@ -48,22 +48,34 @@ textarea {
 	color: #7cc2af;
 	font-size: 11.5px;
 	position: absolute;
-	right: 5%; /* (This may need adjusting) */
+	right: 3%;
 	z-index: 100
 }
 
 /* Main panel container appearance*/
 .container.main {
 	background: radial-gradient(#7cc2af, #19765d);
-	opacity: 92%;
+	opacity: 97%;
 	border: solid 1px #7cc2af;
-	border-radius: 4px 4px 4px 4px;
-	
+	box-shadow: 0px 1px 10px #7cc2af !important;
+	border-radius: 4px;
 }
 
-/* Switch Account button */
+/* Switch Account and Bug Box buttons */
 
 button.button, button.button:hover {
+	background: #19765d;
+	border: none !important;
+	border-radius: 4px;
+	text-shadow: none !important;
+	color: #7cc2af; !important
+}
+
+.btn img {
+	display: none;
+}
+
+.btn, .btn:hover {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;
@@ -82,8 +94,8 @@ button.button, button.button:hover {
 
 .topbar {
 	background: #5f9888 !important;
-	border: solid 1px #8696c5;
-	box-shadow: 0px 1px 10px #8696c5 !important;
+	border: solid 1px #7cc2af;
+	box-shadow: 0px 1px 10px #7cc2af !important;
 	border-radius: 0px 0px 4px 4px;
 }
 
@@ -143,13 +155,15 @@ button.button, button.button:hover {
         }
     }
 
+/* Bookmark button */
+
 input.floatright, input.floatright:hover {
 	background: #19765d !important;
 	border: none !important;
 	border-radius: 4px !important;
 	color: #7cc2af !important; 
 	position: relative;
-	margin-top: 40px;
+  margin-right: 180px;
 }
 
 /* Alerts (i.e. "Your lionesses have returned from hunting!") */
@@ -320,10 +334,14 @@ border-radius: 4px !important;
 /* "King Dynasty, Pride Dynasty, Achievements, Showcase" panel appearance */
 
 .feature {
-	background: #7cc2af !important;;
-	color: #085e46 !important;;
+	background: radial-gradient(#7cc2af, #19765d) !important;
+	color: #085e46 !important;
 	border: none !important;
 	border-radius: 0px !important
+}
+
+.xsmall {
+	color: #1c3f36;
 }
 
 .feature,
@@ -336,79 +354,8 @@ div.left h3 {
 	color: #7cc2af !important;
 }
 
-/* Image Replacement, will edit URLs when ready (Logo, caves, etc) */
-
-div.container.main > div:nth-child(1) > nav > div.navbar-header > a > img {
-	content: url('');
-	opacity: 1;
-	transition: 1s !important;
-}
-
-div.container.main>div:nth-child(1)>nav>div.navbar-header>a>img:hover {
-	content: url('');
-	opacity: 0.8;
-	transition: 1s !important;
-}
-
-div.cave-grid>img[src$="nestingbanner.png"] {
-	content: url('')!important;
-	padding-left: 0%;
-	height: 60px;	
-	width:250px;
-	opacity: 0.7;
-	border: 0px ridge;
-	overflow: hidden;
-	border: 0px;
-	border-radius: 10px 10px 10px 0px 0px !important;
-}
-
-div.cave-grid>img:hover{
-	filter: brightness(90%) opacity(80%);
-	overflow: hidden;
-	transition: 0.5s !important;
-}
-
-div.cave-grid>img[src$="prideoverviewbanner.png"] {
-	content: url('')!important;
-	padding-left: 0%;
-	height: 60px;	
-	width:250px;
-	opacity: 0.7;
-	border: 0px ridge;
-	overflow: hidden;
-	border: 0px;
-	border-radius: 10px 10px 0px 0px !important;
-}
-
-div.cave-grid>img[src$="unsortedlionsbanner.png"] {
-	content: url('')!important;
-	padding-left: 0%;
-	height: 60px;	
-	width:250px;
-	opacity: 0.7;
-	border: 0px ridge;
-	overflow: hidden;
-	border: 0px;
-	border-radius: 10px 10px 0px 0px !important;
-}
-
-div.cave-grid>img {
-	content: url('')!important;
-	padding-left: 0%;
-	height: 100%;	
-	width:250px;
-	opacity: 0.7;
-	border: 0px ridge;
-	overflow: hidden;
-	border: 0px;
-	border-radius: 0px !important;
-}
-
-.mound-grid img {
-	width: 0;
-	height: 0;
-	padding-top: 10px;
-	padding-right: 120px
+div.feature {
+	color: #085e46 !important;
 }
 
 /* Image fix for mobile */
@@ -489,32 +436,120 @@ div.cave-grid>img {
 	display: none;
 }
 
-/* Image Replacement (Will edit with images when ready) */
+/* Image Replacement */
+
+div.container.main > div:nth-child(1) > nav > div.navbar-header > a > img {
+	content: url('');
+	opacity: 1;
+	transition: 1s !important;
+}
+
+div.container.main>div:nth-child(1)>nav>div.navbar-header>a>img:hover {
+	content: url('');
+	opacity: 0.8;
+	transition: 1s !important;
+}
+div.cave-grid>img[src$="nestingbanner.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-nestingbanner.png') !important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img:hover{
+	filter: brightness(90%) opacity(80%);
+	overflow: hidden;
+	transition: 0.5s !important;
+}
+
+div.cave-grid>img[src$="prideoverviewbanner.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-prideoverviewbanner.png') !important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img[src$="unsortedlionsbanner.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-unsortedlionsbanner.png') !important;
+	padding-left: 0%;
+	height: 60px;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 10px 10px 0px 0px !important;
+}
+
+div.cave-grid>img {
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-cave-grid.png') !important;
+	padding-left: 0%;
+	height: 100%;	
+	width:250px;
+	opacity: 0.7;
+	border: 0px ridge;
+	overflow: hidden;
+	border: 0px;
+	border-radius: 0px !important;
+}
+
+.mound-grid img {
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_showcase.png') !important;
+  object-fit: cover !important;
+	height: 60px;
+	width: 300px !important;
+	opacity: 0.7;
+	border: 0px ridge;
+	border: 0px;
+	border-radius: 0px !important;
+
+}
 
 img[src$="den_ancestors.png"] {
-	content: url('');
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_ancestors.png');
+	object-fit: cover;
+	height: 100px !important;
 	width: 2 !important;
 } 
 
 img[src$="ancestorsfem.png"] {
-	content: url('');
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-ancestorsfem.png');
+	object-fit: cover;
+	height: 100px !important;
 	width: 2 !important;
 }
 
 img[src$="den_achievements.png"] {
-	content: url('');
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_achievements.png');
+	object-fit: cover;
+	height: 100px;
 	width: 2 !important;
 }
 
 img[src$="den_showcase.png"] {
-	content: url('');
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_showcase.png');
+	object-fit: cover;
+	height: 100px;
 	width: 2 !important
 }
 
 img[src$="den_beetlebook.png"] {
-	content: url('');
+	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_beetlebook.png');
+	object-fit: cover;
+	height: 100px;
 	width: 2 !important 
 }
+
 
 /* Misc. layout fixes */
 

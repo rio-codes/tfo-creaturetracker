@@ -73,13 +73,19 @@ button.button, button.button:hover {
 	display: none;
 }
 
+.btn-default {
+  	background: #19765d !important;
+	color: #7cc2af !important;
+}
+
 .btn, .btn:hover {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;
 	text-shadow: none !important;
-	color: #7cc2af; !important
+	color: #7cc2af !important;
 }
+
 
 /* Make left panel background and border invisible */
 

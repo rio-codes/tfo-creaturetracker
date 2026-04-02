@@ -369,6 +369,10 @@ div.feature {
     font-size:13px;
 }
 
+#player > tbody > tr:nth-child(3) > td:nth-child(2) > a {
+	font-size:0px;
+}
+
 #player > tbody > tr:nth-child(3) > td:nth-child(2) > a::after {
     content:'Friend Request';
     font-size:13px;

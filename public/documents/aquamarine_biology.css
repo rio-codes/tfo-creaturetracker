@@ -44,12 +44,9 @@ textarea {
 /* CSS Credit */
 
 .breadcrumb::after {
-	content: "custom css by lyri | #583579 ";
+	content: "~ custom css by lyri | #583579 ";
 	color: #7cc2af;
-	font-size: 11.5px;
-	position: absolute;
-	right: 3%;
-	z-index: 100
+	font-size: 12px;
 }
 
 /* Main panel container appearance*/
@@ -136,24 +133,6 @@ button.button, button.button:hover {
 .breadcrumb .active {
 	color: #7cc2af;
 }
-
-@media only screen and (max-width: 1199px) and (min-width: 992px)  {
-        .breadcrumb::after {
-            right: 20%
-        }
-    }
-
-    @media only screen and (max-width: 991px) and (min-width: 768px)  {
-        .breadcrumb::after {
-            right: 20%
-        }
-    }
-
-    @media only screen and (max-width: 767px) {
-        .breadcrumb::after {
-            right: 22%
-        }
-    }
 
 /* Bookmark button */
 

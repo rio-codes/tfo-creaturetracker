@@ -361,6 +361,10 @@ div.feature {
 
 /* Remove icons and edit text for user profile buttons */
 
+td.right_odd:nth-child(1) > a:nth-child(1) > img:nth-child(1) {
+  display: none;
+}
+
 #player > tbody > tr:nth-child(3) > td:nth-child(1) > a::before {
 	opacity: 0%;
 	font-size: 0px;

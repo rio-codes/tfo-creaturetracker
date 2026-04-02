@@ -141,8 +141,6 @@ input.floatright, input.floatright:hover {
 	border: none !important;
 	border-radius: 4px !important;
 	color: #7cc2af !important; 
-	position: relative;
-  margin-right: 180px;
 }
 
 /* Alerts (i.e. "Your lionesses have returned from hunting!") */

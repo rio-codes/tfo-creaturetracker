@@ -483,17 +483,21 @@ div.cave-grid>img {
 	border: 0px;
 	border-radius: 0px !important;
 }
-
 .mound-grid img {
 	content: url('https://cdn.allthepics.net/images/2026/04/01/aqua_bio-den_showcase.png') !important;
-  object-fit: cover !important;
+    object-fit: cover !important;
 	height: 60px;
-	width: 300px !important;
+	width: 230px !important;
 	opacity: 0.7;
 	border: 0px ridge;
+	overflow: hidden;
 	border: 0px;
 	border-radius: 0px !important;
-
+    padding: 0px !important;
+	margin: 0px;
+	position: relative;
+	left: -50px;
+	top: -5px
 }
 
 img[src$="den_ancestors.png"] {

@@ -282,7 +282,6 @@ div#lion_image {
     box-shadow: 0px 0px 5px #1D2C24;
     transition: 0.2s;
 	margin-top: 15px; 
-	margin-left: 12px;
 }
 
 div#lion_image:hover {

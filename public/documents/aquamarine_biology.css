@@ -4,16 +4,16 @@ CSS Code Credits: Lyri [#583579], Katie [#106445], Pandora [#144118] & Kat [#943
 */
 
 /* Import Font (From Google Fonts) */
-
-@import url("https://fonts.googleapis.com/css2?family=Playwrite+DE+Grund&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Nova+Square&display=swap');
 
 /* Background image, font and font color, text alignment */
 
 body {
 	background: url("https://cdn.allthepics.net/images/2026/03/31/lab.jpg") center center;
 	background-size: auto 100%;
-	font-family: "Playwrite DE Grund", sans-serif;
+	font-family: "Nova Square", sans-serif;
 	color: #1c3f36 !important;
+	font-size: 12px;
 }
 
 /* Link colors */
@@ -50,6 +50,7 @@ textarea {
 }
 
 /* Main panel container appearance*/
+
 .container.main {
 	background: radial-gradient(#7cc2af, #19765d);
 	opacity: 97%;

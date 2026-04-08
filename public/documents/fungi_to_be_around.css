@@ -21,15 +21,19 @@ body {
   text-shadow: 0 0 .2em, 0 0 .5em #d7bf70 !important;
 }
 
+
+
 /* Link colors */
 
 a:link,
 a:visited {
-	color: #222504 !important;
+	color: #222504;
+	font-weight: 500;
+	text-shadow: 0 0 .2em, 0 0 .5em #d1ba6c !important;
 }
 
 a:hover {
-	color: #d7bf70 !important;
+	color: #ede0a4 !important;
 	transition: 0.5s;
 }
 
@@ -49,9 +53,12 @@ textarea {
 /* CSS Credit */
 
 .breadcrumb::after {
-	content: "~ custom css by lyri | #583579 - WORK IN PROGRESS ";
+	content: "custom css by lyri | #583579 ";
 	color: #d7bf70;
 	font-size: 12px;
+	position:absolute;
+	top: 4px;
+	left: 25px;
 }
 
 /* Main panel container appearance*/
@@ -103,6 +110,10 @@ button.button, button.button:hover {
   font-size: medium;
 }
 
+.topbar a {
+	color: #d7bf70 !important;
+}
+
 /* Navbar (Den/Crossroads/Etc.) */
 
 .navbar {
@@ -134,13 +145,14 @@ button.button, button.button:hover {
 
 .breadcrumb {
   background: #746d18 !important;
-	color: #222504 !important;
+	color: #ede0a4 !important;
 	border-radius: 5px;
 	text-align:left !important;
   box-shadow: 0px 1px 10px #d7bf70 !important;
   font-size: medium;
   z-index: 50;
   opacity: 100%;
+	margin-top: 10px;
 }
 
 .breadcrumb .active {
@@ -177,12 +189,18 @@ input.floatright, input.floatright:hover {
 
 h1 {
     font-family: Megrim;
-    font-size: 40px;
+    font-size: 30px;
     background: #d7bf70;
+	  font-weight: 600;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     animate: slideInDown; 
+}
+
+.small a:link, .small a:visited {
+	font-weight: 800 !important;
+	color: #746d18 !important;
 }
 
 /* Secondary header */
@@ -191,6 +209,7 @@ h2 {
   font-family: Megrim;
 	font-size: 24px;
 	color: #d7bf70;
+	text-shadow: 0 0 .2em, 0 0 .5em #d7bf70 !important;
 }
 
 /* Tertiary header */
@@ -199,6 +218,11 @@ h3 {
   font-family: Megrim;
 	font-size: 20px !important;
 	color: #d7bf70;
+	text-shadow: 0 0 .2em, 0 0 .5em #d7bf70 !important;
+}
+
+#allies > tbody > tr > td > span > a {
+	color: #d0b86b !important;
 }
 
 /* Right-side panel appearance */
@@ -211,17 +235,24 @@ h3 {
 	position: relative;
 	padding-top: 25px;
   border: 0px !important;
+	text-shadow: 0 0 .2em, 0 0 .5em #d7bf70 !important;
 }
 
 .panel {
 	background: radial-gradient(#746d18, #222504) !important;
-	color: #222504 !important;
+	color: #d7bf70 !important;
 	text-align: right;
   opacity: 0.9;
   border: 0px !important;
   box-shadow: 0px 1px 10px #d7bf70 !important;
   z-index: 50;
   opacity: 100%;
+	text-shadow: 0 0 .2em, 0 0 .5em #d7bf70 !important;
+}
+
+.panel-body.small .center a, .panel-body.small a {
+	font-weight: 200 !important;
+	color: #d7bf70 !important;
 }
 
 /* Profile text box appearance */
@@ -238,12 +269,7 @@ h3 {
 }
 
 div#fraProfileContent::after {
-  content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
-  position: absolute;
-  top: 350px;
-  right: 100px;
-  box-shadow: 0px 1px 10px #d7bf70 !important;
-  z-index: 50 !important;
+
 }
 
 table .pun-content {
@@ -261,14 +287,19 @@ table .pun-content {
 }
 
 table .pun-content::after {
-
-  position: inherit;
+  content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
+  position: absolute;
+  top: 350px;
+  right: 100px;
+  box-shadow: 0px 1px 10px #d7bf70 !important;
+  z-index: 50 !important;
+  /*position: inherit;
   top: 10px;
   height: 100px !important;
   width: 50px !important;
   right: 10px;
   z-index: 50 !important;
-  opacity: initial !important;
+  opacity: initial !important;*/
 }
 
 .pun-table {
@@ -302,16 +333,20 @@ table .pun-content::after {
 	border-collapse: inherit;
 	border-radius: 10px;
 	box-shadow: 0px 5px 30px #040201 !important;
-
+	text-shadow: 0 0 .2em, 0 0 .5em #d1ba6c !important;
   font-size: 14px;
   font-weight: 500 !important;
   position: absolute;
   color: #040201;
-  padding: 30px;
   hyphens: auto;
   overflow: hidden;
   position: relative;
   opacity: 1;
+}
+
+.table#pride tbody tr th a {
+	color: #d7bf70;
+	text-shadow: 0 0 .2em, 0 0 .5em #d1ba6c !important;
 }
 
 .top,
@@ -347,13 +382,19 @@ td.right {
 	border: 0px !important;
 }
 
-td.left {
+td.left,
+p.b {
 	border: 0px !important;
+	background: transparent !important;
 }
 
 
 .right_odd {
 	background: none !important
+}
+
+div.left:nth-child(7) > a:nth-child(1) {
+  color: #d7bf70;
 }
 
 /* Lion and user profile pictures */
@@ -651,7 +692,15 @@ img[src$="iconInsta.png"] {
 	overflow: hidden;
 }
 
+img[src$="default.png"]{
+	content: url("https://cdn.allthepics.net/images/2026/04/08/7thmabiraforest.png")
+}
+
 /* Misc. layout fixes */
+
+div.lionImage {
+	background: transparent !important;
+}
 
 #editdetailspanel > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1),
 #editdetailspanel > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1),
@@ -697,16 +746,16 @@ hr {
   display: none;
 }
 
-.right_odd img {
-	display: none;
-}
-
 div.col-md-3.col-sm-6.col-xs-6.mb-2.dynastylist {
 	width: 20%;
 }
 
 div.left {
   color: #d7bf70;
+}
+
+div.badge {
+	background: #d7bf70;
 }
 
 hr {
@@ -723,4 +772,8 @@ td.left {
 div.container.footer.center.white.visible-lg.visible-md.visible-sm, div.container.footer.center.white.visible-lg.visible-md.visible-sm a, ul.small {
 	color: #ffffff !important;
 	text-shadow: #253a7a !important
+}
+
+.col-xs-10 ul a:link, .col-xs-10 ul a:visited {
+  color: #fae781 !important;
 }

@@ -625,6 +625,31 @@ img[src$="den_beetlebook.png"] {
 	width: 2 !important 
 }
 
+img[src$="iconFB.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/08/fungi-iconFB.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	overflow: hidden;
+}
+
+img[src$="iconTwit.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/08/fungi-iconTwit.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	position: relative;
+	top: 2px;
+	overflow: hidden;
+}
+
+img[src$="iconInsta.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/08/fungi-iconInsta.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	overflow: hidden;
+}
 
 /* Misc. layout fixes */
 

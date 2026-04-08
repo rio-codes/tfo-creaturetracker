@@ -44,9 +44,12 @@ textarea {
 /* CSS Credit */
 
 .breadcrumb::after {
-	content: "~ custom css by lyri | #583579 ";
+	content: "custom css by lyri | #583579 ";
 	color: #7cc2af;
 	font-size: 12px;
+	position:absolute;
+	top: 6px;
+	left: 30px;
 }
 
 /* Main panel container appearance*/
@@ -172,7 +175,7 @@ h1 {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-align: right;
+    text-align: center;
 }
 
 /* Secondary header */
@@ -341,16 +344,25 @@ div.feature {
 	color: #085e46 !important;
 }
 
-/* Image fix for mobile */
+/* Image/CSS Credit fix for mobile */
 
 @media only screen and (max-width: 767px) {
 	.container.main .hidden-xs {
 		display: block !important;
 	}
+	.breadcrumb::after {
+	  position: absolute;
+		top: 10px;
+		left: 30px;
+	}
 }
 
 @media only screen and (max-width: 991px) and (min-width: 768px) {
-	display: block !important;
+	.breadcrumb::after {
+	  position: absolute;
+		top: 5px;
+		left: 30px;
+	}
 }
 
 @media only screen and (min-width: 1200px) {
@@ -560,6 +572,16 @@ hr {
 }
 .xlarge img {
 	display: none;
+}
+
+
+#allies > tbody:nth-child(1) > tr:nth-child(3) td,
+#allies > tbody:nth-child(1) > tr:nth-child(5) td,
+#clans > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1),
+#clans > tbody:nth-child(1) > tr:nth-child(5) > td:nth-child(1),
+#clans > tbody:nth-child(1) > tr:nth-child(7) > td:nth-child(1)
+{
+  display: none;
 }
 
 div.col-md-3.col-sm-6.col-xs-6.mb-2.dynastylist {

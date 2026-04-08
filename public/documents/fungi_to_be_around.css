@@ -426,10 +426,22 @@ div.feature {
 	.container.main .hidden-xs {
 		display: block !important;
 	}
+	div#fraProfileContent::after {
+		content: "" !important;
+	}
+  table .pun-content {
+    left: -100px
+  }
 }
 
 @media only screen and (max-width: 991px) and (min-width: 768px) {
 	display: block !important;
+	div#fraProfileContent::after {
+		content: "" !important;
+	}
+  table .pun-content {
+    left: -180px
+  }
 }
 
 @media only screen and (min-width: 1200px) {
@@ -437,6 +449,7 @@ div.feature {
 		width: 790px;
 	}
 }
+
 
 /* Remove icons and edit text for user profile buttons */
 

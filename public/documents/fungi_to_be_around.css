@@ -200,9 +200,13 @@ h1 {
     text-align: center;
 }
 
-.small a:link, .small a:visited {
+h1.center > small:nth-child(2) a:link, h1.center > small:nth-child(2) a:visited, p.center:nth-child(2) > a:nth-child(1) a:link, p.center:nth-child(2) > a:nth-child(1) a:visited {
+	color: #d7bf70 !important;
+}
+
+h1.center > small:nth-child(2), p.center:nth-child(2) > a:nth-child(1) {
 	font-weight: 500 !important;
-	color: #746d18 !important;
+	color: #ede0a4 !important;
 }
 
 /* Secondary header */
@@ -360,6 +364,14 @@ table .pun-content h3 {
   opacity: 1;
 }
 
+.table#pride tbody {
+	font-weight: 100;
+	font-size: 12px;
+	color: #ede0a4;
+}
+.table#pride a {
+	color: #ede0a4;
+}
 .table#pride tbody tr th a {
 	color: #d7bf70;
   font-weight: 300 !important;
@@ -847,7 +859,7 @@ div.left {
 }
 
 div.badge {
-	background: #d7bf70;
+	background: #736b18;
 }
 
 hr {

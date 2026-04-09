@@ -86,12 +86,12 @@ button.button, button.button:hover {
 	display: none;
 }
 
-.btn, .btn:hover {
+.btn, .btn:hover, .btn.btn {
 	background: #222504;
 	border: none !important;
 	border-radius: 4px;
 	text-shadow: none !important;
-	color: #d7bf70; !important
+	color: #d7bf70; !important;
 }
 
 /* Make left panel background and border invisible */
@@ -264,51 +264,63 @@ h3 {
 }
 
 /* Profile text box appearance */
-.pun-table::before {
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0; 
-    z-index: 50; 
-    filter: blur(10px);
-    margin: -10px;
+
+div .pun-content {
+  width: 100%;
+  height: 70px !important;
+  z-index: 5;
+  position: relative;
+  top: 10px;
+  left: 10px;
 }
 
-.pun-content {
-  width: 90%;
+table.table.pun-table {
+  height: min-content !important;
+  width: 90% !important;
+}
+
+table.table:nth-child(16) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2) {
+  width:60%;
+  position: relative;
+  left: -400px;
+  top: -50px;
+}
+
+table.table:nth-child(16) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2)::after {
+  content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
+  position: relative;
+  top: 20px;
+  left: 400px; 
 }
 
 table .pun-content {
-    width: 400px;
+    width: 80%;
+    height: max-content;
     font-size: 14px;
     font-weight: 500 !important;
-    position: absolute;
-    left: -200px;
+    position: relative;
+    top: 50px;
+    left: 50px;
     color: #040201;
     padding: 30px;
     hyphens: auto;
-    overflow: hidden;
-    position: relative;
+    text-shadow: 0 0 .6em, 0 0 1em #d7bf70 !important;
     opacity: 1;
 }
 
-table .pun-content::after {
-  content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
-  position: absolute;
-  top: 350px;
-  right: 100px;
-  box-shadow: 0px 1px 10px #d7bf70 !important;
-  z-index: 50 !important;
-  /*position: inherit;
-  top: 10px;
-  height: 100px !important;
-  width: 50px !important;
-  right: 10px;
-  z-index: 50 !important;
-  opacity: initial !important;*/
+table .pun-content h3 {
+  font-size: 30px !important;
+  font-weight: 600 !important;
+}
+
+.pun-links a, .pun-graphics a {
+  color: #040201;
+	z-index: 50;
 }
 
 .pun-table {
- width: 90%;
  border: 20px 0 0 0 #2e2e07;
+ text-shadow: 0 0 .6em, 0 0 1em #d7bf70 !important;
 }
 
 /* Progress bars (Energy, hunger, EXP, IMP) */
@@ -487,6 +499,7 @@ div.left h3, .feature h3 {
 #pageContainer > center:nth-child(5) > b:nth-child(18) {
   font-weight: 200;
 }
+
 div.feature {
 	color: #d7bf70 !important;
   font-weight: 200;
@@ -494,7 +507,7 @@ div.feature {
   padding: 5px;
 }
 
-/* Image fix for mobile */
+/* Profile fix for mobile */
 
 @media only screen and (max-width: 767px) {
 	.container.main .hidden-xs {
@@ -503,9 +516,37 @@ div.feature {
 	div#fraProfileContent::after {
 		content: "" !important;
 	}
+  table.table.pun-table {
+  height: min-content !important;
+  width: 70% !important;
+}
+  table.table:nth-child(16) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2)::after {
+    content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
+    position: relative;
+    top: 20px;
+    left: 360px;
+    z-index: 10;
+    opacity: 0.2;
+}
   table .pun-content {
-    left: -100px
-  }
+    width: 100%;
+    height: min-content;
+    font-size: 14px;
+    font-weight: 500 !important;
+    position: relative;
+    top: 5px;
+    left: 360px;
+    color: #d7bf70;
+    padding: 30px;
+    hyphens: auto;
+    text-shadow: 0 0 .6em, 0 0 1em #222504 !important;
+    opacity: 1;
+}
+
+table .pun-content h3 {
+  font-size: 30px !important;
+  font-weight: 600 !important;
+}
 }
 
 @media only screen and (max-width: 991px) and (min-width: 768px) {
@@ -513,9 +554,27 @@ div.feature {
 	div#fraProfileContent::after {
 		content: "" !important;
 	}
-  table .pun-content {
-    left: -180px
-  }
+   table .pun-content {
+    width: 90%;
+    height: min-content;
+    font-size: 14px;
+    font-weight: 500 !important;
+    position: relative;
+    top: 5px;
+    left: 110px;
+    color: #0b0703;
+    padding: 30px;
+    hyphens: auto;
+    text-shadow: 0 0 .6em, 0 0 1em #d7bf70 !important;
+    opacity: 1;
+}
+  table.table:nth-child(16) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2)::after {
+    content: url("https://cdn.allthepics.net/images/2026/04/08/smaller-rainy-mushies.gif") !important;
+    position: relative;
+    top: 20px;
+    left: 420px;
+    z-index: 10;
+}
 }
 
 @media only screen and (min-width: 1200px) {

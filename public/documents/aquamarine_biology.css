@@ -10,7 +10,8 @@ CSS Code Credits: Lyri [#583579], Katie [#106445], Pandora [#144118] & Kat [#943
 
 body {
 	background: url("https://cdn.allthepics.net/images/2026/03/31/lab.jpg") center center;
-	background-size: auto 100%;
+	background-size: width 100%;
+	background-attachment: fixed;
 	font-family: "Nova Square", sans-serif;
 	color: #1c3f36 !important;
 	font-size: 12px;
@@ -81,7 +82,7 @@ button.button, button.button:hover {
 	color: #7cc2af !important;
 }
 
-.btn, .btn:hover {
+.btn, .btn:hover, .btn.btn {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;
@@ -243,7 +244,7 @@ h3 {
 .top,
 th {
 	background: #19765d !important;
-	color: #7cc2af !important;
+	color: #7cc2af;
 	border-radius: 10px 10px 0px 0px;
 	border: 1px #7cc2af;
 }
@@ -278,6 +279,23 @@ td.right {
 
 .right_odd {
 	background: none !important
+}
+
+#pride > tbody:nth-child(1) > tr:nth-child(9) > td {
+	background: #085c45;
+	color: #78bdab;
+}
+
+#pride > tbody > tr > td {
+	background: #2e856c;
+}
+
+#pride > tbody > tr > th a {
+	color: #78bcaa !important;
+}
+
+td.left.b, div.lionImage.featured-lion {
+	background: transparent;
 }
 
 /* Lion and user profile pictures */
@@ -555,6 +573,36 @@ img[src$="den_beetlebook.png"] {
 	object-fit: cover;
 	height: 100px;
 	width: 2 !important 
+}
+
+img[src$="default.png"]{
+	content: url("https://static.lioden.com/images/dynamic/backgrounds/MTunderwater_ruins.png")
+}
+
+img[src$="iconFB.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/10/aqua-bio-iconFB.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	overflow: hidden;
+}
+
+img[src$="iconTwit.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/10/aqua-bio-iconTwit.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	position: relative;
+	top: 2px;
+	overflow: hidden;
+}
+
+img[src$="iconInsta.png"] {
+	content: url('https://cdn.allthepics.net/images/2026/04/10/aqua-bio-iconInsta.png');
+	object-fit: cover;
+	height: 50px;
+	width: 50px;
+	overflow: hidden;
 }
 
 

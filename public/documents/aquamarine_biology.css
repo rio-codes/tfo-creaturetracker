@@ -65,12 +65,12 @@ textarea {
 
 /* Switch Account and Bug Box buttons */
 
-button.button, button.button:hover {
+button.button:hover, .btn:hover, .btn-default:hover {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;
 	text-shadow: none !important;
-	color: #7cc2af; !important
+	color: #7cc2af !important;
 }
 
 .btn img {
@@ -82,7 +82,11 @@ button.button, button.button:hover {
 	color: #7cc2af !important;
 }
 
-.btn, .btn:hover {
+.btn.btn-default.btn {
+	color: #7cc2af !important;
+}
+
+.btn, button.button {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;

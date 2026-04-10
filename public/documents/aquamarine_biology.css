@@ -10,8 +10,8 @@ CSS Code Credits: Lyri [#583579], Katie [#106445], Pandora [#144118] & Kat [#943
 
 body {
 	background: url("https://cdn.allthepics.net/images/2026/03/31/lab.jpg") center center;
-	background-size: width 100%;
 	background-attachment: fixed;
+	background-size: auto 100%;
 	font-family: "Nova Square", sans-serif;
 	color: #1c3f36 !important;
 	font-size: 12px;
@@ -46,7 +46,7 @@ textarea {
 
 .breadcrumb::after {
 	content: "custom css by lyri | #583579 ";
-	color: #7cc2af;
+	color: #9CE8D3 !important;
 	font-size: 12px;
 	position:absolute;
 	top: 6px;
@@ -57,7 +57,7 @@ textarea {
 
 .container.main {
 	background: radial-gradient(#7cc2af, #19765d);
-	opacity: 94%;
+	opacity: 97%;
 	border: solid 1px #7cc2af;
 	box-shadow: 0px 1px 10px #7cc2af !important;
 	border-radius: 4px;
@@ -82,7 +82,7 @@ button.button, button.button:hover {
 	color: #7cc2af !important;
 }
 
-.btn, .btn:hover, .btn.btn {
+.btn, .btn:hover {
 	background: #19765d;
 	border: none !important;
 	border-radius: 4px;
@@ -102,6 +102,7 @@ button.button, button.button:hover {
 
 .topbar {
 	background: #5f9888 !important;
+	color: #9CE8D3;
 	border: solid 1px #7cc2af;
 	box-shadow: 0px 1px 10px #7cc2af !important;
 	border-radius: 0px 0px 4px 4px;
@@ -112,23 +113,23 @@ button.button, button.button:hover {
 .navbar {
 	background: linear-gradient(to right, #19765d, #085e46);
 	border-bottom: none;
-	color: #aadf69;
+	color: #9CE8D3;
 	border-radius: 10px 10px 0px 0px;
 	opacity: 1;
 }
 
 .navbar li a {
-	color: #7cc2af !important
+	color: #9CE8D3 !important;
 }
 
 .navbar li a:hover {
-	background: rgba(59, 80, 142, 0.9) !important;
+	background: #9CE8D3 !important;
 	border-bottom: none;
-	color: #8696c5 !important;
+	color: #297560 !important;
 	border-radius: 0px
 	filter: brightness(100%) opacity(90%);
 	transition: 0.5s !important;
-	height: 40px;
+	height: 50px;
 	width: auto !important
 }
 
@@ -136,13 +137,14 @@ button.button, button.button:hover {
 
 .breadcrumb {
 	background: transparent !important;
+	color: #9CE8D3 !important;
 	border: solid 1px #297560 !important;
 	border-radius: 5px;
 	text-align:left !important;
 }
 
 .breadcrumb .active {
-	color: #7cc2af;
+	color: #9CE8D3 !important;
 }
 
 /* Bookmark button */
@@ -151,7 +153,7 @@ input.floatright, input.floatright:hover {
 	background: #19765d !important;
 	border: none !important;
 	border-radius: 4px !important;
-	color: #7cc2af !important; 
+	color: #9CE8D3 !important;
 }
 
 /* Alerts (i.e. "Your lionesses have returned from hunting!") */
@@ -175,7 +177,7 @@ h1 {
     background: #7cc2af;
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent;
+    color: #9CE8D3;
     text-align: center;
 }
 
@@ -184,7 +186,7 @@ h1 {
 h2 {
 	font-size: 24px;
 	text-align: right;
-	color: #305b4f;
+	color: #9CE8D3;
 }
 
 /* Tertiary header */
@@ -192,14 +194,14 @@ h2 {
 h3 {
 	font-size: 14px !important;
 	text-align: right;
-	color: #305b4f;
+	color: #9CE8D3;
 }
 
 /* Right-side panel appearance */
 
 .sidebar h3 {
 	background: transparent;
-	color: #7cc2af !important;
+	color: #9CE8D3 !important;
 	font-size: 22px !important;
 	text-align: right;
 	position: relative;
@@ -241,19 +243,23 @@ h3 {
 	box-shadow: 0px 5px 30px #19765d !important;
 }
 
+.table .top {
+	color: #9CE8D3 !important;
+}
+
 .top,
 th {
 	background: #19765d !important;
-	color: #7cc2af;
+	color: #9CE8D3 !important;
 	border-radius: 10px 10px 0px 0px;
 	border: 1px #7cc2af;
 }
 
 .bottom,
-th {
-	background: #085e46 !important;
+th, .bottom a {
+	background: #19765d !important;
 	border: 1px #7cc2af;
-	color: #7cc2af !important;
+	color: #9CE8D3 !important;
 	border-radius: 4px 4px 4px 4px;
 }
 
@@ -281,19 +287,6 @@ td.right {
 	background: none !important
 }
 
-#pride > tbody:nth-child(1) > tr:nth-child(9) > td {
-	background: #085c45;
-	color: #78bdab;
-}
-
-#pride > tbody > tr > td {
-	background: #2e856c;
-}
-
-#pride > tbody > tr > th a {
-	color: #78bcaa !important;
-}
-
 td.left.b, div.lionImage.featured-lion {
 	background: transparent;
 }
@@ -317,12 +310,10 @@ div#lion_image:hover {
     box-shadow: 0px 0px 8px #97BE96;
 }
 
-
 table#player img {
-border-radius: 4px !important;
-    opacity: 0.9;
+  opacity: 0.9;
 	overflow: hidden;
-    border: solid 4px #7cc2af;
+  border: solid 0px;
 }
 
 /* Cave and Beetle Mound grid appearances*/
@@ -337,11 +328,15 @@ border-radius: 4px !important;
 
 /* "King Dynasty, Pride Dynasty, Achievements, Showcase" panel appearance */
 
-.feature {
+.feature, .dynastycollection div div {
 	background: radial-gradient(#7cc2af, #19765d) !important;
 	color: #085e46 !important;
 	border: none !important;
-	border-radius: 0px !important
+	border-radius: 4px !important
+}
+
+div.col-md-4 > a > div > h3 {
+	color: #9CE8D3 !important;
 }
 
 .xsmall {
@@ -360,6 +355,11 @@ div.left h3 {
 
 div.feature {
 	color: #085e46 !important;
+}
+
+div.col > a > div:hover, div.left > a:hover {
+	color: #9CE8D3 !important;
+	transition: 0.5s;
 }
 
 /* Image/CSS Credit fix for mobile */
@@ -391,7 +391,7 @@ div.feature {
 
 /* Remove icons and edit text for user profile buttons */
 
-td.right_odd:nth-child(1) > a:nth-child(1) > img:nth-child(1) {
+td.right_odd:nth-child(1) > a:nth-child(1) > img:nth-child(1), td.right_odd.text-right img {
   display: none;
 }
 
@@ -455,6 +455,14 @@ td.right_odd:nth-child(1) > a:nth-child(1) > img:nth-child(1) {
 
 #player > tbody > tr.right > td:nth-child(1) > p.center:nth-child(5) > a:nth-child(3) > img:nth-child(1) {
 	display: none;
+}
+
+#fraCaveList > table > tbody > tr > td {
+  background: transparent;
+}
+
+#fraCaveList th a {
+  color: #9CE8D3 !important;
 }
 
 /* Image Replacement */
@@ -605,7 +613,6 @@ img[src$="iconInsta.png"] {
 	overflow: hidden;
 }
 
-
 /* Misc. layout fixes */
 
 hr {
@@ -620,6 +627,10 @@ hr {
 }
 .xlarge img {
 	display: none;
+}
+
+div.mb-2 > a > div > h3 {
+	
 }
 
 

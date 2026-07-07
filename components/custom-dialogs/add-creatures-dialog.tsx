@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
     X,
     Loader2,
@@ -87,6 +87,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
     const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
 
     const router = useRouter();
+    const isDoneRef = useRef(false);
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -146,6 +147,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         }
 
         setSyncState('syncing');
+        isDoneRef.current = false;
         const eventSource = new EventSource('/api/creatures/sync-all');
 
         eventSource.addEventListener('tab-start', (event) => {
@@ -190,6 +192,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
 
         eventSource.addEventListener('done', async (event) => {
             const data = JSON.parse(event.data);
+            isDoneRef.current = true;
             eventSource.close();
             setSyncState('analyzing');
 
@@ -219,7 +222,11 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
             }
         });
 
-        eventSource.onerror = () => {
+        eventSource.onerror = (err) => {
+            if (isDoneRef.current) {
+                return;
+            }
+            console.error('EventSource error:', err);
             setErrorMessages((prev) => [
                 ...prev,
                 'A network error occurred. Sync may be incomplete.',
@@ -370,6 +377,7 @@ export function AddCreaturesDialog({ isOpen, onClose }: DialogProps) {
         setEditingTabId(null);
         setSyncProgress(null);
         setErrorMessages([]);
+        isDoneRef.current = false;
     };
 
     function SortableTabItem({ tab }: { tab: UserTab }): JSX.Element {

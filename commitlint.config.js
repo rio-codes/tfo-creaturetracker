@@ -24,7 +24,6 @@ module.exports = {
                 'config',
                 'deps',
                 'vercel',
-                'hyperdx',
                 'docs',
                 'release',
             ],

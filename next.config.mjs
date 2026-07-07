@@ -4,7 +4,6 @@ const nextConfig = {
         remotePatterns: [new URL('https://ineejclhhioqywk4.public.blob.vercel-storage.com/**')],
     },
     productionBrowserSourceMaps: true,
-    serverExternalPackages: ['@hyperdx/node-opentelemetry', '@opentelemetry/instrumentation'],
     async headers() {
         return [
             {

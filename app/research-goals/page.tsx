@@ -10,14 +10,13 @@ import type { EnrichedResearchGoal, User } from '@/types'; // Make sure User is 
 export const dynamic = 'force-dynamic';
 
 export default async function ResearchGoalsPage(props: {
-    searchParams?: {
-        // This should not be a Promise
+    searchParams?: Promise<{
         page?: string;
         query?: string;
         species?: string;
-    };
+    }>;
 }) {
-    const searchParams = props.searchParams || {};
+    const searchParams = (await props.searchParams) || {};
     const session = await auth();
 
     const [{ pinnedGoals, unpinnedGoals, achievedGoals, totalPages }, currentUser, allCreatures] =

@@ -34,6 +34,15 @@ const goalSchema = z.object({
         })
     ),
     goalMode: z.enum(['genotype', 'phenotype']).optional().default('phenotype'),
+    isPublic: z.boolean().optional().default(false),
+    excludedGenes: z
+        .record(
+            z.string(),
+            z.object({
+                phenotype: z.array(z.string()),
+            })
+        )
+        .optional(),
     targetGeneration: z.number().optional().default(1).nullable(),
 });
 
@@ -92,7 +101,7 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-        const { name, species, genes, goalMode, targetGeneration } = validatedFields.data;
+        const { name, species, genes, goalMode, targetGeneration, isPublic, excludedGenes } = validatedFields.data;
         if (hasObscenity(name)) {
             console.log('Inappropriate name provided for changed research goal');
             return NextResponse.json(
@@ -126,6 +135,8 @@ export async function POST(req: Request) {
                 imageUrl: blobUrl,
                 genes: genes,
                 goalMode: goalMode,
+                isPublic: isPublic,
+                excludedGenes: excludedGenes,
                 targetGeneration: targetGeneration,
                 updatedAt: new Date(),
             })

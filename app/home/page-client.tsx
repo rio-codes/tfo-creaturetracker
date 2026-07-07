@@ -145,7 +145,7 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl md:text-3xl">
-                        Wow, that was strange. Did anyone else...Oh, hello! Welcome to TFO.ct.
+                        Welcome back to your lab away from home at TFO.ct. Let's do some science!
                     </h1>
                     <p className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson/80 mt-2 text-lg">
                         Welcome back to your dashboard for managing creatures, breeding pairs, and
@@ -363,7 +363,10 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
 
                             <div className="space-y-6">
                                 {newsItems.map((item, index) => (
-                                    <div key={item.id || index} className="border-b border-pompaca-purple/10 dark:border-barely-lilac/10 pb-4 last:border-b-0">
+                                    <div
+                                        key={item.id || index}
+                                        className="border-b border-pompaca-purple/10 dark:border-barely-lilac/10 pb-4 last:border-b-0"
+                                    >
                                         <h3 className="font-semibold text-lg">{item.title}</h3>
                                         <time className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-blood-bay-wine">
                                             {new Date(item.createdAt).toLocaleDateString('en-US', {

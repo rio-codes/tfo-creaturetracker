@@ -5,6 +5,32 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { UserMention } from './user-mention';
+import { Node, mergeAttributes } from '@tiptap/core';
+
+const DetailsExtension = Node.create({
+    name: 'details',
+    group: 'block',
+    content: 'summary block*',
+    defining: true,
+    parseHTML() {
+        return [{ tag: 'details' }];
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ['details', mergeAttributes(HTMLAttributes), 0];
+    },
+});
+
+const SummaryExtension = Node.create({
+    name: 'summary',
+    content: 'inline*',
+    defining: true,
+    parseHTML() {
+        return [{ tag: 'summary' }];
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ['summary', mergeAttributes(HTMLAttributes), 0];
+    },
+});
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,10 +47,6 @@ export const Editor = ({
     onSave: (title: string, content: string) => Promise<void>;
 }) => {
     const [title, setTitle] = useState(post?.title || '');
-
-    useEffect(() => {
-        setTitle(post?.title || '');
-    }, [post]);
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -105,9 +127,18 @@ export const Editor = ({
                     },
                 },
             }),
+            DetailsExtension,
+            SummaryExtension,
         ],
         content: post?.content,
     });
+
+    useEffect(() => {
+        setTitle(post?.title || '');
+        if (editor) {
+            editor.commands.setContent(post?.content || '');
+        }
+    }, [post, editor]);
 
     const handleSave = async () => {
         if (editor) {

@@ -39,3 +39,16 @@
     border-color: #9ecaed;
     box-shadow: 0 0 10px #9ecaed;
 }
+
+details {
+    border: 1px dashed #cbd5e0;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+summary {
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+}

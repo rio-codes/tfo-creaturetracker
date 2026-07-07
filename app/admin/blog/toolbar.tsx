@@ -1,7 +1,7 @@
 'use client';
 
 import { type Editor } from '@tiptap/react';
-import { Bold, Italic, Strikethrough, Link } from 'lucide-react';
+import { Bold, Italic, Strikethrough, Link, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type Props = {
@@ -51,6 +51,13 @@ export function Toolbar({ editor }: Props) {
             </Button>
             <Button variant={editor.isActive('link') ? 'secondary' : 'ghost'} onClick={setLink}>
                 <Link className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="ghost"
+                onClick={() => editor.chain().focus().insertContent('<details><summary>Summary (Flavor Text)</summary><p>Detailed updates go here...</p></details>').run()}
+                title="Insert Summary/Details Block"
+            >
+                <ChevronRight className="h-4 w-4" />
             </Button>
         </div>
     );

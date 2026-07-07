@@ -29,8 +29,12 @@ export default function BlogAdminPage() {
     }, []);
 
     const handleSelectPost = (postId: string) => {
-        const post = posts.find((p) => p.id === postId);
-        setSelectedPost(post);
+        if (postId === 'new-post') {
+            setSelectedPost(null);
+        } else {
+            const post = posts.find((p) => p.id === postId);
+            setSelectedPost(post);
+        }
     };
 
     const handleSave = async (title: string, content: string) => {
@@ -39,30 +43,40 @@ export default function BlogAdminPage() {
             ? JSON.stringify({ id: selectedPost.id, title, content })
             : JSON.stringify({ title, content });
 
-        await fetch('/api/admin/blog', {
+        const response = await fetch('/api/admin/blog', {
             method,
             headers: {
                 'Content-Type': 'application/json',
             },
             body,
         });
+
+        if (response.ok) {
+            const fetchResponse = await fetch('/api/blog');
+            const data = await fetchResponse.json();
+            setPosts(data);
+            setSelectedPost(null);
+        }
     };
 
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Blog Post Editor</h1>
-            <Select onValueChange={handleSelectPost}>
-                <SelectTrigger className="w-full md:w-auto">
-                    <SelectValue placeholder="Select a post to edit" />
-                </SelectTrigger>
-                <SelectContent>
-                    {posts.map((post) => (
-                        <SelectItem key={post.id} value={post.id}>
-                            {post.title}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <div className="mb-4">
+                <Select value={selectedPost?.id || 'new-post'} onValueChange={handleSelectPost}>
+                    <SelectTrigger className="w-full md:w-auto">
+                        <SelectValue placeholder="Select a post to edit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="new-post">-- Create New Post --</SelectItem>
+                        {posts.map((post) => (
+                            <SelectItem key={post.id} value={post.id}>
+                                {post.title}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             <Editor post={selectedPost} onSave={handleSave} />
         </div>
     );

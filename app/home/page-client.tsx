@@ -363,7 +363,7 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
 
                             <div className="space-y-6">
                                 {newsItems.map((item, index) => (
-                                    <div key={index}>
+                                    <div key={item.id || index} className="border-b border-pompaca-purple/10 dark:border-barely-lilac/10 pb-4 last:border-b-0">
                                         <h3 className="font-semibold text-lg">{item.title}</h3>
                                         <time className="text-sm text-pompaca-purple dark:text-purple-300 hallowsnight:text-blood-bay-wine">
                                             {new Date(item.createdAt).toLocaleDateString('en-US', {
@@ -373,7 +373,7 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
                                             })}
                                         </time>
                                         <div
-                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-abyss mt-1"
+                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-abyss mt-1 prose prose-sm dark:prose-invert max-w-none"
                                             dangerouslySetInnerHTML={{ __html: item.content }}
                                         />
                                     </div>

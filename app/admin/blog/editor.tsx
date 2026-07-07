@@ -38,6 +38,7 @@ import { Toolbar } from './toolbar';
 import './editor.css';
 import { FlairIcon } from '@/components/misc-custom-components/flair-icon';
 import ReactDOMServer from 'react-dom/server';
+import { toast } from 'sonner';
 
 export const Editor = ({
     post,
@@ -47,6 +48,7 @@ export const Editor = ({
     onSave: (title: string, content: string) => Promise<void>;
 }) => {
     const [title, setTitle] = useState(post?.title || '');
+    const [isSaving, setIsSaving] = useState(false);
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -141,10 +143,17 @@ export const Editor = ({
     }, [post, editor]);
 
     const handleSave = async () => {
-        if (editor) {
-            const content = editor.getHTML();
-            if (title) {
+        if (editor && title && !isSaving) {
+            setIsSaving(true);
+            try {
+                const content = editor.getHTML();
                 await onSave(title, content);
+                toast.success('Blog post saved successfully!');
+            } catch (error) {
+                console.error('Failed to save blog post:', error);
+                toast.error('Failed to save blog post.');
+            } finally {
+                setIsSaving(false);
             }
         }
     };
@@ -159,8 +168,8 @@ export const Editor = ({
             />
             <Toolbar editor={editor} />
             <EditorContent editor={editor} />
-            <Button onClick={handleSave} className="mt-4">
-                Save Post
+            <Button onClick={handleSave} className="mt-4" disabled={isSaving || !title.trim()}>
+                {isSaving ? 'Saving...' : 'Save Post'}
             </Button>
         </div>
     );

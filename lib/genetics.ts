@@ -179,6 +179,10 @@ export function calculateGeneProbability(
         return 1;
     }
 
+    if (category.toLowerCase() === 'gender') {
+        return 0.5;
+    }
+
     if (!maleParent?.geneData || !femaleParent?.geneData) {
         return 0;
     }

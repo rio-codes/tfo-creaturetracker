@@ -401,9 +401,29 @@ export async function fetchFilteredResearchGoals(
         const totalUnpinned = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
+        const achievedGoalsRaw = await db
+            .select()
+            .from(researchGoals)
+            .where(
+                and(
+                    eq(researchGoals.userId, userId),
+                    eq(researchGoals.isAchieved, true),
+                    query ? ilike(researchGoals.name, `%${query}%`) : undefined,
+                    species && species !== 'all' ? eq(researchGoals.species, species) : undefined
+                )
+            )
+            .orderBy(desc(researchGoals.updatedAt));
+
+        const achievedGoals = achievedGoalsRaw
+            .map((goal: any) => {
+                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
+            })
+            .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
+
         return {
             pinnedGoals: pinnedGoals as EnrichedResearchGoal[],
             unpinnedGoals: unpinnedGoalsRaw as unknown as EnrichedResearchGoal[],
+            achievedGoals: achievedGoals as EnrichedResearchGoal[],
             totalPages: totalPages as number,
         };
     } catch (error) {

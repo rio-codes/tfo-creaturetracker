@@ -11,6 +11,10 @@ export function SpeciesAvatar({ species, className }: { species: string; classNa
                     className={imgClassName}
                 ></img>
             );
+        case 'Amikamaro':
+            return (
+                <img src="/images/capsules/amikamaro_capsule.png" className={imgClassName}></img>
+            );
         case 'Alta Koltuko':
             return (
                 <img src="/images/capsules/alta_koltuko_capsule.png" className={imgClassName}></img>
@@ -198,9 +202,8 @@ export function SpeciesAvatar({ species, className }: { species: string; classNa
                 <img src="/images/capsules/koleratako_capsule.png" className={imgClassName}></img>
             );
         case 'Kora Voko':
-        case 'Koro Voko':
             return (
-                <img src="/images/capsules/Koro_voko_capsule.png" className={imgClassName}></img>
+                <img src="/images/capsules/kora_voko_capsule.png" className={imgClassName}></img>
             );
         case 'Kosmira Girafo':
             return (

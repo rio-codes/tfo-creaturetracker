@@ -1,9 +1,9 @@
 import type { EnrichedCreature, OffspringOutcome } from '@/types';
 
 const compatibility: Record<string, string[]> = {
-    'Tagluma Valso': ['Nokta Voko', 'Koro Voko'],
-    'Nokta Voko': ['Tagluma Valso', 'Koro Voko'],
-    'Koro Voko': ['Tagluma Valso', 'Nokta Voko'],
+    'Tagluma Valso': ['Nokta Voko', 'Kora Voko'],
+    'Nokta Voko': ['Tagluma Valso', 'Kora Voko'],
+    'Kora Voko': ['Tagluma Valso', 'Nokta Voko'],
     'Tera Girafo': ['Kosmira Girafo'],
     'Kosmira Girafo': ['Tera Girafo'],
     'Klara Alsalto': ['Glacia Alsalto', 'Transira Alsalto', 'Silenta Spuristo'],
@@ -45,7 +45,7 @@ export function getPossibleOffspringSpecies(
     ) {
         return [
             {
-                species: 'Koro Voko',
+                species: 'Kora Voko',
                 probability: 1,
                 geneOutcomes: {},
             },
@@ -68,8 +68,8 @@ export function getPossibleOffspringSpecies(
     // For pairs that can produce either parent's species
     const hybridPairs: [string, string][] = [
         ['Tera Girafo', 'Kosmira Girafo'],
-        ['Tagluma Valso', 'Koro Voko'],
-        ['Nokta Voko', 'Koro Voko'],
+        ['Tagluma Valso', 'Kora Voko'],
+        ['Nokta Voko', 'Kora Voko'],
         // Add other pairs that result in 50/50 outcomes
     ];
 

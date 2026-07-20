@@ -11,26 +11,26 @@ export type HybridizationRule = {
 
 export const hybridizationRules: Record<string, Record<string, HybridizationRule>> = {
     'Tagluma Valso': {
-        'Nokta Voko': { outcomes: [{ species: 'Koro Voko', probability: 1 }] },
-        'Koro Voko': {
+        'Nokta Voko': { outcomes: [{ species: 'Kora Voko', probability: 1 }] },
+        'Kora Voko': {
             outcomes: [
                 { species: 'Tagluma Valso', probability: 0.5 },
-                { species: 'Koro Voko', probability: 0.5 },
+                { species: 'Kora Voko', probability: 0.5 },
             ],
         },
     },
     'Nokta Voko': {
-        'Tagluma Valso': { outcomes: [{ species: 'Koro Voko', probability: 1 }] },
-        'Koro Voko': { outcomes: [{ species: 'Koro Voko', probability: 1 }] },
+        'Tagluma Valso': { outcomes: [{ species: 'Kora Voko', probability: 1 }] },
+        'Kora Voko': { outcomes: [{ species: 'Kora Voko', probability: 1 }] },
     },
-    'Koro Voko': {
+    'Kora Voko': {
         'Tagluma Valso': {
             outcomes: [
                 { species: 'Tagluma Valso', probability: 0.5 },
-                { species: 'Koro Voko', probability: 0.5 },
+                { species: 'Kora Voko', probability: 0.5 },
             ],
         },
-        'Nokta Voko': { outcomes: [{ species: 'Koro Voko', probability: 1 }] },
+        'Nokta Voko': { outcomes: [{ species: 'Kora Voko', probability: 1 }] },
     },
     'Tera Girafo': {
         'Kosmira Girafo': {

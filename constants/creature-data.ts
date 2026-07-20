@@ -11001,7 +11001,7 @@ export const TFO_SPECIES_CODES: { [key: string]: string } = {
     'Degela Koro': 'h9f5N',
     'Dentega Salto': 'dqBZH',
     'Dezerta Barono': 'juvZK',
-    'Dolca Dormo': 'NVEwV',
+    'Dolca Dormo': 'YwvYX',
     'Dormema Ventreto': 'jUx4W',
     'Dorna Maco': 'S8jRV',
     'Ebena Kuranto': 'bBE77',

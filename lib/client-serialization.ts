@@ -14,27 +14,61 @@ export const enrichAndSerializeCreature = (
         origin: creature.origin,
         progeny: [],
         geneData: (() => {
-            let parsedGenetics = {};
+            let parsedGenetics: Record<string, any> = {};
             if (typeof creature.genetics === 'string') {
-                try {
-                    parsedGenetics = JSON.parse(creature.genetics);
-                } catch (error) {
-                    console.error('Failed to parse genetics string:', error);
-                    return [];
+                const trimmed = creature.genetics.trim();
+                if (trimmed.startsWith('{')) {
+                    try {
+                        parsedGenetics = JSON.parse(trimmed);
+                    } catch (error) {
+                        console.error('Failed to parse genetics JSON string:', error);
+                    }
+                } else if (trimmed.includes(':')) {
+                    trimmed.split(',').forEach((part) => {
+                        const [category, genotype] = part.split(':');
+                        if (category && genotype) {
+                            parsedGenetics[category.trim()] = {
+                                genotype: genotype.trim(),
+                                phenotype: 'Unknown',
+                            };
+                        }
+                    });
                 }
             } else if (typeof creature.genetics === 'object' && creature.genetics !== null) {
                 parsedGenetics = creature.genetics;
             }
 
+            const speciesGeneData = structuredGeneData[creature.species || ''];
+
             return Object.entries(parsedGenetics).map(([category, geneInfo]) => {
-                const gene = geneInfo as {
+                const gene = (typeof geneInfo === 'object' && geneInfo !== null ? geneInfo : { genotype: String(geneInfo), phenotype: 'Unknown' }) as {
                     genotype: string;
                     phenotype: string;
                 };
+                let finalGenotype = gene.genotype;
+                let finalPhenotype = gene.phenotype;
+                let canonicalCategory = category;
+
+                if (speciesGeneData) {
+                    const categoryKey = Object.keys(speciesGeneData).find(
+                        (k) => k.toLowerCase() === category.toLowerCase()
+                    );
+                    if (categoryKey) {
+                        canonicalCategory = categoryKey;
+                        const categoryData = (speciesGeneData as any)[categoryKey];
+                        if (Array.isArray(categoryData)) {
+                            const matchedGene = categoryData.find((g) => g.genotype === finalGenotype);
+                            if (matchedGene) {
+                                finalPhenotype = matchedGene.phenotype;
+                            }
+                        }
+                    }
+                }
+
                 return {
-                    category,
-                    genotype: gene.genotype,
-                    phenotype: gene.phenotype,
+                    category: canonicalCategory,
+                    genotype: finalGenotype,
+                    phenotype: finalPhenotype || 'Unknown',
                 };
             });
         })(),

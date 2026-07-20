@@ -60,6 +60,13 @@ export function SpeciesAvatar({ species, className }: { species: string; classNa
                     className={imgClassName}
                 ></img>
             );
+        case 'Dolca Dormo':
+            return (
+                <img
+                    src="/images/capsules/dolca_dormo_capsule.png"
+                    className={imgClassName}
+                ></img>
+            );
         case 'Dormema Ventreto':
             return (
                 <img

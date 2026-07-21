@@ -528,92 +528,91 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                 <div className="grid grid-cols-3 w-full gap-2 text-sm">
                     {!isAdminView && !creature.isArchived ? (
                         <>
-                            <Link
-                                href={`/breeding-pairs?newPair=true&code=${creature.code}&userId=${creature.userId}`}
-                                className="w-full"
-                            >
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
-                                    <span className="text-wrap text-sm leading-tight">
-                                        Manage Breeding Pairs
-                                    </span>
-                                </Button>
-                            </Link>
-                            <LogAsProgenyDialog creature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
-                                    <span className="text-wrap text-sm leading-tight">
-                                        Log as Progeny
-                                    </span>
-                                </Button>
-                            </LogAsProgenyDialog>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
-                                        disabled={isDeleting || isArchiving}
-                                    >
+                            <div className="w-full min-w-0">
+                                <Link
+                                    href={`/breeding-pairs?newPair=true&code=${creature.code}&userId=${creature.userId}`}
+                                    className="block w-full h-full"
+                                >
+                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                         <span className="text-wrap text-sm leading-tight">
-                                            Remove From Collection
+                                            Manage Breeding Pairs
                                         </span>
                                     </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                            Remove &#34;{creature.creatureName || creature.code}
-                                            &#34;?
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            You can <strong>archive</strong> this creature to hide
-                                            it from your main collection while preserving its data
-                                            for pedigrees.
-                                            {(isParentOfPair || isProgeny) && (
-                                                <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
-                                                    Warning: This creature is part of a breeding
-                                                    pair or is logged as progeny. Deleting it
-                                                    permanently may break pedigree links, and if you
-                                                    no longer own the creature they cannot be
-                                                    restored. Inbreeding detection relies on these
-                                                    links to function.
-                                                </p>
-                                            )}
-                                            <p className="mt-2">
-                                                <strong>Permanent deletion</strong> cannot be
-                                                undone.
-                                            </p>
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                </Link>
+                            </div>
+                            <div className="w-full min-w-0">
+                                <LogAsProgenyDialog creature={creature}>
+                                    <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
+                                        <span className="text-wrap text-sm leading-tight">
+                                            Log as Progeny
+                                        </span>
+                                    </Button>
+                                </LogAsProgenyDialog>
+                            </div>
+                            <div className="w-full min-w-0">
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
                                         <Button
-                                            variant="secondary"
-                                            onClick={handleArchive}
-                                            disabled={isArchiving || isDeleting}
+                                            className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
+                                            disabled={isDeleting || isArchiving}
                                         >
-                                            {isArchiving ? (
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <Archive className="mr-2 h-4 w-4" />
-                                            )}
-                                            Archive
-                                        </Button>
-                                        <Button
-                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
-                                            variant="destructive"
-                                            onClick={handleDeletePermanently}
-                                            disabled={isArchiving || isDeleting}
-                                        >
-                                            <span className="flex text-red-700">
-                                                {isDeleting ? (
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                )}{' '}
-                                                Delete Permanently
+                                            <span className="text-wrap text-sm leading-tight">
+                                                Remove From Collection
                                             </span>
                                         </Button>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>
+                                                Remove &#34;{creature.creatureName || creature.code}
+                                                &#34;?
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                You can <strong>archive</strong> this creature to hide
+                                                it from your main collection while preserving its data
+                                                for pedigrees.
+                                                {(isParentOfPair || isProgeny) && (
+                                                    <p className="font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                                                        Warning: This creature is used in breeding
+                                                        pairs or logs!
+                                                    </p>
+                                                )}
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter className="flex flex-col gap-2">
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <Button
+                                                className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+                                                variant="outline"
+                                                onClick={handleArchive}
+                                                disabled={isArchiving || isDeleting}
+                                            >
+                                                {isArchiving ? (
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <Archive className="mr-2 h-4 w-4" />
+                                                )}
+                                                Archive
+                                            </Button>
+                                            <Button
+                                                className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson"
+                                                variant="destructive"
+                                                onClick={handleDeletePermanently}
+                                                disabled={isArchiving || isDeleting}
+                                            >
+                                                <span className="flex text-red-700">
+                                                    {isDeleting ? (
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                    )}{' '}
+                                                    Delete Permanently
+                                                </span>
+                                            </Button>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
                         </>
                     ) : (
                         <>

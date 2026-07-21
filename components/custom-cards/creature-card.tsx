@@ -525,12 +525,12 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                 </CardContent>
             </div>
             <CardFooter className="flex flex-col items-center p-4 pt-0">
-                <div className="flex w-full justify-center gap-2 text-sm">
+                <div className="grid grid-cols-3 w-full gap-2 text-sm">
                     {!isAdminView && !creature.isArchived ? (
                         <>
                             <Link
                                 href={`/breeding-pairs?newPair=true&code=${creature.code}&userId=${creature.userId}`}
-                                className="flex-1 min-w-0 flex"
+                                className="w-full"
                             >
                                 <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                     <span className="text-wrap text-sm leading-tight">
@@ -539,7 +539,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                 </Button>
                             </Link>
                             <LogAsProgenyDialog creature={creature}>
-                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson flex-1 min-w-0">
+                                <Button className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson">
                                     <span className="text-wrap text-sm leading-tight">
                                         Log as Progeny
                                     </span>
@@ -548,7 +548,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button
-                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson flex-1 min-w-0"
+                                        className="bg-pompaca-purple text-barely-lilac dark:bg-purple-400 dark:text-slate-950 w-full h-16 hallowsnight:bg-blood-bay-wine hallowsnight:text-cimo-crimson"
                                         disabled={isDeleting || isArchiving}
                                     >
                                         <span className="text-wrap text-sm leading-tight">

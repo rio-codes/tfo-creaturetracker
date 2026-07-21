@@ -21,22 +21,21 @@ interface SocialLinksProps {
     links: string[];
 }
 
-const iconMap: { [key: string]: React.ElementType } = {
-    'discord.com': FaDiscord,
-    'discord.gg': FaDiscord,
-    'github.com': FaGithub,
-    'patreon.com': FaPatreon,
-    'twitter.com': FaTwitter,
-    'x.com': FaTwitter,
-    'instagram.com': FaInstagram,
-    'tiktok.com': FaTiktok,
-    'twitch.tv': FaTwitch,
-    'linkedin.com': FaLinkedin,
-    'facebook.com': FaFacebook,
-    'reddit.com': FaReddit,
-    'youtube.com': FaYoutube,
-    'youtu.be': FaYoutube,
-};
+function getSocialIcon(hostname: string): React.ElementType {
+    const host = hostname.toLowerCase().replace(/^www\./, '');
+    if (host.includes('discord')) return FaDiscord;
+    if (host.includes('github')) return FaGithub;
+    if (host.includes('patreon')) return FaPatreon;
+    if (host.includes('twitter') || host === 'x.com' || host.endsWith('.x.com')) return FaTwitter;
+    if (host.includes('instagram')) return FaInstagram;
+    if (host.includes('tiktok')) return FaTiktok;
+    if (host.includes('twitch')) return FaTwitch;
+    if (host.includes('linkedin')) return FaLinkedin;
+    if (host.includes('facebook') || host === 'fb.com') return FaFacebook;
+    if (host.includes('reddit')) return FaReddit;
+    if (host.includes('youtube') || host === 'youtu.be') return FaYoutube;
+    return LinkIcon;
+}
 
 export function SocialLinks({ links }: SocialLinksProps) {
     if (!links || links.length === 0) {
@@ -46,26 +45,32 @@ export function SocialLinks({ links }: SocialLinksProps) {
     return (
         <div className="flex flex-wrap items-center gap-4">
             {links.map((link, index) => {
+                let formattedLink = link.trim();
+                if (!formattedLink) return null;
+
+                if (!/^https?:\/\//i.test(formattedLink)) {
+                    formattedLink = `https://${formattedLink}`;
+                }
+
                 try {
-                    const url = new URL(link);
-                    const domain = url.hostname.replace('www.', '');
-                    const Icon = iconMap[domain] || LinkIcon;
+                    const url = new URL(formattedLink);
+                    const Icon = getSocialIcon(url.hostname);
 
                     return (
                         <TooltipProvider key={index}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <a href={link} target="_blank" rel="noopener noreferrer">
+                                    <a href={formattedLink} target="_blank" rel="noopener noreferrer">
                                         <Icon className="h-6 w-6 text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson hover:opacity-80 transition-opacity" />
                                     </a>
                                 </TooltipTrigger>
-                                <TooltipContent>{link}</TooltipContent>
+                                <TooltipContent>{formattedLink}</TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
                     );
                 } catch (e) {
                     console.error(`Error parsing social link:`, e, `for link:`, link);
-                    return null; // Ignore invalid URLs
+                    return null;
                 }
             })}
         </div>

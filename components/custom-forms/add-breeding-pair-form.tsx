@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, Network, X, ChevronDown } from 'lucide-react';
+import { Loader2, Network, X, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import type {
     EnrichedCreature,
@@ -26,6 +26,7 @@ import { validatePairing } from '@/lib/breeding-rules-client';
 import { speciesList } from '@/constants/creature-data';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
 import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
+import { ViewOutcomesDialog } from '@/components/custom-dialogs/view-outcomes-dialog';
 
 type AddPairFormProps = {
     baseCreature?: EnrichedCreature | null;
@@ -74,12 +75,12 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([]);
     const [isInbred, setIsInbred] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [isPredictionLoading, setIsPredictionLoading] = useState(false);
     const [isHybridMode, setIsHybridMode] = useState(false);
     const [selectedSpecies, setSelectedSpecies] = useState('');
+    const [createdPair, setCreatedPair] = useState<EnrichedBreedingPair | null>(null);
 
     const [context, setContext] = useState<AddPairContext | null>(null);
     const [isContextLoading, setIsContextLoading] = useState(true);
@@ -95,7 +96,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                 const data = await response.json();
                 setContext(data);
             } catch (err: any) {
-                setError(err.message);
+                console.error(err);
             } finally {
                 setIsContextLoading(false);
             }
@@ -145,10 +146,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                         validatePairing(selectedMale, female).isValid ||
                         female?.id === selectedFemale?.id
                 );
-                console.log(
-                    `Hybrid Mode: Found ${females.length} compatible females for ${selectedMale.species}:`,
-                    females.map((f) => `${f?.creatureName} (${f?.species})`)
-                );
             }
             if (selectedFemale) {
                 males = males.filter(
@@ -191,6 +188,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         const offspringSpecies = possibleOffspring.map((o) => o.species);
         return context.allGoals.filter((g) => g?.species && offspringSpecies.includes(g.species));
     }, [selectedMale, selectedFemale, allGoals]);
+    
     useEffect(() => {
         if (!selectedMale || !selectedFemale) {
             setPredictions([]);
@@ -248,38 +246,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         }
     }, [selectedMale, selectedFemale]);
 
-    useEffect(() => {
-        if (!selectedMale || !selectedFemale) {
-            setPredictions([]);
-            return;
-        }
-        const fetchPredictions = async () => {
-            setIsPredictionLoading(true);
-            const goalIds = assignableGoals.map((g) => g.id);
-            try {
-                const response = await fetch('/api/breeding-predictions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        maleParentUserId: selectedMale.userId,
-                        maleParentCode: selectedMale.code,
-                        femaleParentUserId: selectedFemale.userId,
-                        femaleParentCode: selectedFemale.code,
-                        goalIds,
-                    }),
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error);
-                setPredictions(data.predictions);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setIsPredictionLoading(false);
-            }
-        };
-        fetchPredictions();
-    }, [selectedMale, selectedFemale, assignableGoals]);
-
     const handleHybridToggle = (checked: boolean) => {
         setIsHybridMode(checked);
         setSelectedMale(baseCreature?.gender === 'male' ? baseCreature : undefined);
@@ -293,6 +259,8 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         setSelectedFemale(undefined);
     };
 
+    const [error, setError] = useState('');
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMale || !selectedFemale) {
@@ -303,12 +271,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         setIsLoading(true);
         setError('');
         setMessage('');
-
-        if (!selectedMale || !selectedFemale) {
-            setError('Could not find selected parents.');
-            setIsLoading(false);
-            return;
-        }
 
         if (!selectedMale.species || !selectedFemale.species) {
             setError('Selected parents have missing species data.');
@@ -338,7 +300,16 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
             setMessage(data.message);
             router.refresh();
-            onSuccess();
+            if (data.pair) {
+                setCreatedPair({
+                    ...data.pair,
+                    maleParent: selectedMale,
+                    femaleParent: selectedFemale,
+                    goals: [],
+                });
+            } else {
+                onSuccess();
+            }
         } catch (err: any) {
             setError(err.message || 'A network error occurred. Please try again.');
         } finally {
@@ -350,6 +321,32 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         return (
             <div className="flex justify-center items-center min-h-[400px]">
                 <Loader2 className="h-8 w-8 animate-spin text-pompaca-purple hallowsnight:text-cimo-crimson" />
+            </div>
+        );
+    }
+
+    if (createdPair) {
+        return (
+            <div className="p-6 text-center space-y-6 bg-barely-lilac dark:bg-pompaca-purple hallowsnight:bg-ruzafolio-scarlet rounded-lg">
+                <div className="flex flex-col items-center gap-3">
+                    <Check className="w-12 h-12 text-green-500 bg-green-100 dark:bg-green-900/30 p-2 rounded-full" />
+                    <h3 className="text-xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson">
+                        Breeding Pair Created!
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Pair <strong>"{createdPair.pairName}"</strong> has been saved.
+                    </p>
+                </div>
+                <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+                    <ViewOutcomesDialog pair={createdPair}>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center">
+                            <Sparkles className="mr-2 h-4 w-4" /> Predict Outcomes?
+                        </Button>
+                    </ViewOutcomesDialog>
+                    <Button variant="outline" onClick={onSuccess}>
+                        Done
+                    </Button>
+                </div>
             </div>
         );
     }

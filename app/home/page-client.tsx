@@ -376,7 +376,7 @@ export function HomePageClient({ stats }: { stats: HomepageStats }) {
                                             })}
                                         </time>
                                         <div
-                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-abyss mt-1 prose prose-sm dark:prose-invert max-w-none"
+                                            className="text-pompaca-purple dark:text-purple-300 hallowsnight:text-abyss mt-1 prose prose-sm dark:prose-invert max-w-none [&_details]:border-0 [&_details]:shadow-none [&_summary]:border-0 [&_summary]:shadow-none [&_summary]:outline-none"
                                             dangerouslySetInnerHTML={{ __html: item.content }}
                                         />
                                     </div>

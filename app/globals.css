@@ -26,3 +26,15 @@
   --color-blood-bay-wine: #260000;
   --color-abyss: #050000;
 }
+
+details {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+summary {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  cursor: pointer;
+}

@@ -16,6 +16,9 @@ type AddBreedingPairDialogProps = {
     baseCreature?: EnrichedCreature | null;
     initialGoal?: EnrichedResearchGoal | null;
     children?: React.ReactNode;
+    defaultOpen?: boolean;
+    isOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
 };
 
 type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
@@ -24,8 +27,13 @@ export function AddBreedingPairDialog({
     baseCreature,
     initialGoal,
     children,
+    defaultOpen = false,
+    isOpen: controlledIsOpen,
+    onOpenChange: controlledOnOpenChange,
 }: AddBreedingPairDialogProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [internalOpen, setInternalOpen] = useState(defaultOpen);
+    const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalOpen;
+    const setIsOpen = controlledOnOpenChange || setInternalOpen;
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

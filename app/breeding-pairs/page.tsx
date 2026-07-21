@@ -9,6 +9,9 @@ export default async function BreedingPairsPage(props: {
         page?: string;
         query?: string;
         species?: string;
+        newPair?: string;
+        code?: string;
+        userId?: string;
     }>;
 }) {
     const searchParams = await props.searchParams;

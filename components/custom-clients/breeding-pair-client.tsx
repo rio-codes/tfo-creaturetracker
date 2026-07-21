@@ -53,6 +53,9 @@ type BreedingPairsClientProps = {
         geneQuery?: string;
         geneMode?: 'phenotype' | 'genotype';
         showArchived?: string;
+        newPair?: string;
+        code?: string;
+        userId?: string;
     };
 };
 
@@ -233,6 +236,34 @@ export function BreedingPairsClient({
         }
     };
 
+    const newPairRequested = searchParams?.newPair === 'true';
+    const prefilledCode = searchParams?.code;
+    const prefilledUserId = searchParams?.userId;
+
+    const [prefilledCreature, setPrefilledCreature] = useState<EnrichedCreature | null>(null);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+    useEffect(() => {
+        if (newPairRequested && prefilledCode) {
+            setIsAddDialogOpen(true);
+            fetch('/api/breeding-pairs/add-context')
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.allCreatures) {
+                        const match = data.allCreatures.find(
+                            (c: EnrichedCreature | null) =>
+                                c?.code === prefilledCode &&
+                                (!prefilledUserId || c?.userId === prefilledUserId)
+                        );
+                        if (match) {
+                            setPrefilledCreature(match);
+                        }
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+    }, [newPairRequested, prefilledCode, prefilledUserId]);
+
     return (
         <TooltipProvider>
             <div className="min-h-screen">
@@ -241,7 +272,12 @@ export function BreedingPairsClient({
                         <h1 className="text-5xl font-bold text-pompaca-purple dark:text-purple-300 hallowsnight:text-cimo-crimson mb-5">
                             Breeding Pairs
                         </h1>
-                        <AddBreedingPairDialog baseCreature={null} initialGoal={null} />
+                        <AddBreedingPairDialog
+                            baseCreature={prefilledCreature}
+                            initialGoal={null}
+                            isOpen={isAddDialogOpen}
+                            onOpenChange={setIsAddDialogOpen}
+                        />
                     </div>
                     {/* Search and Filter Controls */}
                     <div className="flex flex-col gap-4 mb-8">

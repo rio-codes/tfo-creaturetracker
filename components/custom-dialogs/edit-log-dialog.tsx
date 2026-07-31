@@ -120,7 +120,7 @@ export function EditLogDialog({ children, log, pair }: EditLogDialogProps) {
         );
 
         return context.allCreatures.filter((c) => {
-            if (!c?.species || !possibleSpecies.includes(c.species as any)) return false;
+            if (!c?.species || !possibleSpecies.some((o) => o.species === c.species)) return false;
             const creatureKey = `${c.userId}-${c.code}`;
             return !assignedCreatureKeys.has(creatureKey);
         });

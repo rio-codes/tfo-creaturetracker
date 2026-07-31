@@ -103,7 +103,9 @@ export function EditBreedingPairForm({
             selectedMale.species,
             selectedFemale.species
         );
-        return allGoals.filter((g) => g?.species && possibleOffspring.includes(g.species as any));
+        return allGoals.filter(
+            (g) => g?.species && possibleOffspring.some((o) => o.species === g.species)
+        );
     }, [selectedMale, selectedFemale, allGoals]);
 
     useEffect(() => {

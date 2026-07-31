@@ -1,4 +1,5 @@
 import type { EnrichedCreature, OffspringOutcome } from '@/types';
+import { hybridizationRules } from '@/lib/hybridization-rules';
 
 const compatibility: Record<string, string[]> = {
     'Tagluma Valso': ['Nokta Voko', 'Kora Voko'],
@@ -17,7 +18,7 @@ const compatibility: Record<string, string[]> = {
     'Rida Frakaso': ['Osta Frakaso'],
 };
 
-function isPairCompatible(speciesA: string, speciesB: string): boolean {
+export function isPairCompatible(speciesA: string, speciesB: string): boolean {
     if (speciesA === speciesB) return true;
     // Check for compatibility in both directions
     const compatibleMatesA = compatibility[speciesA];
@@ -29,6 +30,8 @@ export function getPossibleOffspringSpecies(
     maleSpecies: string,
     femaleSpecies: string
 ): OffspringOutcome[] {
+    if (!maleSpecies || !femaleSpecies) return [];
+
     if (maleSpecies === femaleSpecies) {
         return [
             {
@@ -39,56 +42,32 @@ export function getPossibleOffspringSpecies(
         ];
     }
 
-    if (
-        (maleSpecies === 'Tagluma Valso' && femaleSpecies === 'Nokta Voko') ||
-        (maleSpecies === 'Nokta Voko' && femaleSpecies === 'Tagluma Valso')
-    ) {
+    const rule =
+        hybridizationRules[maleSpecies]?.[femaleSpecies] ||
+        hybridizationRules[femaleSpecies]?.[maleSpecies];
+
+    if (rule) {
+        return rule.outcomes.map((o) => ({
+            ...o,
+            geneOutcomes: {},
+        }));
+    }
+
+    if (isPairCompatible(maleSpecies, femaleSpecies)) {
         return [
             {
-                species: 'Kora Voko',
-                probability: 1,
+                species: maleSpecies,
+                probability: 0.5,
+                geneOutcomes: {},
+            },
+            {
+                species: femaleSpecies,
+                probability: 0.5,
                 geneOutcomes: {},
             },
         ];
     }
 
-    if (
-        (maleSpecies === 'Klara Alsalto' && femaleSpecies === 'Glacia Alsalto') ||
-        (maleSpecies === 'Glacia Alsalto' && femaleSpecies === 'Klara Alsalto')
-    ) {
-        return [
-            {
-                species: 'Transira Alsalto',
-                probability: 1,
-                geneOutcomes: {},
-            },
-        ];
-    }
-
-    // For pairs that can produce either parent's species
-    const hybridPairs: [string, string][] = [
-        ['Tera Girafo', 'Kosmira Girafo'],
-        ['Tagluma Valso', 'Kora Voko'],
-        ['Nokta Voko', 'Kora Voko'],
-        // Add other pairs that result in 50/50 outcomes
-    ];
-
-    for (const pair of hybridPairs) {
-        if (pair.includes(maleSpecies) && pair.includes(femaleSpecies)) {
-            return [
-                {
-                    species: maleSpecies,
-                    probability: 0.5,
-                    geneOutcomes: {},
-                },
-                {
-                    species: femaleSpecies,
-                    probability: 0.5,
-                    geneOutcomes: {},
-                },
-            ];
-        }
-    }
     return [];
 }
 export function validatePairing(

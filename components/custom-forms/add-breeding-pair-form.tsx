@@ -22,10 +22,9 @@ import type {
     EnrichedBreedingPair,
     Prediction,
 } from '@/types';
-import { validatePairing } from '@/lib/breeding-rules-client';
+import { validatePairing, getPossibleOffspringSpecies, isPairCompatible } from '@/lib/breeding-rules-client';
 import { speciesList } from '@/constants/creature-data';
 import { CreatureCombobox } from '@/components/misc-custom-components/creature-combobox';
-import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 import { ViewOutcomesDialog } from '@/components/custom-dialogs/view-outcomes-dialog';
 
 type AddPairFormProps = {
@@ -140,19 +139,33 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
         let females = allCreatures.filter((c) => c?.gender === 'female' && c.growthLevel === 3);
 
         if (isHybridMode) {
-            if (selectedMale) {
+            if (selectedMale && selectedFemale) {
+                males = males.filter((m) => m?.id === selectedMale.id);
+                females = females.filter((f) => f?.id === selectedFemale.id);
+            } else if (selectedMale) {
                 females = females.filter(
                     (female) =>
                         validatePairing(selectedMale, female).isValid ||
-                        female?.id === selectedFemale?.id
+                        (selectedFemale && female?.id === selectedFemale.id)
                 );
-            }
-            if (selectedFemale) {
+                males = males.filter((m) => m?.id === selectedMale.id);
+            } else if (selectedFemale) {
                 males = males.filter(
                     (male) =>
                         validatePairing(male, selectedFemale).isValid ||
-                        male?.id === selectedMale?.id
+                        (selectedMale && male?.id === (selectedMale as any).id)
                 );
+                females = females.filter((f) => f?.id === selectedFemale.id);
+            } else if (selectedSpecies) {
+                males = males.filter(
+                    (m) => m?.species && isPairCompatible(m.species, selectedSpecies)
+                );
+                females = females.filter(
+                    (f) => f?.species && isPairCompatible(f.species, selectedSpecies)
+                );
+            } else {
+                males = [];
+                females = [];
             }
         } else {
             if (selectedSpecies) {

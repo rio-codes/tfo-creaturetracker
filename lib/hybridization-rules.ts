@@ -148,4 +148,10 @@ export const hybridizationRules: Record<string, Record<string, HybridizationRule
     'Rida Frakaso': {
         'Osta Frakaso': { outcomes: [{ species: 'Rida Frakaso', probability: 1 }] },
     },
+    'Norda Duko': {
+        'Sabla Rego': { outcomes: [{ species: 'Dezerta Barono', probability: 1 }] },
+    },
+    'Sabla Rego': {
+        'Norda Duko': { outcomes: [{ species: 'Dezerta Barono', probability: 1 }] },
+    },
 };

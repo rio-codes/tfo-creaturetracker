@@ -16,6 +16,8 @@ const compatibility: Record<string, string[]> = {
     'Glubleko': ['Tonbleko', 'Ranbleko'],
     'Osta Frakaso': ['Rida Frakaso'],
     'Rida Frakaso': ['Osta Frakaso'],
+    'Norda Duko': ['Sabla Rego'],
+    'Sabla Rego': ['Norda Duko'],
 };
 
 export function isPairCompatible(speciesA: string, speciesB: string): boolean {

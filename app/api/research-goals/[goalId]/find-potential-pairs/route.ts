@@ -49,9 +49,8 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
 
         const existingPairsMap = new Map<string, { name: string; id: string }>();
         for (const pair of allUserPairs) {
-            const maleId = pair.maleParentCode;
-            existingPairsMap.set(`${maleId}-`, { name: pair.pairName, id: pair.id });
-            existingPairsMap.set(`-`, { name: pair.pairName, id: pair.id });
+            const key = `${pair.maleParentUserId}:${pair.maleParentCode}_${pair.femaleParentUserId}:${pair.femaleParentCode}`;
+            existingPairsMap.set(key, { name: pair.pairName, id: pair.id });
         }
 
         const enrichedCreatures = allUserCreatures.map(enrichAndSerializeCreature);
@@ -82,19 +81,22 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
                 let isPossible = true;
 
                 for (const [category, targetGeneInfo] of Object.entries(enrichedGoal.genes)) {
+                    const targetGene = targetGeneInfo as GoalGene;
                     const chance = calculateGeneProbability(
                         male,
                         female,
                         category,
-                        targetGeneInfo as GoalGene,
+                        targetGene,
                         goal.goalMode
                     );
-                    if (!(targetGeneInfo as any).isOptional && chance === 0) {
-                        isPossible = false;
-                        break;
+                    if (!targetGene.isOptional) {
+                        if (chance === 0) {
+                            isPossible = false;
+                            break;
+                        }
+                        totalChance += chance;
+                        geneCount++;
                     }
-                    totalChance += chance;
-                    geneCount++;
                 }
 
                 if (isPossible) {
@@ -103,7 +105,7 @@ export async function GET(request: Request, props: { params: Promise<{ goalId: s
                         { userId: female.userId, code: female.code }
                     );
                     const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
-                    const pairKey = `${male.id}-${female.id}`;
+                    const pairKey = `${male.userId}:${male.code}_${female.userId}:${female.code}`;
                     const existingPair = existingPairsMap.get(pairKey);
 
                     combinations.push({

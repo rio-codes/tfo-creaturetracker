@@ -175,10 +175,6 @@ export function calculateGeneProbability(
     targetGene: GoalGene,
     goalMode: 'genotype' | 'phenotype'
 ): number {
-    if (targetGene.isOptional) {
-        return 1;
-    }
-
     if (category.toLowerCase() === 'gender') {
         return 0.5;
     }

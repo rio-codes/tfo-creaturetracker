@@ -7,11 +7,16 @@ import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Archive, Trash2, Check, PartyPopper } from 'lucide-react';
+import { Loader2, Archive, Trash2, Check, PartyPopper, CheckCircle } from 'lucide-react';
 import type { EnrichedCreature, EnrichedResearchGoal } from '@/types';
 
 type AnalysisResult = {
     matchingGoals: { goal: EnrichedResearchGoal; matchingCreature: EnrichedCreature }[];
+    matchingChecklistSlots?: {
+        checklist: { id: string; name: string; species: string };
+        slot: string;
+        matchingCreature: EnrichedCreature;
+    }[];
     archivableCreatures: { id: string; code: string; creatureName: string | null }[];
 };
 
@@ -26,7 +31,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
     const [isLoading, setIsLoading] = useState(false);
     const [currentResults, setCurrentResults] = useState<AnalysisResult>(results);
     const [showConfetti, _setShowConfetti] = useState(
-        results.matchingGoals.length > 0 ? true : false
+        (results.matchingGoals.length > 0 || (results.matchingChecklistSlots?.length || 0) > 0) ? true : false
     );
 
     const handleMarkAchieved = async (goalId: string) => {
@@ -47,6 +52,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
             setCurrentResults(newResults);
             if (
                 newResults.matchingGoals.length === 0 &&
+                (newResults.matchingChecklistSlots?.length || 0) === 0 &&
                 newResults.archivableCreatures.length === 0
             ) {
                 onComplete();
@@ -74,6 +80,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
             setCurrentResults(newResults);
             if (
                 newResults.matchingGoals.length === 0 &&
+                (newResults.matchingChecklistSlots?.length || 0) === 0 &&
                 newResults.archivableCreatures.length === 0
             ) {
                 onComplete();
@@ -106,6 +113,7 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
 
             if (
                 newResults.matchingGoals.length === 0 &&
+                (newResults.matchingChecklistSlots?.length || 0) === 0 &&
                 newResults.archivableCreatures.length === 0
             ) {
                 onComplete();
@@ -170,6 +178,47 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
                 </div>
             )}
 
+            {currentResults.matchingChecklistSlots && currentResults.matchingChecklistSlots.length > 0 && (
+                <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 space-y-3">
+                    <div className="flex items-center gap-3">
+                        <CheckCircle className="h-7 w-7 text-blue-500" />
+                        <div>
+                            <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300">
+                                Checklist Matches Found!
+                            </h3>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">
+                                You've imported {currentResults.matchingChecklistSlots.length} creature(s) that match open slots on your checklists.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {currentResults.matchingChecklistSlots.map((item, idx) => (
+                            <div
+                                key={`${item.checklist.id}-${item.slot}-${idx}`}
+                                className="p-3 rounded-md bg-white dark:bg-slate-800 flex justify-between items-center text-sm"
+                            >
+                                <div>
+                                    <p className="font-semibold">{item.checklist.name} ({item.checklist.species})</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Slot: {item.slot} — Matched by {item.matchingCreature?.creatureName || item.matchingCreature?.code} ({item.matchingCreature?.code})
+                                    </p>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                        onComplete();
+                                        router.push(`/checklists/${item.checklist.id}`);
+                                    }}
+                                >
+                                    View Checklist
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {currentResults.archivableCreatures.length > 0 && (
                 <div className="p-4 border rounded-lg">
                     <h3 className="text-lg font-semibold mb-2">Archive Missing Creatures?</h3>
@@ -202,10 +251,12 @@ export function PostSyncAnalysis({ results, onComplete }: PostSyncAnalysisProps)
                 </div>
             )}
 
-            {currentResults.matchingGoals.length === 0 && currentResults.archivableCreatures.length === 0 && (
+            {currentResults.matchingGoals.length === 0 &&
+                (currentResults.matchingChecklistSlots?.length || 0) === 0 &&
+                currentResults.archivableCreatures.length === 0 && (
                 <div className="text-center p-8">
                     <p className="text-slate-500 dark:text-slate-400">
-                        Sync complete. No new goal matches or archivable creatures found.
+                        Sync complete. No new goal matches, checklist entries, or archivable creatures found.
                     </p>
                     <Button onClick={onComplete} className="mt-4">
                         Finish

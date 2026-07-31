@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/src/db';
-import { creatures, researchGoals } from '@/src/db/schema';
+import { creatures, researchGoals, checklists } from '@/src/db/schema';
 import { and, eq, inArray, gte } from 'drizzle-orm';
 import { z } from 'zod';
 import { enrichAndSerializeCreature, enrichAndSerializeGoal } from '@/lib/serialization';
 import { creatureMatchesGoal } from '@/lib/creature-utils';
+import { generatePhenotypeCombinations } from '@/lib/checklist-utils';
 
 const analysisSchema = z.object({
     syncedCreatureCodes: z.array(z.string()),
@@ -71,7 +72,54 @@ export async function POST(req: Request) {
 
             archivableCreatures = creaturesNotInTfo;
         }
+
+        const userChecklists = await db.query.checklists.findMany({
+            where: eq(checklists.userId, userId),
+        });
+
         const matchingChecklistSlots: any[] = [];
+        for (const checklist of userChecklists) {
+            const assignments = checklist.assignments
+                ? typeof checklist.assignments === 'string'
+                    ? JSON.parse(checklist.assignments)
+                    : checklist.assignments
+                : {};
+            const combinations = generatePhenotypeCombinations(
+                checklist.species,
+                checklist.targetGenes as any
+            );
+
+            for (const combo of combinations) {
+                const isAssigned = assignments && assignments[combo.phenotypeString];
+                if (!isAssigned) {
+                    for (const creature of newlySyncedCreatures) {
+                        if (creature.species !== checklist.species) continue;
+                        const enrichedCreature = enrichAndSerializeCreature(creature);
+                        if (!enrichedCreature || !enrichedCreature.geneData) continue;
+
+                        const creaturePhenotypes = new Map(
+                            enrichedCreature.geneData.map((g) => [g.category, g.phenotype])
+                        );
+                        const matchesAll = combo.phenotypes.every(
+                            (p) => creaturePhenotypes.get(p.category) === p.phenotype
+                        );
+
+                        if (matchesAll) {
+                            matchingChecklistSlots.push({
+                                checklist: {
+                                    id: checklist.id,
+                                    name: checklist.name,
+                                    species: checklist.species,
+                                },
+                                slot: combo.phenotypeString,
+                                matchingCreature: enrichedCreature,
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         return NextResponse.json({
             matchingGoals,

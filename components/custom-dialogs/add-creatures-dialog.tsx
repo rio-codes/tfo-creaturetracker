@@ -48,6 +48,11 @@ type SyncState = 'idle' | 'syncing' | 'analyzing' | 'post-sync-analysis' | 'comp
 
 type AnalysisResult = {
     matchingGoals: { goal: EnrichedResearchGoal; matchingCreature: EnrichedCreature }[];
+    matchingChecklistSlots?: {
+        checklist: { id: string; name: string; species: string };
+        slot: string;
+        matchingCreature: EnrichedCreature;
+    }[];
     archivableCreatures: { id: string; code: string; creatureName: string | null }[];
 };
 

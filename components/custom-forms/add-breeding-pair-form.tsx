@@ -163,9 +163,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                 females = females.filter(
                     (f) => f?.species && isPairCompatible(f.species, selectedSpecies)
                 );
-            } else {
-                males = [];
-                females = [];
             }
         } else {
             if (selectedSpecies) {
@@ -448,7 +445,6 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
                     value={selectedSpecies}
                     onValueChange={handleSpeciesChange}
                     required={!isHybridMode}
-                    disabled={isHybridMode}
                 >
                     <SelectTrigger className="bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss text-xs">
                         <SelectValue placeholder="Select Species..." />

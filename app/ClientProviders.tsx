@@ -26,7 +26,7 @@ const hideHeaderOnPrefixes = ['/share/'];
 
 function AppContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { data: session } = useSession();
+    const { data: _session } = useSession();
 
     const showHeader =
         !hideHeaderOnPaths.includes(pathname) &&

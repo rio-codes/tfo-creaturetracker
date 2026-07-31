@@ -45,7 +45,7 @@ export const enrichAndSerializeCreature = (
                     genotype: string;
                     phenotype: string;
                 };
-                let finalGenotype = gene.genotype;
+                const finalGenotype = gene.genotype;
                 let finalPhenotype = gene.phenotype;
                 let canonicalCategory = category;
 

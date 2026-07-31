@@ -7,23 +7,18 @@ import { useEffect, useRef } from 'react';
 export function ThemeSyncer() {
     const { data: session, status } = useSession();
     const { setTheme } = useTheme();
-    const hasSynced = useRef(false);
+    const lastSyncedTheme = useRef<string | null>(null);
 
     useEffect(() => {
-        // Only sync if we have an authenticated session and haven't synced for this session yet.
-        if (status === 'authenticated' && !hasSynced.current) {
-        
+        if (status === 'authenticated') {
             const userTheme = session?.user?.theme;
-            if (userTheme) {
+            if (userTheme && userTheme !== lastSyncedTheme.current) {
                 setTheme(userTheme);
-                hasSynced.current = true; // Mark as synced for this session.
+                lastSyncedTheme.current = userTheme;
             }
+        } else if (status === 'unauthenticated') {
+            lastSyncedTheme.current = null;
         }
-        // If the user logs out, reset the flag so it can sync again on the next login.
-        if (status === 'unauthenticated') {
-            hasSynced.current = false;
-        }
-    
     }, [status, session?.user?.theme, setTheme]);
 
     return null; // This component does not render anything.

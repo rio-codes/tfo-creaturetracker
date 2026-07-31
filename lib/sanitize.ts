@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 
-let purifyInstance: DOMPurify.DOMPurify | null = null;
+let purifyInstance: ReturnType<typeof DOMPurify> | null = null;
 
 /**
  * Initializes and returns a DOMPurify instance.

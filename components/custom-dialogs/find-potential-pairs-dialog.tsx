@@ -132,17 +132,17 @@ export function FindPotentialPairsDialog({
         }
     };
 
-    const handleAssignExisting = async (pairId: string) => {
+    const handleToggleAssignExisting = async (pairId: string, assign: boolean) => {
         setIsCreating(pairId);
         try {
             const response = await fetch(`/api/breeding-pairs/${pairId}/assign-goal`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goalId: goal.id, assign: true }),
+                body: JSON.stringify({ goalId: goal.id, assign }),
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to assign pair.');
+                throw new Error(errorData.error || 'Failed to update pair assignment.');
             }
             router.refresh();
             onOpenChange(false);
@@ -226,14 +226,31 @@ export function FindPotentialPairsDialog({
                                                 </div>
                                                 {existingPairId ? (
                                                     isAssigned ? (
-                                                        <Button size="sm" disabled>
-                                                            Already Assigned
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() =>
+                                                                handleToggleAssignExisting(
+                                                                    existingPairId,
+                                                                    false
+                                                                )
+                                                            }
+                                                            disabled={isCreating === existingPairId}
+                                                        >
+                                                            {isCreating === existingPairId ? (
+                                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                            ) : (
+                                                                'Unassign Pair'
+                                                            )}
                                                         </Button>
                                                     ) : (
                                                         <Button
                                                             size="sm"
                                                             onClick={() =>
-                                                                handleAssignExisting(existingPairId)
+                                                                handleToggleAssignExisting(
+                                                                    existingPairId,
+                                                                    true
+                                                                )
                                                             }
                                                             disabled={isCreating === existingPairId}
                                                         >

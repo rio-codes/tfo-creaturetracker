@@ -37,6 +37,7 @@ const editGoalSchema = z.object({
         )
         .optional(),
     targetGeneration: z.number().optional().default(1).nullable(),
+    assignedPairIds: z.array(z.string()).optional(),
 });
 
 const wishlistPinSchema = z.object({
@@ -219,7 +220,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 );
             }
 
-            const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration } =
+            const { name, species, genes, goalMode, isPublic, excludedGenes, targetGeneration, assignedPairIds } =
                 validatedFields.data;
 
             if (hasObscenity(name)) {
@@ -279,21 +280,61 @@ export async function PATCH(req: Request, props: { params: Promise<{ goalId: str
                 }
             }
 
+            const updatePayload: any = {
+                name,
+                species,
+                genes,
+                goalMode,
+                imageUrl: newImageUrl,
+                updatedAt: new Date(),
+                isPublic,
+                excludedGenes,
+                targetGeneration: targetGeneration ?? 1,
+            };
+            if (assignedPairIds !== undefined) {
+                updatePayload.assignedPairIds = assignedPairIds;
+            }
+
             await db
                 .update(researchGoals)
-                .set({
-                    name,
-                    species,
-                    genes,
-                    goalMode,
-                    imageUrl: newImageUrl,
-                    updatedAt: new Date(),
-                    isPublic,
-                    excludedGenes,
-                    targetGeneration: targetGeneration ?? 1,
-                })
+                .set(updatePayload)
                 .where(and(eq(researchGoals.id, params.goalId), eq(researchGoals.userId, userId)))
                 .returning();
+
+            if (assignedPairIds !== undefined) {
+                const oldPairIds = new Set(existingGoal.assignedPairIds || []);
+                const newPairIds = new Set(assignedPairIds || []);
+
+                const pairsAdded = [...newPairIds].filter((id) => !oldPairIds.has(id));
+                const pairsRemoved = [...oldPairIds].filter((id) => !newPairIds.has(id));
+
+                if (pairsAdded.length > 0) {
+                    const pairsToUpdate = await db.query.breedingPairs.findMany({
+                        where: and(inArray(breedingPairs.id, pairsAdded), eq(breedingPairs.userId, userId)),
+                    });
+                    for (const pair of pairsToUpdate) {
+                        const currentGoalIds = new Set(pair.assignedGoalIds || []);
+                        currentGoalIds.add(params.goalId);
+                        await db
+                            .update(breedingPairs)
+                            .set({ assignedGoalIds: Array.from(currentGoalIds) })
+                            .where(eq(breedingPairs.id, pair.id));
+                    }
+                }
+                if (pairsRemoved.length > 0) {
+                    const pairsToUpdate = await db.query.breedingPairs.findMany({
+                        where: and(inArray(breedingPairs.id, pairsRemoved), eq(breedingPairs.userId, userId)),
+                    });
+                    for (const pair of pairsToUpdate) {
+                        const currentGoalIds = new Set(pair.assignedGoalIds || []);
+                        currentGoalIds.delete(params.goalId);
+                        await db
+                            .update(breedingPairs)
+                            .set({ assignedGoalIds: Array.from(currentGoalIds) })
+                            .where(eq(breedingPairs.id, pair.id));
+                    }
+                }
+            }
 
             await logUserAction({
                 action: 'goal.update',

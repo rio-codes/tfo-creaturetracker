@@ -18,8 +18,9 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { structuredGeneData, speciesList } from '@/constants/creature-data';
 import { Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import type { EnrichedResearchGoal, GoalGene } from '@/types';
+import type { EnrichedResearchGoal, GoalGene, EnrichedBreedingPair } from '@/types';
 import { MultiSelect } from '@/components/misc-custom-components/multi-select';
+import { getPossibleOffspringSpecies } from '@/lib/breeding-rules-client';
 
 type GeneOption = {
     value: string;
@@ -41,6 +42,8 @@ export function GoalForm({ goal, onSuccessAction, isAdminView = false }: GoalFor
     const [name, setName] = useState(goal?.name || '');
     const [species, setSpecies] = useState(goal?.species || '');
     const [goalMode, setGoalMode] = useState(goal?.goalMode || 'phenotype');
+    const [allPairs, setAllPairs] = useState<EnrichedBreedingPair[]>([]);
+    const [selectedPairIds, setSelectedPairIds] = useState<string[]>(goal?.assignedPairIds || []);
     const [selectedGenes, setSelectedGenes] = useState<{ [key: string]: GoalGene }>(() => {
         if (!goal?.genes) {
             return {};
@@ -201,6 +204,34 @@ export function GoalForm({ goal, onSuccessAction, isAdminView = false }: GoalFor
         }
         setPreviewImageUrl(null);
     };
+
+    useEffect(() => {
+        const fetchPairs = async () => {
+            try {
+                const res = await fetch('/api/breeding-pairs');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAllPairs(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch breeding pairs:', err);
+            }
+        };
+        fetchPairs();
+    }, []);
+
+    const compatiblePairs = useMemo(() => {
+        if (!species || !allPairs) return [];
+        return allPairs.filter((pair) => {
+            if (!pair.maleParent?.species || !pair.femaleParent?.species) return false;
+            const possibleOffspring = getPossibleOffspringSpecies(
+                pair.maleParent.species,
+                pair.femaleParent.species
+            );
+            return possibleOffspring.some((o) => o.species === species);
+        });
+    }, [species, allPairs]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -216,6 +247,7 @@ export function GoalForm({ goal, onSuccessAction, isAdminView = false }: GoalFor
                 isPublic,
                 targetGeneration: isPublic ? targetGeneration : null,
                 excludedGenes,
+                assignedPairIds: selectedPairIds,
             };
             const response = await fetch(apiUrl, {
                 method: apiMethod,
@@ -525,6 +557,40 @@ export function GoalForm({ goal, onSuccessAction, isAdminView = false }: GoalFor
                     />
                 )}
             </div>
+            {/* Breeding Pairs Assignment */}
+            {species && compatiblePairs.length > 0 && (
+                <div className="space-y-2 pt-2 border-t mt-4">
+                    <Label className="font-semibold">Assign Breeding Pairs</Label>
+                    <p className="text-xs text-muted-foreground">
+                        Select existing compatible breeding pairs to assign to this goal.
+                    </p>
+                    <div className="max-h-36 overflow-y-auto space-y-2 rounded-md border p-2 bg-ebena-lavender dark:bg-midnight-purple hallowsnight:bg-abyss">
+                        {compatiblePairs.map((pair) => (
+                            <div key={pair.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`goal-pair-${pair.id}`}
+                                    checked={selectedPairIds.includes(pair.id)}
+                                    onCheckedChange={(checked) => {
+                                        if (checked) {
+                                            setSelectedPairIds((prev) => [...prev, pair.id]);
+                                        } else {
+                                            setSelectedPairIds((prev) =>
+                                                prev.filter((id) => id !== pair.id)
+                                            );
+                                        }
+                                    }}
+                                />
+                                <Label htmlFor={`goal-pair-${pair.id}`} className="font-normal cursor-pointer text-sm">
+                                    {pair.pairName}{' '}
+                                    <span className="text-xs text-muted-foreground">
+                                        ({pair.maleParent?.code} x {pair.femaleParent?.code})
+                                    </span>
+                                </Label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             {/* submit buttons */}

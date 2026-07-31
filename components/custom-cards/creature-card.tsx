@@ -36,7 +36,6 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import type { EnrichedBreedingPair, EnrichedResearchGoal, EnrichedCreature, User } from '@/types';
-import { ManageBreedingPairsDialog } from '../custom-dialogs/manage-breeding-pairs-dialog';
 import { BreedingPairCard } from './breeding-pair-card';
 import { LogAsProgenyDialog } from '../custom-dialogs/log-as-progeny-dialog';
 import { toast } from 'sonner';

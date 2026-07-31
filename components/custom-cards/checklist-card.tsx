@@ -49,12 +49,17 @@ export function ChecklistCard({ checklist, allCreatures }: ChecklistCardProps) {
                             <CardTitle className="text-lg leading-tight">{name}</CardTitle>
                             <CardDescription>{species}</CardDescription>
                         </div>
-                        {hasFulfillableCreatures && (
+                        {progress.filled === progress.total && progress.total > 0 ? (
+                            <Badge className="absolute top-12 right-2 bg-emerald-600 text-white font-bold">
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Complete!
+                            </Badge>
+                        ) : hasFulfillableCreatures ? (
                             <Badge className="absolute top-12 right-2 bg-green-500 text-white animate-pulse">
                                 <CheckCircle className="w-4 h-4 mr-1" />
                                 New Match!
                             </Badge>
-                        )}
+                        ) : null}
                     </CardHeader>
                     <CardContent className="grow pt-0">
                         {/* Content can go here if needed in the future */}

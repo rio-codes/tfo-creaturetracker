@@ -1,5 +1,42 @@
 # 🧬 TFO.CT Changelog 🧑🏿‍🔬
 
+## 1.26.0 (2026-07-30)
+
+- perf(db): ⚡️ optimize page load speeds with Promise.all concurrency and composite indexes
+- fix(ui): 🎨 fix theme switching with data-theme attribute and resolve React 19 script warning
+- fix(ui): 🐛 calculate checklist phenotype slot totals and render complete badges
+- feat(collection): ✨ add checklist slot match notifications after creature import
+- fix(goals): 🐛 exclude optional genes from match score probability average
+- feat(pairs): ✨ support hybrid species outcomes and compatible parent pairing filters
+- feat(goals): ✨ enable assigning breeding pairs to goals across forms and dialogs
+
+### 1.25.3 (2026-07-20)
+
+- fix(collection): 🐛 wrap all three card footer buttons in explicit grid cell containers for identical width ([5ad7a627](https://github.com/rio-codes/tfo-creaturetracker/commit/5ad7a6275))
+- fix(ui): 🎨 use CSS grid for equal creature card buttons and fix Discord social icon recognition ([01657fcd](https://github.com/rio-codes/tfo-creaturetracker/commit/01657fcd4))
+- style(admin): 💄 remove decorative borders around details and summary tags in blog posts ([a94e8a51](https://github.com/rio-codes/tfo-creaturetracker/commit/a94e8a514))
+- refactor(admin): ♻️ replace TipTap rich text editor with raw HTML textarea editor ([bf493b08](https://github.com/rio-codes/tfo-creaturetracker/commit/bf493b089))
+- feat(collection): ✨ navigate Manage Breeding Pairs to Breeding Pairs page with prefilled parent ([8be5fbbd](https://github.com/rio-codes/tfo-creaturetracker/commit/8be5fbbd5))
+- feat(pairs): ✨ add Predict Outcomes after pair creation and goal creation for missing checklist traits ([5661a11c](https://github.com/rio-codes/tfo-creaturetracker/commit/5661a11cf))
+- fix(collection): 🐛 keep post-sync overlay open when deleting a goal ([7cef0974](https://github.com/rio-codes/tfo-creaturetracker/commit/7cef09740))
+- fix(lib): 🐛 add Amikamaro capsule avatar and consolidate Kora Voko species name ([891bef79](https://github.com/rio-codes/tfo-creaturetracker/commit/891bef792))
+- fix(lib): 🐛 support Kora Voko species alias and code SPtOw ([7801dc5c](https://github.com/rio-codes/tfo-creaturetracker/commit/7801dc5cd))
+- fix(lib): 🐛 update Dolca Dormo species code to YwvYX and resolve phenotypes dynamically ([e5d5c571](https://github.com/rio-codes/tfo-creaturetracker/commit/e5d5c5718))
+- feat(lib): ✨ add Dolca Dormo genetics data and capsule image ([3f888cf2](https://github.com/rio-codes/tfo-creaturetracker/commit/3f888cf25))
+
+### 1.25.2 (2026-07-07)
+
+- fix(goals): 🐛 fetch and return achievedGoals in fetchFilteredResearchGoals ([2d4125ff](https://github.com/rio-codes/tfo-creaturetracker/commit/2d4125ffb))
+- fix(lib): 🐛 return 50% probability for Gender category in calculateGeneProbability ([7c5ac05a](https://github.com/rio-codes/tfo-creaturetracker/commit/7c5ac05ad))
+- fix(homepage): 📝 update homepage title ([910ebed6](https://github.com/rio-codes/tfo-creaturetracker/commit/910ebed63))
+- feat(admin): ✨ disable save button and show toast feedback on post save ([368c0822](https://github.com/rio-codes/tfo-creaturetracker/commit/368c08229))
+- feat(admin): ✨ allow creating new posts and add details/summary block insertion ([c20c759e](https://github.com/rio-codes/tfo-creaturetracker/commit/c20c759e9))
+- fix(goals): 🐛 validate and save isPublic and excludedGenes on goal creation ([d580918c](https://github.com/rio-codes/tfo-creaturetracker/commit/d580918c4))
+- fix(goals): 🐛 await searchParams promise on research goals page ([fea69399](https://github.com/rio-codes/tfo-creaturetracker/commit/fea693991))
+- fix(api): 🐛 prevent SSE connection close from triggering false sync errors ([ff7ea1e3](https://github.com/rio-codes/tfo-creaturetracker/commit/ff7ea1e34))
+- feat(lib): ✨ add genetics and codes for six new species ([e8764e3b](https://github.com/rio-codes/tfo-creaturetracker/commit/e8764e3b4))
+- build(deps): ⬆️ update all dependencies to their latest versions ([63e759ef](https://github.com/rio-codes/tfo-creaturetracker/commit/63e759ef1))
+
 ### 1.25.1 (2025-11-14)
 
 - docs(homepage): 📝 add changelog to footer ([9fd0c0d7](https://github.com/rio-codes/tfo-creaturetracker/commit/9fd0c0d7e07ba6c1e952bd4c3390c6bd16339b7c))

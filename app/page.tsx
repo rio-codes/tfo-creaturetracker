@@ -63,22 +63,18 @@ const getRandomCreature = cache(
                 Object.entries(selectedGenes).map(([cat, gene]) => [cat, gene.genotype])
             );
             console.log('Final selected genotypes:', selectedGenotypes);
-            let imageUrl: string | null = null;
-            try {
-                const randomGender = Math.random() < 0.5 ? 'female' : 'male';
-                const tfoImageUrl = constructTfoImageUrl(
-                    randomPair.species,
-                    selectedGenotypes,
-                    randomGender
-                );
-                const bustedTfoImageUrl = `${tfoImageUrl}&_cb=${new Date().getTime()}`;
-                imageUrl = await fetchAndUploadWithRetry(
-                    bustedTfoImageUrl,
-                    `admin-preview-${randomPair.id}-${Date.now()}`,
-                    3
-                );
-            } catch (error) {
-                console.error('Failed to generate preview image for admin metrics:', error);
+            let imageUrl: string | null = randomPair.femaleParent?.imageUrl || randomPair.maleParent?.imageUrl || null;
+            if (!imageUrl) {
+                try {
+                    const randomGender = Math.random() < 0.5 ? 'female' : 'male';
+                    imageUrl = constructTfoImageUrl(
+                        randomPair.species,
+                        selectedGenotypes,
+                        randomGender
+                    );
+                } catch (error) {
+                    console.error('Failed to generate preview image URL:', error);
+                }
             }
             const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let randomCode = '';

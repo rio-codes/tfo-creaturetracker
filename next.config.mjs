@@ -3,6 +3,9 @@ const nextConfig = {
         unoptimized: true,
         remotePatterns: [new URL('https://ineejclhhioqywk4.public.blob.vercel-storage.com/**')],
     },
+    experimental: {
+        useTypeScriptCli: true,
+    },
     productionBrowserSourceMaps: true,
     async headers() {
         return [

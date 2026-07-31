@@ -314,6 +314,12 @@ export const creatures = pgTable(
         index('creature_gender_idx').on(table.gender),
         index('creature_pinned_idx').on(table.isPinned),
         index('creature_created_at_idx').on(table.createdAt),
+        index('creature_user_archived_pinned_idx').on(
+            table.userId,
+            table.isArchived,
+            table.isPinned,
+            table.createdAt
+        ),
     ]
 );
 
@@ -363,6 +369,12 @@ export const researchGoals = pgTable(
         index('goal_species_idx').on(table.species),
         index('goal_pinned_idx').on(table.isPinned),
         index('goal_created_at_idx').on(table.createdAt),
+        index('goal_user_achieved_pinned_idx').on(
+            table.userId,
+            table.isAchieved,
+            table.isPinned,
+            table.createdAt
+        ),
     ]
 );
 
@@ -427,6 +439,12 @@ export const breedingPairs = pgTable(
             speciesIdx: index('pair_species_idx').on(table.species),
             pinnedIdx: index('pair_pinned_idx').on(table.isPinned),
             createdIdx: index('pair_created_at_idx').on(table.createdAt),
+            userArchivedPinnedIdx: index('pair_user_archived_pinned_idx').on(
+                table.userId,
+                table.isArchived,
+                table.isPinned,
+                table.createdAt
+            ),
         },
     ]
 );

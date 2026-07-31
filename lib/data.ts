@@ -125,9 +125,12 @@ export async function fetchGoalDetailsAndPredictions(goalId: string) {
                         goal.goalMode
                     );
                     chancesByCategory[category] = chance;
+                    const targetGene = targetGeneInfo as GoalGene;
 
-                    totalChance += chance;
-                    geneCount++;
+                    if (!targetGene?.isOptional) {
+                        totalChance += chance;
+                        geneCount++;
+                    }
                 }
 
                 const averageChance = geneCount > 0 ? totalChance / geneCount : 1;
@@ -206,35 +209,6 @@ export async function fetchFilteredCreatures(
 
     console.log('Constructed geneString for query:', geneString);
 
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-    });
-
-    const publicGoals = await db.query.researchGoals.findMany({
-        where: eq(researchGoals.isPublic, true),
-    });
-
-    const itemsPerPage = user?.collectionItemsPerPage ?? 12;
-
-    const phenotypeGeneStrings: string[] = [];
-    if (query) {
-        for (const speciesName in structuredGeneData) {
-            const speciesGenes = structuredGeneData[speciesName];
-            if (speciesGenes) {
-                for (const category in speciesGenes) {
-                    const genes = speciesGenes[category];
-                    if (Array.isArray(genes)) {
-                        for (const gene of genes as { genotype: string; phenotype: string }[]) {
-                            if (gene.phenotype.toLowerCase().includes(query.toLowerCase())) {
-                                phenotypeGeneStrings.push(`%${category}:${gene.genotype}%`);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     const isGenotypePattern = (q: string) => {
         const validGeneChars = /^[abcABC]+$/;
         return /^(?:[a-zA-Z]{2})+$/.test(q) && validGeneChars.test(q);
@@ -265,7 +239,7 @@ export async function fetchFilteredCreatures(
                   ilike(creatures.species, `%${query}%`)
               )
             : undefined,
-        geneJsonbQuery, // Add the specific JSONB query condition
+        geneJsonbQuery,
         gender && gender !== 'all' ? eq(creatures.gender, gender as any) : undefined,
         growthLevel ? eq(creatures.growthLevel, growthLevel) : undefined,
         species && species !== 'all' ? ilike(creatures.species, species) : undefined,
@@ -273,44 +247,47 @@ export async function fetchFilteredCreatures(
         origin && origin !== 'all' ? eq(creatures.origin, origin as any) : undefined,
     ].filter(Boolean);
 
-    console.log('Final query conditions count:', conditions.length);
-
     try {
-        const pinnedCreaturesRaw = await db
-            .select()
-            .from(creatures)
-            .where(and(...conditions, eq(creatures.isPinned, true))) // `conditions` is an array of SQL chunks
-            .orderBy(creatures.pinOrder, desc(creatures.createdAt));
-
-        const pinnedCreatures = pinnedCreaturesRaw.map((c: any) => {
-            const creatureData = {
-                ...c,
-                genetics:
-                    typeof c.genetics === 'string' && c.genetics.startsWith('{')
-                        ? JSON.parse(c.genetics)
-                        : c.genetics,
-            };
-            const enriched = enrichAndSerializeCreature(creatureData);
-            if (!enriched) return null;
-            const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
-            return {
-                ...enriched,
-                fulfillsWish,
-            };
+        const userPromise = db.query.users.findFirst({
+            where: eq(users.id, userId),
+        });
+        const publicGoalsPromise = db.query.researchGoals.findMany({
+            where: eq(researchGoals.isPublic, true),
         });
 
+        const [user, publicGoals] = await Promise.all([userPromise, publicGoalsPromise]);
+        const itemsPerPage = user?.collectionItemsPerPage ?? 12;
         const unpinnedConditions = [...conditions, eq(creatures.isPinned, false)];
         const offset = (currentPage - 1) * itemsPerPage;
 
-        const unpinnedCreaturesRaw = await db
-            .select()
-            .from(creatures)
-            .where(and(...unpinnedConditions))
-            .orderBy(desc(creatures.createdAt), desc(creatures.id))
-            .limit(itemsPerPage)
-            .offset(offset);
+        const [pinnedCreaturesRaw, unpinnedCreaturesRaw, totalCountResult] = await Promise.all([
+            db
+                .select()
+                .from(creatures)
+                .where(and(...conditions, eq(creatures.isPinned, true)))
+                .orderBy(creatures.pinOrder, desc(creatures.createdAt)),
+            db
+                .select()
+                .from(creatures)
+                .where(and(...unpinnedConditions))
+                .orderBy(desc(creatures.createdAt), desc(creatures.id))
+                .limit(itemsPerPage)
+                .offset(offset),
+            db
+                .select({ count: count() })
+                .from(creatures)
+                .where(and(...unpinnedConditions)),
+        ]);
 
-        const unpinnedCreatures = unpinnedCreaturesRaw.map((c: any) => {
+        const publicGoalsBySpecies = new Map<string, any[]>();
+        for (const goal of publicGoals) {
+            if (!goal.species) continue;
+            const list = publicGoalsBySpecies.get(goal.species) || [];
+            list.push(goal);
+            publicGoalsBySpecies.set(goal.species, list);
+        }
+
+        const mapCreature = (c: any) => {
             const creatureData = {
                 ...c,
                 genetics:
@@ -320,17 +297,17 @@ export async function fetchFilteredCreatures(
             };
             const enriched = enrichAndSerializeCreature(creatureData);
             if (!enriched) return null;
-            const fulfillsWish = publicGoals.some((goal: any) => checkGoalAchieved(c, goal));
+            const matchingGoals = c.species ? publicGoalsBySpecies.get(c.species) || [] : [];
+            const fulfillsWish = matchingGoals.some((goal: any) => checkGoalAchieved(c, goal));
             return {
                 ...enriched,
                 fulfillsWish,
             };
-        });
+        };
 
-        const totalCountResult = await db
-            .select({ count: count() })
-            .from(creatures)
-            .where(and(...unpinnedConditions));
+        const pinnedCreatures = pinnedCreaturesRaw.map(mapCreature).filter(Boolean);
+        const unpinnedCreatures = unpinnedCreaturesRaw.map(mapCreature).filter(Boolean);
+
         const totalUnpinned = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
@@ -352,12 +329,7 @@ export async function fetchFilteredResearchGoals(
     const { query, species } = await searchParams;
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) throw new Error('User is not authenticated.');
-
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-    });
-    const itemsPerPage = user?.goalsItemsPerPage ?? 12;
+    if (!userId) return { pinnedGoals: [], unpinnedGoals: [], achievedGoals: [], totalPages: 0 };
 
     const conditions: (SQL | undefined)[] = [
         eq(researchGoals.userId, userId),
@@ -366,63 +338,65 @@ export async function fetchFilteredResearchGoals(
         species && species !== 'all' ? eq(researchGoals.species, species) : undefined,
     ].filter(Boolean);
 
-    console.log('conditions: ', conditions);
-
     try {
-        const pinnedGoalsRaw = await db
-            .select()
-            .from(researchGoals)
-            .where(and(...conditions, eq(researchGoals.isPinned, true)))
-            .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt));
+        const userPromise = db.query.users.findFirst({
+            where: eq(users.id, userId),
+        });
 
-        const pinnedGoals = pinnedGoalsRaw
-            .map((goal: any) => {
-                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
-            })
-            .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
-
-        console.log(pinnedGoals?.map((goal: any) => goal.name));
-
+        const user = await userPromise;
+        const itemsPerPage = user?.goalsItemsPerPage ?? 12;
         const offset = (currentPage - 1) * itemsPerPage;
 
-        const unpinnedGoalsRaw = await db
-            .select()
-            .from(researchGoals)
-            .where(and(...conditions, eq(researchGoals.isPinned, false)))
-            .orderBy(desc(researchGoals.createdAt), desc(researchGoals.id))
-            .limit(itemsPerPage)
-            .offset(offset);
+        const [pinnedGoalsRaw, unpinnedGoalsRaw, totalCountResult, achievedGoalsRaw] =
+            await Promise.all([
+                db
+                    .select()
+                    .from(researchGoals)
+                    .where(and(...conditions, eq(researchGoals.isPinned, true)))
+                    .orderBy(researchGoals.pinOrder, desc(researchGoals.createdAt)),
+                db
+                    .select()
+                    .from(researchGoals)
+                    .where(and(...conditions, eq(researchGoals.isPinned, false)))
+                    .orderBy(desc(researchGoals.createdAt), desc(researchGoals.id))
+                    .limit(itemsPerPage)
+                    .offset(offset),
+                db
+                    .select({ count: count() })
+                    .from(researchGoals)
+                    .where(and(...conditions, eq(researchGoals.isPinned, false))),
+                db
+                    .select()
+                    .from(researchGoals)
+                    .where(
+                        and(
+                            eq(researchGoals.userId, userId),
+                            eq(researchGoals.isAchieved, true),
+                            query ? ilike(researchGoals.name, `%${query}%`) : undefined,
+                            species && species !== 'all' ? eq(researchGoals.species, species) : undefined
+                        )
+                    )
+                    .orderBy(desc(researchGoals.updatedAt)),
+            ]);
 
-        const totalCountResult = await db
-            .select({ count: count() })
-            .from(researchGoals)
-            .where(and(...conditions, eq(researchGoals.isPinned, false)));
+        const pinnedGoals = pinnedGoalsRaw
+            .map((goal: any) => enrichAndSerializeGoal({ ...goal }, goal.goalMode))
+            .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
+
+        const unpinnedGoals = unpinnedGoalsRaw
+            .map((goal: any) => enrichAndSerializeGoal({ ...goal }, goal.goalMode))
+            .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
 
         const totalUnpinned = totalCountResult[0]?.count ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
-        const achievedGoalsRaw = await db
-            .select()
-            .from(researchGoals)
-            .where(
-                and(
-                    eq(researchGoals.userId, userId),
-                    eq(researchGoals.isAchieved, true),
-                    query ? ilike(researchGoals.name, `%${query}%`) : undefined,
-                    species && species !== 'all' ? eq(researchGoals.species, species) : undefined
-                )
-            )
-            .orderBy(desc(researchGoals.updatedAt));
-
         const achievedGoals = achievedGoalsRaw
-            .map((goal: any) => {
-                return enrichAndSerializeGoal({ ...goal }, goal.goalMode);
-            })
+            .map((goal: any) => enrichAndSerializeGoal({ ...goal }, goal.goalMode))
             .filter((g: EnrichedResearchGoal | null): g is EnrichedResearchGoal => g !== null);
 
         return {
             pinnedGoals: pinnedGoals as EnrichedResearchGoal[],
-            unpinnedGoals: unpinnedGoalsRaw as unknown as EnrichedResearchGoal[],
+            unpinnedGoals: unpinnedGoals as EnrichedResearchGoal[],
             achievedGoals: achievedGoals as EnrichedResearchGoal[],
             totalPages: totalPages as number,
         };
@@ -510,12 +484,7 @@ export async function fetchBreedingPairsWithStats(
     const { query, species, geneCategory, geneQuery, geneMode, showArchived } = searchParams;
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) return { pairs: [], totalPages: 0 };
-
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, userId),
-    });
-    const itemsPerPage = user?.pairsItemsPerPage ?? 10;
+    if (!userId) return { pinnedPairs: [], unpinnedPairs: [], totalPages: 0 };
 
     const maleCreatures = alias(creatures, 'male_creatures');
     const femaleCreatures = alias(creatures, 'female_creatures');
@@ -559,7 +528,7 @@ export async function fetchBreedingPairsWithStats(
         }
 
         if (!geneStrings || geneStrings.length === 0) {
-            return { pairs: [], totalPages: 0 };
+            return { pinnedPairs: [], unpinnedPairs: [], totalPages: 0 };
         }
 
         const geneConditions: SQL<unknown>[] = geneStrings.flatMap((str) => [
@@ -571,6 +540,16 @@ export async function fetchBreedingPairsWithStats(
     }
 
     try {
+        const userPromise = db.query.users.findFirst({
+            where: eq(users.id, userId),
+        });
+        const allUserGoalsPromise = db.query.researchGoals.findMany({
+            where: eq(researchGoals.userId, userId),
+        });
+
+        const [user, allUserGoals] = await Promise.all([userPromise, allUserGoalsPromise]);
+        const itemsPerPage = user?.pairsItemsPerPage ?? 10;
+
         const commonQuery = db
             .select({
                 pair: breedingPairs,
@@ -593,21 +572,36 @@ export async function fetchBreedingPairsWithStats(
                 )
             );
 
-        const pinnedResults = await commonQuery
-            .where(and(...conditions, eq(breedingPairs.isPinned, true)))
-            .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id));
-
-        const unpinnedResults = await commonQuery
-            .where(and(...conditions, eq(breedingPairs.isPinned, false)))
-            .orderBy(desc(breedingPairs.createdAt), desc(breedingPairs.id))
-            .limit(itemsPerPage)
-            .offset((currentPage - 1) * itemsPerPage);
+        const [pinnedResults, unpinnedResults, totalCountResult] = await Promise.all([
+            commonQuery
+                .where(and(...conditions, eq(breedingPairs.isPinned, true)))
+                .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id)),
+            commonQuery
+                .where(and(...conditions, eq(breedingPairs.isPinned, false)))
+                .orderBy(desc(breedingPairs.createdAt), desc(breedingPairs.id))
+                .limit(itemsPerPage)
+                .offset((currentPage - 1) * itemsPerPage),
+            db
+                .select({ value: count() })
+                .from(breedingPairs)
+                .leftJoin(
+                    maleCreatures,
+                    and(
+                        eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                        eq(breedingPairs.maleParentCode, maleCreatures.code)
+                    )
+                )
+                .leftJoin(
+                    femaleCreatures,
+                    and(
+                        eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                        eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                    )
+                )
+                .where(and(...conditions, eq(breedingPairs.isPinned, false))),
+        ]);
 
         const allResults = [...pinnedResults, ...unpinnedResults];
-
-        const allUserGoals = await db.query.researchGoals.findMany({
-            where: eq(researchGoals.userId, userId),
-        });
 
         const enrichedPairPromises = allResults.map(async (result) => {
             const pairWithParents = {
@@ -636,26 +630,8 @@ export async function fetchBreedingPairsWithStats(
         const enrichedPinnedPairs = allEnrichedPairs.filter((p) => p.isPinned);
         const enrichedUnpinnedPairs = allEnrichedPairs.filter((p) => !p.isPinned);
 
-        const totalCountResult = await db
-            .select({ value: count() })
-            .from(breedingPairs)
-            .leftJoin(
-                maleCreatures,
-                and(
-                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
-                    eq(breedingPairs.maleParentCode, maleCreatures.code)
-                )
-            )
-            .leftJoin(
-                femaleCreatures,
-                and(
-                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
-                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
-                )
-            )
-            .where(and(...conditions, eq(breedingPairs.isPinned, false)));
-
-        const totalPages = Math.ceil(totalCountResult[0].value / itemsPerPage);
+        const totalUnpinned = totalCountResult[0]?.value ?? 0;
+        const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
         return {
             pinnedPairs: enrichedPinnedPairs,
@@ -822,35 +798,40 @@ type ProlificPair = {
 } | null;
 
 export async function getHomepageStats(): Promise<HomepageStats> {
-    const [totalCreaturesResult, totalPairsResult, totalGoalsResult] = await Promise.all([
+    const [
+        totalCreaturesResult,
+        totalPairsResult,
+        totalGoalsResult,
+        popularSpeciesQuery,
+        prolificPairLogQuery,
+    ] = await Promise.all([
         db.select({ value: count() }).from(creatures),
         db.select({ value: count() }).from(breedingPairs),
         db.select({ value: count() }).from(researchGoals),
+        db
+            .select({
+                species: creatures.species,
+                count: sql<number>`count(${creatures.id})`.mapWith(Number).as('species_count'),
+            })
+            .from(creatures)
+            .where(isNotNull(creatures.species))
+            .groupBy(creatures.species)
+            .orderBy(desc(sql`species_count`))
+            .limit(1),
+        db
+            .select({
+                pairId: breedingLogEntries.pairId,
+                timesBred: sql<number>`count(${breedingLogEntries.id})`
+                    .mapWith(Number)
+                    .as('times_bred'),
+            })
+            .from(breedingLogEntries)
+            .where(isNotNull(breedingLogEntries.pairId))
+            .groupBy(breedingLogEntries.pairId)
+            .orderBy(desc(sql`times_bred`))
+            .limit(1),
     ]);
 
-    const popularSpeciesQuery = await db
-        .select({
-            species: creatures.species,
-            count: sql<number>`count(${creatures.id})`.mapWith(Number).as('species_count'),
-        })
-        .from(creatures)
-        .where(isNotNull(creatures.species))
-        .groupBy(creatures.species)
-        .orderBy(desc(sql`species_count`))
-        .limit(1);
-
-    const prolificPairLogQuery = await db
-        .select({
-            pairId: breedingLogEntries.pairId,
-            timesBred: sql<number>`count(${breedingLogEntries.id})`
-                .mapWith(Number)
-                .as('times_bred'),
-        })
-        .from(breedingLogEntries)
-        .where(isNotNull(breedingLogEntries.pairId))
-        .groupBy(breedingLogEntries.pairId)
-        .orderBy(desc(sql`times_bred`))
-        .limit(1);
     let prolificPair: ProlificPair = null;
     if (prolificPairLogQuery.length > 0) {
         const { pairId, timesBred } = prolificPairLogQuery[0];
@@ -921,18 +902,7 @@ export async function fetchAvailableCreaturesForGoal(
 
 // Make sure to import the new type
 
-// Helper to calculate total slots
-function calculateTotalSlots(targetGenes: { geneCount: number }[]): number {
-    if (!targetGenes || targetGenes.length === 0) {
-        return 0;
-    }
 
-    const geneTypeMap: Record<number, number> = { 1: 3, 2: 9, 3: 27 };
-
-    return targetGenes.reduce((total, gene) => {
-        return total * (geneTypeMap[gene.geneCount] || 1);
-    }, 1);
-}
 
 export async function getChecklists() {
     noStore();
@@ -951,7 +921,11 @@ export async function getChecklists() {
         const allCreatures = await getAllCreaturesForUser();
 
         return userChecklists.map((checklist) => {
-            const totalSlots = calculateTotalSlots(checklist.targetGenes as any);
+            const combinations = generatePhenotypeCombinations(
+                checklist.species,
+                checklist.targetGenes as any
+            );
+            const totalSlots = combinations.length;
             const assignments = checklist.assignments
                 ? typeof checklist.assignments === 'string'
                     ? JSON.parse(checklist.assignments)
@@ -961,10 +935,6 @@ export async function getChecklists() {
                 (val: any) => val !== null && val !== undefined
             ).length;
 
-            const combinations = generatePhenotypeCombinations(
-                checklist.species,
-                checklist.targetGenes
-            );
             let hasFulfillableCreatures = false;
 
             for (const combo of combinations) {
@@ -1023,7 +993,11 @@ export async function getChecklistById(id: string): Promise<EnrichedChecklist | 
             return null;
         }
 
-        const totalSlots = calculateTotalSlots(checklist.targetGenes);
+        const combinations = generatePhenotypeCombinations(
+            checklist.species,
+            checklist.targetGenes as any
+        );
+        const totalSlots = combinations.length;
         const filledSlots = checklist.assignments
             ? Object.values(
                   checklist.assignments as Record<

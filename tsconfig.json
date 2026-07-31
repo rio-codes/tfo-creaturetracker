@@ -3,7 +3,6 @@
         "ignoreDeprecations": "6.0",
         "allowImportingTsExtensions": true,
         "allowJs": true,
-        "baseUrl": ".",
         "esModuleInterop": true,
         "incremental": false,
         "isolatedModules": true,

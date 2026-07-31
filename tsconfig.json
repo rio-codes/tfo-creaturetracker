@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "ignoreDeprecations": "6.0",
         "allowImportingTsExtensions": true,
         "allowJs": true,
         "esModuleInterop": true,

@@ -604,23 +604,28 @@ export async function fetchBreedingPairsWithStats(
         const allResults = [...pinnedResults, ...unpinnedResults];
 
         const enrichedPairPromises = allResults.map(async (result) => {
-            const pairWithParents = {
-                ...result.pair,
-                maleParent: result.maleParent,
-                femaleParent: result.femaleParent,
-            };
+            try {
+                const pairWithParents = {
+                    ...result.pair,
+                    maleParent: result.maleParent,
+                    femaleParent: result.femaleParent,
+                };
 
-            const assignedGoalsForPair = allUserGoals.filter((goal) =>
-                pairWithParents.assignedGoalIds?.includes(goal.id)
-            );
+                const assignedGoalsForPair = allUserGoals.filter((goal) =>
+                    pairWithParents.assignedGoalIds?.includes(goal.id)
+                );
 
-            return enrichAndSerializeBreedingPair(
-                {
-                    ...pairWithParents,
-                    assignedGoals: assignedGoalsForPair.map((goal) => ({ goal })),
-                } as any,
-                userId
-            );
+                return await enrichAndSerializeBreedingPair(
+                    {
+                        ...pairWithParents,
+                        assignedGoals: assignedGoalsForPair.map((goal) => ({ goal })),
+                    } as any,
+                    userId
+                );
+            } catch (err) {
+                console.error(`Failed to enrich breeding pair ${result?.pair?.id}:`, err);
+                return null;
+            }
         });
 
         const allEnrichedPairs = (await Promise.all(enrichedPairPromises)).filter(

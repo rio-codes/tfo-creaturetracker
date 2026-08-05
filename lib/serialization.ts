@@ -118,15 +118,21 @@ export const enrichAndSerializeBreedingPair = async (
         where: and(eq(breedingLogEntries.userId, userId), eq(breedingLogEntries.pairId, pair.id)),
     });
 
-    const progenyKeys = new Set<{ userId: string; code: string }>();
+    const progenyKeyMap = new Map<string, { userId: string; code: string }>();
     relevantLogs.forEach((log) => {
-        if (log.progeny1UserId && log.progeny1Code)
-            progenyKeys.add({ userId: log.progeny1UserId, code: log.progeny1Code });
-        if (log.progeny2UserId && log.progeny2Code)
-            progenyKeys.add({ userId: log.progeny2UserId, code: log.progeny2Code });
+        if (log.progeny1UserId && log.progeny1Code) {
+            const k = `${log.progeny1UserId}:${log.progeny1Code}`;
+            progenyKeyMap.set(k, { userId: log.progeny1UserId, code: log.progeny1Code });
+        }
+        if (log.progeny2UserId && log.progeny2Code) {
+            const k = `${log.progeny2UserId}:${log.progeny2Code}`;
+            progenyKeyMap.set(k, { userId: log.progeny2UserId, code: log.progeny2Code });
+        }
     });
 
-    const progenyQueryConditions = Array.from(progenyKeys).map((key) =>
+    const uniqueProgenyKeys = Array.from(progenyKeyMap.values());
+
+    const progenyQueryConditions = uniqueProgenyKeys.map((key) =>
         and(eq(creatures.userId, key.userId), eq(creatures.code, key.code))
     );
 
@@ -140,14 +146,13 @@ export const enrichAndSerializeBreedingPair = async (
 
     const assignedGoalsFromPair = pair.assignedGoals?.map((ag) => ag.goal) || [];
 
-    const progenyCompositeKeys = Array.from(progenyKeys);
     const achievedGoalIdsForPair =
-        progenyCompositeKeys.length > 0
+        uniqueProgenyKeys.length > 0
             ? new Set(
                   (
                       await db.query.achievedGoals.findMany({
                           where: or(
-                              ...progenyCompositeKeys.map((key) =>
+                              ...uniqueProgenyKeys.map((key) =>
                                   and(
                                       eq(achievedGoals.matchingProgenyUserId, key.userId),
                                       eq(achievedGoals.matchingProgenyCode, key.code)

@@ -84,13 +84,37 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
+        const existingPairName = await db.query.breedingPairs.findFirst({
+            where: and(
+                eq(breedingPairs.userId, userId),
+                eq(breedingPairs.pairName, pairName)
+            ),
+        });
+
+        if (existingPairName) {
+            return NextResponse.json(
+                { error: 'A breeding pair with this name already exists.' },
+                { status: 409 }
+            );
+        }
+
         const existingPair = await db.query.breedingPairs.findFirst({
             where: and(
                 eq(breedingPairs.userId, userId),
-                eq(breedingPairs.maleParentUserId, maleParentUserId),
-                eq(breedingPairs.maleParentCode, maleParentCode),
-                eq(breedingPairs.femaleParentUserId, femaleParentUserId),
-                eq(breedingPairs.femaleParentCode, femaleParentCode)
+                or(
+                    and(
+                        eq(breedingPairs.maleParentUserId, maleParentUserId),
+                        eq(breedingPairs.maleParentCode, maleParentCode),
+                        eq(breedingPairs.femaleParentUserId, femaleParentUserId),
+                        eq(breedingPairs.femaleParentCode, femaleParentCode)
+                    ),
+                    and(
+                        eq(breedingPairs.maleParentUserId, femaleParentUserId),
+                        eq(breedingPairs.maleParentCode, femaleParentCode),
+                        eq(breedingPairs.femaleParentUserId, maleParentUserId),
+                        eq(breedingPairs.femaleParentCode, maleParentCode)
+                    )
+                )
             ),
         });
 

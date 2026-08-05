@@ -273,6 +273,7 @@ export function AddPairForm({ baseCreature, initialGoal, onSuccess }: AddPairFor
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isLoading) return;
         if (!selectedMale || !selectedFemale) {
             setError(`Both a male and a female parent must be selected.`);
             return;

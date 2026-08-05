@@ -152,6 +152,9 @@ export function SetGenerationDialog({ creature, children }: SetGenerationDialogP
                                 <SelectItem value="raffle" disabled={!isG1}>
                                     Raffle
                                 </SelectItem>
+                                <SelectItem value="npc-swap" disabled={!isG1}>
+                                    NPC Swap
+                                </SelectItem>
                                 <SelectItem value="another-lab">Another Lab</SelectItem>
                             </SelectContent>
                         </Select>

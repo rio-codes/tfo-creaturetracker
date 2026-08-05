@@ -320,6 +320,7 @@ export function CollectionClient({
         'another-lab',
         'quest',
         'raffle',
+        'npc-swap',
     ];
 
     return (
@@ -407,9 +408,11 @@ export function CollectionClient({
                                 <select.SelectItem value="all">All Origins</select.SelectItem>
                                 {origins.map((origin) => (
                                     <select.SelectItem key={origin} value={origin}>
-                                        {origin
-                                            .replace(/-/g, ' ')
-                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                        {origin === 'npc-swap'
+                                            ? 'NPC Swap'
+                                            : origin
+                                                  .replace(/-/g, ' ')
+                                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
                                     </select.SelectItem>
                                 ))}
                             </select.SelectContent>

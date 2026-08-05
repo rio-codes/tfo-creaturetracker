@@ -11,7 +11,7 @@ import { updateDescendantGenerations } from '@/lib/creature-utils';
 const updateGenerationSchema = z.object({
     generation: z.number().int().positive().default(1),
     origin: z
-        .enum(['unknown', 'cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle'])
+        .enum(['unknown', 'cupboard', 'genome-splicer', 'another-lab', 'quest', 'raffle', 'npc-swap'])
         .nullable(),
 });
 

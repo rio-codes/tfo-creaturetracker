@@ -469,6 +469,7 @@ export function CreatureCard({ creature, currentUser, isAdminView = false }: Cre
                                 {creature.origin === 'cupboard' && <span>{'Cupboard'}</span>}
                                 {creature.origin === 'quest' && <span>{'Quest'}</span>}
                                 {creature.origin === 'raffle' && <span>{'Raffle'}</span>}
+                                {creature.origin === 'npc-swap' && <span>{'NPC Swap'}</span>}
                                 {creature.origin === 'genome-splicer' && (
                                     <span>{'Genome Splicer'}</span>
                                 )}

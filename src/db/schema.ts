@@ -273,6 +273,7 @@ export const creatureOriginEnum = pgEnum('origin', [
     'another-lab',
     'quest',
     'raffle',
+    'npc-swap',
     'unknown',
     'bred',
 ]);

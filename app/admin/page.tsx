@@ -91,7 +91,6 @@ async function getMetrics(): Promise<Metrics> {
 
 const getRandomCreature = cache(
     async () => {
-        let randomCreature = null;
         const randomPair = await db.query.breedingPairs.findFirst({
             orderBy: sql`RANDOM()`,
             where: and(
@@ -158,7 +157,7 @@ const getRandomCreature = cache(
             for (let i = 0; i < 5; i++) {
                 randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            randomCreature = {
+            const randomCreature = {
                 image: imageUrl,
                 species: randomPair.species,
                 code: randomCode,

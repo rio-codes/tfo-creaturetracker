@@ -21,7 +21,7 @@ export function constructTfoImageUrl(
     const baseUrl = 'https://finaloutpost.net/ln';
 
     const genderGenotype = genderInput?.toUpperCase();
-    let gender = '';
+    let gender: string;
     if (genderGenotype === 'F' || genderGenotype === 'FEMALE') {
         gender = 'female';
     } else if (genderGenotype === 'M' || genderGenotype === 'MALE') {

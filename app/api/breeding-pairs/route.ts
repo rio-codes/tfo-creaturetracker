@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/src/db';
 import { breedingPairs, creatures, researchGoals } from '@/src/db/schema';
 import { z } from 'zod';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hasObscenity } from '@/lib/obscenity';
 import { validatePairing } from '@/lib/breeding-rules-client';
@@ -24,12 +24,15 @@ const createPairSchema = z.object({
 export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
+        console.warn('[BREEDING_PAIRS][POST] Unauthenticated attempt to create pair.');
         return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
     const userId = session.user.id;
 
     try {
         const body = await req.json();
+        console.log(`[BREEDING_PAIRS][POST] Received request for userId=${userId}:`, JSON.stringify(body));
+
         const validatedFields = createPairSchema.safeParse(body);
 
         if (!validatedFields.success) {
@@ -37,7 +40,7 @@ export async function POST(req: Request) {
             const errorMessage = Object.values(fieldErrors)
                 .flatMap((errors) => errors)
                 .join(' ');
-            console.error('Zod Validation Failed:', fieldErrors);
+            console.error(`[BREEDING_PAIRS][POST] Validation failed for userId=${userId}:`, fieldErrors);
             return NextResponse.json({ error: errorMessage || 'Invalid input.' }, { status: 400 });
         }
 
@@ -51,6 +54,7 @@ export async function POST(req: Request) {
         } = validatedFields.data;
 
         if (hasObscenity(pairName)) {
+            console.warn(`[BREEDING_PAIRS][POST] Obscenity detected in pairName="${pairName}" for userId=${userId}`);
             return NextResponse.json(
                 { error: 'The provided name contains inappropriate language.' },
                 { status: 400 }
@@ -73,6 +77,7 @@ export async function POST(req: Request) {
         ]);
 
         if (!maleParent || !femaleParent) {
+            console.warn(`[BREEDING_PAIRS][POST] Parent missing. Male found: ${!!maleParent}, Female found: ${!!femaleParent}`);
             return NextResponse.json(
                 { error: 'One or both selected parents could not be found.' },
                 { status: 404 }
@@ -81,6 +86,7 @@ export async function POST(req: Request) {
 
         const pairingValidation = validatePairing(maleParent, femaleParent);
         if (!pairingValidation.isValid) {
+            console.warn(`[BREEDING_PAIRS][POST] Invalid pairing for userId=${userId}: ${pairingValidation.error}`);
             return NextResponse.json({ error: pairingValidation.error }, { status: 400 });
         }
 
@@ -92,6 +98,7 @@ export async function POST(req: Request) {
         });
 
         if (existingPairName) {
+            console.warn(`[BREEDING_PAIRS][POST] Duplicate pair name "${pairName}" for userId=${userId}`);
             return NextResponse.json(
                 { error: 'A breeding pair with this name already exists.' },
                 { status: 409 }
@@ -119,6 +126,7 @@ export async function POST(req: Request) {
         });
 
         if (existingPair) {
+            console.warn(`[BREEDING_PAIRS][POST] Duplicate parent pair found (pairId=${existingPair.id}) for userId=${userId}`);
             return NextResponse.json(
                 { error: 'A breeding pair with these parents already exists.' },
                 { status: 409 }
@@ -138,6 +146,8 @@ export async function POST(req: Request) {
                 assignedGoalIds: assignedGoalIds || [],
             })
             .returning();
+
+        console.log(`[BREEDING_PAIRS][POST] Created new breeding pair: id=${newPair.id}, name="${newPair.pairName}", userId=${userId}`);
 
         if (assignedGoalIds && assignedGoalIds.length > 0) {
             const goalsToUpdate = await db.query.researchGoals.findMany({
@@ -170,7 +180,7 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
-        console.error('Failed to create breeding pair:', error);
+        console.error('[BREEDING_PAIRS][POST] Error creating breeding pair:', error);
         return NextResponse.json(
             { error: error.message || 'An internal error occurred.' },
             { status: 500 }

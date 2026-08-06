@@ -41,6 +41,6 @@ export async function createNotification(payload: NotificationPayload) {
         return newNotification;
     } catch (error) {
         console.error('Error creating notification:', error);
-        throw new Error('Could not create notification.');
+        throw new Error('Could not create notification.', { cause: error });
     }
 }

@@ -6,12 +6,10 @@ import { breedingPairs } from '@/src/db/schema';
 import { enrichAndSerializeCreature } from '@/lib/serialization';
 import { calculateBreedingOutcomes } from '@/lib/genetics';
 import { constructTfoImageUrl } from '@/lib/tfo-utils';
-import { fetchAndUploadWithRetry } from '@/lib/data';
 import { unstable_cache as cache } from 'next/cache';
 
 const getRandomCreature = cache(
     async () => {
-        let randomCreature = null;
         const randomPair = await db.query.breedingPairs.findFirst({
             orderBy: sql`RANDOM()`,
             where: and(
@@ -81,7 +79,7 @@ const getRandomCreature = cache(
             for (let i = 0; i < 5; i++) {
                 randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            randomCreature = {
+            const randomCreature = {
                 image: imageUrl,
                 species: randomPair.species,
                 code: randomCode,

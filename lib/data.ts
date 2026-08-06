@@ -550,33 +550,36 @@ export async function fetchBreedingPairsWithStats(
         const [user, allUserGoals] = await Promise.all([userPromise, allUserGoalsPromise]);
         const itemsPerPage = user?.pairsItemsPerPage ?? 10;
 
-        const commonQuery = db
-            .select({
-                pair: breedingPairs,
-                maleParent: maleCreatures,
-                femaleParent: femaleCreatures,
-            })
-            .from(breedingPairs)
-            .leftJoin(
-                maleCreatures,
-                and(
-                    eq(breedingPairs.maleParentUserId, maleCreatures.userId),
-                    eq(breedingPairs.maleParentCode, maleCreatures.code)
+        console.log(`[BREEDING_PAIRS][FETCH] Fetching for userId=${userId}, page=${currentPage}, itemsPerPage=${itemsPerPage}`);
+
+        const getCommonQuery = () =>
+            db
+                .select({
+                    pair: breedingPairs,
+                    maleParent: maleCreatures,
+                    femaleParent: femaleCreatures,
+                })
+                .from(breedingPairs)
+                .leftJoin(
+                    maleCreatures,
+                    and(
+                        eq(breedingPairs.maleParentUserId, maleCreatures.userId),
+                        eq(breedingPairs.maleParentCode, maleCreatures.code)
+                    )
                 )
-            )
-            .leftJoin(
-                femaleCreatures,
-                and(
-                    eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
-                    eq(breedingPairs.femaleParentCode, femaleCreatures.code)
-                )
-            );
+                .leftJoin(
+                    femaleCreatures,
+                    and(
+                        eq(breedingPairs.femaleParentUserId, femaleCreatures.userId),
+                        eq(breedingPairs.femaleParentCode, femaleCreatures.code)
+                    )
+                );
 
         const [pinnedResults, unpinnedResults, totalCountResult] = await Promise.all([
-            commonQuery
+            getCommonQuery()
                 .where(and(...conditions, eq(breedingPairs.isPinned, true)))
                 .orderBy(breedingPairs.pinOrder, desc(breedingPairs.createdAt), desc(breedingPairs.id)),
-            commonQuery
+            getCommonQuery()
                 .where(and(...conditions, eq(breedingPairs.isPinned, false)))
                 .orderBy(desc(breedingPairs.createdAt), desc(breedingPairs.id))
                 .limit(itemsPerPage)
@@ -601,6 +604,8 @@ export async function fetchBreedingPairsWithStats(
                 .where(and(...conditions, eq(breedingPairs.isPinned, false))),
         ]);
 
+        console.log(`[BREEDING_PAIRS][FETCH] DB results for userId=${userId}: pinnedCount=${pinnedResults.length}, unpinnedCount=${unpinnedResults.length}, totalUnpinned=${totalCountResult[0]?.value ?? 0}`);
+
         const allResults = [...pinnedResults, ...unpinnedResults];
 
         const enrichedPairPromises = allResults.map(async (result) => {
@@ -623,7 +628,7 @@ export async function fetchBreedingPairsWithStats(
                     userId
                 );
             } catch (err) {
-                console.error(`Failed to enrich breeding pair ${result?.pair?.id}:`, err);
+                console.error(`[BREEDING_PAIRS][FETCH] Failed to enrich breeding pair ${result?.pair?.id}:`, err);
                 return null;
             }
         });
@@ -638,13 +643,15 @@ export async function fetchBreedingPairsWithStats(
         const totalUnpinned = totalCountResult[0]?.value ?? 0;
         const totalPages = Math.ceil(totalUnpinned / itemsPerPage);
 
+        console.log(`[BREEDING_PAIRS][FETCH] Final enriched count for userId=${userId}: pinned=${enrichedPinnedPairs.length}, unpinned=${enrichedUnpinnedPairs.length}, totalPages=${totalPages}`);
+
         return {
             pinnedPairs: enrichedPinnedPairs,
             unpinnedPairs: enrichedUnpinnedPairs,
             totalPages,
         };
     } catch (error) {
-        console.error(error);
+        console.error('[BREEDING_PAIRS][FETCH] Error fetching breeding pairs:', error);
         return { pinnedPairs: [], unpinnedPairs: [], totalPages: 0 };
     }
 }
@@ -746,7 +753,7 @@ export async function fetchAndUploadWithRetry(
         } catch (error) {
             console.error(error);
             if (attempt === retries) {
-                throw new Error(`All ${retries} attempts failed for ${referenceId}.`);
+                throw new Error(`All ${retries} attempts failed for ${referenceId}.`, { cause: error });
             }
             await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
         }
@@ -975,7 +982,7 @@ export async function getChecklists() {
         });
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch checklists.');
+        throw new Error('Failed to fetch checklists.', { cause: error });
     }
 }
 
@@ -1025,6 +1032,6 @@ export async function getChecklistById(id: string): Promise<EnrichedChecklist | 
         };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch checklist.');
+        throw new Error('Failed to fetch checklist.', { cause: error });
     }
 }
